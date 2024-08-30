@@ -1,8 +1,13 @@
 click()
 {
-    echo click:$1,$2,1,30 >$PIPE
-    echo click:$1,$2,1,30
-    sleep 0.04
+    if [ $USE_IP -eq 1 ] ; then
+ 	  raw_data="$(curl --silent http://localhost:$PIPE/v1/click:$1,$2)"
+ 	  get_rgb $1 $2 
+    else
+    	echo click:$1,$2,1,30 >$PIPE
+    	echo click:$1,$2,1,30
+    	sleep 0.04
+    fi
 }
 
 motion()
@@ -43,10 +48,17 @@ get_rgb()
         echo "Got count $# '$@'" 
         exit 1
     fi
-    printf "color:$1,$2\n" >$PIPE
-    sleep 0.75
-    values="$(tail -n 1 ${PIPE}.sh | sed "s/.*color://")"
-    rgb=($(echo $values |cut -d ',' -f 3) $(echo $values |cut -d ',' -f 4) $(echo $values |cut -d ',' -f 5))
+    if [ $USE_IP -eq 1 ] ; then
+ 	    raw_data="$(curl --silent http://localhost:$PIPE/v1/color:$x,$y)"
+        echo $raw_data
+ 	    rgb=($(echo "$raw_data" | jq -r '.red') $(echo "$raw_data" | jq -r '.green')  $(echo "$raw_data" | jq -r '.blue'))
+    else
+    	printf "color:$1,$2\n" >$PIPE
+    
+    	sleep 0.75
+    	values="$(tail -n 1 ${PIPE}.sh | sed "s/.*color://")"
+    	rgb=($(echo $values |cut -d ',' -f 3) $(echo $values |cut -d ',' -f 4) $(echo $values |cut -d ',' -f 5))
+    fi
     echo RGB ${rgb[@]}
 }
 
@@ -166,3 +178,14 @@ back_home()
     done
 }
 
+if [ $# -ne 1 ]; then
+    echo give pipe arg
+    exit 1
+fi
+
+export PIPE="$1"
+export PORT="$1"
+
+USE_IP=0
+echo $PIPE | grep --silent "/tmp" || USE_IP=1
+echo Use IP : $USE_IP

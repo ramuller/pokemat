@@ -1,12 +1,5 @@
 #!/bin/bash
 
-if [ $# -ne 1 ]; then
-    echo give pipe arg
-    exit 1
-fi
-
-export PIPE="$1"
-
 source poke-lib.sh
 
 fight()
@@ -26,7 +19,7 @@ fight()
             # check_color 285 182 5 5 5 5 || return
             for (( y = 370; y < 777; y += 130 ))
             do
-                sleep 0.15
+                # sleep 0.15
                 click $x $y
             done
             click 260 821 1

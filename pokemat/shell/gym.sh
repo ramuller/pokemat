@@ -32,7 +32,7 @@ for (( i = 0; i < 3; i++ )); do
     check_color 528 840 231 244 233 15 || exit 1
     click 528 840
 
-    wait_color 189 399 137 218 154 10 || exit 1
+    wait_color 189 399 137 218 154 10 100 || exit 1
     click 189 399
 
     battle
