@@ -1,10 +1,10 @@
 click()
 {
     if [ $USE_IP -eq 1 ] ; then
- 	  raw_data="$(curl --silent http://localhost:$PIPE/v1/click:$1,$2)"
+ 	  raw_data="$(curl --silent http://localhost:$PORT/v1/click:$1,$2)"
  	  get_rgb $1 $2 
     else
-    	echo click:$1,$2,1,30 >$PIPE
+    	echo click:$1,$2,1,30 >$PORT
     	echo click:$1,$2,1,30
     	sleep 0.04
     fi
@@ -12,23 +12,35 @@ click()
 
 motion()
 {
-    echo motion:$1,$2 >$PIPE
     echo motion:$1,$2
+    if [ $USE_IP -eq 1 ] ; then
+       curl --silent http://localhost:$PORT/v1/motion:$1,$2 
+    else
+        echo motion:$1,$2 >$PORT
+    fi
 }
 
 button_up()
 {
-    echo button_up:$1,$2,1,50 >$PIPE
+    if [ $USE_IP -eq 1 ] ; then
+        curl --silent http://localhost:$PORT/v1/button_up:$1,$2,1,50
+    else
+        echo button_up:$1,$2,1,50 >$PORT
+    fi
 }
 
 button_down()
 {
-    echo button_down:$1,$2,1,50 >$PIPE 
+    if [ $USE_IP -eq 1 ] ; then
+        curl --silent http://localhost:$PORT/v1/button_down:$1,$2,1,50
+    else
+        echo button_down:$1,$2,1,50 >$PORT
+    fi
 }
 
 start_trade()
 {
-    click 494,849 >$PIPE
+    click 494,849
 }
 
 get_friend()
@@ -49,11 +61,11 @@ get_rgb()
         exit 1
     fi
     if [ $USE_IP -eq 1 ] ; then
- 	    raw_data="$(curl --silent http://localhost:$PIPE/v1/color:$x,$y)"
-        echo $raw_data
+ 	    raw_data="$(curl --silent http://localhost:$PORT/v1/color:$x,$y)"
+        [ -n "$DEBUG" ] || echo $raw_data
  	    rgb=($(echo "$raw_data" | jq -r '.red') $(echo "$raw_data" | jq -r '.green')  $(echo "$raw_data" | jq -r '.blue'))
     else
-    	printf "color:$1,$2\n" >$PIPE
+    	printf "color:$1,$2\n" >$PORT
     
     	sleep 0.75
     	values="$(tail -n 1 ${PIPE}.sh | sed "s/.*color://")"
@@ -183,9 +195,9 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-export PIPE="$1"
+export PORT="$1"
 export PORT="$1"
 
 USE_IP=0
-echo $PIPE | grep --silent "/tmp" || USE_IP=1
+echo $PORT | grep --silent "/tmp" || USE_IP=1
 echo Use IP : $USE_IP

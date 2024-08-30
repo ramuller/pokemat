@@ -5,7 +5,7 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-export PIPE="$1"
+export PORT="$1"
 
 source poke-lib.sh
 
@@ -13,7 +13,7 @@ receive_gift()
 {
     if [ "$open_limit_reached" != "true" ]; then
         printf "############# Open gift"
-        printf "click:250,831,1,200\n" | tee $PIPE
+        printf "click:250,831,1,200\n" | tee $PORT
         ## gift-send:color:218,831,0xFF,0xD0,0xF9
         ## gift-send:color:218,831,255,208,249
         # sleep 1
@@ -25,12 +25,12 @@ receive_gift()
         sleep 2
         if check_color 150 519 232 128 181 10 ; then
             echo Limit reached
-            printf "click:290,945,3,200\n" | tee $PIPE
+            printf "click:290,945,3,200\n" | tee $PORT
             sleep 1
             no_gift="true"
             open_limit_reached="true"
         else
-            printf "click:291,853,1,200\n" | tee $PIPE
+            printf "click:291,853,1,200\n" | tee $PORT
             sleep 1
             for (( i = 0; i < 10; i ++)); do
                 click 165 885
@@ -61,7 +61,7 @@ wait_friend_page()
         #    echo Takes too long try on stup up
         # fi
         # click friends
-        # printf "click:291,100,1,200\n" | tee $PIPE
+        # printf "click:291,100,1,200\n" | tee $PORT
         echo Wait for tainer screen
         sleep 0.5
     done
@@ -72,12 +72,12 @@ friends_page()
 {
     echo Go to friend page
     # click avatar
-    printf "click:75,925,1,200\n" | tee $PIPE
+    printf "click:75,925,1,200\n" | tee $PORT
     sleep 3
     # click friends
-    printf "click:291,100,1,200\n" | tee $PIPE
+    printf "click:291,100,1,200\n" | tee $PORT
     sleep 0.5
-    printf "click:291,100,1,200\n" | tee $PIPE
+    printf "click:291,100,1,200\n" | tee $PORT
     ## gift-s7:color:75,925,0x1A,0x13,0x0A
     # don't wait forever
     timeout=10
@@ -90,16 +90,16 @@ gift_cycle()
     # Search trainer
     # type dela
     # if check_color 515 244 12 202 165 5
-    # printf "click:470,239,1,200\n" | tee $PIPE
-    printf "click:350,239,1,200\n" | tee $PIPE
+    # printf "click:470,239,1,200\n" | tee $PORT
+    printf "click:350,239,1,200\n" | tee $PORT
     sleep 3
-    echo "key:\b" | tee $PIPE
-    echo "key:\b" | tee $PIPE
-    echo "key:\b" | tee $PIPE
-    echo "key:\b" | tee $PIPE
-    echo "key:\!" | tee $PIPE
-    echo "key:f" | tee $PIPE
-    echo "key:f" | tee $PIPE
+    echo "key:\b" | tee $PORT
+    echo "key:\b" | tee $PORT
+    echo "key:\b" | tee $PORT
+    echo "key:\b" | tee $PORT
+    echo "key:\!" | tee $PORT
+    echo "key:f" | tee $PORT
+    echo "key:f" | tee $PORT
     sleep 0.5
     click 490 582
     sleep 1
@@ -117,7 +117,7 @@ gift_cycle()
     
     echo Send gift
     sleep 1
-    printf "click:117,862,1,200\n" | tee $PIPE
+    printf "click:117,862,1,200\n" | tee $PORT
     ## gift-s7:color:117,862,0xF6,0xD0,0x68
     sleep 2
     echo Check if not gift can be send
@@ -142,16 +142,16 @@ gift_cycle()
 
 sort_has_gifts()
 {
-    printf "click:497,945,1,100\n" | tee $PIPE
+    printf "click:497,945,1,100\n" | tee $PORT
     sleep 1
-    printf "click:501,739,1,100\n" | tee $PIPE
+    printf "click:501,739,1,100\n" | tee $PORT
     sleep 1
     if ! check_color 542 952 31 134 115 5
     then
         echo arrow up
-        printf "click:497,945,1,100\n" | tee $PIPE
+        printf "click:497,945,1,100\n" | tee $PORT
         sleep 1
-        printf "click:501,739,1,100\n" | tee $PIPE
+        printf "click:501,739,1,100\n" | tee $PORT
         sleep 1
     fi
     echo Sort has date
@@ -159,16 +159,16 @@ sort_has_gifts()
 
 sort_can_receive()
 {
-    printf "click:497,945,1,100\n" | tee $PIPE
+    printf "click:497,945,1,100\n" | tee $PORT
     sleep 1
-    printf "click:501,839,1,100\n" | tee $PIPE
+    printf "click:501,839,1,100\n" | tee $PORT
     sleep 1
     if ! check_color 542 952 31 134 115 5
     then
         echo arrow up
-        printf "click:497,945,1,100\n" | tee $PIPE
+        printf "click:497,945,1,100\n" | tee $PORT
         sleep 1
-        printf "click:501,839,1,100\n" | tee $PIPE
+        printf "click:501,839,1,100\n" | tee $PORT
         sleep 1
     fi
     echo Sort has date

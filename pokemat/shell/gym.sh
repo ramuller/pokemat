@@ -5,7 +5,7 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-export PIPE="$1"
+export PORT="$1"
 
 source poke-lib.sh
 
@@ -22,14 +22,14 @@ battle()
             click $x 898
             click $x 898
             check_color 528 840 231 244 233 15 1 && return 
-            # sleep 0.2
+            sleep 0.1
         done
         
     done
 }
 
-for (( i = 0; i < 3; i++ )); do
-    check_color 528 840 231 244 233 15 || exit 1
+for (( i = 0; i < 30; i++ )); do
+    check_color 528 840 231 244 233 15 100 || exit 1
     click 528 840
 
     wait_color 189 399 137 218 154 10 100 || exit 1

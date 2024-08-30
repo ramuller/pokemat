@@ -5,7 +5,7 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-export PIPE="$1"
+export PORT="$1"
 
 source poke-lib.sh
 
