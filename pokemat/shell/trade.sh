@@ -7,15 +7,16 @@ fi
 
 export PORT="$1"
 
-export PIPES="$1 $2"
+export PORTS=($1 $2)
 
 source poke-lib.sh
 
+traded=1
 
 while true
 do
 
-    for PIPE in $PORTS
+    for PORT in ${PORTS[*]}
     do
         timeout=10
         echo "Waiting for select screen on $PORT"
@@ -36,7 +37,7 @@ do
         click 494 849 250
     done
 
-    for PIPE in $PORTS
+    for PORT in ${PORTS[*]}
     do
         timeout=10
         echo "Waiting for trading screen on $PORT"
@@ -50,20 +51,25 @@ do
             fi
         done
     done
-    sleep 2
-    for PIPE in $PORTS
+    sleep 3
+    for PORT in ${PORTS[*]}
     do
-        click 104 357 250
-        sleep 1
-        click 104 357 250
+        click 104 340 200
     done
 
-    for PIPE in $PORTS
+    for PORT in ${PORTS[*]}
     do
         timeout=10
         echo "Waiting for send OK on $PORT"
         while ! check_color 199 838 150 218 149 20
         do
+            echo "click again"
+            p=$PORT
+            for PORT in ${PORTS[*]}
+            do
+                click 104 357 200
+            done
+            PORT=$p
             timeout=$(( timeout - 1 ))
             echo "Countdown $timeout"
             if [ $timeout -le 0 ]; then
@@ -75,7 +81,7 @@ do
         click 199 838 250
     done
 
-    for PIPE in $PORTS
+    for PORT in ${PORTS[*]}
     do
         timeout=10
         echo "Waiting for send NEXT on $PORT"
@@ -93,7 +99,7 @@ do
     done
 
 
-    for PIPE in $PORTS
+    for PORT in ${PORTS[*]}
     do
         timeout=10
         echo "Waiting for trade complete on $PORT"
@@ -113,5 +119,8 @@ do
         sleep 1
         click 301 946 250
     done
+    echo "Traded pokemons : $traded"
+    traded=$(( traded + 1 ))
     sleep 1
+    # exit 0
 done
