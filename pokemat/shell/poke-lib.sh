@@ -192,10 +192,8 @@ back_home()
 
 if [ $# -ne 1 ]; then
     echo give pipe arg
-    exit 1
 fi
 
-export PORT="$1"
 export PORT="$1"
 
 USE_IP=0
