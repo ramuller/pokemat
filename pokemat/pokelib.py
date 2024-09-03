@@ -14,8 +14,8 @@ class TouchScreen:
     maxX = 1000
     maxY = 2000
 
-    def __init__(self, tcpPort, scaleX = 0.576, scaleY = 0.512):
-        self.log = logging.getLogger("pokelib")
+    def __init__(self, tcpPort, name = "unknown", scaleX = 0.576, scaleY = 0.512):
+        self.log = logging.getLogger(name)
         self.log.info("Pokemat phone : {}".format(tcpPort))
         self.url = "http://localhost:{}/v1".format(tcpPort)
         self.scaleX = scaleX
