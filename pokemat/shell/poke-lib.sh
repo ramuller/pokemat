@@ -20,6 +20,15 @@ motion()
     fi
 }
 
+key()
+{
+    if [ $USE_IP -eq 1 ] ; then
+        curl --silent http://localhost:$PORT/v1/key:$1
+    else
+        echo "key:$1" >$PORT
+    fi
+}
+
 button_up()
 {
     if [ $USE_IP -eq 1 ] ; then
@@ -62,16 +71,16 @@ get_rgb()
     fi
     if [ $USE_IP -eq 1 ] ; then
  	    raw_data="$(curl --silent http://localhost:$PORT/v1/color:$x,$y)"
-        [ -n "$DEBUG" ] || echo $raw_data
+        [ -z "$DEBUG" ] || echo $raw_data
  	    rgb=($(echo "$raw_data" | jq -r '.red') $(echo "$raw_data" | jq -r '.green')  $(echo "$raw_data" | jq -r '.blue'))
     else
     	printf "color:$1,$2\n" >$PORT
     
     	sleep 0.75
-    	values="$(tail -n 1 ${PIPE}.sh | sed "s/.*color://")"
+    	values="$(tail -n 1 ${PORT}.sh | sed "s/.*color://")"
     	rgb=($(echo $values |cut -d ',' -f 3) $(echo $values |cut -d ',' -f 4) $(echo $values |cut -d ',' -f 5))
     fi
-    echo RGB ${rgb[@]}
+    [ -z "$DEBUG" ] ||echo RGB ${rgb[@]}
 }
 
 check_color()

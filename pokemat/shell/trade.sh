@@ -18,7 +18,7 @@ do
 
     for PORT in ${PORTS[*]}
     do
-        timeout=10
+        timeout=100
         echo "Waiting for select screen on $PORT"
         while ! check_color 301 946 28 135 149 16
         do
@@ -33,13 +33,17 @@ do
                 exit 1
             fi
         done
-        
-        click 494 849 250
+        # click 494 849 250
+    done
+    sleep 1
+	for PORT in ${PORTS[*]}
+    do
+    	click 494 849 250
     done
 
     for PORT in ${PORTS[*]}
     do
-        timeout=10
+        timeout=100
         echo "Waiting for trading screen on $PORT"
         while ! check_color 115 182 233 243 223 16
         do
@@ -59,7 +63,7 @@ do
 
     for PORT in ${PORTS[*]}
     do
-        timeout=10
+        timeout=100
         echo "Waiting for send OK on $PORT"
         while ! check_color 199 838 150 218 149 20
         do
@@ -77,13 +81,17 @@ do
                 exit 1
             fi
         done
-        sleep 1
-        click 199 838 250
+        # sleep 1
+        # click 199 838 250
     done
-
+    sleep 0.5
+	for PORT in ${PORTS[*]}
+    do
+       click 199 838 250
+	done
     for PORT in ${PORTS[*]}
     do
-        timeout=10
+        timeout=100
         echo "Waiting for send NEXT on $PORT"
         while ! check_color 11 521 105 208 146 20
         do
@@ -94,14 +102,18 @@ do
                 exit 1
             fi
         done
-        sleep 1
-        click 11 521 250
+        # sleep 1
+        # click 11 521 250
     done
-
+    sleep 0.5
+	for PORT in ${PORTS[*]}
+    do
+        click 11 521 250
+	done
 
     for PORT in ${PORTS[*]}
     do
-        timeout=10
+        timeout=100
         echo "Waiting for trade complete on $PORT"
         while ! check_color 301 946 28 135 149 16
         do
@@ -119,7 +131,8 @@ do
         sleep 1
         click 301 946 250
     done
-    echo "Traded pokemons : $traded"
+    echo "+++++++++++++++++++++++++++++++++++++++++++++++++++"
+    echo "+++++++++++++++++++++++++ Traded pokemons : $traded"
     traded=$(( traded + 1 ))
     sleep 1
     # exit 0
