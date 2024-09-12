@@ -23,7 +23,7 @@ fight()
                 click $x $y
             done
             click 260 821 1
-            sleep 0.15
+            sleep 0.3
             click 230 871 1
 
         done

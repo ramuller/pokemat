@@ -21,6 +21,8 @@ do
         timeout=100
         echo "Waiting for select screen on $PORT"
         while ! check_color 301 946 28 135 149 16
+        # while ! check_color 477 859 49 195 246 16
+        
         do
             # Check for new biggest
             if check_color 301 946 240 240 240 16 ; then
@@ -38,7 +40,12 @@ do
     sleep 1
 	for PORT in ${PORTS[*]}
     do
-    	click 494 849 250
+    	click 494 825 250
+    done
+
+    for PORT in ${PORTS[*]}
+    do
+        click 494 825 250
     done
 
     for PORT in ${PORTS[*]}
@@ -134,6 +141,6 @@ do
     echo "+++++++++++++++++++++++++++++++++++++++++++++++++++"
     echo "+++++++++++++++++++++++++ Traded pokemons : $traded"
     traded=$(( traded + 1 ))
-    sleep 1
+    sleep 2
     # exit 0
 done
