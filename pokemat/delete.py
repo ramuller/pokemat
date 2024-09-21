@@ -35,11 +35,11 @@ def deleteGifts(port, phone):
     while True:
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
-            phone.tabScreen(661, 492)
-            phone.waitMatchColor(298, 1007, 147, 217, 151)
-            time.sleep(1)             
+            phone.tapScreen(836, 521)
+            phone.waitMatchColorAndClick(352, 1044, 150, 218, 149)
+            time.sleep(2)             
             print("Ready")
-            sys.exit(0)
+            # sys.exit(0)
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
             sys.exit(1)

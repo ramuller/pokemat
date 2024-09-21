@@ -36,53 +36,84 @@ def trade(host, guest):
                 return True
             time.sleep(0.2)
     
-def battleFriend(jsonFile):
+def trade(jsonFile):
     with open(jsonFile, 'r') as file:
         parameter = json.load(file)
         
     print("Paramter : {}".format(parameter))
     print("Mode {}".format(parameter["mode"]))
-    if parameter["mode"] != "battle-friend":
+    if parameter["mode"] != "trade":
         print("Unsupported {}".format(parameter["mode"]))
         return
     
-    print("start batteling")
+    print("start trading")
     host = TouchScreen(parameter["host"]["port"], name = parameter["host"]["name"])
     guest = TouchScreen(parameter["guest"]["port"], name = parameter["guest"]["name"])
-    battlesPlayed = 1
+    tradesDone = 1
     while True:
-        log.info("Time : Batteling starts from beginning {}".format(host.getTimeNow()))
-        try:
-            host.goHome()
-            guest.goHome()
+        host.goHome()
+        guest.goHome()
+        host.searchFriend(parameter["guest"]["name"])
+        if host.hasGift():
+            time.sleep(0.5)
+            host.tapScreenBack()
+        host.tapTrade()
+        # time.sleep(2)
+        while True:
+            guest.friendScreen()
+            if guest.matchColor(41, 796, 255, 246, 208, debug=True) == True:
+                log.info("Found inviting friend")
+                break
+            log.info("No one invites let's retry")
+                
+            
+        guest.selectFirstFriend()
+        if guest.hasGift():
+            printf("Has gift")
+            guest.tapScreenBack()
+        time.sleep(1)
+        guest.tapTrade()
         
-            host.inviteFriend(parameter["guest"]["name"], parameter["league"])
-            guest.acceptBattleInvite()
-            go_on = True
-            while go_on: 
-                log.info("Time: Battle start from use this team {}".format(host.getTimeNow()))
-                trade(host, guest)
-                log.info("+++ Battles played {}".format(battlesPlayed))
-                battlesPlayed += 1
-                host_ok = guest_ok = False
-                for i in range(0, 20):
-                    try:
-                        if not host_ok:
-                            host.waitMatchColorAndClick(355, 1275, 147, 217, 150, threashold=20, time_out_ms=1000)
-                            host_ok = True
-                    except Exception as e:
-                        pass
-                    try:
-                        if not guest_ok:
-                            guest.waitMatchColorAndClick(355, 1275, 147, 217, 150, threashold=20, time_out_ms=1000)
-                            guest_ok = True
-                    except Exception as e:
-                        pass
-                    if host.isHome() or guest.isHome():
-                        log.warn("Someone is home no rematch ")
-                        go_on = False
-                        i = 9999
-                log.info("Time : Batteling ends {}".format(host.getTimeNow()))
+        host.searchPokemon(parameter["host"]["filter"])
+        guest.searchPokemon(parameter["guest"]["filter"])
+        
+        log.info("Time : Trading loop starts {}".format(host.getTimeNow()))
+        try:
+            while True:
+                # Wait for the blue screen
+                #try:
+                #    host.waitMatchColor(95, 396, 101, 179, 246, time_out_ms=1000)
+                # except:
+                #    pass
+                # Select left corner
+                time.sleep(1)
+                host.waitMatchColorAndClick(46, 724, 255, 255, 255)
+                guest.waitMatchColorAndClick(46, 724, 255, 255, 255)
+                try:
+                    host.waitMatchColorAndClick(177, 724, 255, 255, 255, same=False)
+                    guest.waitMatchColorAndClick(177, 724, 255, 255, 255, same=False)
+                except:
+                    host.tapScreen(177, 724)
+                    guest.tapScreen(177, 724)
+                # tap twice because sometimes it missing a tap
+                time.sleep(0.2)
+                host.tapScreen(177, 724)
+                guest.tapScreen(177, 724)
+                # Click Next
+                host.waitMatchColorAndClick(371, 1605, 147, 217, 150)
+                guest.waitMatchColorAndClick(371, 1605, 147, 217, 150)
+                # Click confirm
+                host.waitMatchColorAndClick(17, 1037, 92, 204, 146)
+                guest.waitMatchColorAndClick(17, 1037, 92, 204, 146)
+                # Wait trade complete
+                host.waitMatchColorAndClick(482, 1849, 28, 135, 149, time_out_ms=30000)
+                guest.waitMatchColorAndClick(482, 1849, 28, 135, 149, time_out_ms=30000)
+                host.tapTrade()
+                guest.tapTrade()
+                
+                print("Fertig")
+                # sys.exit(0)
+
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
             sys.exit(1)
@@ -106,7 +137,7 @@ def main():
     log = logging.getLogger("bf")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    battleFriend(args.json)
+    trade(args.json)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)
