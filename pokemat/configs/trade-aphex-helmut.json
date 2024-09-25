@@ -2,16 +2,16 @@
     "mode": "trade",
     "league": "master",
     "guest": {
-        "port": "3002",
+        "port": "3001",
         "name": "aphex",
         "Aname": "yellow",
-        "filter": "wobbuffet"
+        "filter": "tmach"
     },
     "host": {
-        "port": "3001",
+        "port": "3002",
         "pname-1": "pokeralle",
         "name": "schlumpiz",
         "plname": "plastic",
-        "filter": "wobbuffet"
+        "filter": "tmach"
     }
 }
