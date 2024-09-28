@@ -19,7 +19,7 @@ receive_gift()
         # sleep 1
         check_color 205 838 151 218 147 10 10
         echo press open
-        click 291 853
+        click 291 853 2000
         ## gift-send:color:291,853,0x84,0xD4,0xA5
         ## gift-send:color:291,853,132,212,165
         sleep 2
@@ -120,7 +120,7 @@ gift_cycle()
     printf "click:117,862,1,200\n" | tee $PORT
     ## gift-s7:color:117,862,0xF6,0xD0,0x68
     sleep 2
-    echo Check if not gift can be send
+    echo Check gift can be send
     # if check_color 150 519 232 128 181  ; then
     if check_color 138 854 182 167 172 15 1 || check_color 115 861 230 227 228 15 1 || check_color 113 859 213 213 213 15 1 ; then
         echo Do not send gift

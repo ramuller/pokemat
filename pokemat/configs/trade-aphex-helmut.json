@@ -2,16 +2,16 @@
     "mode": "trade",
     "league": "master",
     "guest": {
-        "port": "3001",
+        "port": "3003",
         "name": "aphex",
         "Aname": "yellow",
-        "filter": "tmach"
+        "filter": "machop & !shiny & !traded"
     },
     "host": {
         "port": "3002",
         "pname-1": "pokeralle",
-        "name": "schlumpiz",
+        "name": "higimmi222",
         "plname": "plastic",
-        "filter": "tmach"
+        "filter": "machop & !shiny & !traded & distance200-"
     }
 }

@@ -71,16 +71,17 @@ get_rgb()
     fi
     if [ $USE_IP -eq 1 ] ; then
  	    raw_data="$(curl --silent http://localhost:$PORT/v1/color:$x,$y)"
-        [ -z "$DEBUG" ] || echo $raw_data
+        [ -z "$DEBUG" ] || echo raw_dat $raw_data
  	    rgb=($(echo "$raw_data" | jq -r '.red') $(echo "$raw_data" | jq -r '.green')  $(echo "$raw_data" | jq -r '.blue'))
     else
     	printf "color:$1,$2\n" >$PORT
     
     	sleep 0.75
     	values="$(tail -n 1 ${PORT}.sh | sed "s/.*color://")"
+    	echo RGB values = $values
     	rgb=($(echo $values |cut -d ',' -f 3) $(echo $values |cut -d ',' -f 4) $(echo $values |cut -d ',' -f 5))
     fi
-    [ -z "$DEBUG" ] ||echo RGB ${rgb[@]}
+    [ -z "$DEBUG" ] || echo RGB ${rgb[@]}
 }
 
 check_color()
@@ -100,10 +101,8 @@ check_color()
     for (( i = 0; i < $max; i++ )); do
         echo "RGB round $i"
         get_rgb $x $y
-        if [[ \
-              ${rgb[0]} -lt $(( r + t ))  && ${rgb[1]} -lt $(( g + t ))  && ${rgb[2]} -lt $(( b + t  )) && \
-                  ${rgb[0]} -gt $(( r - t ))  && ${rgb[1]} -gt $(( g - t ))  && ${rgb[2]} -gt $(( b - t  ))
-           ]]
+        echo $r,$g,$b t=$t ${rgb[0]},${rgb[1]},${rgb[2]}
+        if [[ ${rgb[0]} -lt $(( r + t ))  && ${rgb[1]} -lt $(( g + t ))  && ${rgb[2]} -lt $(( b + t  )) &&  ${rgb[0]} -gt $(( r - t ))  && ${rgb[1]} -gt $(( g - t ))  && ${rgb[2]} -gt $(( b - t  )) ]]
         then
             echo "Color match"
             return 0

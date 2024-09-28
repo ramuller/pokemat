@@ -50,35 +50,36 @@ def trade(jsonFile):
     host = TouchScreen(parameter["host"]["port"], name = parameter["host"]["name"])
     guest = TouchScreen(parameter["guest"]["port"], name = parameter["guest"]["name"])
     tradesDone = 1
+    
     while True:
-        host.goHome()
-        guest.goHome()
-        host.searchFriend(parameter["guest"]["name"])
-        if host.hasGift():
-            time.sleep(0.5)
-            host.tapScreenBack()
-        host.tapTrade()
-        # time.sleep(2)
-        while True:
-            guest.friendScreen()
-            if guest.matchColor(41, 796, 255, 246, 208, debug=True) == True:
-                log.info("Found inviting friend")
-                break
-            log.info("No one invites let's retry")
-                
-            
-        guest.selectFirstFriend()
-        if guest.hasGift():
-            printf("Has gift")
-            guest.tapScreenBack()
-        time.sleep(1)
-        guest.tapTrade()
-        
-        host.searchPokemon(parameter["host"]["filter"])
-        guest.searchPokemon(parameter["guest"]["filter"])
-        
-        log.info("Time : Trading loop starts {}".format(host.getTimeNow()))
         try:
+            host.goHome()
+            guest.goHome()
+            host.searchFriend(parameter["guest"]["name"])
+            if host.hasGift():
+                time.sleep(0.5)
+                host.tapScreenBack()
+            host.tapTrade()
+            # time.sleep(2)
+            while True:
+                guest.friendScreen()
+                if guest.matchColor(41, 796, 255, 246, 208, debug=True) == True:
+                    log.info("Found inviting friend")
+                    break
+                log.info("No one invites let's retry")
+                    
+                
+            guest.selectFirstFriend()
+            if guest.hasGift():
+                print("Has gift")
+                guest.tapScreenBack()
+            time.sleep(1)
+            guest.tapTrade()
+            
+            host.searchPokemon(parameter["host"]["filter"])
+            guest.searchPokemon(parameter["guest"]["filter"])
+            
+            log.info("Time : Trading loop starts {}".format(host.getTimeNow()))
             while True:
                 # Wait for the blue screen
                 #try:

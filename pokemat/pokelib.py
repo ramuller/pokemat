@@ -249,7 +249,16 @@ class TouchScreen:
             i += 1
             if c == "&":
                 c = "\\&"
+            elif c == "\\":
+                print("RALF : backslash {}".format(text))
+                print("RALF : backslash {}".format(text[i]))
+                c = "\\" + text[i]
+                i += 1
+            print("RALF string '{}'".format(c))
             self.writeToPhone("key:{}".format(c))
+
+    def selectAll(self):
+        self.typeString("\\a")
     
     def getTimeNow(self):
         return datetime.now().strftime("%d-%m-%Y %H:%M:%S")
@@ -262,7 +271,8 @@ class TouchScreen:
 
     def goHome(self):
         self.log.info("Go to homescreen")
-        while self.isHome() == False:
+        count = 10 # Try count time
+        while self.isHome() == False and count > 0:
             self.log.warning("Wrong color")
             if self.matchColor(501, 1826, 30, 134, 149):
                 self.tapScreenBack()                
@@ -290,7 +300,9 @@ class TouchScreen:
                 elif self.matchColor(57, 361, 28, 135, 149):
                     self.tapScreen(57, 361)
                 else:
-                    raise ExPokeLibError("Cant find home")
+                    if count == 0:
+                        raise ExPokeLibError("Cant find home")
+                    count = count -1
             time.sleep(1)
         log.info("Now we are on the home screen {}".format(self.isHome()))
 
@@ -342,11 +354,13 @@ class TouchScreen:
     def searchPokemon(self, filter):
         self.waitMatchColorAndClick(500, 345, 233, 233, 223, threashold=14, time_out_ms=30000,debug=True)
         time.sleep(1)
-        self.tapScreen(25, 1100)        
-        self.tapScreen(25, 1100)
+        self.selectAll()
         time.sleep(0.2)
         self.typeString(filter)
         self.tapTextOK()
+        
+        
+        
        
     def goBattle(self):
         print("Press pokeball")
@@ -358,13 +372,17 @@ class TouchScreen:
 
         
     def hasGift(self):
-        xs = 500
-        ys = 1164
-        self.waitMatchColor(76, 1962, 240, 254, 240, threashold = 16, debug=True)
-        time.sleep(0.3)
-        for x in range(xs, xs + 10):
-            if self.matchColor(x, ys, 211, 14, 204):
+        xs = 402
+        ys = 1144
+        # self.waitMatchColor(76, 1970, 240, 240, 240, threashold = 14, debug=True)
+        time.sleep(2)
+        for x in range(xs, xs + 40, 4):
+            print("Check {},{}".format(x, ys))
+            if self.matchColor(x, ys, 223, 15, 206):
+                print("Has gift")
+                time.sleep(1)
                 return True
+            time.sleep(0.5)
         return False
     
     def openGift(self):

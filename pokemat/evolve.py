@@ -45,8 +45,8 @@ def evolve(port, phone, filter):
         
     print("Start evolutions \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
-    phone.scroll(0, -100)
-    sys.exit(0)
+    # phone.scroll(0, -100)
+    # sys.exit(0)
     phone.selectPokemon(filter)
     giftsSent = 0
     giftsReceived = 0
@@ -57,7 +57,7 @@ def evolve(port, phone, filter):
             phone.evolvePokemon()
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
-            sys.exit(1)
+            # sys.exit(1)
 
         except Exception as e:
             phone.selectPokemon(filter)
