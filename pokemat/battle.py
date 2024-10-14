@@ -36,7 +36,7 @@ def battle(host, guest):
                 return True
             time.sleep(0.2)
     
-def battle(port, phone, filter):
+def battle(port, phone):
     
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)
@@ -45,11 +45,11 @@ def battle(port, phone, filter):
     phone = TouchScreen(port, phone)
     # phone.scroll(0, -100)
     # sys.exit(0)
-    phone.goHome()
-    # sys.exit(0)
-    while True:
-        log.info("Time : battle {}".format(phone.getTimeNow()))
+    cont = True
+    while cont:
         try:
+            phone.goHome()
+            log.info("Time : battle {}".format(phone.getTimeNow()))
             phone.goBattle()
             
         except ExPokeLibFatal as e:
@@ -57,7 +57,6 @@ def battle(port, phone, filter):
             sys.exit(1)
 
         except Exception as e:
-            phone.selectPokemon(filter)
             print("Upps something went wrong but who cares?: {}", e)
 
 def main():
@@ -72,15 +71,13 @@ def main():
                         help="TCP port for the connection.")
     parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
                         help="Name os the phone model. Check phones.json.")
-    parser.add_argument("-f", "--filter", action="store", required=True, \
-                        help="Pokemon filter string.")
     global args
     args = parser.parse_args()
     global log 
     log = logging.getLogger("battle")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    battle(args.port, args.phone, args.filter)
+    battle(args.port, args.phone)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

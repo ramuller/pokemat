@@ -18,6 +18,9 @@ def doubleClick():
     p.tapScreen(25, 1100)
     p.tapScreen(25, 1100)
 
-checkColor()
+# checkColor()
 # p.typeString("\\azxy   openshift")
 # p.selectAll()
+# p.swipe(150, 700, 800, 1750)
+# p.attack()
+p.catchPokemon()

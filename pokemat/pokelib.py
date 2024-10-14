@@ -3,6 +3,9 @@ import logging
 import time
 import sys
 from datetime import datetime
+from ansible_collections.community.aws.plugins.modules.directconnect_gateway import dx_gateway_info
+from ansible_collections.cisco.ise.plugins.action import sxp_connections
+import random
 log = logging.getLogger("pokelib")
 
 class ExPokeLibError(Exception):
@@ -292,6 +295,8 @@ class TouchScreen:
                 self.tapConfirm()
             elif self.matchColor(357, 1138, 150, 218, 151):
                 self.tapScreen(357, 1138)
+            elif self.matchColor(357, 1000, 143, 215, 150):
+                self.tapScreen(357, 1000)                
             elif self.matchColor(847, 1849, 27, 134, 150):
                 self.tapScreen(847, 1849)
             else:
@@ -358,18 +363,127 @@ class TouchScreen:
         time.sleep(0.2)
         self.typeString(filter)
         self.tapTextOK()
+    
+    def swipe(self, x1, y1, x2, y2):
+        sx = float(x1)
+        sy = float(y1)
+        dx = (float(x2) - float(x1)) / 15.0
+        dy = (float(y2) - float(y1)) / 15.0
+        self.tapDown(x1, y1, duration = 0)
+        for s in range(0,15):
+            self.moveCursor(int(sx), int(sy), int(sx + dx), int(sy + dy))
+            sx = sx + dx
+            sy = sy + dy
+            # print("sx={},sy={}".format(int(sx),int(sy)))
+            # self.moveCursor(int(sx), int(sy))
+            time.sleep(0.005)
+        self.tapUp(int(sx), int(sy))
+    
+    def catchPokemon(self):
+        print("Try to catch pokemon")
+        while self.matchColor(881, 1742, 238, 56, 56):
+            v = random.randint(0,300)
+            print("Throug {}".format(v))
+            self.swipe(506, 1820, 506, 950 + v)
+            try:
+                self.waitMatchColor(364, 1326, 146, 216, 149, time_out_ms = 20000)
+                self.tapScreen(364, 1326)
+            except:
+                pass
+    
+    def collectRewards(self):
+        for i in range(0,5):
+            try:
+                print("Collect award {}".format(i))
+                self.waitMatchColorAndClick(200 + i * 120, 1603, 254, 178, 81, time_out_ms = 1000)
+                try:
+                    print("Check if pokemon")
+                    self.waitMatchColor(881, 1742, 238, 56, 56, time_out_ms = 5000)
+                    print("Try to catch pokemon")
+                    self.catchPokemon()
+                    sys.exit(0)
+                except:
+                    sys.exit(0)
+                    pass
+            except:
+                pass
+        self.waitMatchColorAndClick(187, 1919, 255, 180, 82)
         
-        
-        
-       
+    def attack(self, time_out_ms = 6000):
+        startTime = datetime.now()
+        # while ((datetime.now() - startTime).total_seconds() * 1000) < time_out_ms:
+            # and \
+        while not self.matchColor(164, 222, 246, 14, 29) and \
+                not self.matchColor(100, 100, 10, 10, 10):
+                # and self.matchColor(213, 177, 255, 255, 255) \
+                # and self.matchColor(722, 177, 255, 255, 255):
+            # self.swipe(150, 700, 800, 1750)
+            # self.swipe(800, 700, 150, 1750)
+            # for x in range(50,990, 120):
+            #    self.swipe(x, 700, 900 - x, 1950)
+            # Use shield for what ever
+            self.tapScreen(498, 1500)
+            for y in range(800, 1801, 100):
+               self.swipe(10, y, self.maxX - 10, 800 + 1800 - y)
+            
+    
     def goBattle(self):
-        print("Press pokeball")
+        print("Tap pokeball")
         self.tapPokeBall()
         self.waitMatchColorAndClick(734, 1041, 240, 252, 239)
+        time.sleep(0.5)
+        count = 30
+        while not self.matchColor(366, 1939, 154, 218, 149) and \
+                not self.matchColor(361, 1878, 229, 246, 227):
+            count = count -1
+            if count == 0:
+                return
+            self.scroll(0, -22)
+            time.sleep(0.5)
+        time.sleep(0.5)
+        if self.matchColor(361, 1878, 229, 246, 227):
+            self.collectRewards()
+            time.sleep(30)
+        if self.matchColor(312, 1835, 149, 217, 148):
+            self.tapScreen(312, 1835)
+        next_battle = True
         self.waitMatchColorAndClick(366, 1939, 154, 218, 149)
-        self.waitMatchColorAndClick(328, 939, 255, 255, 255)
-        self.waitMatchColor(322, 1781, 163, 220, 148)
-
+        while next_battle:
+            self.waitMatchColorAndClick(328, 939, 255, 255, 255)
+            self.waitMatchColorAndClick(322, 1781, 163, 220, 148)
+            try:
+                time.sleep(1)
+                self.waitMatchColor(81, 998, 255, 254, 255, same=False, time_out_ms=20000)
+            except:
+                pass
+            
+            while not self.matchColor(100, 100, 10, 10, 10):
+                self.tapScreen(498, 1500)
+                for x in range(150,800,75):
+                    # print("tapScreen : {},{}".format(x,1850))
+                    
+                    # Check for attack and use shield
+                    if self.matchColor(545, 195, 108, 121, 126, threashold=20) and False:
+                    # if self.matchColor(498, 1500, 237, 122, 241):
+                        print("Use shield")
+                        self.tapScreen(498, 1500)
+                        # time.sleep(1)
+                    # if self.matchColor(505, 658, 245, 245, 245):
+                    # if self.matchColor(394, 630, 252, 255, 255):
+                    # if self.matchColor(505, 660, 245, 245, 245) and \
+                    if    not self.matchColor(161, 218, 251, 38, 14):
+                        self.attack()
+                        
+                    self.tapScreen(x, 1790)
+                self.tapScreen(498, 1500)
+                time.sleep(0.01)
+            try:
+                next_battle = self.waitMatchColorAndClick(315, 1535, 153, 219, 149, time_out_ms=20000)
+                next_battle = True
+                time.sleep(1)
+                # next_battle = self.waitMatchColor(690, 1539, 72, 209, 163)
+            except:
+                next_battle = False
         
     def hasGift(self):
         xs = 402

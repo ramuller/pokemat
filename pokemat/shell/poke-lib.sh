@@ -184,6 +184,7 @@ back_home()
     # while [[ ${rgb[0]} -lt 255 && ${rgb[1]} -gt 100 && ${rgb[2]} -gt 100 ]]
     while ! check_color 285 916 245 55 72 20 1
     do
+    	get_rgb 285 916
         echo Not home color ${rgb[@]}
         sleep 1
         get_rgb 285 916
