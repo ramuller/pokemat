@@ -6,6 +6,7 @@ from datetime import datetime
 from ansible_collections.community.aws.plugins.modules.directconnect_gateway import dx_gateway_info
 from ansible_collections.cisco.ise.plugins.action import sxp_connections
 import random
+import math
 log = logging.getLogger("pokelib")
 
 class ExPokeLibError(Exception):
@@ -45,7 +46,7 @@ class TouchScreen:
             # self.log.fatal("No connection")
         
     def tapScreen(self, x, y, button = 1, duration = 50):
-        self.log.info("tap {},{},{},{}".format(x,y,button, duration))
+        self.log.debug("tap {},{},{},{}".format(x,y,button, duration))
         x, y = self.scaleXY(x, y)
         # response = requests.get("{}/tapScreen:{},{},{},{}".format(self.url, x, x, button, duration)
         response = self.writeToPhone("click:{},{},{},{}".format(x,y,button, duration))
@@ -53,7 +54,7 @@ class TouchScreen:
         time.sleep(0.001 * duration)
     
     def tapDown(self, x, y, button = 1, duration = 0):
-        self.log.info("tapDown {},{},{},{}".format(x,y,button, duration))
+        self.log.debug("tapDown {},{},{},{}".format(x,y,button, duration))
         x, y = self.scaleXY(x, y)
         # response = requests.get("{}/tapScreen:{},{},{},{}".format(self.url, x, x, button, duration)
         response = self.writeToPhone("button_down:{},{},{},{}".format(x,y,button, duration))
@@ -61,7 +62,7 @@ class TouchScreen:
         time.sleep(0.001 * duration)
     
     def tapUp(self, x, y, button = 1, duration = 50):
-        self.log.info("tapUp {},{},{},{}".format(x,y,button, duration))
+        self.log.debug("tapUp {},{},{},{}".format(x,y,button, duration))
         x, y = self.scaleXY(x, y)
         # response = requests.get("{}/tapScreen:{},{},{},{}".format(self.url, x, x, button, duration)
         response = self.writeToPhone("button_up:{},{},{},{}".format(x,y,button, duration))
@@ -69,7 +70,7 @@ class TouchScreen:
         time.sleep(0.001 * duration)
         
     def moveCursor(self, x, y, dx, dy):
-        self.log.info("move {},{}".format(x,y))
+        self.log.debug("move {},{}".format(x,y))
         x, y = self.scaleXY(x, y)
         dx, dy = self.scaleXY(dx, dy)
         # response = requests.get("{}/tapScreen:{},{},{},{}".format(self.url, x, x, button, duration)
@@ -92,15 +93,15 @@ class TouchScreen:
             self.log.info("matchColor x{},y{},r{},g{},b{},t{}".format(x, y, r, g, b,threashold))
             self.log.info("matchColor x{},y{},r{},g{},b{},t{}".format(x, y, rr, gg, bb, threashold))
         if gg > (g + threashold) or gg < (g - threashold):
-            log.info("matchColor : False")
+            log.debug("matchColor : False")
         if      rr > (r + threashold) or rr < (r - threashold) or \
                 gg > (g + threashold) or gg < (g - threashold) or \
                 bb > (b + threashold) or bb < (b - threashold):
             if debug:
-                log.info("matchColor : False")           
+                log.debug("matchColor : False")           
             return False
         if debug:
-            log.info("matchColor : True")           
+            log.debug("matchColor : True")           
         return True
     
     def waitMatchColor(self, x, y, r, g, b, threashold=10, time_out_ms=10000, 
@@ -172,7 +173,7 @@ class TouchScreen:
             x = x + sx
             y = y + sy
             self.moveCursor(int(x), int(y), int(sx), int(sy))
-            print("sy={}".format(int(sy)))
+            # print("sy={}".format(int(sy)))
             # self.moveCursor(int(sx), int(sy))
             time.sleep(0.01)
             # self.tapDown(int(x), int(y), int(sx), int(sy))
@@ -365,18 +366,19 @@ class TouchScreen:
         self.tapTextOK()
     
     def swipe(self, x1, y1, x2, y2):
+        steps = 5
         sx = float(x1)
         sy = float(y1)
-        dx = (float(x2) - float(x1)) / 15.0
-        dy = (float(y2) - float(y1)) / 15.0
+        dx = (float(x2) - float(x1)) / float(steps)
+        dy = (float(y2) - float(y1)) / float(steps)
         self.tapDown(x1, y1, duration = 0)
-        for s in range(0,15):
+        for s in range(0, steps):
             self.moveCursor(int(sx), int(sy), int(sx + dx), int(sy + dy))
             sx = sx + dx
             sy = sy + dy
             # print("sx={},sy={}".format(int(sx),int(sy)))
             # self.moveCursor(int(sx), int(sy))
-            time.sleep(0.005)
+            # time.sleep(0.005)
         self.tapUp(int(sx), int(sy))
     
     def catchPokemon(self):
@@ -409,29 +411,12 @@ class TouchScreen:
                 pass
         self.waitMatchColorAndClick(187, 1919, 255, 180, 82)
         
-    def attack(self, time_out_ms = 6000):
-        startTime = datetime.now()
-        # while ((datetime.now() - startTime).total_seconds() * 1000) < time_out_ms:
-            # and \
-        while not self.matchColor(164, 222, 246, 14, 29) and \
-                not self.matchColor(100, 100, 10, 10, 10):
-                # and self.matchColor(213, 177, 255, 255, 255) \
-                # and self.matchColor(722, 177, 255, 255, 255):
-            # self.swipe(150, 700, 800, 1750)
-            # self.swipe(800, 700, 150, 1750)
-            # for x in range(50,990, 120):
-            #    self.swipe(x, 700, 900 - x, 1950)
-            # Use shield for what ever
-            self.tapScreen(498, 1500)
-            for y in range(800, 1801, 100):
-               self.swipe(10, y, self.maxX - 10, 800 + 1800 - y)
-            
-    
     def goBattle(self):
         print("Tap pokeball")
         self.tapPokeBall()
         self.waitMatchColorAndClick(734, 1041, 240, 252, 239)
-        time.sleep(0.5)
+    
+    def battleLeague(self):
         count = 30
         while not self.matchColor(366, 1939, 154, 218, 149) and \
                 not self.matchColor(361, 1878, 229, 246, 227):
@@ -446,8 +431,8 @@ class TouchScreen:
             time.sleep(30)
         if self.matchColor(312, 1835, 149, 217, 148):
             self.tapScreen(312, 1835)
-        next_battle = True
         self.waitMatchColorAndClick(366, 1939, 154, 218, 149)
+        next_battle = True
         while next_battle:
             self.waitMatchColorAndClick(328, 939, 255, 255, 255)
             self.waitMatchColorAndClick(322, 1781, 163, 220, 148)
@@ -456,8 +441,117 @@ class TouchScreen:
                 self.waitMatchColor(81, 998, 255, 254, 255, same=False, time_out_ms=20000)
             except:
                 pass
+            self.doBattle()
+            try:
+                next_battle = self.waitMatchColorAndClick(315, 1535, 153, 219, 149, time_out_ms=20000)
+                next_battle = True
+                time.sleep(1)
+                # next_battle = self.waitMatchColor(690, 1539, 72, 209, 163)
+            except:
+                next_battle = False
+        
+    def battleTrainer(self, trainer, league):
+        for i in range(0,4):
+            self.scroll(0,-500)
+            time.sleep(1)
+        
+        cont = True
+        while cont:
+            self.tapScreen(250 + ((trainer - 1) * 250), 1634)
+            # Press battle
+            self.waitMatchColorAndClick(362, 1552, 149, 217, 148)
+            if league == "great":
+                self.waitMatchColorAndClick(338, 850, 255, 255, 255)
+            elif league == "ultra":
+                self.waitMatchColorAndClick(333, 1300, 255, 255, 255)
+            elif league == "master":
+                self.waitMatchColor(345, 1640, 255, 255, 255)
+            else:
+                self.log.error("Unknow trainer league {}".format(league))
+                
+            self.waitMatchColorAndClick(501, 1742, 113, 213, 157)
+            self.doBattle()
+            self.waitMatchColorAndClick(500, 1826, 28, 135, 149)
+            time.sleep(0.5)
+        
+    def attack(self, time_out_ms = 6000):
+        startTime = datetime.now()
+        # while ((datetime.now() - startTime).total_seconds() * 1000) < time_out_ms:
+            # and \
+        step = 100
+        self.tapDown(10, 800, duration = 0)
+        x = self.maxX / 2
+        y = self.maxY / 2
+        while not self.matchColor(164, 222, 246, 14, 29) and \
+                not self.matchColor(100, 100, 10, 10, 10) and \
+                not self.matchColor(500, 1826, 28, 135, 149):
+                # and self.matchColor(213, 177, 255, 255, 255) \
+                # and self.matchColor(722, 177, 255, 255, 255):
+            # self.swipe(150, 700, 800, 1750)
+            # self.swipe(800, 700, 150, 1750)
+            # for x in range(50,990, 120):
+            #    self.swipe(x, 700, 900 - x, 1950)
+            # Use shield for what ever
+            self.tapScreen(498, 1500)
+            if False:
+                for y in range(800, 1900, 100):
+                    self.swipe(10, y, self.maxX - 200, y)
+
+            if False:
+                for y in range(0, 100, 25):
+                    for ya in range(800, 1900, 100):
+                        self.swipe(10, y + ya, self.maxX - 200, y + ya)
+                    
+                    
+            if False:
+                self.swipe(10, 800, self.maxX - 10, self.maxY - 10)
+                self.swipe(self.maxX - 10, 800, 10, self.maxY - 10)
+    
+                self.swipe(self.maxX / 4, self.maxY - 10, self.maxX - ( self.maxX / 4), 800)
+                self.swipe(self.maxX - ( self.maxX / 4), self.maxY - 10, self.maxX / 4, 800)
+              
+            if False:  
+                cx = self.maxX / 2
+                cy = 800 + self.maxX / 2
+                for a in range(0, 180,10):
+                    dx = int(math.sin(math.radians(a)) * (self.maxX / 2 - 2))
+                    dy = int(math.cos(math.radians(a)) * 698) # (self.maxX / 2 - 2))
+                    log.debug("x1 {}, y1 {}, x2 {}, y2 {}".format(cx + dx, cy + dy, cx - dx, cy - dy))
+                    # self.swipe(cx + dx, cy + dy, cx - dx, cy - dy)
+                    # self.swipe(cx - dx, cy + dy, cx + dx, cy - dy)
+                    self.moveCursor(cx + dx, cy + dy, cx - dx, cy - dy)
+                    self.moveCursor(cx - dx, cy - dy, cx + dx, cy + dy)
+                    
+            if False:
+                # self.tapDown(10, 800, duration = 0)
+                for y in range(800, 1800, step):
+                    self.moveCursor(10, y, self.maxX - 200, y)
+                    time.sleep(0.01)
+                    self.moveCursor(self.maxX - 200, y ,10 , y + step)
+                    time.sleep(0.01)
+                   
+                for x in range(10, self.maxX - 200, step):
+                    self.moveCursor(x, 800, x, 1900)
+                    time.sleep(0.01)
+                    self.moveCursor(x, 800, x + step, 1900)
+                    time.sleep(0.01)
+
+            if True:
+                xn = random.randint(10, self.maxX - 200)
+                yn = random.randint(800, 1900)
+                self.moveCursor(x, y, xn, yn)
+                x = xn
+                y = yn
+        
+                               
+        self.tapUp(x, y + step, duration = 0)
+                
+    
+    
+    def doBattle(self):
             
-            while not self.matchColor(100, 100, 10, 10, 10):
+            while not self.matchColor(100, 100, 10, 10, 10) and \
+                    not self.matchColor(500, 1826, 28, 135, 149):
                 self.tapScreen(498, 1500)
                 for x in range(150,800,75):
                     # print("tapScreen : {},{}".format(x,1850))
@@ -468,23 +562,25 @@ class TouchScreen:
                         print("Use shield")
                         self.tapScreen(498, 1500)
                         # time.sleep(1)
-                    # if self.matchColor(505, 658, 245, 245, 245):
+                    if False:
+                        print("")
+                        for i in range(0, 80,2):
+                            xx = 400 + i
+                            yy = 660 + i
+                            r,g,b =self.getRGB(xx, yy)
+                            print("{},{},{},{},{}".format(xx, yy, r, g, b))
+                    if self.matchColor(405, 665, 220, 220, 220, threashold=20):
                     # if self.matchColor(394, 630, 252, 255, 255):
                     # if self.matchColor(505, 660, 245, 245, 245) and \
-                    if    not self.matchColor(161, 218, 251, 38, 14):
+                    # if    not self.matchColor(161, 218, 251, 38, 14):
                         self.attack()
+                        # print("Exit")
+                        # sys.exit(0)
                         
                     self.tapScreen(x, 1790)
                 self.tapScreen(498, 1500)
                 time.sleep(0.01)
-            try:
-                next_battle = self.waitMatchColorAndClick(315, 1535, 153, 219, 149, time_out_ms=20000)
-                next_battle = True
-                time.sleep(1)
-                # next_battle = self.waitMatchColor(690, 1539, 72, 209, 163)
-            except:
-                next_battle = False
-        
+         
     def hasGift(self):
         xs = 402
         ys = 1144

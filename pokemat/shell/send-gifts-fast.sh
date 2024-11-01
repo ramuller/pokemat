@@ -142,6 +142,7 @@ gift_cycle()
 
 sort_has_gifts()
 {
+    echo Has gifts
     printf "click:497,945,1,100\n" | tee $PORT
     sleep 1
     printf "click:501,739,1,100\n" | tee $PORT

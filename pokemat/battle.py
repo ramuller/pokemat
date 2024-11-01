@@ -36,7 +36,7 @@ def battle(host, guest):
                 return True
             time.sleep(0.2)
     
-def battle(port, phone):
+def battle(port, phone, type, league):
     
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)
@@ -47,10 +47,19 @@ def battle(port, phone):
     # sys.exit(0)
     cont = True
     while cont:
+        # cont = False
         try:
             phone.goHome()
             log.info("Time : battle {}".format(phone.getTimeNow()))
             phone.goBattle()
+            if type == "league":
+                phone.battleLeague()
+            elif type == "trainer1":
+                phone.battleTrainer(1, league)
+            elif type == "trainer2":
+                phone.battleTrainer(2, league)
+            elif type == "trainer3":
+                phone.battleTrainer(3, league)
             
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
@@ -64,6 +73,7 @@ def main():
     parser = argparse.ArgumentParser()
     # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
     #                     "battle - send and receive gifts")
+    # parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
     parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
     # parser.add_argument("-p", "--phone", action="store", \
     #                     help="Set phone name default path '/tmp'")
@@ -71,13 +81,17 @@ def main():
                         help="TCP port for the connection.")
     parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
                         help="Name os the phone model. Check phones.json.")
+    parser.add_argument("-t", "--type", action="store", required=False, default="trainer2", \
+                        help="Battle type firstleague.")
+    parser.add_argument("-L", "--league", action="store", required=False, default="great", \
+                        help="Battle type firstleague.")
     global args
     args = parser.parse_args()
     global log 
     log = logging.getLogger("battle")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    battle(args.port, args.phone)
+    battle(args.port, args.phone, args.type, args.league)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)
