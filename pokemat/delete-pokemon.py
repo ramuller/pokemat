@@ -20,6 +20,7 @@ import json
 import sys
 from datetime import datetime
 from _operator import truediv
+from skimage.filters.rank.generic import threshold
 
 global log
 
@@ -35,8 +36,12 @@ def deleteGifts(port, phone):
     while True:
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
-            phone.tapScreen(836, 521)
-            phone.waitMatchColorAndClick(352, 1044, 150, 218, 149)
+            phone.selectFirstPokemon()
+            phone.waitMatchColorAndClick(866, 1800, 28, 135, 149)
+            phone.waitMatchColorAndClick(800, 1634, 42, 108, 120)
+            phone.waitMatchColorAndClick(637, 1123, 80, 211, 162, threshold=20)
+            phone.waitMatchColorAndClick(368, 1031, 146, 216, 149)
+            # phone.waitMatchColorAndClick(352, 1044, 150, 218, 149)
             time.sleep(2)             
             print("Ready")
             # sys.exit(0)

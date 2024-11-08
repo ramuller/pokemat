@@ -18,9 +18,14 @@ def doubleClick():
     p.tapScreen(25, 1100)
     p.tapScreen(25, 1100)
 
+def multiRet(for_ret = False):
+    return for_ret, 1, 2
+    
+
+print(multiRet())
 # checkColor()
 # p.typeString("\\azxy   openshift")
 # p.selectAll()
 # p.swipe(150, 700, 800, 1750)
 # p.attack()
-p.catchPokemon()
+# p.catchPokemon()

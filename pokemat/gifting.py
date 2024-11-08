@@ -40,41 +40,74 @@ def gifting(port, phone):
     
     can_get_gifts = True
     can_send_gifts = True
+    switch_order = False
+    daily_limit = False
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)
         
     print("Start gifting using phone \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
     phone.friendSortHasGift()
+    phone.tapSearch()
+    phone.tapScreen(440, 837)
     giftsSent = 0
     giftsReceived = 0
-    while can_get_gifts and can_send_gifts:
+    while can_get_gifts or can_send_gifts or switch_order:
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
-            phone.tabSearch()
+            if switch_order and can_get_gifts == False:
+                print("Sort for send gifts only")
+                phone.friendSortCanReceive()
+                phone.tapSearch()
+                phone.tapScreen(440, 837)
+                switch_order = False
+                can_send_gifts = True
+            switch_order = False
+            time.sleep(1)
+            for timeout in reversed(range(0,100)):
+                if phone.matchColor(444, 494, 255, 255, 255) and \
+                   phone.matchColor(812, 1851, 28, 135, 149):
+                    break
+                time.sleep(0.1)
+            if timeout == 0:
+                print("Wait for trainer screen : Timeout exit")
+                sys.exit(0)
+            print("trainer screen")
+            while phone.matchColor(52, 1335, 255, 255, 255):
+                phone.tapScreen(456, 494)
+                time.sleep(0.3)
+            time.sleep(1)
+            phone.selectAll()
             phone.typeString("!ff")
-            phone.textOK()            
+            time.sleep(1)
+            phone.tapTextOK()      
+            time.sleep(0.3)
             phone.selectFirstFriend()
             # time.sleep(2)
-            if phone.hasGift():
-                if can_get_gifts:
-                    can_get_gifts = phone.openGift()
-                    if not can_get_gifts:
-                        phone.friendCanReceiveGift(False)
+            
+            if can_get_gifts:
+                if phone.hasGift():
+                    if phone.openGift() == False:  # False = daily limit
+                        can_get_gifts = False
+                        switch_order = True
                 else:
-                    phone.tabScreenBack()
+                    switch_order = True
+                    can_get_gifts = False
+                
+            can_send_gifts = phone.sendGift()
+            phone.tapBack()
+
                     
-            can_send_gifts = phone.sendGift() or can_get_gifts
                 
             # self.waitMatchColor(161, 808, 246, 246, 246, match=False)
-            print("Ready")
-            sys.exit(0)
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
             sys.exit(1)
-
+        
+        print("ca_get {}, can_send {}".format(can_get_gifts, can_send_gifts))
         # except Exception as e:
         #    print("Upps something went wrong but who cares?: {}", e)
+    return False
 
 def main():
 
@@ -83,10 +116,10 @@ def main():
     #                     "gifting - send and receive gifts")
     parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
     # parser.add_argument("-p", "--phone", action="store", \
-    #                     help="Set phone name default path '/tmp'")
+    #                     help="Set phone name default path '/tmp'"
     parser.add_argument("-p", "--port", action="store", required=True, \
                         help="TCP port for the connection.")
-    parser.add_argument("-P", "--phone", action="store", required=True, default="s7", \
+    parser.add_argument("-P", "--phone", action="store", default="s7", \
                         help="Name os the phone model. Check phones.json.")
     global args
     args = parser.parse_args()
@@ -95,6 +128,14 @@ def main():
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
     gifting(args.port, args.phone)
+    go_on = True
+    while go_on:
+        try:
+            go_on = gifting(args.port, args.phone)
+        except:
+            print("Something went wrong")
+            go_on = False
+        
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

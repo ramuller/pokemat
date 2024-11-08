@@ -50,25 +50,29 @@ def evolve(port, phone, filter):
     phone.selectPokemon(filter)
     giftsSent = 0
     giftsReceived = 0
+    evolve_count = 0
+    print("Start time : Evolve {}".format(phone.getTimeNow()))
     while True:
-        log.info("Time : Evolve {}".format(phone.getTimeNow()))
         try:
             phone.selectFirstPokemon()
             phone.evolvePokemon()
+            evolve_count = evolve_count + 1
+            print("Time : Evolve {} ".format(phone.getTimeNow()))
+            print("Pokemon evolved : {}".format(evolve_count))
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
             # sys.exit(1)
 
         except Exception as e:
-            phone.selectPokemon(filter)
-            print("Upps something went wrong but who cares?: {}", e)
+           phone.selectPokemon(filter)
+           print("Upps something went wrong but who cares?: {}", e)
 
 def main():
 
     parser = argparse.ArgumentParser()
     # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
     #                     "evolve - send and receive gifts")
-    parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
+    parser.add_argument('--loglevel', '-l', action='store', default=logging.ERROR)
     # parser.add_argument("-p", "--phone", action="store", \
     #                     help="Set phone name default path '/tmp'")
     parser.add_argument("-p", "--port", action="store", required=True, \

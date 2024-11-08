@@ -1,0 +1,17 @@
+{
+    "mode": "trade",
+    "league": "master",
+    "host": {
+        "port": "3002",
+        "name": "eizu123",
+        "Aname": "yellow",
+        "filter-l": "!shiny & !traded & abra & 0* & !favorite & roska",
+		"filter": "roska"
+    },
+    "guest": {
+        "port": "3003",
+        "name": "higimmi444",
+        "plname": "plastic",
+        "filter": "pumpkaboo"
+    }
+}
