@@ -271,6 +271,7 @@ class TouchScreen:
                 i += 1
             # print("RALF string '{}'".format(c))
             self.writeToPhone("key:{}".format(c))
+            time.sleep(0.01)
 
     def selectAll(self):
         self.typeString("\\a")
@@ -359,7 +360,7 @@ class TouchScreen:
         self.waitMatchColor(121, 1154, 255, 255, 255)
         time.sleep(0.4)
         self.typeString(filter)
-        time.sleep(0.4)        
+        time.sleep(1)        
         self.tapTextOK()
         
     def searchFriend(self, name):

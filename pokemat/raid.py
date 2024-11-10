@@ -26,9 +26,9 @@ def reconnect(port, phone):
         try:
             for x in range(200,700,150):
                 phone.tapScreen(x, 1500)
-                time.sleep(0.13)
+                time.sleep(0.05)
                 phone.tapScreen(x, 1800)
-                time.sleep(0.12)
+                time.sleep(0.05)
                 # phone.atchColor(321, 1005, 160, 219, 147)
         except Exception as e:
             print("Upps something went wrong but who cares?: {}", e)
