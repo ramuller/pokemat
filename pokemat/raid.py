@@ -11,11 +11,7 @@ import json
 import sys
 from datetime import datetime
 
-def deleteRedBalls(phone):
-    phone.goHome()
-    phone.tapScreen()
-
-def reconnect(port, phone):
+def raid(port, phone):
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)
         
@@ -50,7 +46,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    reconnect(args.port, args.phone)
+    raid(args.port, args.phone)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

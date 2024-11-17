@@ -160,14 +160,15 @@ class TouchScreen:
         self.waitMatchColor(46, 1480, 255,255,255, same=False)
         
 
-    def scroll(self, dx, dy):
-        self.log.info("Scroll")
+    def scroll(self, dx, dy, start_x = 100, start_y = 1000):
+        # self.log.info("Scroll")
         # x = maxX / 2
-        x = float(self.maxX / 2)
-        y = float(self.maxY / 2)
+        x = float(start_x)
+        y = float(start_y)
         sx = float(dx / 20.0)
         sy = float(dy / 20.0)
         self.tapDown(int(x), int(y), duration = 0)
+        time.sleep(0.1)
         for s in range(0,20):
             x = x + sx
             y = y + sy
@@ -176,7 +177,8 @@ class TouchScreen:
             # self.moveCursor(int(sx), int(sy))
             time.sleep(0.01)
             # self.tapDown(int(x), int(y), int(sx), int(sy))
-        self.tapUp(int(x), int(y))
+        time.sleep(0.6)
+        self.tapUp(int(x + dx), int(y + dy))
 
     def tapOpen(self):
         self.log.debug("tapOpen")
@@ -222,27 +224,49 @@ class TouchScreen:
         time.sleep(0.2)
         self.waitMatchColor(79, 179, 255, 255, 255)
         time.sleep(0.2)
+        if self.matchColor(184, 777, 251, 254, 249) and \
+           self.matchColor(184, 750, 255, 255, 255) and \
+           self.matchColor(184, 710,255, 255, 255):
+            print("No more pokemons with this filter")
+            return False
+        print("Tao 177, 751")
         self.tapScreen(177, 751)
-        
+        return True
+    
+    def showColor(self, x, y):
+            r, g, b = self.getRGB(x, y)
+            print("Pixel color {},{},{},{},{}".format(x, y, r, g ,b))
+       
     def evolvePokemon(self):
         self.waitMatchColor(135, 1001, 255, 255, 255)
-        time.sleep(1.5)
+        time.sleep(1)
         # self.scroll(0, 200)
         # sys.exit(0)
-        for y in range(self.maxY - 2, self.maxY - 200, -10):
+        print("Scroll up")
+        self.scroll(0,-400)
+         # Search and tap evolve
+        for y in range(self.maxY - 2, self.maxY - 400, -10):
             self.log.debug("Search in {}".format(y))
             if self.matchColor(116, y, 163, 220, 148):
                 print("Match at {}".format(y))
-                self.tapScreen(114, y)
+                self.tapScreen(130, y -10)
                 break
-        time.sleep(0.8)
-        for y in range(1200, 1400, 10):
-            if self.matchColor(319, y, 151, 218, 147):
-                self.tapScreen(319, y)
-                break
-        time.sleep(5)
-        self.waitMatchColor(135, 1388, 255, 255, 255, time_out_ms=20000)
-        self.waitMatchColor(135, 1388, 255, 255, 255, time_out_ms=20000)
+        time.sleep(1.2)
+         # Search and tap yes
+        for i in range(0, 2):
+            print("Wait for yes")
+            for y in range(1200, 1400, 10):
+                if self.matchColor(319, y, 151, 218, 147):
+                    self.tapScreen(319, y)
+                    break
+        time.sleep(3)
+        # 72, 476, 255, 255, 255
+        print("Wait for evolve ready")
+        self.waitMatchColor(505, 1832, 28, 135, 149, time_out_ms=20000)
+        # self.waitMatchColor(72, 476, 255, 255, 255, time_out_ms=20000)
+        # self.waitMatchColor(135, 1388, 255, 255, 255, time_out_ms=20000)
+        # self.waitMatchColor(135, 1388, 255, 255, 255, time_out_ms=20000)
+        print("Evolve ready")
         time.sleep(0.8)
         self.tapScreenBack()
         
@@ -256,7 +280,7 @@ class TouchScreen:
     
     def typeString(self, text):
         time.sleep(0.1)
-        self.log.debug("type string {}".format(text))
+        # self.log.debug("type string {}".format(text))
         i = 0
         
         while i < len(text):
@@ -271,7 +295,7 @@ class TouchScreen:
                 i += 1
             # print("RALF string '{}'".format(c))
             self.writeToPhone("key:{}".format(c))
-            time.sleep(0.01)
+            time.sleep(0.001)
 
     def selectAll(self):
         self.typeString("\\a")
@@ -293,12 +317,12 @@ class TouchScreen:
             if self.matchColor(501, 1826, 30, 134, 149):
                 self.tapScreenBack()                
             # Upper left exit
-            elif self.matchColor(109, 185, 234, 247, 240) or \
-                 self.matchColor(97, 166, 250, 250, 250):
-                self.tapScreen(109, 185)
-                self.tapYES()
-            elif self.matchColor(500, 1822, 246, 254, 245, threashold=15):
+            elif self.matchColor(500, 1822, 246, 245, 245, threashold=15):
                 self.log.debug("light green press?")
+                self.tapScreenBack()
+            elif self.waitMatchColor(498, 1832, 231, 235, 227):
+                self.log.debug("Almost white?")
+                print("AlmostWhite")
                 self.tapScreenBack()
             elif self.matchColor(500, 1832, 240, 242, 230):
                 self.log.debug("whith like gym press?")
@@ -313,12 +337,18 @@ class TouchScreen:
                 self.tapScreen(357, 1000)                
             elif self.matchColor(847, 1849, 27, 134, 150):
                 self.tapScreen(847, 1849)
+            elif self.matchColor(109, 185, 234, 247, 240) or \
+                 self.matchColor(97, 166, 250, 250, 250):
+                print("Tap somthing")
+                self.tapScreen(109, 185)
+                self.tapYES()
             else:
                 if self.matchColor(64, 156, 255, 255, 255):
                     self.tapScreen(64, 156)
                 elif self.matchColor(57, 361, 28, 135, 149):
                     self.tapScreen(57, 361)
                 else:
+                    print("Not found")
                     if count == 0:
                         raise ExPokeLibError("Cant find home")
                     count = count -1

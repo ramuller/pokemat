@@ -24,28 +24,33 @@ def reconnect(port, phone):
    
     while True:
         try:
-            phone.tapScreen(125, 406)
+            phone.tapScreen(119, 1791) # Avatar
+            time.sleep(2)
+            phone.goHome()
             print("Check connection status")
-            phone.waitMatchColorAndClick(750, 552, 146, 91, 121, time_out_ms=60000)
+            phone.waitMatchColorAndClick(914, 583, 149, 97, 121, time_out_ms=20000)
             print("Color match")
-            try:
-                phone.waitMatchColorAndClick(222, 1273, 81, 146, 222)
-                phone.waitMatchColorAndClick(265, 1244, 81, 146, 222)
-            except:
-                log.info("No active sync needed")
-                pass            
-            phone.tapScreen(125, 406)
-            print("Wait for connect screen")
-            phone.waitMatchColor(564, 1744, 254, 253, 247, time_out_ms=60000)
-            phone.tapScreen(602, 1736)
-            log.info("Pair clicked")
+            time.sleep(1)
+            phone.waitMatchColor(114, 136, 45, 49, 50, time_out_ms=30000)
+            print("Connect screen detected")
+            for x in range(230, 280, 4):
+                r, g, b = phone.getRGB(x, 369)
+                print("X {},{},{},{}".format(x, r, g ,b))
+            # phone.waitMatchColorAndClick(241, 369, 143, 208, 218)
+            time.sleep(1)
+            print("TAP connect")
+            phone.tapScreen(241, 369)
+            phone.waitMatchColor(251, 1205, 66, 66, 66)
+            time.sleep(1)
+            print("TAP pair")
+            phone.tapScreen(828, 1177)
+            # phone.waitMatchColorAndClick(807, 1189, 29, 88, 102)
             print("Wait a minute to get the connection up!")
             for i in range(0,10):
                 time.sleep(6)
-                if phone.colorMatch(564, 1744, 254, 253, 247):
-                    phone.tapScreen(602, 1736)
-                    
-            time.sleep(60)
+                if phone.matchColor(914, 582, 255, 1, 0):
+                    break
+            time.sleep(5)
         except Exception as e:
             print("Upps something went wrong but who cares?: {}", e)
             

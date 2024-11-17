@@ -2,16 +2,15 @@
     "mode": "trade",
     "league": "master",
     "host": {
-        "port": "3002",
+        "port": "3003",
         "name": "eizu123",
         "Aname": "yellow",
-        "filter-l": "!shiny & !traded & abra & 0* & !favorite & roska",
-		"filter": "roska"
+        "filter": "machop & !novolve & !favorite & distance-100"
     },
     "guest": {
-        "port": "3003",
-        "name": "higimmi444",
+        "port": "3004",
+        "name": "localhost",
         "plname": "plastic",
-        "filter": "pumpkaboo"
-    }
+        "filter": "machop & !favorite & distance200-"
+     }
 }

@@ -23,7 +23,7 @@ from _operator import truediv
 
 global log
 
-def evolve(port, phone, filter):
+def filterPoke(port, phone, filter):
     
     can_get_gifts = True
     can_send_gifts = True
@@ -34,20 +34,24 @@ def evolve(port, phone, filter):
     phone = TouchScreen(port, phone)
     # phone.scroll(0, -100)
     # sys.exit(0)
+    
     phone.selectPokemon(filter)
     giftsSent = 0
     giftsReceived = 0
     evolve_count = 0
     print("Start time : Evolve {}".format(phone.getTimeNow()))
-    while True:
+    while 0 < 1:
+        print("while")
         try:
+            time.sleep(1)
+            print("Select first")
             if not phone.selectFirstPokemon():
-                print("All pokemons for filter '{}' evolved!".format(filter))
                 sys.exit(0)
-            phone.evolvePokemon()
-            evolve_count = evolve_count + 1
-            print("Time : Evolve {} ".format(phone.getTimeNow()))
-            print("Pokemon evolved : {}".format(evolve_count))
+            phone.waitMatchColorAndClick(163, 1765, 232, 128, 181)
+            phone.waitMatchColorAndClick(361, 1152, 147, 217, 150)
+            time.sleep(2)
+            phone.waitMatchColorAndClick(494, 1822, 36, 132, 147,time_out_ms=20000)
+            
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
             # sys.exit(1)
@@ -76,7 +80,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    evolve(args.port, args.phone, args.filter)
+    filterPoke(args.port, args.phone, args.filter)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

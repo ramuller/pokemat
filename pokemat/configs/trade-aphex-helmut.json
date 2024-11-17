@@ -2,22 +2,22 @@
     "mode": "trade",
     "league": "master",
     "host": {
-        "port": "3001",
+        "port": "3004",
         "hi-name": "higimmi222",
         "name": "aphex",
         "Aname": "yellow",
         "filter-l": "ptrade & !dynamax & !favorite & !shiny & !traded",
 		"filter-2": "ptrade",
-		"filter": "pumpkaboo & !shiny & !traded"
+        "filter": "pumpkaboo & !shiny & !traded &!purified &!favorite &!norade"
 		
     },
     "guest": {
-        "port": "3003",
-        "name": "eizu123",
-        "hi-name": "higimmi222",
+        "port": "3002",
+        "e-name": "aphex",
+        "name": "aphex",
         "a-name": "aphex",
         "h-name": "helmut",
         "plname": "plastic",
-        "filter": "pumpkaboo & !shiny & !traded"
+        "filter": "machop & !shiny & !traded &!purified &!favorite &!norade"
     }
 }
