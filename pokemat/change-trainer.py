@@ -22,12 +22,24 @@ def selectTrainer(trainer):
     elif trainer == "schlumpiz":
         sleep(1)
         phone.tapScreen(390, 1931)
+    elif trainer == "pokeralle":
+        sleep(1)
+        phone.tapScreen(527, 1722)
+    elif trainer == "higimmi222":
+        sleep(1)
+        phone.tapScreen(652, 1019)
     elif trainer == "aphex":
         for i in range(0,5):
             print("Scroll up")
             phone.scroll(0, -400, start_x=900)
             sleep(1)        
         phone.tapScreen(321, 714)
+    elif trainer == "blond":
+        for i in range(0,5):
+            print("Scroll up")
+            phone.scroll(0, -400, start_x=900)
+            sleep(1)        
+        # phone.tapScreen(321, 714)
     else:
         
         print("Unknow trainer")

@@ -5,12 +5,12 @@
         "port": "3003",
         "name": "eizu123",
         "Aname": "yellow",
-        "filter": "machop & !novolve & !favorite & distance-100"
+        "filter": "roska & !novolve & !favorite & distance-100"
     },
     "guest": {
         "port": "3004",
-        "name": "localhost",
+        "name": "blond",
         "plname": "plastic",
-        "filter": "machop & !favorite & distance200-"
+        "filter": "shelmet & !favorite & distance200-"
      }
 }

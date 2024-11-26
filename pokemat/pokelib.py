@@ -5,6 +5,9 @@ import sys
 from datetime import datetime
 import random
 import math
+from ansible_collections.cisco.dnac.plugins.action import wireless_dynamic_interface_info
+from ansible_collections.community.aws.plugins.modules.directconnect_gateway import dx_gateway_info
+from ctypes.macholib.dyld import dyld_default_search
 
 log = logging.getLogger("pokelib")
 
@@ -307,6 +310,11 @@ class TouchScreen:
         return self.matchColor(501,1802,255,55,72,10)
     
     def isFriendScreen(self):
+        if self.matchColor(319, 843, 0, 0, 0) \
+            and self.matchColor(319, 1246, 0, 0, 0) \
+            and self.matchColor(678, 843, 0, 0, 0):
+            self.tapBack()
+            time.sleep(0.5)
         return self.matchColor(32, 91, 255, 255, 255)
 
     def goHome(self):
@@ -581,14 +589,32 @@ class TouchScreen:
                     self.moveCursor(x, 800, x + step, 1900)
                     time.sleep(0.01)
 
-            if True:
+            if False:
                 xn = random.randint(10, self.maxX - 200)
                 yn = random.randint(800, 1900)
                 self.moveCursor(x, y, xn, yn)
                 x = xn
                 y = yn
-        
-                               
+                
+            if True:
+                x = 100
+                y = 1400
+                step = 10
+                t = 0.01
+                for a in range(0,180, step):
+                    dx = x + ( a * ( 800.0 / 180.0))
+                    dy = y + (int(math.sin(math.radians(a)) * 350))
+                    self.moveCursor(x, y, dx, dy)
+                    x = dx
+                    y = dy
+                    time.sleep(t)
+                for a in range(180,0, step):
+                    dx = x + ( a * ( 800.0 / 180.0))
+                    dy = y + (int(math.sin(math.radians(a)) * 350)) 
+                    self.moveCursor(x, y, dx, dy, dy)
+                    x = d
+                    y = d
+                    time.sleep(t)           
         self.tapUp(x, y + step, duration = 0)
                 
     
