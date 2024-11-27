@@ -26,13 +26,21 @@ def catch(port, phone, right = True):
     
     p = TouchScreen(port, phone)
     p.tapScreen(114, 1757)
-    sleep(0.5)
+    sleep(1)
+    no_berry = True
     if p.matchColor(814, 1373, 236, 227, 19):
         p.tapScreen(815, 1375)
         sleep(0.5)
         p.tapScreen(486, 1748)
         sleep(1)
-    else:
+        no_berry = False
+    elif p.matchColor(772, 1767, 248, 246, 76):
+        p.tapScreen(772, 1767)
+        sleep(0.5)
+        p.tapScreen(486, 1748)
+        sleep(1)
+        no_berry = False
+    if no_berry:
         sleep(1)
         print("Reomve screen")
         p.tapScreen(795, 191)
