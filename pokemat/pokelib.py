@@ -8,6 +8,7 @@ import math
 from ansible_collections.cisco.dnac.plugins.action import wireless_dynamic_interface_info
 from ansible_collections.community.aws.plugins.modules.directconnect_gateway import dx_gateway_info
 from ctypes.macholib.dyld import dyld_default_search
+from mpmath.tests.test_compatibility import ys
 
 log = logging.getLogger("pokelib")
 
@@ -317,6 +318,9 @@ class TouchScreen:
             time.sleep(0.5)
         return self.matchColor(32, 91, 255, 255, 255)
 
+    def spinDisk(self):
+        self.scroll(600, 0, start_x = 150, start_y = 1000)
+    
     def goHome(self):
         self.log.info("Go to homescreen")
         count = 10 # Try count time
@@ -619,6 +623,76 @@ class TouchScreen:
                 
     
     
+    def catch(self, right = True, start = -90, end = 60, off_y = 900, radius = 250, delay = 0.012, step = 5, distance = 20):
+        def getX(d, r, offset=0):
+            return math.sin(math.radians(d)) * float(r) + float(offset)
+        
+        def getY(d, r, offset=0):
+            return math.cos(math.radians(d)) * float(r) + offset
+        
+         
+        off_x = 500
+        off_y = 1250
+        # off_y = 900
+        x = getX(start, radius, off_x) 
+        y = getY(start, radius, off_y)
+        self.tapDown(x, y)
+        top = 10
+        while top < 0:
+            for probe in range(750,900,2):
+                if self.matchColor(500, probe, 240,240,240):
+                    top = probe
+        button = -1
+        while top < 0:
+            for probe in range(750,850,-2):
+                if self.matchColor(500, probe, 240,240,240):
+                    top = probe
+        # print("Top = {}".format(top))
+        # return
+        a  = start + step
+        b = 0.0
+        while a < end + step:
+            a = a + step + int(a / 60)
+            b = b + 0.2
+            t = radius + int(b)
+            radius = t
+             # for a in range(start + step, end + step, step):
+            sx = x
+            sy = y
+            
+            if right:
+                x = off_x + getX(a, radius)
+            else:  
+                x = off_x - getX(a, radius)
+            y = getY(a, radius, off_y) # - a * 2
+            # print("x = {}".format(x))
+            self.moveCursor(int(sx), int(sy), int(x), int(y))
+            # dx = x - sx
+            # dy = y - sy
+            # d = math.sqrt(dx * dx + dy * dy)
+            # print("Delta {}".format(d))
+            # canvas.create_line(sx, sy, x, y)
+            # canvas.update()
+            time.sleep(delay)
+        ys = int(y)
+        xs = x
+        dx = x - sx
+        dy = y - sy
+        d = math.sqrt(dx * dx + dy * dy)
+        print("Delta {}".format(d))
+        accel=0.0
+        #for y2 in range(int(y) - 10 , int(y) - 100, -10):
+        for i in range(distance):        
+            accel = accel + 5.0
+            ye = ys - ( d + accel)
+            xe = xs + dx # distance - i
+            self.moveCursor(int(xs), int(ys), int(xe), int(ye))
+            xs = xe
+            ys = ye
+            time.sleep(delay)
+        # return
+        self.tapUp(x, y)
+        # 750
     def doBattle(self):
             
             while not self.matchColor(100, 100, 10, 10, 10) and \

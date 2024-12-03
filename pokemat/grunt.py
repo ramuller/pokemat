@@ -18,12 +18,36 @@ def raid(port, phone):
     print("Start batteling \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
    
-    while True:
-        phone.doBattle()
-        # phone.atchColor(321, 1005, 160, 219, 147)
-        # except Exception as e:
-          #  print("Upps something went wrong but who cares?: {}", e)
-            
+    try:
+        phone.waitMatchColorAndClick(305, 1773, 137, 216, 153, time_out_ms = 1500)
+    except:
+        pass
+    time.sleep(1)
+    phone.spinDisk()
+    try:
+        phone.waitMatchColorAndClick(656, 595, 240, 206, 179, time_out_ms = 1500)
+    except:
+        pass
+    phone.tapScreen(656, 595)
+    time.sleep(1)
+    phone.tapScreen(656, 595)
+    phone.waitMatchColorAndClick(354, 1535, 151, 217, 147)
+    time.sleep(1)
+    phone.waitMatchColorAndClick(366, 1791, 159, 218, 146)
+    time.sleep(2)
+
+    phone.doBattle()
+    
+    # Wait for trainer
+    try:
+        phone.waitCatchColorAndClick(512, 873, 203, 89, 50, time_out_ms = 3500)
+    except:
+       pass
+    phone.tapScreen(512, 873) 
+
+    phone.waitMatchColorAndClick(305, 1773, 137, 216, 153)
+    sleep(3)
+    phone.catch       
        
 def main():
 

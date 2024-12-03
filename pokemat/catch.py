@@ -25,67 +25,46 @@ def catch(port, phone, right = True):
     print("Start catching on  \"{}\" on port {}", phone, port)
     
     p = TouchScreen(port, phone)
-    p.tapScreen(114, 1757)
+    while not p.matchColor(90, 1414, 245, 254, 242):
+        try:
+            p.waitMatchColor(421, 1933, 220, 220, 220, threashold = 35)
+        except:
+          print("Catch over")
+          break
+        p.tapScreen(114, 1757)
+        sleep(1)
+        no_berry = True
+        if p.matchColor(814, 1373, 236, 227, 19):
+            p.tapScreen(815, 1375)
+            sleep(0.5)
+            p.tapScreen(486, 1748)
+            sleep(1)
+            no_berry = False
+        elif p.matchColor(772, 1767, 248, 246, 76):
+            p.tapScreen(772, 1767)
+            sleep(0.5)
+            p.tapScreen(486, 1748)
+            sleep(1)
+            no_berry = False
+        elif p.matchColor(182, 1718, 238, 232, 27):
+            p.tapScreen(182, 1718)
+            sleep(0.5)
+            p.tapScreen(486, 1748)
+            sleep(1)
+            no_berry = False
+        if no_berry:
+            sleep(1)
+            print("Reomve screen")
+            p.tapScreen(795, 191)
+            sleep(2)
+        sleep(0.5)
+        p.catch()
+        sleep(3)
     sleep(1)
-    no_berry = True
-    if p.matchColor(814, 1373, 236, 227, 19):
-        p.tapScreen(815, 1375)
-        sleep(0.5)
-        p.tapScreen(486, 1748)
-        sleep(1)
-        no_berry = False
-    elif p.matchColor(772, 1767, 248, 246, 76):
-        p.tapScreen(772, 1767)
-        sleep(0.5)
-        p.tapScreen(486, 1748)
-        sleep(1)
-        no_berry = False
-    if no_berry:
-        sleep(1)
-        print("Reomve screen")
-        p.tapScreen(795, 191)
-        sleep(2)
-    sleep(0.5)
-    start = -60
-    end = 460
-    step = 8
-    radius = 250 
-    off_x = 500
-    off_y = 1250
-    off_y = 900
-    x = getX(start, radius, off_x) 
-    y = getY(start, radius, off_y)
-    p.tapDown(x, y)
-    a  = start + step
-    b = 0.0
-    while a < end + step:
-        a = a + step + int(a / 60)
-        b = b + 0.2
-        t = radius + int(b)
-        radius = t
-         # for a in range(start + step, end + step, step):
-        sx = x
-        sy = y
-        
-        if right:
-            x = off_x + getX(a, radius)
-        else:  
-            x = off_x - getX(a, radius)
-        y = getY(a, radius, off_y) # - a * 2
-        # print("x = {}".format(x))
-        p.moveCursor(int(sx), int(sy), int(x), int(y))
-        # canvas.create_line(sx, sy, x, y)
-        # canvas.update()
-        sleep(0.015)
-
-    y1 = y
-    for y2 in range(int(y) - 10 , int(y) - 100, -10):
-        p.moveCursor(int(x), int(y1), int(x), int(y2))
-        y1 = y2
     
-    p.tapUp(x, y)
-            
-       
+    p.tapScreen(378, 1382)
+    sleep(1)
+    p.tapBack()
 def main():
 
     parser = argparse.ArgumentParser()
