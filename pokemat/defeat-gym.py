@@ -22,8 +22,10 @@ def whiteScreen():
     return True
 
 def inLobby():
-    if phone.matchColor(861, 1570, 241, 246, 242) \
-        and phone.matchColor(887, 1806, 236, 244, 239) \
+    # if phone.matchColor(824, 1623, 241, 246, 242, debug=True):
+    #     return True
+    if phone.matchColor(824, 1623, 241, 246, 238,threashold=17 ) \
+        and phone.matchColor(887, 1806, 237, 244, 239) \
         and phone.matchColor(493, 1839, 234, 241, 237) \
         and phone.matchColor(868, 210, 242, 251, 239):
         return True

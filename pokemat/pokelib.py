@@ -623,14 +623,14 @@ class TouchScreen:
                 
     
     
-    def catch(self, right = True, start = -90, end = 60, off_y = 900, radius = 250, delay = 0.012, step = 5, distance = 20):
+    def catch(self, right = True, start = -90, end = 60, off_y = 900, radius = 250, delay = 0.012, step = 5, distance = 15):
         def getX(d, r, offset=0):
             return math.sin(math.radians(d)) * float(r) + float(offset)
         
         def getY(d, r, offset=0):
             return math.cos(math.radians(d)) * float(r) + offset
         
-         
+        attempt = 1 
         off_x = 500
         off_y = 1250
         # off_y = 900
@@ -660,10 +660,12 @@ class TouchScreen:
             sx = x
             sy = y
             
+            # if attempt % 2:
             if right:
                 x = off_x + getX(a, radius)
             else:  
                 x = off_x - getX(a, radius)
+            attempt = attempt + 1
             y = getY(a, radius, off_y) # - a * 2
             # print("x = {}".format(x))
             self.moveCursor(int(sx), int(sy), int(x), int(y))

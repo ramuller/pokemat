@@ -59,7 +59,7 @@ def catch(port, phone, right = True):
             sleep(2)
         sleep(0.5)
         p.catch()
-        sleep(3)
+        sleep(5)
     sleep(1)
     
     p.tapScreen(378, 1382)

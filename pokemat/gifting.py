@@ -78,6 +78,7 @@ def gifting(port, phone):
                 time.sleep(0.3)
             time.sleep(1)
             phone.selectAll()
+            phone.typeString("\b")
             phone.typeString("!ff")
             time.sleep(1)
             phone.tapTextOK()      
