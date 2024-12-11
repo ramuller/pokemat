@@ -17,32 +17,58 @@ def raid(port, phone):
         
     print("Start batteling \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
-
+    phone.doBattle()
     no_grunt = False
-    # no_grunt = True
-    
+    no_grunt = True
+    gy = 1000
     while no_grunt:
+        if phone.matchColor(460, 849, 206, 92, 51, threashold = 20):
+            print("Rocket found")
+            no_grunt = False
+            break
         for x in range(100, 900, 10):
-            print("Search grunt {}, {}".format(x, 890))
-            if phone.matchColor(x, 890, 73, 73, 75):
-                phone.tapScreen(x, 890)
-                if phone.matchColor(868, 197, 241, 247, 240):
+            print("Search grunt {}, {}".format(x, 900))
+            if phone.matchColor(x, gy, 73, 73, 75):
+                phone.tapScreen(x, gy)
+                time.sleep(1)
+                if phone.matchColor(868, 197, 241, 247, 240) or \
+                    phone.matchColor(506, 849, 206, 92, 51):
                     no_grunt = False
         
    
     try:
-        phone.waitMatchColorAndClick(305, 1773, 137, 216, 153, time_out_ms = 1500)
+        phone.waitMatchColorAndClick(463, 855, 203, 79, 41, time_out_ms = 1500)
     except:
         pass
     time.sleep(1)
     phone.spinDisk()
     try:
-        phone.waitMatchColorAndClick(592, 585, 241, 204, 176, threashold=20, time_out_ms = 3500)
+        i = 15
+        no_grunt = True
+        while i > 0:
+            i = i -1
+            if phone.matchColor(506, 849, 206, 92, 51):
+                phone.tapScreen(506, 849)
+                i = 0
+                break
     except:
         pass
-    phone.waitMatchColorAndClick(380, 1544, 146, 216, 149, time_out_ms = 5500)
-    phone.waitMatchColorAndClick(366, 1791, 159, 218, 146, time_out_ms = 5500)
-    time.sleep(2)
+    print("Wait opponent")
+    try:
+        phone.waitMatchColorAndClick(348, 1554, 151, 217, 149, threashold=20, time_out_ms = 3500)
+    except:
+        pass
+    time.sleep(1)
+    phone.tapScreen(388, 1552)
+    phone.waitMatchColorAndClick(350, 1771, 159, 222, 146)
+    print("Wait go battle")
+    
+    # y:
+    #   phone.waitMatchColorAndClick(338, 1779, 162, 220, 148, threashold=20, time_out_ms = 15500)
+    # cept:
+    #   pass
+    time.sleep(1)
+    print("do battler")
 
     phone.doBattle()
     
@@ -55,7 +81,7 @@ def raid(port, phone):
         pass
     phone.tapScreen(512, 873) 
 
-    sleep(3)
+    sleep(6)
     print("Try to catch")
     phone.catch       
        

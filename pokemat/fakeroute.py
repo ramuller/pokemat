@@ -10,13 +10,16 @@ parser.add_argument("-l", "--location", action="store", required=True, default="
                         help="Name os the phone model. Check phones.json.")
 args = parser.parse_args()
 
-for ph in range(2,6):
-    p = ts(3000 + ph, "s7")
-    p.tapScreen(690,140)
-    sleep(1)
-    p.tapScreen(430, 1029)
-    sleep(1)
-    p.typeString(args.location)
-    sleep(1)
-    p.tapScreen(822, 798)
+for ph in range(1,6):
+    try:
+        p = ts(3000 + ph, "s7")
+        p.tapScreen(690,140)
+        sleep(1)
+        p.tapScreen(430, 1029)
+        sleep(1)
+        p.typeString(args.location)
+        sleep(1)
+        p.tapScreen(822, 798)
+    except:
+        pass
 

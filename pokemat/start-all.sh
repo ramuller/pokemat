@@ -1,9 +1,11 @@
 #/!bin/bash
 
+first=1
+last=6
 
 while true;
 do
-    for i in {2..6}
+    for i in $(seq ${first} ${last})
     do
         ps -ef |grep scrcpy |grep --silen 300$i
         if [ $? -eq 0 ]; then

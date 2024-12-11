@@ -5,10 +5,6 @@ import sys
 from datetime import datetime
 import random
 import math
-from ansible_collections.cisco.dnac.plugins.action import wireless_dynamic_interface_info
-from ansible_collections.community.aws.plugins.modules.directconnect_gateway import dx_gateway_info
-from ctypes.macholib.dyld import dyld_default_search
-from mpmath.tests.test_compatibility import ys
 
 log = logging.getLogger("pokelib")
 
@@ -602,9 +598,9 @@ class TouchScreen:
                 
             if True:
                 x = 100
-                y = 1400
+                y = 1200
                 step = 10
-                t = 0.01
+                t = 0.05
                 for a in range(0,180, step):
                     dx = x + ( a * ( 800.0 / 180.0))
                     dy = y + (int(math.sin(math.radians(a)) * 350))
@@ -612,12 +608,12 @@ class TouchScreen:
                     x = dx
                     y = dy
                     time.sleep(t)
-                for a in range(180,0, step):
+                for a in range(180,0, -step):
                     dx = x + ( a * ( 800.0 / 180.0))
                     dy = y + (int(math.sin(math.radians(a)) * 350)) 
-                    self.moveCursor(x, y, dx, dy, dy)
-                    x = d
-                    y = d
+                    self.moveCursor(x, y, dx, dy)
+                    x = dx
+                    y = dy
                     time.sleep(t)           
         self.tapUp(x, y + step, duration = 0)
                 
@@ -651,6 +647,11 @@ class TouchScreen:
         # return
         a  = start + step
         b = 0.0
+        if attempt % 2:
+            right = False
+        else:
+            right = True
+            
         while a < end + step:
             a = a + step + int(a / 60)
             b = b + 0.2
@@ -660,7 +661,6 @@ class TouchScreen:
             sx = x
             sy = y
             
-            # if attempt % 2:
             if right:
                 x = off_x + getX(a, radius)
             else:  
