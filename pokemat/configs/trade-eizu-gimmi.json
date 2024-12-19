@@ -1,16 +1,16 @@
 {
     "mode": "trade",
     "league": "master",
-    "host": {
-        "port": "3003",
+    "guest": {
+        "port": "3005",
         "name": "eizu123",
         "Aname": "yellow",
-        "filter": "roska & !novolve & !favorite & distance-100"
+        "filter": "4trade"
     },
-    "guest": {
+    "host": {
         "port": "3004",
-        "name": "blond",
+        "name": "aphex",
         "plname": "plastic",
-        "filter": "shelmet & !favorite & distance200-"
+        "filter": "t06"
      }
 }
