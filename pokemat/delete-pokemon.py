@@ -24,7 +24,7 @@ from skimage.filters.rank.generic import threshold
 
 global log
 
-def deleteGifts(port, phone):
+def delete_pokemon(port, phone):
     
     can_get_gifts = True
     can_send_gifts = True
@@ -37,10 +37,16 @@ def deleteGifts(port, phone):
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
             phone.selectFirstPokemon()
+            print("Click menu")
             phone.waitMatchColorAndClick(866, 1800, 28, 135, 149)
+            print("Click transfer")
             phone.waitMatchColorAndClick(800, 1634, 42, 108, 120)
-            phone.waitMatchColorAndClick(637, 1123, 80, 211, 162, threshold=20)
-            phone.waitMatchColorAndClick(368, 1031, 146, 216, 149)
+            phone.waitMatchColorAndClick(637, 1123, 80, 211, 162, threashold=20)
+            try:
+                phone.waitMatchColorAndClick(368, 1031, 146, 216, 149, time_out_ms = 1500)
+            except:
+                print("No extra tab")
+                pass
             # phone.waitMatchColorAndClick(352, 1044, 150, 218, 149)
             time.sleep(2)             
             print("Ready")
@@ -70,7 +76,7 @@ def main():
     log = logging.getLogger("gifting")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    deleteGifts(args.port, args.phone)
+    delete_pokemon(args.port, args.phone)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

@@ -24,7 +24,8 @@ def reconnect(port, phone):
    
     while True:
         try:
-            phone.tapScreen(119, 1791) # Avatar
+            # phone.tapScreen(119, 1791) # Avatar
+            phone.tapScreen(90, 30) # Clock
             time.sleep(2)
             phone.goHome()
             print("Check connection status")
@@ -50,7 +51,7 @@ def reconnect(port, phone):
                 time.sleep(6)
                 if phone.matchColor(914, 582, 255, 1, 0):
                     break
-            time.sleep(5)
+            time.sleep(30)
         except Exception as e:
             print("Upps something went wrong but who cares?: {}", e)
             

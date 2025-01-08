@@ -14,7 +14,7 @@
 # export SN=ce11160bc1ce7d1705
 
 
-EXTRA="-S --disable-screensaver"
+[ -n "$EXTRA" ] || EXTRA="-S --disable-screensaver"
 
 cd ..
 

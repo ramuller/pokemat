@@ -18,13 +18,7 @@ def getX(d, r, offset=0):
 def getY(d, r, offset=0):
     return math.cos(math.radians(d)) * float(r) + offset
 
-def catch(port, phone, right = True):
-    with open("phone-spec.json", 'r') as file:
-        phones = json.load(file)
-        
-    print("Start catching on  \"{}\" on port {}", phone, port)
-    
-    p = TouchScreen(port, phone)
+def catch(port, p, distance = 15, right = True):
     while not p.matchColor(90, 1414, 245, 254, 242):
         try:
             p.waitMatchColor(421, 1933, 220, 220, 220, threashold = 35)
@@ -58,13 +52,25 @@ def catch(port, phone, right = True):
             p.tapScreen(795, 191)
             sleep(2)
         sleep(0.5)
-        p.catch()
+        print("distance {}".format(distance))
+        p.catch_move(distance = distance)
         sleep(5)
     sleep(1)
     
     p.tapScreen(378, 1382)
+    print("Go home")
+    p.goHome()
     sleep(1)
-    p.tapBack()
+
+def action(port, phone, distance = 15, right = True):
+    with open("phone-spec.json", 'r') as file:
+        phones = json.load(file)
+        
+    print("Start catching on  \"{}\" on port {}", phone, port)
+    
+    p = TouchScreen(port, phone)
+    catch(port, p, distance, right)
+
 def main():
 
     parser = argparse.ArgumentParser()
@@ -72,6 +78,8 @@ def main():
     #                     "evolve - send and receive gifts")
     parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
     parser.add_argument("-p", "--port", action="store", required=True, \
+                        help="TCP port for the connection.")
+    parser.add_argument("-d", "--distance", action="store", default=15, \
                         help="TCP port for the connection.")
     parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
                         help="Name os the phone model. Check phones.json.")
@@ -81,7 +89,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    catch(args.port, args.phone)
+    action(args.port, args.phone, int(args.distance))
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)
