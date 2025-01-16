@@ -17,7 +17,15 @@ def raid(port, phone):
         
     print("Start evolutions \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
-   
+    phone.tapScreen(650,1500)
+    time.sleep(2)
+    phone.tapScreen(650,1500)
+    time.sleep(8)
+    while phone.matchColor(368, 203, 16, 146, 175):
+        print("Wait for start")
+        time.sleep(3)
+    print("Raid starts")
+    # self.matchColor(500, 144, 70, 207, 181)
     while True:
         try:
             for x in range(200,700,150):

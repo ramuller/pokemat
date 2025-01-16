@@ -687,20 +687,21 @@ class TouchScreen:
     
     
 #     def catch_move(self, right = True, start = -90, end = 60, off_y = 900, radius = 250, delay = 0.012, step = 5, distance = 15):
-    def catch_move(self, right = True, start = -90, end = 60, off_y = 900, radius = 250, delay = 0.01, step = 5, distance = 20):
-        def getX(d, r, offset=0):
-            return math.sin(math.radians(d)) * float(r) + float(offset)
+    def catch_move(self, right = True, start = -180, end = 90 + 720, off_x = 500, off_y = 1300, \
+                   radius = [80, 250], delay = 0.015, step = 5, distance = 10, tilt = -1.0):
+        def getX(d, r, offset=0, tilt = 0.0):
+            return math.sin(math.radians(d)) * float(r) + float(offset) + float(tilt)
         
-        def getY(d, r, offset=0):
-            return math.cos(math.radians(d)) * float(r) + offset
+        def getY(d, r, offset=0, tilt = 0.0):
+            return math.cos(math.radians(d)) * float(r) + float(offset) + float(tilt)
         
         attempt = 1 
-        off_x = 500
-        off_y = 1250
+        # off_x = 500
+        # off_y = 1250
         # off_y = 900
-        x = getX(start, radius, off_x) 
-        y = getY(start, radius, off_y)
-        self.tapDown(x, y)
+        y = getY(start, radius[1])
+        x = getX(start, radius[0], tilt = y * tilt) 
+        self.tapDown(x + off_x, y + off_y)
         top = 10
         while top < 0:
             for probe in range(750,900,2):
@@ -723,20 +724,19 @@ class TouchScreen:
         while a < end + step:
             a = a + step + int(a / 60)
             b = b + 0.2
-            t = radius + int(b)
-            radius = t
-             # for a in range(start + step, end + step, step):
+            # t = radius + int(b)
+            # radius = t
+            # for a in range(start + step, end + step, step):
             sx = x
             sy = y
             
-            if right:
-                x = off_x + getX(a, radius)
-            else:  
-                x = off_x - getX(a, radius)
+            y = getY(a, radius[1]) # - a * 2
+            x = getX(a, radius[0] , tilt = y * tilt)
             attempt = attempt + 1
-            y = getY(a, radius, off_y) # - a * 2
+            # print("radius {}".format(radius))
+            # print("XY {} {}".format(x, y))
             # print("x = {}".format(x))
-            self.moveCursor(int(sx), int(sy), int(x), int(y))
+            self.moveCursor(int(sx) + off_x, int(sy) + off_y, int(x) + off_x, int(y) + off_y)
             # dx = x - sx
             # dy = y - sy
             # d = math.sqrt(dx * dx + dy * dy)
@@ -756,7 +756,7 @@ class TouchScreen:
             accel = accel + 5.0
             ye = ys - ( d + accel)
             xe = xs + dx # distance - i
-            self.moveCursor(int(xs), int(ys), int(xe), int(ye))
+            self.moveCursor(int(xs) + off_x, int(ys) + off_y, int(xe) + off_x, int(ye) + off_y)
             xs = xe
             ys = ye
             time.sleep(delay)

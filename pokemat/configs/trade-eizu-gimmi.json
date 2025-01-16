@@ -3,14 +3,14 @@
     "league": "master",
     "guest": {
         "port": "3005",
-        "name": "higimmi1234",
+        "name": "higimmi444",
         "Aname": "yellow",
-        "filter": "popplio & !traded"
+        "filter": "4trade"
     },
     "host": {
         "port": "3004",
         "name": "eizu123",
         "plname": "plastic",
-        "filter": "4trade & !traded"
+        "filter": "4higimmi"
      }
 }

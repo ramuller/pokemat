@@ -181,7 +181,7 @@ def grunt(port, phone):
 
     sleep(6)
     print("Try to catch")
-    catch(port, phone)     
+    catch(port, phone, berry = "g")     
     print("Try to catch")
     phone.goHome()  
     phone.goHome()
