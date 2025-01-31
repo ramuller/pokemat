@@ -14,12 +14,16 @@ for ph in range(1,6):
     try:
         p = ts(3000 + ph, "s7")
         p.tapScreen(690,140)
-        sleep(1)
+        sleep(0.5)
         p.tapScreen(430, 1029)
-        sleep(1)
+        sleep(0.5)
         p.typeString(args.location)
-        sleep(1)
+        sleep(0.5)
         p.tapScreen(822, 798)
+        sleep(1)
+        p.tapScreen(116, 1738)
+        sleep(1)
+        p.tapScreen(116, 1738)
     except:
         pass
 

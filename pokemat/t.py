@@ -8,6 +8,14 @@ from time import sleep
 def callback():
     print("Callback")
 
+ps = {}
+for p in range(3003,3006):
+    ps[p] = ts(p)
+    ps[p].doBattle()
+sys.exit(0)
+p.goHome()
+p.healAll()
+sys.exit(0)
 a=wd(time_out = 1, _callback = callback)
 sleep(3)
 a.reset()

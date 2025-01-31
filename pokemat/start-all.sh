@@ -1,13 +1,14 @@
 #/!bin/bash
 
 first=1
-last=6
-
+last="$1"
+[ -n "$1" ] || last=6
+   
 while true;
 do
     for i in $(seq ${first} ${last})
     do
-        ps -ef |grep scrcpy |grep --silen 300$i
+        ps -ef |grep scrcpy |grep --silent 300$i
         if [ $? -eq 0 ]; then
             echo scrcpy is running
         else

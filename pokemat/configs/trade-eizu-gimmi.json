@@ -1,16 +1,23 @@
 {
     "mode": "trade",
     "league": "master",
-    "guest": {
-        "port": "3005",
-        "name": "higimmi444",
-        "Aname": "yellow",
-        "filter": "4trade"
-    },
     "host": {
         "port": "3004",
         "name": "eizu123",
+        "Aname": "yellow",
+        "filter": "4higimmi & !traded & !favorite"
+    },
+    "host-3": {
+        "port": "3002",
+        "name": "aphex",
+        "Aname": "yellow",
+        "filter": "gastly & !favorite & !shadow"
+    },
+    "guest": {
+        "port": "3005",
+        "name-h": "yellow",
+        "name": "yellow",
         "plname": "plastic",
-        "filter": "4higimmi"
+        "filter": "4trade & !favorite"
      }
 }

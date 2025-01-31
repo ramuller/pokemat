@@ -26,9 +26,10 @@ def inLobby():
     #     return True
     if phone.matchColor(824, 1623, 241, 246, 238,threashold=17 ) \
         and phone.matchColor(887, 1806, 237, 244, 239) \
-        and phone.matchColor(493, 1839, 234, 241, 237) \
-        and phone.matchColor(868, 210, 242, 251, 239):
+        and phone.matchColor(493, 1839, 234, 241, 237):
         return True
+
+    # and phone.matchColor(868, 210, 242, 251, 239):
     return False
 
 def defeat(port, phone_model):

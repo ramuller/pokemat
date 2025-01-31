@@ -1,5 +1,8 @@
 #!/bin/bash
 
+count=5
+[ -z "$1" ] || count=$1
+
 split_term()
 {
     if [ "$1" == "up" ] && offset=80 || offset=40 ; then
@@ -13,16 +16,15 @@ split_term()
 }
 
 split_term "up"
-
-split_term "left"
-split_term "left"
-split_term "left"
+for (( i = 0 ; i < $count - 1 ; i++ ))
+do
+    split_term "left"
+done
 
 xdotool mousemove --window $(xdotool getactivewindow) 130 150
 xdotool mousedown --window $(xdotool getactivewindow) 1
 xdotool mouseup --window $(xdotool getactivewindow) 1
-
-split_term "left"
-split_term "left"
-split_term "left"
-
+for (( i = 0 ; i < $count - 1 ; i++ ))
+do
+    split_term "left"
+done

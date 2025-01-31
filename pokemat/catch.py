@@ -48,6 +48,9 @@ def catch(port, p, distance = 6, right = True, berry = "a"):
                 sleep(1)
                 no_berry = False
         elif berry == "g":
+            if not p.matchColor(454, 1732, 255, 143, 9):
+                p.scroll(800,0, start_y = 1750, tap_time = 1)
+            time.sleep(0.5)
             if p.matchColor(454, 1732, 255, 143, 9):
                 p.tapScreen(454, 1718)
                 sleep(0.5)
@@ -70,14 +73,14 @@ def catch(port, p, distance = 6, right = True, berry = "a"):
     p.goHome()
     sleep(1)
 
-def action(port, phone, distance = 15, right = True):
+def action(port, phone, distance = 15, right = True, berry = "a"):
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)
         
     print("Start catching on  \"{}\" on port {}", phone, port)
     
     p = TouchScreen(port, phone)
-    catch(port, p, distance, right)
+    catch(port, p, distance, right, berry)
 
 def main():
 
@@ -91,7 +94,7 @@ def main():
                         help="TCP port for the connection.")
     parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
                         help="Name os the phone model. Check phones.json.")
-    parser.add_argument("-b", "--berry", action="store", required=False, default="g", \
+    parser.add_argument("-b", "--berry", action="store", required=False, default="a", \
                         help="Name os the phone model. Check phones.json.")
     global args
     args = parser.parse_args()
@@ -99,7 +102,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    action(args.port, args.phone, int(args.distance), args.berry)
+    action(args.port, args.phone, int(args.distance), berry = args.berry)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

@@ -1,11 +1,13 @@
 #!/bin/env python
 import argparse
+import threading
 import time
 from time import sleep
 import os
 import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
+from pokelib import WatchDog
 from catch import catch 
 
 import json
@@ -63,7 +65,7 @@ def scan_sky(phone, print, no_grunt):
             if phone.matchColor(x, gy, 166, 73, 66) \
                     or phone.matchColor(x, gy, 152, 60, 60) \
                     or phone.matchColor(x, gy, 180, 90, 70) \
-                    or phone.matchColor(x, gy, 233, 137, 115):
+                    or phone.matchColor(x, gy, 225, 130, 115):
                 print("Grunt R found")
                 phone.tapScreen(x, gy + 250)
                 time.sleep(2)
@@ -74,6 +76,7 @@ def scan_sky(phone, print, no_grunt):
                 no_grunt = False
             x = x + 35
         print("Search grunt {}, {}".format(x, gy))
+        watch_dog.reset()
         gy = gy + 20
     
     return no_grunt
@@ -129,11 +132,13 @@ def grunt(port, phone):
                 break
             if phone.matchColor(498, 1824, 235, 242, 242):
                 phone.tapScreen(498, 1824)
+            if phone.isHome():
+                i = 0
             sleep(1)
         print("oponent {}".format(oponent))
         if not oponent:
             print("No opponent found")
-            sys.exit(0)
+            watch_dog.kill()
     except Exception as e:
         print(e)
         pass
@@ -142,20 +147,20 @@ def grunt(port, phone):
     i = 10
     while i > 0:
         try:    
-            
             phone.waitMatchColorAndClick(348, 1554, 151, 217, 149, threashold=20, time_out_ms = 1000)
             print("Wait for ?")
             i = 0
         except:
             phone.tapScreen(348, 1000)
             i = i -1
-    time.sleep(5)
+    time.sleep(2)
     phone.tapScreen(388, 1552)
     time.sleep(1)
     phone.tapScreen(388, 1552)
     
-    phone.waitMatchColorAndClick(350, 1771, 155, 222, 146)
+    phone.waitMatchColor(350, 1771, 155, 222, 146)
     time.sleep(5)
+    print("Select other party")    
     phone.tapScreen(970, 1452)
     time.sleep(2)
     print("Wait go battle")
@@ -165,7 +170,19 @@ def grunt(port, phone):
     #     phone.waitMatchColorAndClick(338, 1779, 162, 220, 148, threashold=20, time_out_ms = 15500)
     # except:
     #     pass
-    time.sleep(4)
+    watch_dog.reset()
+    
+    startTime = datetime.now()
+    while not phone.black_screen():
+        if ((datetime.now() - startTime).total_seconds() * 1000) > 10000:
+            break
+        print("Wait black screen")
+        time.sleep(0.05)
+    while phone.black_screen():
+        if ((datetime.now() - startTime).total_seconds() * 1000) > 3000:
+            break
+        print("Wait black screen")
+        time.sleep(0.05)
     print("do battle")
     phone.doBattle()
     
@@ -181,15 +198,20 @@ def grunt(port, phone):
 
     sleep(6)
     print("Try to catch")
+    watch_dog.reset()
     catch(port, phone, berry = "g")     
     print("Try to catch")
     phone.goHome()  
     phone.goHome()
     phone.healAll()  
-    
+
+def wd_callback():
+    print("Watchdog timeout strike just exit {}".format(threading.main_thread().native_id))
+    watch_dog.kill()
        
 def main():
-
+    global watch_dog 
+    watch_dog = WatchDog(time_out = 240, _callback = wd_callback)
     parser = argparse.ArgumentParser()
     # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
     #                     "evolve - send and receive gifts")
@@ -204,9 +226,12 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    grunt(args.port, args.phone)
-    # ts.click(200,200)
+    try:
+        grunt(args.port, args.phone)
+    except Exception as e:
+            print("Upps something went wrong but who cares?: {}", e)    # ts.click(200,200)
     print("end")
+    watch_dog.kill()
     # ts.click(200,y)
 if __name__ == "__main__":
     main()
