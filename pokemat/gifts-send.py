@@ -54,24 +54,16 @@ def gifting(port, phone):
         
     print("Start gifting using phone \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
-    phone.friendSortHasGift()
+    phone.friendSortCanReceive()
     # phone.tapSearch()
     # phone.tapScreen(440, 837)
     # phone.tapScreen(440, 1150)
     giftsSent = 0
     giftsReceived = 0
-    while can_get_gifts or can_send_gifts or switch_order:
+    while can_send_gifts:
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
-            if switch_order and can_get_gifts == False:
-                print("Sort for send gifts only")
-                phone.friendSortCanReceive()
-                # phone.tapSearch()
-                # phone.tapScreen(440, 837)
-                switch_order = False
-                can_send_gifts = True
-            switch_order = False
-            time.sleep(1)
+            # Wait for trainer screen
             for timeout in reversed(range(0,100)):
                 if phone.matchColor(444, 494, 255, 255, 255) and \
                    phone.matchColor(812, 1851, 28, 135, 149):
@@ -87,31 +79,21 @@ def gifting(port, phone):
             time.sleep(1)
             phone.selectAll()
             phone.typeString("\b")
-            if len(shuffled_letters) > 0:
-                phone.typeString("!ff & !lucky & {}".format(shuffled_letters[0]))
-            else:
-                phone.typeString("!ff & !lucky")
+            phone.typeString("!ff & !lucky")
             time.sleep(1)
             phone.tapTextOK()      
             time.sleep(0.3)
-            if not phone.selectFirstFriend():
-                shuffled_letters.pop(0)
-                continue
             # time.sleep(2)
             
-            if can_get_gifts:
-                if phone.hasGift():
-                    if phone.openGift() == False:  # False = daily limit
-                        can_get_gifts = False
-                        switch_order = True
-                else:
-                    if len(shuffled_letters) > 0:
-                        shuffled_letters.pop(0)
-                    else:
-                        switch_order = True
-                        can_get_gifts = False
+            if phone.matchColor(359, 884, 250,250,250):
+                # can_send_gifts = phone.sendGift(has_gift = False)
+                has_gift = False
+            else:
+                has_gift = True
+                # can_send_gifts = phone.sendGift(has_gift = True)
                 
-            can_send_gifts = phone.sendGift()
+            phone.selectFirstFriend()
+            can_send_gifts = phone.sendGift(has_gift = has_gift)
             phone.tapBack()
 
                     
@@ -121,7 +103,6 @@ def gifting(port, phone):
             log.fatal("Unrecoverable situation. Give up")
             sys.exit(1)
         
-        print("ca_get {}, can_send {}".format(can_get_gifts, can_send_gifts))
         # except Exception as e:
         #    print("Upps something went wrong but who cares?: {}", e)
     return False

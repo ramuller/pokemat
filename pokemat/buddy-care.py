@@ -4,44 +4,39 @@ import time
 from time import sleep
 import os
 import logging
+import random
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 
 import json
 import sys
 from datetime import datetime
+from yaml import _yaml
+import _ruamel_yaml
+from ply.yacc import yacc
 
-def raid(port, phone):
+def action(port, phone, distance = 15, right = True, berry = "g"):
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)
         
-    print("Start evolutions \"{}\" on port {}", phone, port)
-    phone = TouchScreen(port, phone)
-    phone.tapScreen(650,1500)
-    time.sleep(2)
-    phone.tapScreen(650,1500)
-    time.sleep(8)
-    while phone.matchColor(368, 203, 16, 146, 175):
-        print("Wait for start")
-        time.sleep(3)
-    print("Raid starts")
-    # self.matchColor(500, 144, 70, 207, 181)
+    p = TouchScreen(port, phone)
+    x = 500
+    y = 1250
+    r = 220
     while True:
-        try:
-            for x in range(200,700,150):
-                if phone.matchColor(333, 1013, 159, 218, 148):
-                    phone.tapScreen(333,1013)
-                phone.tapScreen(x, 1500)
-                time.sleep(0.04)
-                if phone.matchColor(333, 1013, 159, 218, 148):
-                    phone.tapScreen(333,1013)
-                phone.tapScreen(x, 1840)
-                time.sleep(0.04)
-                # phone.atchColor(321, 1005, 160, 219, 147)
-        except Exception as e:
-            print("Upps something went wrong but who cares?: {}", e)
-            
-       
+        x1 = x + random.randint(-r,r) 
+        y1 = y +  random.randint(-r,r) 
+        x2 = x + random.randint(-r,r) 
+        y2 = y +  random.randint(-r,r)
+        p.tapDown(x1, y1)
+        for xa in range(x1, x2, int((x2 - x1) / 10)):
+            for ya in range(y1, y2, int ((y2 - y1) / 10)):
+                p.moveCursor(x1, y1, xa, ya)
+                x1 = xa
+                y1 = yacc
+        sleep(0.1)           
+        p.tapUp(x2, y2)
+
 def main():
 
     parser = argparse.ArgumentParser()
@@ -49,6 +44,8 @@ def main():
     #                     "evolve - send and receive gifts")
     parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
     parser.add_argument("-p", "--port", action="store", required=True, \
+                        help="TCP port for the connection.")
+    parser.add_argument("-d", "--distance", action="store", default=15, \
                         help="TCP port for the connection.")
     parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
                         help="Name os the phone model. Check phones.json.")
@@ -58,7 +55,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    raid(args.port, args.phone)
+    action(args.port, args.phone)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

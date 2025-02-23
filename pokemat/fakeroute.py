@@ -21,9 +21,9 @@ for ph in range(1,6):
         sleep(0.5)
         p.tapScreen(822, 798)
         sleep(1)
-        p.tapScreen(116, 1738)
-        sleep(1)
-        p.tapScreen(116, 1738)
+        # p.tapScreen(116, 1738)
+        # sleep(1)
+        # p.tapScreen(116, 1738)
     except:
         pass
 

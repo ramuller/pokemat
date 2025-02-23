@@ -12,12 +12,20 @@ import sys
 from datetime import datetime
 
 def selectTrainer(trainer):
-    print("Select new trainaer {}".format(trainer))
+    trainer = trainer.lower()
+    print("Select new trainer {}".format(trainer))
     sleep(0.5)
     phone.waitMatchColorAndClick(272, 1126, 160, 219, 147, time_out_ms = 30000)
     phone.waitMatchColorAndClick(253, 1019, 255, 255, 255)
     phone.waitMatchColor(503, 181, 233, 84, 50)
     sleep(1)
+    if trainer in "eizu123":
+        for i in range(0,5):
+            print("Scroll up")
+            phone.scroll(0, -400, start_x=900)
+            sleep(1)        
+        sleep(1)
+        phone.tapScreen(439, 900)
     if trainer in "pokeeizu":
         sleep(1)
         phone.tapScreen(439, 1199)
@@ -33,7 +41,7 @@ def selectTrainer(trainer):
     elif trainer in "pokeralle":
         sleep(1)
         phone.tapScreen(527, 1722)
-    elif trainer in "higimmi222":
+    elif trainer in "higimmi222" or trainer in "bluebird":
         sleep(1)
         phone.tapScreen(652, 1019)
     elif trainer in "bluebird":
@@ -75,19 +83,23 @@ def changeTrainer(port, phone_model, trainer):
     print("Change trainers \"{}\" on port {}", phone_model, port)
     global phone
     phone = TouchScreen(port, phone_model)
-    phone.goHome()
-    sleep(1)
-    phone.waitMatchColorAndClick(500, 1798, 255, 57, 69)
-    phone.waitMatchColorAndClick(940, 210, 212, 251, 204)
-    for i in range(0,4):
-        phone.scroll(0, -400, start_x=10)
-    for y in range(1980, 1400, -20):
-        print("y = {}".format(y))
-        if phone.matchColor(291, y, 250, 251, 248):
-            phone.tapScreen(290, y)
-            break
-        480, 1076, 120, 216, 156
-    phone.waitMatchColorAndClick(411, 1037, 133, 217, 152, time_out_ms = 14000)
+    try:
+        phone.goHome()
+        sleep(1)
+        phone.waitMatchColorAndClick(500, 1798, 255, 57, 69)
+        phone.waitMatchColorAndClick(940, 210, 212, 251, 204)
+        sleep(0.5)
+        for i in range(0,4):
+            phone.scroll(0, -400, start_x=10)
+        for y in range(1980, 1400, -20):
+            print("y = {}".format(y))
+            if phone.matchColor(291, y, 250, 251, 248):
+                phone.tapScreen(290, y)
+                break
+        phone.waitMatchColorAndClick(411, 1037, 133, 217, 152, time_out_ms = 14000)
+    except:
+        pass
+
     selectTrainer(trainer)
     sys.exit(0)
     

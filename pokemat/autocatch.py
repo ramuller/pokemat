@@ -11,37 +11,18 @@ import json
 import sys
 from datetime import datetime
 
-def raid(port, phone):
-    with open("phone-spec.json", 'r') as file:
+
+def autocatch(port, phone_model):
+    with open("p-spec.json", 'r') as file:
         phones = json.load(file)
         
-    print("Start evolutions \"{}\" on port {}", phone, port)
-    phone = TouchScreen(port, phone)
-    phone.tapScreen(650,1500)
-    time.sleep(2)
-    phone.tapScreen(650,1500)
-    time.sleep(8)
-    while phone.matchColor(368, 203, 16, 146, 175):
-        print("Wait for start")
-        time.sleep(3)
-    print("Raid starts")
-    # self.matchColor(500, 144, 70, 207, 181)
-    while True:
-        try:
-            for x in range(200,700,150):
-                if phone.matchColor(333, 1013, 159, 218, 148):
-                    phone.tapScreen(333,1013)
-                phone.tapScreen(x, 1500)
-                time.sleep(0.04)
-                if phone.matchColor(333, 1013, 159, 218, 148):
-                    phone.tapScreen(333,1013)
-                phone.tapScreen(x, 1840)
-                time.sleep(0.04)
-                # phone.atchColor(321, 1005, 160, 219, 147)
-        except Exception as e:
-            print("Upps something went wrong but who cares?: {}", e)
-            
-       
+    print("Change trainers \"{}\" on port {}", phone_model, port)
+    global p
+    p = TouchScreen(port, phone_model)
+    p.goHome()
+    
+   
+    
 def main():
 
     parser = argparse.ArgumentParser()
@@ -58,7 +39,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    raid(args.port, args.phone)
+    autocatch(args.port, args.phone)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)
