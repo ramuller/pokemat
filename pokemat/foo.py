@@ -21,14 +21,20 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
     # p.doBattle()
     # p.goItem()
     # time.sleep(1)
-    for y in range(900,1000, 20):
-        for x in range(100,900, 20):
-            # p.showColor(x,y)
-            r, g, b = p.getRGB(x, y)
-            if b < 130:
-                print("Found low blue ({},{},{})".format(r, g ,b))
-                p.showColor(x,y)
-                # sys.exit()
+    y = 1792
+    y = 1791
+    delta_max = delta_min = 0
+    for x in range(854,904,2):
+        r,_,_ = p.getRGB(x,y)
+        r2,_,_ = p.getRGB(x + 2,y)
+        d = r2 -r
+        if d < delta_min:
+            delta_min = d
+        if d > delta_max:
+            delta_max = d
+        print(d)
+    print("Total delta {}".format(delta_max - delta_min))
+    print("Is pokemon : {}".format(p.screen_is_catch_pokemon()))
     
 def main():
 
@@ -36,7 +42,7 @@ def main():
     # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
     #                     "evolve - send and receive gifts")
     parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
-    parser.add_argument("-p", "--port", action="store", required=True, \
+    parser.add_argument("-p", "--port", action="store", required=False, default=3005, \
                         help="TCP port for the connection.")
     parser.add_argument("-d", "--distance", action="store", default=15, \
                         help="TCP port for the connection.")

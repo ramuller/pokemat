@@ -9,8 +9,8 @@
         "filter-l": "ptrade & !dynamax & !favorite & !shiny & !traded",
 		"filter-2": "ptrade",
         "filter-3": " & !shiny & !traded &!purified &!favorite &!norade",
-		"filter": "1234 & !norade & !traded"
-		
+		"filter-4": "karrablast & !norade & !traded",
+		"filter": "1234 & !norade & !traded"		
     },
     "guest": {
         "port": "3005",
@@ -20,6 +20,6 @@
         "h-name": "helmut",
         "plname": "plastic",
         "filter-2":  "ttt & !shiny",
-		"filter": "4rade & !norade & !traded"
+		"filter": "geodude & !norade & !traded & !xxl & !xxs & !3*"
     }
 }

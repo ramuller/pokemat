@@ -9,6 +9,8 @@ from datetime import datetime
 from time import sleep
 import random
 import math
+from ansible_collections.community.aws.plugins.modules import stepfunctions_state_machine
+import matplotlib.pyplot as plt
 
 log = logging.getLogger("pokelib")
 
@@ -52,7 +54,74 @@ class WatchDog():
         os.kill(threading.main_thread().native_id, signal.SIGKILL)
         sys.exit(0)
     
-
+class PixelVector:
+    def __init__(self, phone, x_start, x_end, y_start, y_end, step, title = "none"):
+        self.phone = phone
+        print("Init PixelVector")
+        self.x_start = x_start
+        self.x_end = x_end
+        self.y_start = y_start
+        self.y_end = y_end
+        self.step = step
+        self.title = title
+        self.data = [tuple]
+        self.coord = []
+        self.len = 0
+        self.__init_data()
+        
+    def __init_data(self):
+        i = 0
+        
+        if self.x_start == self.x_end: # vertical
+            for y in range(self.y_start, self.y_end, self.step):
+                # print(self.phone.getRGB(self.x_start, y))
+                self.data.append(self.phone.getRGB(self.x_start, y))
+                self.coord.append(y)
+            self.len = self.x_end - self.x_start
+        elif self.y_start == self.y_end: # horizontal
+            for x in range(self.x_start, self.x_end, self.step):
+                self.data.append(self.phone.getRGB(self.x, y_start))
+                self.coord.append(x)
+        else:
+            print("Only vertical and horizontal supported")
+            raise ExPokeLibFatal("Only vertical and horizontal supported")
+        
+    def update(self):
+        i = 0
+        
+        if self.x_start == self.x_end: # vertical
+            for y in range(self.y_start, self.y_end, self.step):
+                # print(self.phone.getRGB(self.x_start, y))
+                self.data[i] = self.phone.getRGB(self.x_start, y)
+                i += 1
+            self.len = self.x_end - self.x_start
+        elif self.y_start == self.y_end: # horizontal
+            for x in range(self.x_start, self.x_end, self.step):
+                self.data[i] = self.phone.getRGB(x, self.x_start)
+                i += 1
+                self.data.append(self.phone.getRGB(self.x, y_start))
+        else:
+            print("Only vertical and horizontal supported")
+            raise ExPokeLibFatal("Cant find home")
+        
+    def x_start(self):
+        return self.x_start
+    def x_end(self):
+        return self.x_end
+    def y_start(self):
+        return self.y_start
+    def y_end(self):
+        return self.y_end
+        
+    def plot_start(self):
+        self.fig, self.ax = plt.subplots()
+        self.line, = self.ax.plot([], [], 'r.-', label='Live Data')
+        
+    def get_r(self):
+        return list(map(lambda tup: tup[0], self.data))
+       
+    
+    
 class TouchScreen:
 
     def __init__(self, tcpPort, name = "unknown", scaleX = 0.576, scaleY = 0.512):
@@ -66,7 +135,6 @@ class TouchScreen:
         self.maxY = 2000
 
     # def checkConnetionState(self):
-        
 
     def scaleXY(self, x, y):
         x = x * self.scaleX
@@ -165,7 +233,7 @@ class TouchScreen:
                             same=same, debug=debug)
         # time.sleep(0.)
         self.tapScreen(x, y)
-        
+    
     def tapScreenBack(self):
         self.log.info("Tap Screen back")
         # self.waitMatchColorAndClick(501, 1826, 30, 134, 149)
@@ -198,7 +266,24 @@ class TouchScreen:
         # Wait for light grey fromkeyboard
         # self.waitMatchColor(46, 1480, 37, 50, 55)
         self.waitMatchColor(46, 1480, 255,255,255, same=False)
-        
+    
+    def screen_get_type(self):
+        return("unknow")
+
+    def screen_is_catch_pokemon(self):
+        y = 1792
+        y = 1791
+        delta_max = delta_min = 0
+        for x in range(854,904,2):
+            r,_,_ = self.getRGB(x,y)
+            r2,_,_ = self.getRGB(x + 2,y)
+            d = r2 -r
+            if d < delta_min:
+                delta_min = d
+            if d > delta_max:
+                delta_max = d
+        # return True
+        return (delta_max - delta_min) > 150
 
     def scroll(self, dx, dy, start_x = 100, start_y = 1000, tap_time = 0.1, stop_to = 0.6):
         # self.log.info("Scroll")
@@ -355,8 +440,19 @@ class TouchScreen:
     def getTimeNow(self):
         return datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
-    def isHome(self):
+    def is_home(self):
         return self.matchColor(501,1802,255,55,72,10)
+    
+    def button_has_exit(self):
+        for y in range(1835,1880,4):
+            self.showColor(500,y)
+        if      self.matchColor(500, 1835, 235, 245, 242, threashold=15, debug=True) \
+            and self.matchColor(500, 1875, 235, 245, 246, threashold=15, debug=True):
+            return True
+        return False
+    
+    def button_tap_exit(self):
+        self.tapScreen(500,1850)
     
     def isFriendScreen(self):
         if self.matchColor(319, 843, 0, 0, 0) \
@@ -373,7 +469,7 @@ class TouchScreen:
         self.log.info("Go to homescreen")
         print("Go Home")
         count = 10 # Try count time
-        while self.isHome() == False and count > 0:
+        while self.is_home() == False and count > 0:
             self.log.warning("Wrong color")
             if self.matchColor(501, 1826, 30, 134, 149):
                 self.tapScreenBack()                
@@ -422,7 +518,7 @@ class TouchScreen:
             if count == 4:
                 self.tapScreen(100, 100, button = 3)
             time.sleep(1)
-        log.info("Now we are on the home screen {}".format(self.isHome()))
+        log.info("Now we are on the home screen {}".format(self.is_home()))
 
     def selectLeague(self, league):
         if league == "great":
@@ -578,7 +674,6 @@ class TouchScreen:
 
     
     def battleLeague(self):
-        count = 30
         time.sleep(2)
         self.showColor(200, 1900)
         if self.matchColor(200, 1900, 255, 180, 82):
@@ -587,12 +682,13 @@ class TouchScreen:
             time.sleep(1)
             return
 
+        count = 10
         while not self.matchColor(366, 1939, 154, 218, 149) and \
                 not self.matchColor(361, 1878, 229, 246, 227):
             count = count -1
             if count == 0:
                 return
-            self.scroll(0, -80)
+            self.scroll(0, -60)
             time.sleep(0.5)
         time.sleep(0.5)
         if self.matchColor(361, 1878, 229, 246, 227):
@@ -1025,6 +1121,9 @@ class TouchScreen:
             self.waitMatchColorAndClick(407, 1638, 140, 216, 152)
         except:
             print("Gift not sent !?!?")
+        sleep(0.5)
+        if self.matchColor(105, 1000, 232, 128, 181):
+            print("No gifts")   
         # self.waitMatchColorAndClick(503, 1820, 30, 134, 149)
         return True
     
