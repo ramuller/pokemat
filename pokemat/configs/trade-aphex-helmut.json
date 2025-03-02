@@ -2,7 +2,7 @@
     "mode": "trade",
     "league": "master",
     "host": {
-        "port": "3004",
+        "port": "3002",
         "hi-name": "pokeeizu",
         "name": "blond",
         "Aname": "yellow",
@@ -10,16 +10,16 @@
 		"filter-2": "ptrade",
         "filter-3": " & !shiny & !traded &!purified &!favorite &!norade",
 		"filter-4": "karrablast & !norade & !traded",
-		"filter": "1234 & !norade & !traded"		
+		"filter": "karrablast & !norade & !traded"		
     },
     "guest": {
-        "port": "3005",
+        "port": "3003",
         "e-name": "",
         "name": "aphex",
 		"l- name": "localhost",
         "h-name": "helmut",
         "plname": "plastic",
         "filter-2":  "ttt & !shiny",
-		"filter": "geodude & !norade & !traded & !xxl & !xxs & !3*"
+		"filter": "goomy & 0* & !norade & !traded & !xxl & !xxs & !3*"
     }
 }

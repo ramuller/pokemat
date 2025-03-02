@@ -16,8 +16,12 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)
         
-    print("Start catching on  \"{}\" on port {}", phone, port)
+    print("Start testing on  \"{}\" on port {}", phone, port)
     p = TouchScreen(port, phone)
+    
+    p.tapScreen(925, 1703)
+    sys.exit(0)
+    
     # p.doBattle()
     # p.goItem()
     # time.sleep(1)

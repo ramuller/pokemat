@@ -1,9 +1,9 @@
 
 
 ## Filter out all free evelove after trade
-'!pumpka&!phant&!graveler&!shelmet&!karrablast&!haunter&!kadabra&!gurdurr&!boldore&!machoke&!charjabug&!item&!defender&!noevolve&!roggen'
+'evolve&!pumpka&!phant&!graveler&!shelmet&!karrablast&!haunter&!kadabra&!gurdurr&!boldore&!machoke&!charjabug&!item&!defender&!noevolve&!novolve&!roggen&!caterpie&!wurmple&!primeape&!inkay&!sliggoo'
 
-'!pumpka&!phant&!graveler&!shelmet&!karrablast&!haunter&!kadabra&!gurdurr&!boldore&!machoke&!evolve&!charjabug&!item&!defender&!noevolve&!machop&!geodude&!keep&!dynamax&!roggen'
+'evovle&!pumpka&!phant&!graveler&!shelmet&!karrablast&!haunter&!kadabra&!gurdurr&!boldore&!machoke&&!charjabug&!item&!defender&!noevolve&!machop&!geodude&!keep&!dynamax&!roggen'
 
 ## Filter out all free evelove after trade
 pumpka&phant&graveler&Shelmet&Karrablast&Haunter&Kadabra&Gurdurr&Boldore&machoke

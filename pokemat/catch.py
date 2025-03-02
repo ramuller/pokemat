@@ -11,6 +11,8 @@ from pokelib import ExPokeLibFatal
 import json
 import sys
 from datetime import datetime
+from mercurial.hgweb.common import continuereader
+from random import randrange
 
 def getX(d, r, offset=0):
     return math.sin(math.radians(d)) * float(r) + float(offset)
@@ -18,13 +20,33 @@ def getX(d, r, offset=0):
 def getY(d, r, offset=0):
     return math.cos(math.radians(d)) * float(r) + offset
 
-def catch(port, p, distance = 6, right = True, berry = "a"):
-    while not p.matchColor(90, 1414, 245, 254, 242):
-        try:
-            p.waitMatchColor(420, 1923, 220, 220, 220, threashold = 35)
-        except:
-          print("Catch over")
-          break
+def end_catch(p):    
+    sleep(1)
+    print("Catch over")
+    p.tapScreen(378, 1352)
+    print("Go home")
+    p.goHome()
+
+def catch(port, p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
+    while max_tries >= 0: # not p.matchColor(90, 1414, 245, 254, 242):
+        max_tries -= 1
+        for to in range(20, 0, -1):
+            if p.matchColor(392, 1400, 142, 219, 152) or to == 0:
+                print("game over")
+                end_catch(p)
+                return
+            elif p.is_home():
+                return
+            try:
+                if p.waitMatchColor(420, 1912, 220, 220, 220, threashold=35, time_out_ms=1000):
+                    print("Ball found")
+                    break
+            except:
+                pass
+            sleep(1)
+        print("Ball ready")
+        p.tapScreen(500, 1748)
+        sleep(0.5)
         p.tapScreen(114, 1757)
         sleep(1)
         no_berry = True
@@ -57,22 +79,35 @@ def catch(port, p, distance = 6, right = True, berry = "a"):
                 p.tapScreen(486, 1748)
                 sleep(1)
                 no_berry = False
+        elif berry == "s":
+            if not p.matchColor(151, 1742, 181, 190, 191):
+                p.scroll(800,0, start_y = 1750, tap_time = 1)
+            time.sleep(0.5)
+            if p.matchColor(151, 1742, 181, 190, 191):
+                p.tapScreen(151, 1748)
+                sleep(0.5)
+                p.tapScreen(500, 1748)
+                sleep(1)
+                no_berry = False
         if no_berry:
             sleep(1)
             print("Reomve screen")
             p.tapScreen(795, 191)
             sleep(2)
         sleep(0.5)
-        print("distance {}".format(distance))
-        p.catch_move(distance = distance)
+        if span != 0:
+            d = distance + randrange(-span,span)
+        else:
+            d = distance
+        print("distance {}".format(d))            
+        p.catch_move(distance = d)
         sleep(5)
-    sleep(1)
-    
-    p.tapScreen(378, 1382)
-    print("Go home")
-    p.goHome()
-    sleep(1)
-
+        if p.matchColor(392, 1400, 142, 219, 152) or to == 0:
+            print("game over")
+            end_catch(p)
+            return False
+    return True
+                
 def action(port, phone, distance = 15, right = True, berry = "a"):
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)

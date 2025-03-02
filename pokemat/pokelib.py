@@ -9,12 +9,16 @@ from datetime import datetime
 from time import sleep
 import random
 import math
-from ansible_collections.community.aws.plugins.modules import stepfunctions_state_machine
 import matplotlib.pyplot as plt
+import numpy as np
 
 log = logging.getLogger("pokelib")
 
 class ExPokeLibError(Exception):
+    """Custom exception class."""
+    pass
+
+class ExPokeNoHomeError(Exception):
     """Custom exception class."""
     pass
 
@@ -64,46 +68,37 @@ class PixelVector:
         self.y_end = y_end
         self.step = step
         self.title = title
-        self.data = [tuple]
-        self.coord = []
+        self.x_data = []
+        self.y_data = []
         self.len = 0
-        self.__init_data()
-        
-    def __init_data(self):
-        i = 0
-        
-        if self.x_start == self.x_end: # vertical
-            for y in range(self.y_start, self.y_end, self.step):
-                # print(self.phone.getRGB(self.x_start, y))
-                self.data.append(self.phone.getRGB(self.x_start, y))
-                self.coord.append(y)
-            self.len = self.x_end - self.x_start
-        elif self.y_start == self.y_end: # horizontal
-            for x in range(self.x_start, self.x_end, self.step):
-                self.data.append(self.phone.getRGB(self.x, y_start))
-                self.coord.append(x)
-        else:
-            print("Only vertical and horizontal supported")
-            raise ExPokeLibFatal("Only vertical and horizontal supported")
+        self.update()
         
     def update(self):
         i = 0
-        
+        self.x_data = [] 
+        self.y_data = []
         if self.x_start == self.x_end: # vertical
             for y in range(self.y_start, self.y_end, self.step):
                 # print(self.phone.getRGB(self.x_start, y))
-                self.data[i] = self.phone.getRGB(self.x_start, y)
-                i += 1
+                self.y_data.append(self.phone.getRGB(self.x_start, y))
+                self.x_data.append(y)
             self.len = self.x_end - self.x_start
         elif self.y_start == self.y_end: # horizontal
             for x in range(self.x_start, self.x_end, self.step):
-                self.data[i] = self.phone.getRGB(x, self.x_start)
-                i += 1
-                self.data.append(self.phone.getRGB(self.x, y_start))
+                self.y_data.append(self.phone.getRGB(x, self.y_start))
+                self.x_data.append(x)
         else:
             print("Only vertical and horizontal supported")
-            raise ExPokeLibFatal("Cant find home")
-        
+            raise ExPokeLibFatal("Only vertical and horizontal supported")
+
+    def x_set(self, xs, xe):
+        self.x_start = xs
+        self.x_end   = xe
+
+    def y_set(self, ys, ye):
+        self.y_start = ys
+        self.y_end   = ye
+          
     def x_start(self):
         return self.x_start
     def x_end(self):
@@ -117,13 +112,28 @@ class PixelVector:
         self.fig, self.ax = plt.subplots()
         self.line, = self.ax.plot([], [], 'r.-', label='Live Data')
         
-    def get_r(self):
-        return list(map(lambda tup: tup[0], self.data))
-       
+    def rgb(self):
+        return self.x_data, self.y_data
     
+    def red(self):
+        return self.x_data, list(map(lambda tup: tup[0], self.y_data))
+       
+    def green(self):
+        return self.x_data, list(map(lambda tup: tup[1], self.y_data))
+
+    def blue(self):
+        return self.x_data, list(map(lambda tup: tup[2], self.y_data))
+    
+    def max_delta(self):
+        rgbt = np.array(self.rgb()[1])
+        return np.min(np.array(np.diff(rgbt, axis=0)), axis = 0)
+    
+    def max_blue(self):
+        return max(self.blue()[1])
     
 class TouchScreen:
-
+    maxX = 0
+    maxY = 0
     def __init__(self, tcpPort, name = "unknown", scaleX = 0.576, scaleY = 0.512):
         self.log = logging.getLogger(name)
         self.log.info("Pokemat phone : {}".format(tcpPort))
@@ -133,6 +143,8 @@ class TouchScreen:
         self.httpErrorCount = 0
         self.maxX = 1000
         self.maxY = 2000
+        self.vector_right_down = PixelVector(self, 850, 850 + 151, 1850, 1850, 4, "right_downs")
+        self.vector_left_down = PixelVector(self, 50, 50 + 151, 1850, 1850, 4, "right_downs")
 
     # def checkConnetionState(self):
 
@@ -191,7 +203,13 @@ class TouchScreen:
         rgb = response.json()
         return int(rgb["red"]), int(rgb["green"]), int(rgb["blue"])
     
-    def matchColor(self, x, y, r, g, b, threashold=10, debug=False):
+    def get_mouse(self):
+        response = self.writeToPhone("mouse")          
+        m = response.json()
+        # print("mouse {}".format(m))
+        return int(m["x"] / self.scaleX), int(m["y"] /self.scaleY), m["buttons"]
+    
+    def color_match(self, x, y, r, g, b, threashold=10, debug=False, excep = True):
         rr, gg, bb = self.getRGB(x, y)
         if debug:
             self.log.info("matchColor x{},y{},r{},g{},b{},t{}".format(x, y, r, g, b,threashold))
@@ -284,6 +302,14 @@ class TouchScreen:
                 delta_max = d
         # return True
         return (delta_max - delta_min) > 150
+    
+    def screen_is_pokestop(self):
+        self.vector_left_down.update()
+        if max(self.vector_left_down.max_delta()) == 0 and self.vector_left_down.max_blue() > 150:
+            return True
+        return False
+        print(max(self.vector_left_down.max_delta()))
+        print("MAX {} max blue {}".format(self.vector_left_down.max_delta(), self.vector_left_down.max_blue()))
 
     def scroll(self, dx, dy, start_x = 100, start_y = 1000, tap_time = 0.1, stop_to = 0.6):
         # self.log.info("Scroll")
@@ -432,7 +458,7 @@ class TouchScreen:
                 i += 1
             # print("RALF string '{}'".format(c))
             self.writeToPhone("key:{}".format(c))
-            time.sleep(0.001)
+            time.sleep(0.003)
 
     def selectAll(self):
         self.typeString("\\a")
@@ -462,8 +488,16 @@ class TouchScreen:
             time.sleep(0.5)
         return self.matchColor(32, 91, 255, 255, 255)
 
-    def spinDisk(self):
-        self.scroll(600, 0, start_x = 150, start_y = 1000)
+    def spin_disk(self):
+        to = 10
+        while to > 0:
+            print("Spin disk {}".format(to))
+            self.scroll(600, 0, start_x = 150, start_y = 1000)
+            sleep(1)
+            if not self.screen_is_pokestop():
+                return True
+            to -= 1
+        return False
     
     def goHome(self):
         self.log.info("Go to homescreen")
@@ -513,7 +547,7 @@ class TouchScreen:
                 else:
                     print("Not found")
                     if count == 0:
-                        raise ExPokeLibError("Cant find home")
+                        raise ExPokeNoHomeError("Cant find home")
             print("count = {}".format(count))
             if count == 4:
                 self.tapScreen(100, 100, button = 3)
@@ -686,7 +720,10 @@ class TouchScreen:
         while not self.matchColor(366, 1939, 154, 218, 149) and \
                 not self.matchColor(361, 1878, 229, 246, 227):
             count = count -1
+            print("Scroll")
             if count == 0:
+                return
+            if self.is_home():
                 return
             self.scroll(0, -60)
             time.sleep(0.5)

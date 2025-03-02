@@ -6,6 +6,7 @@ import os
 import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
+from pokelib import ExPokeNoHomeError
 from catch import catch 
 
 import json
@@ -19,19 +20,23 @@ def rotate(angle = 40):
         
 def search_pokemon():
     while True:   
-        for y in range(650, 1200, 100):
+        for y in range(1300, 600, -50):
+            p.showColor(500, y)
             p.tapScreen(500, y)
-            sleep(0.5)
+            sleep(0.25)
             if not p.is_home():
                 print("Not home")
                 sleep(3)
                 if p.screen_is_catch_pokemon():
                     print("Pokemon screen")
                     return True
+                if p.screen_is_pokestop() and args.spin:
+                    p.spin_disk()
+                    p.goHome()
                 else:
                     print("Something else")
                     p.goHome()
-                    rotate()
+                rotate()
         rotate()
             
 
@@ -43,10 +48,13 @@ def autocatch(port, phone_model):
     global p
     p = TouchScreen(port, phone_model)
     while True:
+        not_home = True
+        p.goHome()
         p.goHome()
         if search_pokemon():
-            catch(port, p, distance = 6, berry = "a")
-        
+            if not catch(port, p, distance = 6, berry = "a", max_tries = 5, span = 3):
+                # turn away if no catch !!!
+                rotate(90)
     
    
     
@@ -60,13 +68,21 @@ def main():
                         help="TCP port for the connection.")
     parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
                         help="Name os the phone model. Check phones.json.")
+    parser.add_argument("-s", "--spin", action="store", required=False, default=True, \
+                        help="Spin pokestops")
     global args
     args = parser.parse_args()
     global log 
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    autocatch(args.port, args.phone)
+    while True:
+        try:
+            autocatch(args.port, args.phone)
+        except ExPokeNoHomeError as e:
+            print("Problems to find home...")
+            pass
+        
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)
