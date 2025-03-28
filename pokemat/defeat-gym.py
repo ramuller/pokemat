@@ -15,21 +15,21 @@ from _ast import If
 def whiteScreen():
     for x in range(100, 800, 150):
         print("{}",format(phone.getRGB(x, 2 * x)))
-        if not phone.matchColor(x, 2 * x, 255, 255, 255):
+        if not phone.color_match(x, 2 * x, 255, 255, 255):
             print("NOOO White screen")
             return False
     print("White screen")
     return True
 
 def inLobby():
-    # if phone.matchColor(824, 1623, 241, 246, 242, debug=True):
+    # if phone.color_match(824, 1623, 241, 246, 242, debug=True):
     #     return True
-    if phone.matchColor(824, 1623, 241, 246, 238,threashold=17 ) \
-        and phone.matchColor(887, 1806, 237, 244, 239) \
-        and phone.matchColor(493, 1839, 234, 241, 237):
+    if phone.color_match(824, 1623, 241, 246, 238,threashold=17 ) \
+        and phone.color_match(887, 1806, 237, 244, 239) \
+        and phone.color_match(493, 1839, 234, 241, 237):
         return True
 
-    # and phone.matchColor(868, 210, 242, 251, 239):
+    # and phone.color_match(868, 210, 242, 251, 239):
     return False
 
 def defeat(port, phone_model):
@@ -52,7 +52,7 @@ def defeat(port, phone_model):
                     break
             if noLobby:
                 print("Not in lobby")
-                sys.exit(0)   
+                # sys.exit(0)   
             phone.tapScreen(829, 1605)
             print("Start battle")
             phone.waitMatchColorAndClick(345, 777, 134, 217, 153)

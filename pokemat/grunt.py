@@ -16,29 +16,38 @@ from sys import exit
 from datetime import datetime
 
 def is_grunt_in_gym(p):
-    if p.matchColor(585, 826, 211, 90, 49) \
-            and p.matchColor(659, 830, 209, 88, 47) \
-            and p.matchColor(614, 876, 205, 88, 50) \
-            and p.matchColor(555, 871, 205, 88, 50):
+    if True \
+        and p.color_match(861, 1917, 61, 64, 63) \
+        and p.color_match(67, 1925, 61, 64, 63):
         return True
     if True \
-            and p.matchColor(468, 804, 212, 91, 50) \
-            and p.matchColor(529, 855, 206, 90, 49) \
-            and p.matchColor(463, 871, 203, 89, 50):
+        and p.color_match(902, 1949, 147, 100, 232) \
+        and p.color_match(450, 1949, 147, 100, 232) \
+        and p.color_match(100, 1949, 147, 100, 232):
+        return True
+    if p.color_match(585, 826, 211, 90, 49) \
+            and p.color_match(659, 830, 209, 88, 47) \
+            and p.color_match(614, 876, 205, 88, 50) \
+            and p.color_match(555, 871, 205, 88, 50):
         return True
     if True \
-            and p.matchColor(404, 857, 206, 90, 49) \
-            and p.matchColor(418, 814, 211, 90, 49):
+            and p.color_match(468, 804, 212, 91, 50) \
+            and p.color_match(529, 855, 206, 90, 49) \
+            and p.color_match(463, 871, 203, 89, 50):
+        return True
+    if True \
+            and p.color_match(404, 857, 206, 90, 49) \
+            and p.color_match(418, 814, 211, 90, 49):
         return True
     
     if True \
-            and p.matchColor(404, 857, 206, 90, 49) \
-            and p.matchColor(418, 814, 211, 90, 49):
+            and p.color_match(404, 857, 206, 90, 49) \
+            and p.color_match(418, 814, 211, 90, 49):
         return True
     if True \
-            and p.matchColor(390, 814, 206, 90, 49) \
-            and p.matchColor(390, 857, 206, 90, 49) \
-            and p.matchColor(390, 900, 205, 80, 49)\
+            and p.color_match(390, 814, 206, 90, 49) \
+            and p.color_match(390, 857, 206, 90, 49) \
+            and p.color_match(390, 900, 205, 80, 49)\
             :
         return True
     
@@ -46,14 +55,14 @@ def is_grunt_in_gym(p):
     return False
 
 def is_red_in_the_sky(p):
-    if p.matchColor(465, 394, 155, 64, 61):
+    if p.color_match(465, 394, 155, 64, 61):
         print("bingo")
         sys.exit(0)
       
 def rotate(phone):
     phone.scroll(0, 800, start_y=200, start_x = 980, stop_to=0.1)
     phone.scroll(0, 800, start_y=200, start_x = 980, stop_to=0.1)
-    phone.scroll(0, 800, start_y=200, start_x = 980, stop_to=0.1)
+    # phone.scroll(0, 800, start_y=200, start_x = 980, stop_to=0.1)
 
 
 def scan_sky(phone, print, no_grunt):
@@ -61,17 +70,17 @@ def scan_sky(phone, print, no_grunt):
     while gy < 880 and no_grunt:
         x = 100
         while x < 900 and no_grunt:
-        # if phone.matchColor(x, gy, 73, 73, 75):
-            if phone.matchColor(x, gy, 166, 73, 66) \
-                    or phone.matchColor(x, gy, 152, 60, 60) \
-                    or phone.matchColor(x, gy, 180, 90, 70) \
-                    or phone.matchColor(x, gy, 225, 130, 115):
+        # if phone.color_match(x, gy, 73, 73, 75):
+            if phone.color_match(x, gy, 166, 73, 66) \
+                    or phone.color_match(x, gy, 152, 60, 60) \
+                    or phone.color_match(x, gy, 180, 90, 70) \
+                    or phone.color_match(x, gy, 225, 130, 115):
                 print("Grunt R found")
                 phone.tapScreen(x, gy + 250)
                 time.sleep(2)
             if is_grunt_in_gym(phone) \
-                    or phone.matchColor(868, 197, 241, 247, 240) \
-                    or phone.matchColor(506, 849, 206, 92, 51):
+                    or phone.color_match(868, 197, 241, 247, 240) \
+                    or phone.color_match(506, 849, 206, 92, 51):
                 print("In stop")
                 no_grunt = False
             x = x + 35
@@ -122,15 +131,15 @@ def grunt(port, phone):
             print("Wait opponent and spin{}".format(i))       
                 
             phone.spinDisk()
-            if phone.matchColor(506, 849, 206, 92, 51, threashold = 20) or \
-                   phone.matchColor(506, 880, 206, 92, 51, threashold = 20) or \
-                   phone.matchColor(611, 880, 206, 92, 51, threashold = 20) or \
-                   phone.matchColor(620, 880, 206, 92, 51, threashold = 20):
+            if phone.color_match(506, 849, 206, 92, 51, threashold = 20) or \
+                   phone.color_match(506, 880, 206, 92, 51, threashold = 20) or \
+                   phone.color_match(611, 880, 206, 92, 51, threashold = 20) or \
+                   phone.color_match(620, 880, 206, 92, 51, threashold = 20):
                 phone.tapScreen(506, 849)
                 oponent = True
                 i = 0
                 break
-            if phone.matchColor(498, 1824, 235, 242, 242):
+            if phone.color_match(498, 1824, 235, 242, 242):
                 phone.tapScreen(498, 1824)
             if phone.isHome():
                 i = 0

@@ -58,7 +58,7 @@ class TouchScreen:
     '''
     Wait for timeOut until color is on the pixel
     '''
-    def matchColor(self, x, y, r, g, b, threshold=10, timeOutMs=1):
+    def color_match(self, x, y, r, g, b, threshold=10, timeOutMs=1):
         while timeOutMs > 0:
             sr, sg, sb = self.getRGB(x, y)
             if      sr < (r + threshold) and  sr > (r - threshold) and \
@@ -76,7 +76,7 @@ class TouchScreen:
         self.click(501, 1857)
         
     def pressOK(self):
-        self.matchColor(623,1062,83,212,162, timeOutMs=5)
+        self.color_match(623,1062,83,212,162, timeOutMs=5)
         self.click(623,1062)
         return True
 
@@ -87,12 +87,12 @@ class TouchScreen:
         
     def goHome(self):
         log.info("Go to homescreen")
-        while self.matchColor(5000,18420,255,56,69) == False:
-            if self.matchColor(5000,18570,38,133,148):
+        while self.color_match(5000,18420,255,56,69) == False:
+            if self.color_match(5000,18570,38,133,148):
                 self.cancel()
-            elif self.matchColor(5000,18570,113,174,173):
+            elif self.color_match(5000,18570,113,174,173):
                 self.cancel()
-            # elif self.matchColor(83,191,135,150,0):
+            # elif self.color_match(83,191,135,150,0):
             #     self.exitMode()
             else:
                 raise Exception("goHome : Unknow situation")
@@ -101,12 +101,12 @@ class TouchScreen:
     def trainerScreen(self):
         log.debug("Trainer screen")
         self.click(116,1810)
-        print(self.matchColor(821,760,250,250,250, timeOutMs=2000))
+        print(self.color_match(821,760,250,250,250, timeOutMs=2000))
         
     def sortHasGift(self):
         log.debug("Has gift")
         self.click(403, 741)
-        self.matchColor(400,891, 31, 133, 151, timeOutMs=2000)
+        self.color_match(400,891, 31, 133, 151, timeOutMs=2000)
         self.click(400, 744)
         
     

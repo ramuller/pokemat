@@ -16,11 +16,13 @@ from datetime import datetime
 def rotate(angle = 40):
     print("Rotate {}", angle)
     sleep(1)
-    p.scroll(angle * 10, 0, start_y=200, start_x = 500, stop_to=0.1)
+    p.scroll(angle * 10, 0, start_y=680, start_x = 500, stop_to=0.1)
         
 def search_pokemon():
     while True:   
-        for y in range(1300, 600, -50):
+        # for y in range(1300, 600, -50):
+        for y in range(1300, 800, -50):
+        # for y in range(1300, 1049, -50):
             p.showColor(500, y)
             p.tapScreen(500, y)
             sleep(0.25)
@@ -29,9 +31,10 @@ def search_pokemon():
                 sleep(3)
                 if p.screen_is_catch_pokemon():
                     print("Pokemon screen")
+                    # p.goHome()
                     return True
                 if p.screen_is_pokestop() and args.spin:
-                    p.spin_disk()
+                    # p.spin_disk()
                     p.goHome()
                 else:
                     print("Something else")
@@ -52,7 +55,8 @@ def autocatch(port, phone_model):
         p.goHome()
         p.goHome()
         if search_pokemon():
-            if not catch(port, p, distance = 6, berry = "a", max_tries = 5, span = 3):
+            # if not catch(port, p, distance = 6, berry = "a", max_tries = 5, span = 3):
+            if not catch(port, p, distance = 4, berry = "a", max_tries = 5, span = 0):
                 # turn away if no catch !!!
                 rotate(90)
     

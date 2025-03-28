@@ -1,14 +1,14 @@
 {
     "mode": "trade",
     "league": "master",
-    "host": {
-        "port": "3005",
-        "name": "eizu123",
-        "filter": "1234 & !traded & !favorite"
-    },
     "guest": {
-        "port": "3004",
-        "name": "higimmi1234",
-        "filter": "1234 & !favorite"
+        "port": "3002",
+        "name": "eizu123",
+        "filter": "fuecoco & !traded & !favorite & !XXS & !XXL"
+    },
+    "host": {
+        "port": "3001",
+        "name": "higimmi444",
+        "filter": "fuecoco & !traded & !favorite & !XXS & !XXL"
      }
 }

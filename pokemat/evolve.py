@@ -35,6 +35,7 @@ def evolve(port, phone, filter):
     # phone.scroll(0, -100)
     # sys.exit(0)
     phone.selectPokemon(filter)
+    sleep(1)
     giftsSent = 0
     giftsReceived = 0
     evolve_count = 0

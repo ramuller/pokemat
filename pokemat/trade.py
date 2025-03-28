@@ -31,7 +31,7 @@ def trade(host, guest):
         host.click(331, 1697)
         guest.click(331, 1697)
         for i in range(0,5):
-            if host.matchColor(100, 100, 0, 0, 0):
+            if host.color_match(100, 100, 0, 0, 0):
                 log.info("Battle has ended")
                 return True
             time.sleep(0.2)
@@ -63,7 +63,7 @@ def trade(jsonFile):
             # time.sleep(2)
             while True:
                 guest.friendScreen()
-                if guest.matchColor(41, 796, 255, 246, 208, debug=True) == True:
+                if guest.color_match(41, 796, 255, 246, 208, debug=True) == True:
                     log.info("Found inviting friend")
                     break
                 log.info("No one invites let's retry")

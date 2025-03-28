@@ -31,7 +31,7 @@ def battle(host, guest):
         host.click(331, 1697)
         guest.click(331, 1697)
         for i in range(0,5):
-            if host.matchColor(100, 700, 0, 0, 0, threshold=1):
+            if host.color_match(100, 700, 0, 0, 0, threshold=1):
                 log.info("Battle has ended")
                 return True
             time.sleep(0.2)

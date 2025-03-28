@@ -28,10 +28,10 @@ def end_catch(p):
     p.goHome()
 
 def catch(port, p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
-    while max_tries >= 0: # not p.matchColor(90, 1414, 245, 254, 242):
+    while max_tries >= 0: # not p.color_match(90, 1414, 245, 254, 242):
         max_tries -= 1
         for to in range(20, 0, -1):
-            if p.matchColor(392, 1400, 142, 219, 152) or to == 0:
+            if p.color_match(392, 1400, 142, 219, 152) or to == 0:
                 print("game over")
                 end_catch(p)
                 return
@@ -51,39 +51,39 @@ def catch(port, p, distance = 6, right = True, berry = "a", max_tries = 25, span
         sleep(1)
         no_berry = True
         if berry == "a":
-            if p.matchColor(814, 1373, 236, 227, 19):
+            if p.color_match(814, 1373, 236, 227, 19):
                 p.tapScreen(815, 1375)
                 sleep(0.5)
                 p.tapScreen(486, 1748)
                 sleep(1)
                 no_berry = False
-            elif p.matchColor(772, 1767, 248, 246, 76):
+            elif p.color_match(772, 1767, 248, 246, 76):
                 p.tapScreen(772, 1767)
                 sleep(0.5)
                 p.tapScreen(486, 1748)
                 sleep(1)
                 no_berry = False
-            elif p.matchColor(182, 1718, 238, 232, 27):
+            elif p.color_match(182, 1718, 238, 232, 27):
                 p.tapScreen(182, 1718)
                 sleep(0.5)
                 p.tapScreen(486, 1748)
                 sleep(1)
                 no_berry = False
         elif berry == "g":
-            if not p.matchColor(454, 1732, 255, 143, 9):
+            if not p.color_match(454, 1732, 255, 143, 9):
                 p.scroll(800,0, start_y = 1750, tap_time = 1)
             time.sleep(0.5)
-            if p.matchColor(454, 1732, 255, 143, 9):
+            if p.color_match(454, 1732, 255, 143, 9):
                 p.tapScreen(454, 1718)
                 sleep(0.5)
                 p.tapScreen(486, 1748)
                 sleep(1)
                 no_berry = False
         elif berry == "s":
-            if not p.matchColor(151, 1742, 181, 190, 191):
+            if not p.color_match(151, 1742, 181, 190, 191):
                 p.scroll(800,0, start_y = 1750, tap_time = 1)
             time.sleep(0.5)
-            if p.matchColor(151, 1742, 181, 190, 191):
+            if p.color_match(151, 1742, 181, 190, 191):
                 p.tapScreen(151, 1748)
                 sleep(0.5)
                 p.tapScreen(500, 1748)
@@ -102,20 +102,20 @@ def catch(port, p, distance = 6, right = True, berry = "a", max_tries = 25, span
         print("distance {}".format(d))            
         p.catch_move(distance = d)
         sleep(5)
-        if p.matchColor(392, 1400, 142, 219, 152) or to == 0:
+        if p.color_match(392, 1400, 142, 219, 152) or to == 0:
             print("game over")
             end_catch(p)
             return False
     return True
                 
-def action(port, phone, distance = 15, right = True, berry = "a"):
+def action(port, phone, distance = 15, right = True, berry = "a", span = 0):
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)
         
     print("Start catching on  \"{}\" on port {}", phone, port)
     
     p = TouchScreen(port, phone)
-    catch(port, p, distance, right, berry)
+    catch(port, p, distance, right, berry,span = span)
 
 def main():
 
@@ -131,13 +131,15 @@ def main():
                         help="Name os the phone model. Check phones.json.")
     parser.add_argument("-b", "--berry", action="store", required=False, default="a", \
                         help="Name os the phone model. Check phones.json.")
+    parser.add_argument("-s", "--span", action="store", required=False, default=0, \
+                        help="Vary distance by span.")
     global args
     args = parser.parse_args()
     global log 
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    action(args.port, args.phone, int(args.distance), berry = args.berry)
+    action(args.port, args.phone, int(args.distance), berry = args.berry, span = int(args.span))
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

@@ -18,7 +18,7 @@ def selectTrainer(trainer):
     phone.waitMatchColorAndClick(272, 1126, 160, 219, 147, time_out_ms = 30000)
     phone.waitMatchColorAndClick(253, 1019, 255, 255, 255)
     phone.waitMatchColor(503, 181, 233, 84, 50)
-    sleep(1)
+    sleep(3)
     if trainer in "eizu123":
         for i in range(0,5):
             print("Scroll up")
@@ -30,17 +30,16 @@ def selectTrainer(trainer):
         sleep(1)
         phone.tapScreen(439, 1199)
     elif trainer in "schlumpiz":
-        sleep(1)
         phone.tapScreen(390, 1931)
     elif trainer in "localhost":
-        sleep(1)
         phone.tapScreen(543, 828)
     elif trainer in "plastic":
-        sleep(1)
+        sleep(2)
         phone.tapScreen(546, 656)
     elif trainer in "pokeralle":
-        sleep(1)
-        phone.tapScreen(527, 1722)
+        print("Try pokeralle")
+        sleep(2)
+        phone.tapScreen(527, 1750)
     elif trainer in "higimmi222" or trainer in "bluebird":
         sleep(1)
         phone.tapScreen(652, 1019)
@@ -91,10 +90,13 @@ def changeTrainer(port, phone_model, trainer):
         sleep(0.5)
         for i in range(0,4):
             phone.scroll(0, -400, start_x=10)
-        for y in range(1980, 1400, -20):
-            print("y = {}".format(y))
-            if phone.matchColor(291, y, 250, 251, 248):
-                phone.tapScreen(290, y)
+            sleep(0.5)
+        sleep(1)
+        for y in range(1600, 1400, -20):
+            print("check y = {}".format(y))
+            if phone.color_match(500, y, 250, 251, 248):
+                print("Click sign out")
+                phone.tapScreen(500, y - 20)
                 break
         phone.waitMatchColorAndClick(411, 1037, 133, 217, 152, time_out_ms = 14000)
     except:

@@ -33,7 +33,7 @@ def battle(host, guest):
         host.click(331, 1697)
         guest.click(331, 1697)
         for i in range(0,5):
-            if host.matchColor(100, 100, 0, 0, 0):
+            if host.color_match(100, 100, 0, 0, 0):
                 log.info("Battle has ended")
                 return True
             time.sleep(0.2)
@@ -73,15 +73,15 @@ def gifting(port, phone):
             switch_order = False
             time.sleep(1)
             for timeout in reversed(range(0,100)):
-                if phone.matchColor(444, 494, 255, 255, 255) and \
-                   phone.matchColor(812, 1851, 28, 135, 149):
+                if phone.color_match(444, 494, 255, 255, 255) and \
+                   phone.color_match(812, 1851, 28, 135, 149):
                     break
                 time.sleep(0.1)
             if timeout == 0:
                 print("Wait for trainer screen : Timeout exit")
                 return True
             print("trainer screen")
-            while phone.matchColor(52, 1335, 255, 255, 255):
+            while phone.color_match(52, 1335, 255, 255, 255):
                 phone.tapScreen(612, 494)
                 time.sleep(0.3)
             time.sleep(1)

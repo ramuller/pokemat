@@ -31,7 +31,7 @@ def battle(host, guest):
         host.click(331, 1697)
         guest.click(331, 1697)
         for i in range(0,5):
-            if host.matchColor(100, 100, 0, 0, 0):
+            if host.color_match(100, 100, 0, 0, 0):
                 log.info("Battle has ended")
                 return True
             time.sleep(0.2)
@@ -52,7 +52,7 @@ def battle(port, phone, type, league):
             phone.goHome()
             log.info("Time : battle {}".format(phone.getTimeNow()))
             phone.goBattle()
-            if type == "league":
+            if type == "league" or type == "l":
                 phone.battleLeague()
             elif type == "trainer1":
                 phone.battleTrainer(1, league)

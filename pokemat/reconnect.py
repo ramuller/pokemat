@@ -49,7 +49,7 @@ def reconnect(port, phone):
             print("Wait a minute to get the connection up!")
             for i in range(0,10):
                 time.sleep(6)
-                if phone.matchColor(914, 582, 255, 1, 0):
+                if phone.color_match(914, 582, 255, 1, 0):
                     break
             time.sleep(30)
         except Exception as e:

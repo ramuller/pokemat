@@ -4,6 +4,7 @@ import time
 from time import sleep
 import os
 import logging
+import math
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 
@@ -11,37 +12,19 @@ import json
 import sys
 from datetime import datetime
 
-def raid(port, phone):
+def action(port, phone, distance = 15, right = True, berry = "g"):
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)
         
-    print("Start evolutions \"{}\" on port {}", phone, port)
-    phone = TouchScreen(port, phone)
-    phone.tapScreen(650,1500)
-    time.sleep(2)
-    phone.tapScreen(650,1500)
-    time.sleep(8)
-    while phone.color_match(368, 203, 16, 146, 175):
-        print("Wait for start")
-        time.sleep(3)
-    print("Raid starts")
-    # self.color_match(500, 144, 70, 207, 181)
-    while True:
-        try:
-            for x in range(200,700,150):
-                if phone.color_match(333, 1013, 159, 218, 148):
-                    phone.tapScreen(333,1013)
-                phone.tapScreen(x, 1500)
-                time.sleep(0.04)
-                if phone.color_match(333, 1013, 159, 218, 148):
-                    phone.tapScreen(333,1013)
-                phone.tapScreen(x, 1840)
-                time.sleep(0.04)
-                # phone.atchColor(321, 1005, 160, 219, 147)
-        except Exception as e:
-            print("Upps something went wrong but who cares?: {}", e)
+    print("Start catching on  \"{}\" on port {}", phone, port)
             
-       
+    p = TouchScreen(port, phone)
+    while True:
+        p.tapScreen(500, 1590)
+        sleep(0.1)
+        p.tapScreen(500, 1790)
+        sleep(0.1)
+
 def main():
 
     parser = argparse.ArgumentParser()
@@ -50,7 +33,11 @@ def main():
     parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
     parser.add_argument("-p", "--port", action="store", required=True, \
                         help="TCP port for the connection.")
+    parser.add_argument("-d", "--distance", action="store", default=15, \
+                        help="TCP port for the connection.")
     parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
+                        help="Name os the phone model. Check phones.json.")
+    parser.add_argument("-b", "--berry", action="store", required=False, default="g", \
                         help="Name os the phone model. Check phones.json.")
     global args
     args = parser.parse_args()
@@ -58,7 +45,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    raid(args.port, args.phone)
+    action(args.port, args.phone)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)
