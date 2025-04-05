@@ -23,7 +23,7 @@ def getY(d, r, offset=0):
 def end_catch(p):    
     sleep(1)
     print("Catch over")
-    p.tapScreen(378, 1352)
+    p.tap_screen(378, 1352)
     print("Go home")
     p.goHome()
 
@@ -45,28 +45,28 @@ def catch(port, p, distance = 6, right = True, berry = "a", max_tries = 25, span
                 pass
             sleep(1)
         print("Ball ready")
-        p.tapScreen(500, 1748)
+        p.tap_screen(500, 1748)
         sleep(0.5)
-        p.tapScreen(114, 1757)
+        p.tap_screen(114, 1757)
         sleep(1)
         no_berry = True
         if berry == "a":
             if p.color_match(814, 1373, 236, 227, 19):
-                p.tapScreen(815, 1375)
+                p.tap_screen(815, 1375)
                 sleep(0.5)
-                p.tapScreen(486, 1748)
+                p.tap_screen(486, 1748)
                 sleep(1)
                 no_berry = False
             elif p.color_match(772, 1767, 248, 246, 76):
-                p.tapScreen(772, 1767)
+                p.tap_screen(772, 1767)
                 sleep(0.5)
-                p.tapScreen(486, 1748)
+                p.tap_screen(486, 1748)
                 sleep(1)
                 no_berry = False
             elif p.color_match(182, 1718, 238, 232, 27):
-                p.tapScreen(182, 1718)
+                p.tap_screen(182, 1718)
                 sleep(0.5)
-                p.tapScreen(486, 1748)
+                p.tap_screen(486, 1748)
                 sleep(1)
                 no_berry = False
         elif berry == "g":
@@ -74,9 +74,9 @@ def catch(port, p, distance = 6, right = True, berry = "a", max_tries = 25, span
                 p.scroll(800,0, start_y = 1750, tap_time = 1)
             time.sleep(0.5)
             if p.color_match(454, 1732, 255, 143, 9):
-                p.tapScreen(454, 1718)
+                p.tap_screen(454, 1718)
                 sleep(0.5)
-                p.tapScreen(486, 1748)
+                p.tap_screen(486, 1748)
                 sleep(1)
                 no_berry = False
         elif berry == "s":
@@ -84,15 +84,15 @@ def catch(port, p, distance = 6, right = True, berry = "a", max_tries = 25, span
                 p.scroll(800,0, start_y = 1750, tap_time = 1)
             time.sleep(0.5)
             if p.color_match(151, 1742, 181, 190, 191):
-                p.tapScreen(151, 1748)
+                p.tap_screen(151, 1748)
                 sleep(0.5)
-                p.tapScreen(500, 1748)
+                p.tap_screen(500, 1748)
                 sleep(1)
                 no_berry = False
         if no_berry:
             sleep(1)
             print("Reomve screen")
-            p.tapScreen(795, 191)
+            p.tap_screen(795, 191)
             sleep(2)
         sleep(0.5)
         if span != 0:

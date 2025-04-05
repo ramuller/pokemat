@@ -13,17 +13,17 @@ args = parser.parse_args()
 for ph in range(1,7):
     try:
         p = ts(3000 + ph, "s7")
-        p.tapScreen(690,140)
+        p.tap_screen(690,140)
         sleep(0.5)
-        p.tapScreen(430, 1029)
+        p.tap_screen(430, 1029)
         sleep(0.5)
         p.typeString(args.location)
         sleep(0.5)
-        p.tapScreen(822, 798)
+        p.tap_screen(822, 798)
         sleep(1)
-        # p.tapScreen(116, 1738)
+        # p.tap_screen(116, 1738)
         # sleep(1)
-        # p.tapScreen(116, 1738)
+        # p.tap_screen(116, 1738)
     except:
         pass
 

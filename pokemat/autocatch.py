@@ -24,7 +24,7 @@ def search_pokemon():
         for y in range(1300, 800, -50):
         # for y in range(1300, 1049, -50):
             p.showColor(500, y)
-            p.tapScreen(500, y)
+            p.tap_screen(500, y)
             sleep(0.25)
             if not p.is_home():
                 print("Not home")

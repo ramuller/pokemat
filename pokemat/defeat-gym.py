@@ -21,16 +21,6 @@ def whiteScreen():
     print("White screen")
     return True
 
-def inLobby():
-    # if phone.color_match(824, 1623, 241, 246, 242, debug=True):
-    #     return True
-    if phone.color_match(824, 1623, 241, 246, 238,threashold=17 ) \
-        and phone.color_match(887, 1806, 237, 244, 239) \
-        and phone.color_match(493, 1839, 234, 241, 237):
-        return True
-
-    # and phone.color_match(868, 210, 242, 251, 239):
-    return False
 
 def defeat(port, phone_model):
     with open("phone-spec.json", 'r') as file:
@@ -39,21 +29,27 @@ def defeat(port, phone_model):
     print("Start Deafeat \"{}\" on port {}", phone_model, port)
     global phone 
     phone = TouchScreen(port, phone_model)
-   
-    while True:
+    defeated = False
+    while not defeated:
         # try:
             print("Start defeat")
-            noLobby = True
-            for to in range(5,0,-1):
-                print("Wait for lobbr {}",format(to))
-                time.sleep(1)
-                if inLobby():
-                    noLobby = False
-                    break
-            if noLobby:
-                print("Not in lobby")
-                # sys.exit(0)   
-            phone.tapScreen(829, 1605)
+            retry = 3
+            in_defeat = False
+            while not phone.screen_is_defeat_gym():
+                if phone.is_home():
+                    print("is home try to tap gym and wait 5 seconds")
+                    phone.tap_screen(500, 600)
+                    sleep(5)
+                elif phone.button_is_back():
+                    print("Has back button")
+                    phone.tap_back()
+                    sleep(3)
+                retry -= 1
+                if retry < 1:
+                    print("Dont know how to enter defeat mode bye bye")
+                    sys.exit(0)
+    
+            phone.tap_screen(829, 1605)
             print("Start battle")
             phone.waitMatchColorAndClick(345, 777, 134, 217, 153)
             print("Wait for initial white screen")
@@ -68,9 +64,11 @@ def defeat(port, phone_model):
             while whiteScreen():
                 time.sleep(0.2)
             print("Start fight")
-            while not inLobby():
+            while not phone.screen_is_defeat_gym() \
+                  and not phone.button_is_back() \
+                  and not phone.is_home():
                 for x in [250, 500, 750]:
-                    phone.tapScreen(x,1750)
+                    phone.tap_screen(x,1750)
                     time.sleep(0.1)
         # except Exception as e:
         #     print("Upps something went wrong but who cares?: {}", e)

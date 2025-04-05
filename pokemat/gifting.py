@@ -56,8 +56,8 @@ def gifting(port, phone):
     phone = TouchScreen(port, phone)
     phone.friendSortHasGift()
     # phone.tapSearch()
-    # phone.tapScreen(440, 837)
-    # phone.tapScreen(440, 1150)
+    # phone.tap_screen(440, 837)
+    # phone.tap_screen(440, 1150)
     giftsSent = 0
     giftsReceived = 0
     while can_get_gifts or can_send_gifts or switch_order:
@@ -67,7 +67,7 @@ def gifting(port, phone):
                 print("Sort for send gifts only")
                 phone.friendSortCanReceive()
                 # phone.tapSearch()
-                # phone.tapScreen(440, 837)
+                # phone.tap_screen(440, 837)
                 switch_order = False
                 can_send_gifts = True
             switch_order = False
@@ -82,7 +82,7 @@ def gifting(port, phone):
                 return True
             print("trainer screen")
             while phone.color_match(52, 1335, 255, 255, 255):
-                phone.tapScreen(612, 494)
+                phone.tap_screen(612, 494)
                 time.sleep(0.3)
             time.sleep(1)
             phone.selectAll()
@@ -112,7 +112,7 @@ def gifting(port, phone):
                         can_get_gifts = False
                 
             can_send_gifts = phone.sendGift()
-            phone.tapBack()
+            phone.tap_back()
 
                     
                 

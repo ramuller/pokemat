@@ -19,7 +19,7 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
     print("Start testing on  \"{}\" on port {}", phone, port)
     p = TouchScreen(port, phone)
     
-    p.tapScreen(925, 1703)
+    p.tap_screen(925, 1703)
     sys.exit(0)
     
     # p.doBattle()

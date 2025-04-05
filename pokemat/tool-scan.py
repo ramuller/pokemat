@@ -41,11 +41,14 @@ def scan_line(port, phone_model):
     p = TouchScreen(port, phone_model)
 
     # pv = PixelVector(p, 770, 956, 1850, 1850, 3 , "test")
-    pv = PixelVector(p, 10, 956, 900, 900, sy, "test")
+    #pv = PixelVector(p, 10, 990, 900, 900, sy, "test")
+    pv = p.get_vector_object_left_right()
+    pv.x_set(10, 990)
+    pv.update()
     # pv.plot_start()
     # Create figure and axis
     # fig = plt.figure()
-    # plt.ion()
+    plt.ion()
     fig,ax = plt.subplots(figsize=(16, 6))
     rgb = np.column_stack((pv.rgb()[0], pv.rgb()[1]))
     rgbt = np.array(pv.rgb()[1])
@@ -61,65 +64,40 @@ def scan_line(port, phone_model):
     plt.autoscale(axis='x') # ax.set_xlim(ys, ye)
     ax.set_ylim(-255, 255)
     ax.grid()
-    def plotter2(forever = True):    
-        while forever:
-            i = 0
-            x, rgb = pc.rgb()
-            for x in len(x-1):
-                p1 = p.getRGB(xs, y)
-                p2 = p.getRGB(xs, y + sy)
-                dr = p2[0] - p1[0]
-                dg = p2[1] - p1[1]
-                db = p2[2] - p1[2]
-                # xr_data[i] = y
-                if False:
-                    yr_data[i] = dr
-                    yg_data[i] = dg
-                    yb_data[i] = db
-                else:
-                    yr_data[i] = p1[0]
-                    yg_data[i] = p1[1]
-                    yb_data[i] = p1[2]
-                
-                i += 1
-            # lr.set_xdata(xr_data)
-            lr.set_ydata(yr_data)
-            lg.set_ydata(yg_data)
-            lb.set_ydata(yb_data)
-            # ax.relim()  # Adjust limits if needed
-            ax.autoscale_view()
-            print("Thread")
-            fig.canvas.draw()
-            time.sleep(0.1)
-            # plt.pause(1)
-
     def plotter(forever = True):
         while True:
-            mx, my, b = p.get_mouse()
-            print("Color under mouse {}".format(p.getRGB(mx, my)))
+            mx, my = p.get_mouse()
+            print(p.screen_is_defeat_gym())
+            # print("Color under mouse {}".format(p.getRGB(mx, my)))
 
-            print("mx {}, my {}".format(mx, my))
-            
             if mx < 200:
                 mx = 200
             elif mx > p.maxX - 200:
                 mx = p.maxX - 201
 
+            pv.x_set(mx, mx + 140)
 
             if mx < 200:
                 my = 200
             elif my > p.maxY:
                 my = p.maxY - 1
             
-            print("mx {}, my {}".format(mx, my))
             # pv.x_set(mx - 200, mx + 200)
             pv.y_set(my, my)
 
             pv.update()
-            rgbt = np.array(pv.rgb()[1])
-            print(len(rgbt))
-            rgbd = np.diff(rgbt, axis=0)
-            ldr.set_ydata(rgbd[:,0])
+            print("mx {}, my {}, len {}".format(mx, my, pv.len))            
+            # all channels
+            if False:
+                rgbt = np.array(pv.rgb()[1])
+                print("rgbt len {}".format(len(rgbt)))
+                delta = np.diff(rgbt, axis=0)
+                ldr.set_ydata(delta[:,0])
+            else:
+                delta = np.diff(pv.red()[1])
+                ldr.set_ydata(delta)
+            print((np.abs(delta) > 80).sum())
+            ldr.set_xdata(pv.red()[0][:-1])
             # ldr.set_xdata(range(mx - 200, mx + 199, 3))
             #     ldr.set_xdata(pv.rgb()[1].pop(0))
 
@@ -135,15 +113,15 @@ def scan_line(port, phone_model):
             plt.autoscale(axis='x') # ax.set_xlim(ys, ye)
             fig.canvas.draw()
             #ax.grid()
-            # plt.draw()
-            # plt.pause(1)
-            time.sleep(0.002)
+            plt.draw()
+            plt.pause(0.9)
+            # time.sleep(0.1)
             # print("Is pokestop {}".format(p.screen_is_pokestop()))
             # print("Mouse {}".format(p.get_mouse()))
     # plt.show()
-    # plotter()
+    plotter()
     
-    bench = 10
+    bench = 2
     print("start update {} times".format(bench))
     for i in range(0, bench):
                 print(bench)

@@ -13,7 +13,7 @@ from datetime import datetime
 
 def deleteRedBalls(phone):
     phone.goHome()
-    phone.tapScreen()
+    phone.tap_screen()
 
 def reconnect(port, phone):
     with open("phone-spec.json", 'r') as file:
@@ -24,8 +24,8 @@ def reconnect(port, phone):
    
     while True:
         try:
-            # phone.tapScreen(119, 1791) # Avatar
-            phone.tapScreen(90, 30) # Clock
+            # phone.tap_screen(119, 1791) # Avatar
+            phone.tap_screen(90, 30) # Clock
             time.sleep(2)
             phone.goHome()
             print("Check connection status")
@@ -40,11 +40,11 @@ def reconnect(port, phone):
             # phone.waitMatchColorAndClick(241, 369, 143, 208, 218)
             time.sleep(1)
             print("TAP connect")
-            phone.tapScreen(241, 369)
+            phone.tap_screen(241, 369)
             phone.waitMatchColor(251, 1205, 66, 66, 66)
             time.sleep(1)
             print("TAP pair")
-            phone.tapScreen(828, 1177)
+            phone.tap_screen(828, 1177)
             # phone.waitMatchColorAndClick(807, 1189, 29, 88, 102)
             print("Wait a minute to get the connection up!")
             for i in range(0,10):

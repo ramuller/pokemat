@@ -76,7 +76,7 @@ def scan_sky(phone, print, no_grunt):
                     or phone.color_match(x, gy, 180, 90, 70) \
                     or phone.color_match(x, gy, 225, 130, 115):
                 print("Grunt R found")
-                phone.tapScreen(x, gy + 250)
+                phone.tap_screen(x, gy + 250)
                 time.sleep(2)
             if is_grunt_in_gym(phone) \
                     or phone.color_match(868, 197, 241, 247, 240) \
@@ -135,12 +135,12 @@ def grunt(port, phone):
                    phone.color_match(506, 880, 206, 92, 51, threashold = 20) or \
                    phone.color_match(611, 880, 206, 92, 51, threashold = 20) or \
                    phone.color_match(620, 880, 206, 92, 51, threashold = 20):
-                phone.tapScreen(506, 849)
+                phone.tap_screen(506, 849)
                 oponent = True
                 i = 0
                 break
             if phone.color_match(498, 1824, 235, 242, 242):
-                phone.tapScreen(498, 1824)
+                phone.tap_screen(498, 1824)
             if phone.isHome():
                 i = 0
             sleep(1)
@@ -160,20 +160,20 @@ def grunt(port, phone):
             print("Wait for ?")
             i = 0
         except:
-            phone.tapScreen(348, 1000)
+            phone.tap_screen(348, 1000)
             i = i -1
     time.sleep(2)
-    phone.tapScreen(388, 1552)
+    phone.tap_screen(388, 1552)
     time.sleep(1)
-    phone.tapScreen(388, 1552)
+    phone.tap_screen(388, 1552)
     
     phone.waitMatchColor(350, 1771, 155, 222, 146)
     time.sleep(5)
     print("Select other party")    
-    phone.tapScreen(970, 1452)
+    phone.tap_screen(970, 1452)
     time.sleep(2)
     print("Wait go battle")
-    phone.tapScreen(500, 1800)
+    phone.tap_screen(500, 1800)
     
     # try:
     #     phone.waitMatchColorAndClick(338, 1779, 162, 220, 148, threashold=20, time_out_ms = 15500)
@@ -201,9 +201,9 @@ def grunt(port, phone):
             phone.waitMatchColorAndClick(305, 1773, 137, 216, 153, time_out_ms = 2000)
             break
         except:
-            phone.tapScreen(305, 1773)
+            phone.tap_screen(305, 1773)
         pass
-    phone.tapScreen(512, 873) 
+    phone.tap_screen(512, 873) 
 
     sleep(6)
     print("Try to catch")

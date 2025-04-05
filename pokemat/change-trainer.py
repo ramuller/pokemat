@@ -25,51 +25,51 @@ def selectTrainer(trainer):
             phone.scroll(0, -400, start_x=900)
             sleep(1)        
         sleep(1)
-        phone.tapScreen(439, 900)
+        phone.tap_screen(439, 900)
     if trainer in "pokeeizu":
         sleep(1)
-        phone.tapScreen(439, 1199)
+        phone.tap_screen(439, 1199)
     elif trainer in "schlumpiz":
-        phone.tapScreen(390, 1931)
+        phone.tap_screen(390, 1931)
     elif trainer in "localhost":
-        phone.tapScreen(543, 828)
+        phone.tap_screen(543, 828)
     elif trainer in "plastic":
         sleep(2)
-        phone.tapScreen(546, 656)
+        phone.tap_screen(546, 656)
     elif trainer in "pokeralle":
         print("Try pokeralle")
         sleep(2)
-        phone.tapScreen(527, 1750)
+        phone.tap_screen(527, 1750)
     elif trainer in "higimmi222" or trainer in "bluebird":
         sleep(1)
-        phone.tapScreen(652, 1019)
+        phone.tap_screen(652, 1019)
     elif trainer in "bluebird":
         sleep(1)
-        phone.tapScreen(500, 1363)
+        phone.tap_screen(500, 1363)
     elif trainer in "higimmi333":
         sleep(1)
-        phone.tapScreen(565, 1570)
+        phone.tap_screen(565, 1570)
     elif trainer in "higimmi444":
         sleep(1)
-        phone.tapScreen(565, 1400)
+        phone.tap_screen(565, 1400)
     elif trainer in "aphex":
         for i in range(0,5):
             print("Scroll up")
             phone.scroll(0, -400, start_x=900)
             sleep(1)        
-        phone.tapScreen(321, 714)
+        phone.tap_screen(321, 714)
     elif trainer in "helmuteizu":
         for i in range(0,5):
             print("Scroll up")
             phone.scroll(0, -400, start_x=900)
             sleep(1)        
-        phone.tapScreen(321, 1430)
+        phone.tap_screen(321, 1430)
     elif trainer in "blond":
         for i in range(0,5):
             print("Scroll up")
             phone.scroll(0, -400, start_x=900)
             sleep(1)        
-        phone.tapScreen(449, 1091)
+        phone.tap_screen(449, 1091)
     else:
         
         print("Unknow trainer")
@@ -96,7 +96,7 @@ def changeTrainer(port, phone_model, trainer):
             print("check y = {}".format(y))
             if phone.color_match(500, y, 250, 251, 248):
                 print("Click sign out")
-                phone.tapScreen(500, y - 20)
+                phone.tap_screen(500, y - 20)
                 break
         phone.waitMatchColorAndClick(411, 1037, 133, 217, 152, time_out_ms = 14000)
     except:

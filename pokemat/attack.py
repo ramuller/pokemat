@@ -20,9 +20,9 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
             
     p = TouchScreen(port, phone)
     while True:
-        p.tapScreen(500, 1590)
+        p.tap_screen(500, 1590)
         sleep(0.1)
-        p.tapScreen(500, 1790)
+        p.tap_screen(500, 1790)
         sleep(0.1)
 
 def main():

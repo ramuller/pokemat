@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ZAPPER_DIR=$HOME/git/scrcpyzapper
+
 # Schlumpiz
 # export SN=ce091609f2237a1904
 # Pokeralle
@@ -17,7 +19,7 @@
 # [ -n "$EXTRA" ] || EXTRA="-S --disable-screensaver"
 [ -n "$EXTRA" ] || EXTRA="--disable-screensaver"
 
-cd ..
+cd $ZAPPER_DIR
 
 if false ; then
     true

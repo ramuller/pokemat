@@ -58,7 +58,7 @@ def trade(jsonFile):
             host.searchFriend(parameter["guest"]["name"])
             if host.hasGift():
                 time.sleep(0.5)
-                host.tapScreenBack()
+                host.tap_screenBack()
             host.tapTrade()
             # time.sleep(2)
             while True:
@@ -72,7 +72,7 @@ def trade(jsonFile):
             guest.selectFirstFriend()
             if guest.hasGift():
                 print("Has gift")
-                guest.tapScreenBack()
+                guest.tap_screenBack()
             time.sleep(1)
             guest.tapTrade()
             
@@ -94,12 +94,12 @@ def trade(jsonFile):
                     host.waitMatchColorAndClick(177, 724, 255, 255, 255, same=False)
                     guest.waitMatchColorAndClick(177, 724, 255, 255, 255, same=False)
                 except:
-                    host.tapScreen(177, 724)
-                    guest.tapScreen(177, 724)
+                    host.tap_screen(177, 724)
+                    guest.tap_screen(177, 724)
                 # tap twice because sometimes it missing a tap
                 time.sleep(0.2)
-                host.tapScreen(177, 724)
-                guest.tapScreen(177, 724)
+                host.tap_screen(177, 724)
+                guest.tap_screen(177, 724)
                 # Click Next
                 host.waitMatchColorAndClick(371, 1605, 147, 217, 150)
                 guest.waitMatchColorAndClick(371, 1605, 147, 217, 150)

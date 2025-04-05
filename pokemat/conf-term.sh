@@ -1,6 +1,6 @@
 #!/bin/bash
 
-count=5
+count=6
 [ -z "$1" ] || count=$1
 
 split_term()
@@ -16,9 +16,11 @@ split_term()
 }
 
 split_term "up"
+
 for (( i = 0 ; i < $count - 1 ; i++ ))
 do
     split_term "left"
+    
 done
 
 xdotool mousemove --window $(xdotool getactivewindow) 130 150

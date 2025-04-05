@@ -17,9 +17,9 @@ def raid(port, phone):
         
     print("Start evolutions \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
-    phone.tapScreen(650,1500)
+    phone.tap_screen(650,1500)
     time.sleep(2)
-    phone.tapScreen(650,1500)
+    phone.tap_screen(650,1500)
     time.sleep(8)
     while phone.color_match(368, 203, 16, 146, 175):
         print("Wait for start")
@@ -30,12 +30,12 @@ def raid(port, phone):
         try:
             for x in range(200,700,150):
                 if phone.color_match(333, 1013, 159, 218, 148):
-                    phone.tapScreen(333,1013)
-                phone.tapScreen(x, 1500)
+                    phone.tap_screen(333,1013)
+                phone.tap_screen(x, 1500)
                 time.sleep(0.04)
                 if phone.color_match(333, 1013, 159, 218, 148):
-                    phone.tapScreen(333,1013)
-                phone.tapScreen(x, 1840)
+                    phone.tap_screen(333,1013)
+                phone.tap_screen(x, 1840)
                 time.sleep(0.04)
                 # phone.atchColor(321, 1005, 160, 219, 147)
         except Exception as e:
