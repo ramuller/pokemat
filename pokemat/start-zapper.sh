@@ -34,7 +34,7 @@ elif [ "$1" == "2" ];then
     adb -s $SN shell "su -c \"echo 1040000 >/sys/power/cpufreq_max_limit\""
     ./run x $EXTRA --window-title="$1" -s $SN -m 1024 --max-fps=8 --no-audio-playback --window-x=600 --window-y=0 --rest-api-port=300$1
 elif [ "$1" == "3" ];then
-    [ -z $SN ] && SN=ce091609ec79190d04
+    [ -z $SN ] && SN=ce12160c4dac273705
     adb -s $SN shell "su -c \"echo 1040000 >/sys/power/cpufreq_max_limit\""
     ./run x $EXTRA --window-title="$1" -s $SN -m 1024 --max-fps=8 --no-audio-playback --window-x=1200 --window-y=0 --rest-api-port=300$1
 elif [ "$1" == "4" ];then
@@ -42,7 +42,7 @@ elif [ "$1" == "4" ];then
     adb -s $SN shell "su -c \"echo 1040000 >/sys/power/cpufreq_max_limit\""
     ./run x $EXTRA --window-title="$1" -s $SN -m 1024 --max-fps=8 --no-audio-playback --window-x=1800 --window-y=0 --rest-api-port=300$1
 elif [ "$1" == "5" ];then
-    [ -z $SN ] && SN=ce12160c4dac273705
+    [ -z $SN ] && SN=ce091609ec79190d04
     adb -s $SN shell "su -c \"echo 1040000 >/sys/power/cpufreq_max_limit\""
     ./run x $EXTRA --window-title="$1" -s $SN -m 1024 --max-fps=8 --no-audio-playback --window-x=2400 --window-y=0 --rest-api-port=300$1
 elif [ "$1" == "6" ];then

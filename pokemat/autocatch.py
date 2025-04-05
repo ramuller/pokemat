@@ -56,7 +56,7 @@ def autocatch(port, phone_model):
         p.goHome()
         if search_pokemon():
             # if not catch(port, p, distance = 6, berry = "a", max_tries = 5, span = 3):
-            if not catch(port, p, distance = 4, berry = "a", max_tries = 5, span = 0):
+            if not catch(port, p, distance = 4, berry = "a", max_tries = 6, span = 4):
                 # turn away if no catch !!!
                 rotate(90)
     

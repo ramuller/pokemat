@@ -669,7 +669,7 @@ class TouchScreen:
                             # time.sleep(1.5)
                             if not self.color_match(166, 1171, 250, 251, 246):
                                 print("Try to catch pokemon")
-                                self.catch_pokemon()
+                                self.catch_pokemon(distance = (7 + random.randint(-4, 4)))
                                 self.waitMatchColorAndClick(418, 1365, 137, 218, 154, time_out_ms=3500)
                                 self.waitMatchColorAndClick(508, 1869, 26, 136, 151, time_out_ms=3500)
                         except:
@@ -915,6 +915,7 @@ class TouchScreen:
             except:
               print("Catch over")
               break
+            print("Catch distance {}".format(distance))
             self.tapScreen(114, 1757)
             time.sleep(1)
             no_berry = True
@@ -1112,15 +1113,16 @@ class TouchScreen:
                             yy = 660 + i
                             r,g,b =self.getRGB(xx, yy)
                             print("{},{},{},{},{}".format(xx, yy, r, g, b))
-                    time.sleep(0.015)
+                    time.sleep(0.01)
+                    self.tapScreen(x, 1780)
+                    time.sleep(0.01)
                     self.tapScreen(x, 1790)
-                    time.sleep(0.015)
-                    self.tapScreen(x, 1790)
+                    time.sleep(0.01)
+                    self.tapScreen(x, 1800)
                     # self.tapScreen(x, 1810)
                     # wait for ready of last red ball disappear
-                    p = {}
                     if self.black_screen():
-                        return
+                       return
                     # for x in range(400, 420, 4):
                     #    print("DEBUG X({}):{}".format(x,self.getRGB(x, 665)))
                     # if self.color_match(405, 665, 220, 220, 220, threashold=20) \
