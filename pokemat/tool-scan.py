@@ -68,7 +68,6 @@ def scan_line(port, phone_model):
         while True:
             mx, my = p.get_mouse()
             print(p.screen_is_defeat_gym())
-            # print("Color under mouse {}".format(p.getRGB(mx, my)))
 
             if mx < 200:
                 mx = 200
@@ -127,56 +126,10 @@ def scan_line(port, phone_model):
                 print(bench)
                 pv.update()
     print("end update {} times".format(bench))
-    if True:
-        print("Start threadding")
-        import threading
-        t = threading.Thread(target=plotter, daemon=True)
-        t.start()
-    else:
-        # from matplotlib.animation import FuncAnimation
-        # ani = FuncAnimation(fig, plotter, frames=100, interval=500, blit=True)
-        #plt.ion()
-        #plt.show()
-
-        # plt.show()
-        plotter(True)  # Start the thread
-    # t.join()   # Wait for it to finish
-    # while True:
-    #     i = 0
-    #     for y in range(ys, ye, sy):
-    #         p1 = p.getRGB(xs, y)
-    #         p2 = p.getRGB(xs, y + sy)
-    #         delta = p2[0] - p1[0]
-    #         x_data[i] = y
-    #         y_data[i] = delta
-    #         i += 1
-    #     ax.clear()
-    #     ax.plot(x_data, y_data)    
-    #     plt.pause(1)
-    # while True:
-    #     i = 0
-    #     for y in range(ys, ye, sy):
-    #         p1 = p.getRGB(xs, y)
-    #         p2 = p.getRGB(xs, y + sy)
-    #         # delta = abs(p2[0] - p1[0])
-    #         delta = p2[0] - p1[0]
-    #         # print("Delta {}, Index {}".format(delta, (y-ys)/sy))
-    #         # x_data = np.append(x_data, y)
-    #         # y_data = np.append(y_data, delta)
-    #         # y_data = np.append(y_data, 0)
-    #         x_data[i] = y
-    #         y_data[i] = delta
-    #         i += 1
-    #         # line.set_xdata(x_data)
-    #         # line.set_ydata(y_data)
-    #     ax.clear()
-    #     ax.plot(x_data, y_data)    
-    #     plt.pause(1)
-        # ax.clear()
-    # ani = animation.FuncAnimation(fig, animate, interval=500)
-    # plt.ioff()
-    # plt.ion()
-    # plt.show()    
+    print("Start threadding")
+    import threading
+    t = threading.Thread(target=plotter, daemon=True)
+    t.start()
     plt.show()
     while False:
         print("Hello")

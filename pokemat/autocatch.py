@@ -34,7 +34,7 @@ def search_pokemon():
                     # p.goHome()
                     return True
                 if p.screen_is_pokestop() and args.spin:
-                    # p.spin_disk()
+                    p.spin_disk()
                     p.goHome()
                 else:
                     print("Something else")

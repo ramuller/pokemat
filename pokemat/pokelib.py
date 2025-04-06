@@ -12,6 +12,9 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
+import pytesseract
+from PIL import Image
+
 log = logging.getLogger("pokelib")
 
 class ExPokeLibError(Exception):
@@ -137,7 +140,7 @@ class PixelVector:
     
     def max_blue(self):
         return max(self.blue()[1])
-    
+
 class TouchScreen:
     maxX = 0
     maxY = 0
@@ -156,6 +159,9 @@ class TouchScreen:
 
     # def checkConnetionState(self):
 
+    def read_text(self):
+        print("I read text")
+        
     def get_vector_object_left_right(self):
         return self.vector_left_right
     
@@ -337,8 +343,8 @@ class TouchScreen:
         return (delta_max - delta_min) > 150
     
     def screen_is_pokestop(self):
-        self.vector_left_down.update()
-        if max(self.vector_left_down.max_delta()) == 0 and self.vector_left_down.max_blue() > 150:
+        m = self.get_maxima_x(27, 1931, 200, threshold = 1)
+        if m == 0:
             return True
         return False
         print(max(self.vector_left_down.max_delta()))

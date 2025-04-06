@@ -2,12 +2,12 @@
     "mode": "trade",
     "league": "master",
     "guest": {
-        "port": "3003",
+        "port": "3005",
         "name": "blond",
         "filter": "xp1"
     },
     "host": {
-        "port": "3004",
+        "port": "3006",
         "name": "pokeeizu",
         "filter": "xp1"
      }
