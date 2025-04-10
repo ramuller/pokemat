@@ -51,17 +51,16 @@ def gifting(port, phone):
     l_and_d =  string.ascii_lowercase + string.digits
     shuffled_letters = random.sample(l_and_d, len(l_and_d))
 
-        
-    print("Start gifting using phone \"{}\" on port {}", phone, port)
+    print("Start receiving gifts using phone \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
-    phone.friendSortCanReceive()
+    phone.friendSortHasGift()
     # phone.tapSearch()
     # phone.tap_screen(440, 837)
     # phone.tap_screen(440, 1150)
     giftsSent = 0
     giftsReceived = 0
-    while can_send_gifts:
-        log.info("Time : Send gifts {}".format(phone.getTimeNow()))
+    receive_gifts = True
+    while receive_gifts:  # and len(shuffled_letters) > 0:
         try:
             # Wait for trainer screen
             for timeout in reversed(range(0,100)):
@@ -76,33 +75,35 @@ def gifting(port, phone):
             while phone.color_match(52, 1335, 255, 255, 255):
                 phone.tap_screen(612, 494)
                 time.sleep(0.3)
-            time.sleep(1)
+            time.sleep(0.5)
             phone.selectAll()
             phone.typeString("\b")
-            phone.typeString("!ff & !lucky")
-            time.sleep(1)
+            if len(shuffled_letters) > 0:
+                phone.typeString("!ff & !lucky & {}".format(shuffled_letters[0]))
+            else:
+                phone.typeString("!ff & !lucky")
+            time.sleep(0.5)
             phone.tapTextOK()      
             time.sleep(0.3)
-            # time.sleep(2)
-            
-            if phone.color_match(359, 884, 250,250,250):
-                # can_send_gifts = phone.sendGift(has_gift = False)
-                has_gift = False
+            if phone.color_match(359, 884, 250,250,250) and shuffled_letters[0] != " ":
+                shuffled_letters.pop(0)
+                print("No gift. Letters to go {}".format(len(shuffled_letters)))
             else:
-                has_gift = True
-                # can_send_gifts = phone.sendGift(has_gift = True)
+                print("Friend has gift")
+                phone.selectFirstFriend()
+                receive_gifts = phone.openGift()
+                # Back to trainer screen
+                phone.tap_screen(500,1850)
+                   
                 
-            phone.selectFirstFriend()
-            can_send_gifts = phone.sendGift(has_gift = has_gift)
-            phone.tap_back()
-
-                    
-                
-            # self.color_match_wait(161, 808, 246, 246, 246, match=False)
+            # self.color_match(161, 808, 246, 246, 246, match=False)
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
             sys.exit(1)
-        
+        except Exception as e:
+            print("Something went wrong, ignore!!! {}".format(e))
+         
+        print("ca_get {}, can_send {}".format(can_get_gifts, can_send_gifts))
         # except Exception as e:
         #    print("Upps something went wrong but who cares?: {}", e)
     return False

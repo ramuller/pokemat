@@ -116,7 +116,7 @@ def gifting(port, phone):
 
                     
                 
-            # self.waitMatchColor(161, 808, 246, 246, 246, match=False)
+            # self.color_match_wait(161, 808, 246, 246, 246, match=False)
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
             sys.exit(1)

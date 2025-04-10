@@ -13,6 +13,7 @@ args = parser.parse_args()
 for ph in range(1,7):
     try:
         p = ts(3000 + ph, "s7")
+        # p.tap_screen(450,140)
         p.tap_screen(690,140)
         sleep(0.5)
         p.tap_screen(430, 1029)

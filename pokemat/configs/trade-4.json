@@ -1,0 +1,16 @@
+{
+    "mode": "trade",
+    "league": "master",
+    "host": { 
+        "port": "3005",
+        "name": "eizu123",
+		"filter-1": "xp1 & !norade & !traded",
+		"filter": "karrablast & !norade & !traded"
+   },
+    "guest": {
+        "port": "3006",
+        "name": "aphex",
+		"filter-1": "xp1 & !norade & !traded",
+		"filter": "karrablast & !norade & !traded"
+    }
+}

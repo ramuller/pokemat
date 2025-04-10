@@ -38,7 +38,7 @@ def catch(port, p, distance = 6, right = True, berry = "a", max_tries = 25, span
             elif p.is_home():
                 return
             try:
-                if p.waitMatchColor(420, 1912, 220, 220, 220, threashold=35, time_out_ms=1000):
+                if p.color_match_wait(420, 1912, 220, 220, 220, threashold=35, time_out_ms=1000):
                     print("Ball found")
                     break
             except:

@@ -117,7 +117,7 @@ def grunt(port, phone):
             rotate(phone)
    
     try:
-        phone.waitMatchColorAndClick(463, 855, 203, 79, 41, time_out_ms = 1500)
+        phone.ccolor_match_wait_click(463, 855, 203, 79, 41, time_out_ms = 1500)
     except:
         pass
     time.sleep(1)
@@ -156,7 +156,7 @@ def grunt(port, phone):
     i = 10
     while i > 0:
         try:    
-            phone.waitMatchColorAndClick(348, 1554, 151, 217, 149, threashold=20, time_out_ms = 1000)
+            phone.ccolor_match_wait_click(348, 1554, 151, 217, 149, threashold=20, time_out_ms = 1000)
             print("Wait for ?")
             i = 0
         except:
@@ -167,7 +167,7 @@ def grunt(port, phone):
     time.sleep(1)
     phone.tap_screen(388, 1552)
     
-    phone.waitMatchColor(350, 1771, 155, 222, 146)
+    phone.color_match_wait(350, 1771, 155, 222, 146)
     time.sleep(5)
     print("Select other party")    
     phone.tap_screen(970, 1452)
@@ -176,7 +176,7 @@ def grunt(port, phone):
     phone.tap_screen(500, 1800)
     
     # try:
-    #     phone.waitMatchColorAndClick(338, 1779, 162, 220, 148, threashold=20, time_out_ms = 15500)
+    #     phone.ccolor_match_wait_click(338, 1779, 162, 220, 148, threashold=20, time_out_ms = 15500)
     # except:
     #     pass
     watch_dog.reset()
@@ -198,7 +198,7 @@ def grunt(port, phone):
     # Wait for trainer
     for i in range(1,10):
         try:
-            phone.waitMatchColorAndClick(305, 1773, 137, 216, 153, time_out_ms = 2000)
+            phone.ccolor_match_wait_click(305, 1773, 137, 216, 153, time_out_ms = 2000)
             break
         except:
             phone.tap_screen(305, 1773)

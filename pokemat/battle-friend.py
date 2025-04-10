@@ -68,13 +68,13 @@ def battleFriend(jsonFile):
                 for i in range(0, 20):
                     try:
                         if not host_ok:
-                            host.waitMatchColorAndClick(355, 1275, 147, 217, 150, threashold=20, time_out_ms=1000)
+                            host.ccolor_match_wait_click(355, 1275, 147, 217, 150, threashold=20, time_out_ms=1000)
                             host_ok = True
                     except Exception as e:
                         pass
                     try:
                         if not guest_ok:
-                            guest.waitMatchColorAndClick(355, 1275, 147, 217, 150, threashold=20, time_out_ms=1000)
+                            guest.ccolor_match_wait_click(355, 1275, 147, 217, 150, threashold=20, time_out_ms=1000)
                             guest_ok = True
                     except Exception as e:
                         pass

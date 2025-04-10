@@ -47,11 +47,11 @@ def defeat(port, phone_model):
                 retry -= 1
                 if retry < 1:
                     print("Dont know how to enter defeat mode bye bye")
-                    sys.exit(0)
+                    return "give-up"
     
             phone.tap_screen(829, 1605)
             print("Start battle")
-            phone.waitMatchColorAndClick(345, 777, 134, 217, 153)
+            phone.ccolor_match_wait_click(345, 777, 134, 217, 153)
             print("Wait for initial white screen")
             while not whiteScreen():
                 time.sleep(0.2)

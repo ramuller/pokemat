@@ -15,9 +15,9 @@ def selectTrainer(trainer):
     trainer = trainer.lower()
     print("Select new trainer {}".format(trainer))
     sleep(0.5)
-    phone.waitMatchColorAndClick(272, 1126, 160, 219, 147, time_out_ms = 30000)
-    phone.waitMatchColorAndClick(253, 1019, 255, 255, 255)
-    phone.waitMatchColor(503, 181, 233, 84, 50)
+    phone.ccolor_match_wait_click(272, 1126, 160, 219, 147, time_out_ms = 30000)
+    phone.ccolor_match_wait_click(253, 1019, 255, 255, 255)
+    phone.color_match_wait(503, 181, 233, 84, 50)
     sleep(3)
     if trainer in "eizu123":
         for i in range(0,5):
@@ -85,8 +85,8 @@ def changeTrainer(port, phone_model, trainer):
     try:
         phone.goHome()
         sleep(1)
-        phone.waitMatchColorAndClick(500, 1798, 255, 57, 69)
-        phone.waitMatchColorAndClick(940, 210, 212, 251, 204)
+        phone.ccolor_match_wait_click(500, 1798, 255, 57, 69)
+        phone.ccolor_match_wait_click(940, 210, 212, 251, 204)
         sleep(0.5)
         for i in range(0,4):
             phone.scroll(0, -400, start_x=10)
@@ -98,7 +98,7 @@ def changeTrainer(port, phone_model, trainer):
                 print("Click sign out")
                 phone.tap_screen(500, y - 20)
                 break
-        phone.waitMatchColorAndClick(411, 1037, 133, 217, 152, time_out_ms = 14000)
+        phone.ccolor_match_wait_click(411, 1037, 133, 217, 152, time_out_ms = 14000)
     except:
         pass
 

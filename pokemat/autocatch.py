@@ -8,6 +8,8 @@ from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import ExPokeNoHomeError
 from catch import catch 
+import defeat_gym
+import heal
 
 import json
 import sys
@@ -33,8 +35,12 @@ def search_pokemon():
                     print("Pokemon screen")
                     # p.goHome()
                     return True
-                if p.screen_is_pokestop() and args.spin:
+                if p.screen_is_pokestop() == "stop_and_spin" and args.spin:
                     p.spin_disk()
+                    p.goHome()
+                if p.screen_is_defeat_gym() and args.spin:
+                    defeat_gym.defeat(args.port, args.phone)
+                    heal.heal(args.port, args.phone)
                     p.goHome()
                 else:
                     print("Something else")
@@ -56,7 +62,7 @@ def autocatch(port, phone_model):
         p.goHome()
         if search_pokemon():
             # if not catch(port, p, distance = 6, berry = "a", max_tries = 5, span = 3):
-            if not catch(port, p, distance = 4, berry = "a", max_tries = 6, span = 4):
+            if not catch(port, p, distance = 6, berry = "a", max_tries = 6, span = 4):
                 # turn away if no catch !!!
                 rotate(90)
     
@@ -72,8 +78,10 @@ def main():
                         help="TCP port for the connection.")
     parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
                         help="Name os the phone model. Check phones.json.")
-    parser.add_argument("-s", "--spin", action="store", required=False, default=True, \
+    parser.add_argument("-s", "--spin", action="store", required=False, default=False, \
                         help="Spin pokestops")
+    parser.add_argument("-k", "--kill", action="store", required=False, default=True, \
+                        help="Defeat everything")
     global args
     args = parser.parse_args()
     global log 

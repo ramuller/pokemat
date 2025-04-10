@@ -83,16 +83,16 @@ def trade(jsonFile):
             while True:
                 # Wait for the blue screen
                 #try:
-                #    host.waitMatchColor(95, 396, 101, 179, 246, time_out_ms=1000)
+                #    host.color_match_wait(95, 396, 101, 179, 246, time_out_ms=1000)
                 # except:
                 #    pass
                 # Select left corner
                 time.sleep(1)
-                host.waitMatchColorAndClick(46, 724, 255, 255, 255)
-                guest.waitMatchColorAndClick(46, 724, 255, 255, 255)
+                host.ccolor_match_wait_click(46, 724, 255, 255, 255)
+                guest.ccolor_match_wait_click(46, 724, 255, 255, 255)
                 try:
-                    host.waitMatchColorAndClick(177, 724, 255, 255, 255, same=False)
-                    guest.waitMatchColorAndClick(177, 724, 255, 255, 255, same=False)
+                    host.ccolor_match_wait_click(177, 724, 255, 255, 255, same=False)
+                    guest.ccolor_match_wait_click(177, 724, 255, 255, 255, same=False)
                 except:
                     host.tap_screen(177, 724)
                     guest.tap_screen(177, 724)
@@ -101,14 +101,14 @@ def trade(jsonFile):
                 host.tap_screen(177, 724)
                 guest.tap_screen(177, 724)
                 # Click Next
-                host.waitMatchColorAndClick(371, 1605, 147, 217, 150)
-                guest.waitMatchColorAndClick(371, 1605, 147, 217, 150)
+                host.ccolor_match_wait_click(371, 1605, 147, 217, 150)
+                guest.ccolor_match_wait_click(371, 1605, 147, 217, 150)
                 # Click confirm
-                host.waitMatchColorAndClick(17, 1037, 92, 204, 146)
-                guest.waitMatchColorAndClick(17, 1037, 92, 204, 146)
+                host.ccolor_match_wait_click(17, 1037, 92, 204, 146)
+                guest.ccolor_match_wait_click(17, 1037, 92, 204, 146)
                 # Wait trade complete
-                host.waitMatchColorAndClick(482, 1849, 28, 135, 149, time_out_ms=30000)
-                guest.waitMatchColorAndClick(482, 1849, 28, 135, 149, time_out_ms=30000)
+                host.ccolor_match_wait_click(482, 1849, 28, 135, 149, time_out_ms=30000)
+                guest.ccolor_match_wait_click(482, 1849, 28, 135, 149, time_out_ms=30000)
                 host.tapTrade()
                 guest.tapTrade()
                 
