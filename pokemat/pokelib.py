@@ -746,7 +746,7 @@ class TouchScreen:
                             # time.sleep(1.5)
                             if not self.color_match(166, 1171, 250, 251, 246):
                                 print("Try to catch pokemon")
-                                self.catch_pokemon(distance = (7 + random.randint(-4, 4)))
+                                self.catch_pokemon(distance = 7)
                                 self.ccolor_match_wait_click(418, 1365, 137, 218, 154, time_out_ms=3500)
                                 self.ccolor_match_wait_click(508, 1869, 26, 136, 151, time_out_ms=3500)
                         except:
@@ -1030,8 +1030,9 @@ class TouchScreen:
                 self.tap_screen(795, 191)
                 sleep(2)
             sleep(0.5)
-            print("distance {}".format(distance))
-            self.catch_move(distance = distance)
+            d = distance + random.randint(-4, 4)
+            print("distance {}".format(d))
+            self.catch_move(distance = d)
             sleep(5)
        
         
