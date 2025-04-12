@@ -1,11 +1,11 @@
 #!/bin/env python
-import argparse
 import time
 from time import sleep
 import os
 import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
+from pokelib import PokeArgs
 
 import json
 import sys
@@ -108,18 +108,11 @@ def changeTrainer(port, phone_model, trainer):
     
 def main():
 
-    parser = argparse.ArgumentParser()
-    # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
-    #                     "evolve - send and receive gifts")
-    parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
-    parser.add_argument("-p", "--port", action="store", required=True, \
-                        help="TCP port for the connection.")
-    parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
-                        help="Name os the phone model. Check phones.json.")
-    parser.add_argument("-t", "--trainer", action="store", required=True, \
-                        help="Name os the phone model. Check phones.json.")
+    parser = PokeArgs()
+    parser.add_argument("trainer", help="Name of the new trainer")
     global args
     args = parser.parse_args()
+    
     global log 
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)

@@ -9,6 +9,6 @@ serial()
 for s in $(serial)
 do
     echo $s
-    adb -s $s shell "su -c \"reboot\""
+    adb -s $s shell "su -c \"reboot\"" &
 done
 

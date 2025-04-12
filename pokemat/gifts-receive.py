@@ -60,6 +60,7 @@ def gifting(port, phone):
     giftsSent = 0
     giftsReceived = 0
     receive_gifts = True
+    last_tries = 
     while receive_gifts:  # and len(shuffled_letters) > 0:
         try:
             # Wait for trainer screen
@@ -110,6 +111,7 @@ def gifting(port, phone):
 
 def main():
 
+    global args
     parser = argparse.ArgumentParser()
     # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
     #                     "gifting - send and receive gifts")
@@ -120,7 +122,6 @@ def main():
                         help="TCP port for the connection.")
     parser.add_argument("-P", "--phone", action="store", default="s7", \
                         help="Name os the phone model. Check phones.json.")
-    global args
     args = parser.parse_args()
     global log 
     log = logging.getLogger("gifting")

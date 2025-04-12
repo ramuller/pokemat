@@ -7,6 +7,14 @@ import logging
 import math
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
+from pokelib import PokeArgs
+
+import numpy as np
+from PIL import Image
+import matplotlib.pyplot as plt
+
+# import pytesseract
+import easyocr
 
 import json
 import sys
@@ -18,44 +26,43 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
         
     print("Start testing on  \"{}\" on port {}", phone, port)
     p = TouchScreen(port, phone)
-    
-    p.tap_screen(925, 1703)
-    sys.exit(0)
-    
-    # p.doBattle()
-    # p.goItem()
-    # time.sleep(1)
-    y = 1792
-    y = 1791
-    delta_max = delta_min = 0
-    for x in range(854,904,2):
-        r,_,_ = p.getRGB(x,y)
-        r2,_,_ = p.getRGB(x + 2,y)
-        d = r2 -r
-        if d < delta_min:
-            delta_min = d
-        if d > delta_max:
-            delta_max = d
-        print(d)
-    print("Total delta {}".format(delta_max - delta_min))
+    reader = easyocr.Reader(['en'])
+    t1 = datetime.now()
+    for i in range(0, 10):
+        # import easyocr
+        # reader = easyocr.Reader(['en'])
+        # jbuf = p.screen_capture_bw(100, 120, 200, 70)
+        # jbuf = p.screen_capture_bw(550, 550, 230, 70)
+        # jbuf = p.screen_capture_bw(10, 10, 980, 1980)
+        jbuf = p.screen_capture_bw(10, 550, 980, 70)
+        pixel_array = np.array(jbuf["gray"], dtype=np.uint8)
+        pixel_array = pixel_array.reshape((jbuf["hight"], jbuf["width"]))
+        image = Image.fromarray(pixel_array, mode='L')
+        # print(image.tell())
+        if True:
+            # text = reader.readtext(pixel_array)
+            text = p.read_text(550, 550, 230, 70)
+            for t in text:
+                print("Read with easyocr {}".format(t[1]))
+        # print("Read with easyocr {}".format(text))
+        if False:
+            text = pytesseract.image_to_string(image)
+            print("Read with tessertact {}".format(text))
+        # _, image = p.read_text(290, 530, 400, 90)
+    t2 = datetime.now()
+    print("Elapsed time {}s".format((t2-t1).total_seconds()))
+    plt.imshow(image, cmap='gray', vmin=0, vmax=255)
+    plt.title(f'Grayscale Bitmap')
+    plt.axis('off')
+    plt.show()
     print("Is pokemon : {}".format(p.screen_is_catch_pokemon()))
     
 def main():
 
-    parser = argparse.ArgumentParser()
-    # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
-    #                     "evolve - send and receive gifts")
-    parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
-    parser.add_argument("-p", "--port", action="store", required=False, default=3005, \
-                        help="TCP port for the connection.")
-    parser.add_argument("-d", "--distance", action="store", default=15, \
-                        help="TCP port for the connection.")
-    parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
-                        help="Name os the phone model. Check phones.json.")
-    parser.add_argument("-b", "--berry", action="store", required=False, default="g", \
-                        help="Name os the phone model. Check phones.json.")
+    parser = PokeArgs()
     global args
     args = parser.parse_args()
+    
     global log 
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)

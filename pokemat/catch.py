@@ -1,5 +1,4 @@
 #!/bin/env python
-import argparse
 import time
 from time import sleep
 import os
@@ -7,6 +6,7 @@ import logging
 import math
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
+from pokelib import PokeArgs
 
 import json
 import sys
@@ -119,22 +119,17 @@ def action(port, phone, distance = 15, right = True, berry = "a", span = 0):
 
 def main():
 
-    parser = argparse.ArgumentParser()
-    # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
-    #                     "evolve - send and receive gifts")
-    parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
-    parser.add_argument("-p", "--port", action="store", required=True, \
-                        help="TCP port for the connection.")
+    parser = PokeArgs()
+    global args
+
     parser.add_argument("-d", "--distance", action="store", default=15, \
                         help="TCP port for the connection.")
-    parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
-                        help="Name os the phone model. Check phones.json.")
     parser.add_argument("-b", "--berry", action="store", required=False, default="a", \
                         help="Name os the phone model. Check phones.json.")
     parser.add_argument("-s", "--span", action="store", required=False, default=0, \
                         help="Vary distance by span.")
-    global args
     args = parser.parse_args()
+
     global log 
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
