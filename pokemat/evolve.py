@@ -43,7 +43,7 @@ def evolve(port, phone, filter):
     print("Start time : Evolve {}".format(phone.getTimeNow()))
     while True:
         try:
-            if not phone.selectFirstPokemon():
+            if not phone.pokemon_select_first():
                 print("All pokemons for filter '{}' evolved!".format(filter))
                 sys.exit(0)
             phone.evolvePokemon()

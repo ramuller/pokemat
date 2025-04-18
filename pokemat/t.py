@@ -13,7 +13,7 @@ for p in range(3003,3006):
     ps[p] = ts(p)
     ps[p].doBattle()
 sys.exit(0)
-p.screen_home()
+p.screen_go_to_home()
 p.healAll()
 sys.exit(0)
 a=wd(time_out = 1, _callback = callback)

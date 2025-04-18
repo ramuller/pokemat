@@ -50,7 +50,7 @@ def battle(port, phone, type, league):
     while cont:
         # cont = False
         try:
-            phone.screen_home()
+            phone.screen_go_to_home()
             log.info("Time : battle {}".format(phone.getTimeNow()))
             phone.screen_battle()
             if type == "league" or type == "l":

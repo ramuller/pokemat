@@ -55,7 +55,7 @@ def gifting(port, phone):
 
     print("Start receiving gifts using phone \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
-    phone.friendSortHasGift()
+    phone.sort_has_gift()
     # phone.tapSearch()
     # phone.tap_screen(440, 837)
     # phone.tap_screen(440, 1150)
@@ -86,7 +86,7 @@ def gifting(port, phone):
             else:
                 last_tries -= 1
                 if last_tries <= 0:
-                    phone.screen_home()
+                    phone.screen_go_to_home()
                     sys.exit(0)
                 phone.typeString("!ff & !lucky")
             time.sleep(0.5)

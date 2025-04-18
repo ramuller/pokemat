@@ -21,20 +21,65 @@ import json
 import sys
 from datetime import datetime
 
+def cap_and_show():
+    # upper circle in gym
+    # for y in range(1636,1670,2):
+    #     jbuf = p.screen_capture_bw((780, y), (200, 2))
+    dd = {}
+    # xr=(1880,1890,2)
+    xr = (1646,1652,2)
+    for port in [3003, 3004]:
+        p = TouchScreen(port)
+        dd.update({port:[]})
+        # print(dd)
+        s,e,o = xr
+        for y in range(s,e,o): 
+            jbuf = TouchScreen(port).screen_capture_bw((790, y), (180, 2))
+            jbuf = p.screen_capture_bw((790, y), (180, 2))
+            npa = np.array(jbuf["gray"], dtype=np.uint8)
+            dd[port]. append(np.diff(npa.astype(np.int16)))
+            
+    
+    # for th in range(40,41,5):
+    #     print(f"Y = {y} - TH {th} max {(np.abs(delta) >= th).sum()}")
+    y = xr[0]
+    for i in range(len(dd[3003])):
+        for th in range(30,31,5):
+            m1 = (np.abs(dd[3003][i]) >= th).sum()
+            m2 = (np.abs(dd[3004][i]) >= th).sum()
+            print(f"Y = {y} - TH {th} max1 {m1} max2 {m2}") 
+        y += xr[2]
+    #print(dd[3003])
+    pixel_array = np.array(jbuf["gray"], dtype=np.uint8)
+    pixel_array = pixel_array.reshape((jbuf["hight"], jbuf["width"]))
+    image = Image.fromarray(pixel_array, mode='L')    
+    plt.imshow(image, cmap='gray', vmin=0, vmax=255)
+    plt.title(f'Grayscale Bitmap')
+    plt.axis('off')
+    plt.show()
+    
 def action(port, phone, distance = 15, right = True, berry = "g"):
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)
         
     print("Start testing on  \"{}\" on port {}", phone, port)
+    global p
     p = TouchScreen(port, phone)
+    if False:
+        startTime = datetime.now()
+        for i in range(0,1000):
+            p.get_maxima_horizontal((780, 1642), 250, threshold=40)
+        print(((datetime.now() - startTime).total_seconds() * 1000))
+    # p.screen_is_defeat_gym()
+    cap_and_show()
     # p.scroll(0,-430, start_y = 1500, tap_time = 0.1, stop_to = 0.6)
     # sys.exit(0)
     # print("myname {}".format(p.my_name()))
     for i in range(0,1): 
-        # arrow text, image = p.read_text_and_image(900, 1815, 75, 75)
-        # text, image = p.read_text_and_image(500, 850, 375, 275)
-        # text, image = p.read_text_and_image(260, 1000, 440, 75)
-        text, image = p.read_text_and_image(40, 1400, 250, 100)
+        # arrow text, image = p.pocr_read(900, 1815, 75, 75)
+        # text, image = p.pocr_read(500, 850, 375, 275)
+        # text, image = p.pocr_read(260, 1000, 440, 75)
+        text, image = p.pocr_read((1880,1890), (250, 100))
         print(text)
     plt.imshow(image, cmap='gray', vmin=0, vmax=255)
     plt.title(f'Grayscale Bitmap')
@@ -60,12 +105,12 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
         if False:
             # text = reader.readtext(pixel_array)
             # text = p.read_text(550, 550, 230, 70)
-            text, image = p.read_text_and_image(350, 1650, 300, 76)
+            text, image = p.pocr_read(350, 1650, 300, 76)
             for t in text:
                 print("Read with easyocr {}".format(t))
         # print("Read with easyocr {}".format(text))
         if True:
-            text, image = p.read_text_and_image(350, 1650, 300, 76)
+            text, image = p.pocr_read(350, 1650, 300, 76)
             print("Read with tessertact {}".format(text))
         # _, image = p.read_text(290, 530, 400, 90)
     t2 = datetime.now()

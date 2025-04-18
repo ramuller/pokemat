@@ -11,13 +11,18 @@ import json
 import sys
 from datetime import datetime
 
+from pokelib import ExPokeLibError, ExPokeNoHomeError, ExPokeLibFatal
+
 def selectTrainer(trainer):
     trainer = trainer.lower()
     print("Select new trainer {}".format(trainer))
     sleep(0.5)
-    phone.color_match_wait_click(272, 1126, 160, 219, 147, time_out_ms = 30000)
-    phone.color_match_wait_click(253, 1019, 255, 255, 255)
-    phone.color_match_wait(503, 181, 233, 84, 50)
+    try:
+        phone.color_match_wait_click(272, 1126, 160, 219, 147, time_out_ms = 30000)
+        phone.color_match_wait_click(253, 1019, 255, 255, 255)
+        phone.color_match_wait(503, 181, 233, 84, 50)
+    except:
+        return False
     sleep(3)
     if trainer in "eizu123":
         for i in range(0,5):
@@ -26,7 +31,7 @@ def selectTrainer(trainer):
             sleep(1)        
         sleep(1)
         phone.tap_screen(439, 900)
-    if trainer in "pokeeizu":
+    elif trainer in "pokeeizu":
         sleep(1)
         phone.tap_screen(439, 1199)
     elif trainer in "schlumpiz":
@@ -52,13 +57,13 @@ def selectTrainer(trainer):
     elif trainer in "higimmi444"or trainer in "blue":
         sleep(1)
         phone.tap_screen(565, 1400)
-    elif trainer in "aphex":
+    elif trainer in "aphextvin":
         for i in range(0,5):
             print("Scroll up")
             phone.scroll(0, -400, start_x=900)
             sleep(1)        
         phone.tap_screen(321, 714)
-    elif trainer in "helmuteizu":
+    elif trainer in "helmutkaali":
         for i in range(0,5):
             print("Scroll up")
             phone.scroll(0, -400, start_x=900)
@@ -71,9 +76,7 @@ def selectTrainer(trainer):
             sleep(1)        
         phone.tap_screen(449, 1091)
     else:
-        
-        print("Unknow trainer")
-        sys.exit(1)
+        raise  ExPokeLibFatal("Unknow trainer {trainer}")
 
 def change_trainer(port, phone_model, trainer):
     with open("phone-spec.json", 'r') as file:
@@ -84,46 +87,42 @@ def change_trainer(port, phone_model, trainer):
     phone = TouchScreen(port, phone_model)
     new_trainer = False
     while not new_trainer:
-        t_ret = phone.read_text_line(280, 1100, 440, 75)
-        t_gog = phone.read_text_line(260, 1000, 440, 75)
-        if not "RETURNING" in t_ret \
-           and not "Google" in t_gog:
+        if not phone.pocr_wait_text((280, 1100), (440, 75), "RETURNING") \
+           and not phone.pocr_wait_text((260, 1000), (440, 75), "Google"):
             try:
-                phone.screen_home()
+                phone.screen_go_to_home()
                 sleep(1)
                 phone.color_match_wait_click(500, 1798, 255, 57, 69)
                 phone.color_match_wait_click(940, 210, 212, 251, 204)
                 sleep(0.5)
                 for i in range(0,10):
                     phone.scroll(0, -800, start_x=10)
-                    if "Sign Outt" in phone.read_text_line(40, 1400, 250, 100):
+                    sleep(1)
+                    if phone.pocr_wait_text((40, 1400), (250, 100), "Sign Out"):
                         break
-                    sleep(0.5)
                 sleep(0.5)
                 print("Click sign out")
-                phone.tap_screen(500, y - 20)
+                phone.tap_screen(40, 1450)
                 sleep(1)
-                phone.tap_screem(500,1000)
+                phone.tap_screen(500,1000)
             except:
                 pass
+        # One screen up
         phone.tap_screen(100, 100, 3)
-        for t in range(0, 20):
-            if "RETURNING" in phone.read_text_line(280, 1100, 440, 75):
-                # phone.tap_screen(280, 1100)
-                break
-            print("Wait for returning player")
-            sleep(1)
-            
+        
+        phone.pocr_wait_text((280, 1100), (440, 75), "RETURNING", pause=2, to_ms=60*1000)
+
         selectTrainer(trainer)
                
         for to in range(0, 60):  # 1min.
             try:
                 print("wait for home")
                 if phone.is_home():
-                    return
+                    return True
                 sleep(1)
             except:
                 pass
+        # return False
         
     
 def main():

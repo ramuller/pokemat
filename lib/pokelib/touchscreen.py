@@ -15,9 +15,69 @@ import pytesseract
 
 log = logging.getLogger("pokelib")
 from .pixelvector import PixelVector
-from .text import Text
+from .ocr import Ocr
 from .database import Database as db_p
 from pokelib import ExPokeLibError, ExPokeNoHomeError, ExPokeLibFatal
+
+import signal
+import functools
+from pprint import pprint
+import inspect
+
+'''
+Timeout decorator return from what ever funtion after timeout
+Decorated function needs a paramter to_ms=<float> to define timeout
+'''
+class ExPokeTimeoutHandler(Exception):
+    pass
+
+
+def timeout(seconds):
+    def decorator(func):
+        # def _handle_timeout(signum, frame):
+        #    raise ExPokeTimeoutHandler(f"Function '{func.__name__}' timed out after {seconds} seconds")
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            # Set the signal handler and a timer
+            # signal.signal(signal.SIGALRM, _handle_timeout)
+            # signal.alarm(seconds)
+#            try:
+                return func(*args, **kwargs)
+#            finally:
+#                signal.alarm(0)  # Disable the alarm
+        return wrapper
+    return decorator
+
+def poke_timeout():
+    def decorator(func):
+        # def _handle_timeout(signum, frame):
+        #     raise ExPokeTimeoutHandler(f"Function '{func.__name__}' timed out after {seconds} seconds")
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            # Set the signal handler and a timer
+            try:
+                to_ms = kwargs["to_ms"]
+            except KeyError as e:
+                to_ms = 0
+                
+            print("args {}".format(args))
+            pprint("kwargs {}".format(kwargs))
+            startTime = datetime.now()
+            ret = False
+            # try:
+            while ret == False:
+                ret = func(*args, **kwargs)
+                # self.log.debug("DT {}".format((datetime.now() - startTime).total_seconds() * 1000))
+                if ((datetime.now() - startTime).total_seconds() * 1000) > to_ms:
+                    return ret
+            if ret == False:
+                raise ExPokeTimeoutHandler(f"Function '{func.__name__}' timed out after {to_ms} ms")
+            #    pass
+        return wrapper
+        
+    return decorator
 
 class TouchScreen:
     maxX = 0
@@ -35,6 +95,15 @@ class TouchScreen:
         self.vector_top_down = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
         self.vector = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
         self.reader = None
+        for self.min_width in range(1,100):
+            tb = self.screen_capture_bw((100,100), (self.min_width, 100))
+            if tb["width"] == 1:
+                break
+        for self.min_hight in range(1,100):
+            tb = self.screen_capture_bw((100,100), (100, self.min_hight))
+            if tb["hight"] == 1:
+                break
+        pass
 
     def get_vector_object_left_right(self):
         return self.vector_left_right
@@ -180,19 +249,68 @@ class TouchScreen:
     def screen_get_type(self):
         return("unknow")
 
-    def get_maxima_x(self,x, y, len, resolution = 3, threshold = 80):
-        v = PixelVector(self, x, x + len, y, y, resolution , "")
-        delta = np.diff(v.red()[1])
-        maxima = (np.abs(delta) > threshold).sum()
-        # print("get_maxima_x {}".format(maxima))
-        return maxima
-    
     def button_is_back(self):
-        if self.get_maxima_x(410, 1855, 140) > 6:
+        m = self.get_maxima_horizontal((410, 1855), 240)
+        if m > 6:
             return True
         return False
+    
+    def get_maxima_horizontal(self, start, len, threshold=40, debug=False):
+        jbuf = self.screen_capture_bw(start, (200, self.min_hight))
+        npa = np.array(jbuf["gray"], dtype=np.uint8)
+        delta = np.diff(npa.astype(np.int16))
+        maxima = (np.abs(delta) > threshold).sum()
+        return maxima
+    
+    def screen_gym_has_place(self):
+        for y in range(1638, 1648, 2):
+            maxima = self.get_maxima_horizontal((780, 1648), 200, threshold=30)
+        print(f"Is defeated m {maxima}")
+        if maxima <= 15:
+            return True
+        return False
+
+    def screen_gym_need_defeat(self):
+        maxima = self.get_maxima_horizontal((780, 1648), 200, threshold=30)
+        print(f"Is defeat m {maxima}")
+        if maxima > 15:
+            return True
+        return False
+
+    def screen_go_to_gym(self):
+        for i in range(0, 3):
+            if self.screen_is_in_gym():
+                return True
+            self.tap_screen(500, 700)
+            self.tap_screen(500, 700)
+            self.tap_screen(500, 700)
+            sleep(3)
+        return False
+
+    def screen_is_in_gym(self):
+        maxima = self.get_maxima_horizontal((790, 1880), 180, threshold=40)
+        print(f"Is in gym m {maxima}")
+        if maxima >= 5 and maxima < 10:
+            for i in range(5):
+                maxima = self.get_maxima_horizontal((790, 1880), 180, threshold=40)
+                print(f"Is verfy in gym {maxima}")
+                if maxima < 5:
+                    return False
+                sleep(0.1)
+            return True
+        return False
+    
+    def screen_my_poke_in_gym(self):
+        if not self.screen_is_in_gym():
+            return False
+        maxima = self.get_maxima_horizontal((780, 1650), 200, threshold=40)
+        print(f"Is defeated m {maxima}")
+        if maxima < 2:
+            return True
+        return False
+    
         
-    def screen_is_defeat_gym(self):
+    def park(self):
         v = PixelVector(self, 780, 980, 1627, 1627, 3 , "defeat")
         delta = np.diff(v.red()[1])
         maxima = (np.abs(delta) > 80).sum()
@@ -224,7 +342,9 @@ class TouchScreen:
                 return "stop_and_spin"
         return "stop_no"
 
-    def screen_capture_bw(self, x, y, w, h):
+    def screen_capture_bw(self, start, size):
+        x, y = start
+        w, h = size
         if x < 0 or (x + w) >= self.maxX \
            or y < 0 or (y + h) >= self.maxY:
             self.log.error("clip out of range x{}, y{}, width{}, hight{}", x, y, w, h)
@@ -234,19 +354,24 @@ class TouchScreen:
     
         response = self.write_to_phone("snip_gray:{},{},{},{}".format(x ,y ,w, h))           
         return response.json()
-    
-    def read_text(self, x, y, w, h):
-        if not self.reader:
-            self.reader = Text(self)
-        return self.reader.read_text(x, y, w, h)        
-    
-    def read_text_line(self, x, y, w, h):
-        return "".join(self.read_text(x, y, w, h))        
+        
+    def pocr_read_line(self, start, size):
+        t, image = self.pocr_read(start, size)
+        return "".join(t), image        
 
-    def read_text_and_image(self, x, y, w, h):
+    def pocr_read(self, start, size):
         if not self.reader:
-            self.reader = Text(self)
-        return self.reader.read_text_and_image(x, y, w, h)        
+            self.reader = Ocr(self)
+        return self.reader.pocr_read(start, size)   
+    
+    @poke_timeout()
+    def pocr_wait_text(self, start, size, text, pause=0,  to_ms=0, debug=False):
+        t, image = self.pocr_read_line(start, size)
+        print("read {}".format(t))
+        if text in t:
+            return t, image
+        sleep(pause)
+        return False
     
     def scroll(self, dx, dy, start_x = 100, start_y = 1000, tap_time = 0.1, stop_to = 0.6):
         # self.log.info("Scroll")
@@ -312,15 +437,16 @@ class TouchScreen:
         return self.tap_screen(387, 480)
 
     def my_name(self):
+        self.screen_go_to_home()
         self.screen_friend()
         sleep(1)
         self.tap_add_friend()
         sleep(2)
-        text = self.read_text(300, 540,420, 70)        
-        self.screen_home()
+        my_name,_ = self.pocr_read_line((300, 540),(420, 70))        
+        self.screen_go_to_home()
        # print("MYNAME {}".format(text[0]))
         
-        return text[0].split(" ")[0]
+        return my_name
     
     def tapFriends(self):
         self.log.debug("tapFriends")
@@ -353,7 +479,7 @@ class TouchScreen:
             return False
         return True
         
-    def selectFirstPokemon(self):
+    def pokemon_select_first(self):
         time.sleep(0.2)
         self.color_match_wait(79, 179, 255, 255, 255)
         time.sleep(0.2)
@@ -399,7 +525,7 @@ class TouchScreen:
                     found = True
                     break
         if found == False:
-            text, image = self.read_text_and_image(350, 1650, 300, 76)
+            text, image = self.pocr_read(350, 1650, 300, 76)
             self.tap_screen(100, 100, button = 3)
             time.sleep(1)
             if "POWER" in ''.join(text):
@@ -496,7 +622,7 @@ class TouchScreen:
             to -= 1
         return False
     
-    def screen_home(self):
+    def screen_go_to_home(self):
         self.log.info("Go to homescreen")
         print("Go Home")
         count = 10 # Try count time
@@ -571,19 +697,19 @@ class TouchScreen:
         self.color_match_wait_click(305, 1230, 161, 221, 148)
         
     def screen_friend(self):
-        self.screen_home()
+        self.screen_go_to_home()
         self.tapAvatar()
         self.tapFriends()
 
     def screen_me(self):
-        self.screen_home()
+        self.screen_go_to_home()
         time.sleep(1)
         self.tapAvatar()
         time.sleep(1)
         self.tap_me()
 
     def pokeScreen(self):
-        self.screen_home()
+        self.screen_go_to_home()
         self.tapPokeBall()
         self.menuPokemon()
         
@@ -666,7 +792,7 @@ class TouchScreen:
             self.tap_screen(187, 1919)
         
     def screen_item(self):
-        self.screen_home()
+        self.screen_go_to_home()
         print("wait")
         self.tapPokeBall()
         self.color_match_wait_click(795, 1542, 240, 254, 238)
@@ -707,7 +833,7 @@ class TouchScreen:
                 time.sleep(1)
                 if self.color_match(525, 1850, 28, 135, 149):
                     self.tap_screen(525, 1850)
-        self.screen_home()
+        self.screen_go_to_home()
 
     
     def battleLeague(self):
@@ -1227,37 +1353,37 @@ class TouchScreen:
         self.color_match_wait_click(329, 1775, 163, 220, 148, threashold=20,time_out_ms=10000)
         print("useThisParty end")
     
-    def changeSortGift(self, hasGift = True):
+    def sort_receive_gift(self, hasGift = True):
         self.color_match_wait_click(857, 1798, 28, 135, 149)
         if hasGift == True:
             self.color_match_wait_click(796, 1431, 44, 113, 119)
         else:
             self.color_match_wait_click(913, 1644, 41, 105, 120)
 
-    def friendSortHasGift(self, noGift = False):
+    def sort_has_gift(self, noGift = False):
         self.screen_friend()
-        self.changeSortGift()
+        self.sort_receive_gift()
         self.color_match_wait(838, 220, 255, 255, 255)
         # for x in range(912, 935, 2):
         #    r, g, b = self.getRGB(x, 1860)
         #    print("X {},{},{},{}".format(x, r, g ,b))
         # sys.exit(0)
         while self.color_match(929, 1860, 170, 245, 205, threashold=20) == noGift:            
-            self.changeSortGift()
+            self.sort_receive_gift()
             self.color_match_wait(838, 220, 255, 255, 255)
         else:
             print("Order is OK")
             
     def friendSortCanReceive(self, noGift = False):
         self.screen_friend()
-        self.changeSortGift(hasGift = False)
+        self.sort_receive_gift(hasGift = False)
         self.color_match_wait(838, 220, 255, 255, 255)
         # for x in range(912, 935, 2):
         #    r, g, b = self.getRGB(x, 1860)
         #    print("X {},{},{},{}".format(x, r, g ,b))
         # sys.exit(0)
         while self.color_match(929, 1860, 170, 245, 205, threashold=20) == noGift:            
-            self.changeSortGift(hasGift = False)
+            self.sort_receive_gift(hasGift = False)
             self.color_match_wait(838, 220, 255, 255, 255)
         else:
             print("Order is OK")

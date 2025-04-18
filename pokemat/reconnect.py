@@ -12,7 +12,7 @@ import sys
 from datetime import datetime
 
 def deleteRedBalls(phone):
-    phone.screen_home()
+    phone.screen_go_to_home()
     phone.tap_screen()
 
 def reconnect(port, phone):
@@ -27,7 +27,7 @@ def reconnect(port, phone):
             # phone.tap_screen(119, 1791) # Avatar
             phone.tap_screen(90, 30) # Clock
             time.sleep(2)
-            phone.screen_home()
+            phone.screen_go_to_home()
             print("Check connection status")
             phone.color_match_wait_click(914, 583, 149, 97, 121, time_out_ms=20000)
             print("Color match")

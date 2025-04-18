@@ -22,7 +22,7 @@ def whiteScreen():
     return True
 
 
-def defeat(port, phone_model):
+def defeat_gym(port, phone_model, max_round=5):
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)
         
@@ -30,27 +30,25 @@ def defeat(port, phone_model):
     global phone 
     phone = TouchScreen(port, phone_model)
     defeated = False
+    round = 0
     while not defeated:
         # try:
             print("Start defeat")
             retry = 3
             in_defeat = False
-            while not phone.screen_is_defeat_gym():
-                if phone.is_home():
-                    print("is home try to tap gym and wait 5 seconds")
-                    phone.tap_screen(500, 600)
-                    phone.tap_screen(500, 800)
-                    phone.tap_screen(500, 100)
-                    sleep(5)
-                elif phone.button_is_back():
-                    print("Has back button")
-                    phone.tap_back()
-                    sleep(3)
-                retry -= 1
-                if retry < 1:
-                    print("Dont know how to enter defeat mode bye bye")
-                    return "give-up"
-    
+            if phone.screen_go_to_gym() == False:
+                print("Dont know how to enter defeat mode bye bye")
+                phone.screen_go_to_home()
+                return False
+            if phone.screen_my_poke_in_gym():
+                print("Already in gym")
+                return True
+            if phone.screen_gym_has_place():
+                print("Gym is defeated")
+                break
+            if not phone.screen_gym_need_defeat():
+                print("Panic")
+
             phone.tap_screen(829, 1605)
             print("Start battle")
             phone.color_match_wait_click(345, 777, 134, 217, 153)
@@ -66,12 +64,22 @@ def defeat(port, phone_model):
             while whiteScreen():
                 time.sleep(0.2)
             print("Start fight")
-            while not phone.screen_is_defeat_gym() \
-                  and not phone.button_is_back() \
+            #                  and not phone.button_is_back() \
+            while not phone.screen_is_in_gym() \
                   and not phone.is_home():
                 for x in [250, 500, 750]:
                     phone.tap_screen(x,1750)
                     time.sleep(0.1)
+                    
+            round += 1
+            if round > max_round:
+                return "give-up"
+            defeated = phone.screen_gym_has_place()
+    
+    phone.tap_screen(871, 1632)
+    phone.pokemon_search("cp1500-2000")
+    phone.pokemon_select_first()
+    phone.color_match_wait_click(277, 1029, 162, 220, 148)
         # except Exception as e:
         #     print("Upps something went wrong but who cares?: {}", e)
             
@@ -86,7 +94,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    defeat(args.port, args.phone)
+    defeat_gym(args.port, args.phone)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

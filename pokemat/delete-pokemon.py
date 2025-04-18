@@ -36,7 +36,7 @@ def delete_pokemon(port, phone):
     while True:
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
-            phone.selectFirstPokemon()
+            phone.pokemon_select_first()
             print("Click menu")
             phone.color_match_wait_click(866, 1800, 28, 135, 149)
             print("Click transfer")

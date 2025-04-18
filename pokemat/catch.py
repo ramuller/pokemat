@@ -25,7 +25,7 @@ def end_catch(p):
     print("Catch over")
     p.tap_screen(378, 1352)
     print("Go home")
-    p.screen_home()
+    p.screen_go_to_home()
 
 def action(port, p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
     while max_tries >= 0: # not p.color_match(90, 1414, 245, 254, 242):

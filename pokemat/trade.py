@@ -53,8 +53,8 @@ def trade(jsonFile):
     
     while True:
         try:
-            host.screen_home()
-            guest.screen_home()
+            host.screen_go_to_home()
+            guest.screen_go_to_home()
             host.screen_friend()
             host.friend_search(parameter["guest"]["name"])
             host.selectFirstFriend()

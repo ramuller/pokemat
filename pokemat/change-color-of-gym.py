@@ -14,7 +14,9 @@ import sys
 from datetime import datetime
 from mercurial.hgweb.common import continuereader
 from random import randrange
-import change_trainer 
+import change_trainer
+from defeat_gym import  defeat_gym
+from heal import heal
 
 def change_gym_color():
     if args.color in "red":
@@ -36,8 +38,34 @@ def change_gym_color():
     
     for t in db.get_trainer_in_team(args.color):
         print(t)
-        change_trainer.change_trainer(args.port, args.phone, t)
-        
+        my_name = TouchScreen(args.port, args.phone).my_name()
+        if t.lower() != my_name.lower():
+            change_trainer.change_trainer(args.port, args.phone, t)
+            print("Let stabilize")
+            sleep(10)
+            heal(args.port, args.phone)
+        defeated = False
+        max_tries = 10
+        while defeated == False:
+            max_tries -= 1
+            if max_tries <=0:
+                print("Useless to continue")
+                sys.exit(1)
+            try:
+                try:
+                    defeated = defeat_gym(args.port, args.phone)
+                except:
+                    pass
+                heal(args.port, args.phone)
+                if defeated == False:
+                    print("Defeat failed. Try again")
+                    
+                elif defeated == "give-up":
+                    print("Defeat give-up. By bye")
+                    return False
+            except:
+                pass
+            
 def main():
 
     global args

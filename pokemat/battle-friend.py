@@ -53,8 +53,8 @@ def battleFriend(jsonFile):
     while True:
         log.info("Time : Batteling starts from beginning {}".format(host.getTimeNow()))
         try:
-            host.screen_home()
-            guest.screen_home()
+            host.screen_go_to_home()
+            guest.screen_go_to_home()
         
             host.inviteFriend(parameter["guest"]["name"], parameter["league"])
             guest.acceptBattleInvite()

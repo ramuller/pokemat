@@ -1,5 +1,6 @@
-# import numpy as np
-# from pokelib import ExPokeLibError, ExPokeNoHomeError, ExPokeLibFatal
+import numpy as np
+import matplotlib.pyplot as plt
+from pokelib import ExPokeLibError, ExPokeNoHomeError, ExPokeLibFatal
 
 class PixelVector():
     def __init__(self, phone, x_start, x_end, y_start, y_end, step, title = "none"):
@@ -80,4 +81,9 @@ class PixelVector():
     
     def max_blue(self):
         return max(self.blue()[1])
+    
+    def get_maxima(self, threshold=80):
+        delta = np.diff(v.red()[1])
+        maxima = (np.abs(delta) > threshold).sum()
+        return maxima
 

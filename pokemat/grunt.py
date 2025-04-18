@@ -97,7 +97,7 @@ def grunt(port, phone):
     print("Looking for grunt \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
     try:
-        phone.screen_home()
+        phone.screen_go_to_home()
     except:
         pass
     # phone.dno_gruntoBattle()
@@ -113,7 +113,7 @@ def grunt(port, phone):
             if is_grunt_in_gym(phone):
                 no_grunt = False
         else:
-            phone.screen_home()
+            phone.screen_go_to_home()
             rotate(phone)
    
     try:
@@ -210,8 +210,8 @@ def grunt(port, phone):
     watch_dog.reset()
     action(port, phone, berry = "g")     
     print("Try to action")
-    phone.screen_home()  
-    phone.screen_home()
+    phone.screen_go_to_home()  
+    phone.screen_go_to_home()
     phone.healAll()  
 
 def wd_callback():

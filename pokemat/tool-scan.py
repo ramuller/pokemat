@@ -67,7 +67,7 @@ def scan_line(port, phone_model):
     def plotter(forever = True):
         while True:
             mx, my = p.get_mouse()
-            print(p.screen_is_defeat_gym())
+            print(p.screen_gym_need_defeat())
 
             if mx < 200:
                 mx = 200

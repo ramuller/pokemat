@@ -55,7 +55,7 @@ def filterPoke(port, phone, filter):
     print("Start time : Evolve {}".format(phone.getTimeNow()))
     while True:
         try:
-            phone.selectFirstPokemon()
+            phone.pokemon_select_first()
             phone.evolvePokemon()
             evolve_count = evolve_count + 1
             print("Time : Evolve {} ".format(phone.getTimeNow()))

@@ -34,18 +34,18 @@ def search_pokemon():
                 sleep(3)
                 if p.screen_is_catch_pokemon():
                     print("Pokemon screen")
-                    # p.screen_home()
+                    # p.screen_go_to_home()
                     return True
                 if p.screen_is_pokestop() == "stop_and_spin" and args.spin:
                     p.spin_disk()
-                    p.screen_home()
-                if p.screen_is_defeat_gym() and args.spin:
+                    p.screen_go_to_home()
+                if p.screen_gym_need_defeat() and args.spin:
                     defeat_gym.defeat(args.port, args.phone)
                     heal.heal(args.port, args.phone)
-                    p.screen_home()
+                    p.screen_go_to_home()
                 else:
                     print("Something else")
-                    p.screen_home()
+                    p.screen_go_to_home()
                 rotate()
         rotate()
             
@@ -59,8 +59,8 @@ def autocatch(port, phone_model):
     p = TouchScreen(port, phone_model)
     while True:
         not_home = True
-        p.screen_home()
-        p.screen_home()
+        p.screen_go_to_home()
+        p.screen_go_to_home()
         if search_pokemon():
             # if not action(port, p, distance = 6, berry = "a", max_tries = 5, span = 3):
             if not action(port, p, distance = 6, berry = "a", max_tries = 6, span = 4):
