@@ -25,9 +25,9 @@ def end_catch(p):
     print("Catch over")
     p.tap_screen(378, 1352)
     print("Go home")
-    p.goHome()
+    p.screen_home()
 
-def catch(port, p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
+def action(port, p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
     while max_tries >= 0: # not p.color_match(90, 1414, 245, 254, 242):
         max_tries -= 1
         for to in range(20, 0, -1):
@@ -65,6 +65,12 @@ def catch(port, p, distance = 6, right = True, berry = "a", max_tries = 25, span
                 no_berry = False
             elif p.color_match(182, 1718, 238, 232, 27):
                 p.tap_screen(182, 1718)
+                sleep(0.5)
+                p.tap_screen(486, 1748)
+                sleep(1)
+                no_berry = False
+            elif p.color_match(500, 1718, 238, 232, 27):
+                p.tap_screen(500, 1718)
                 sleep(0.5)
                 p.tap_screen(486, 1748)
                 sleep(1)
@@ -115,12 +121,12 @@ def action(port, phone, distance = 15, right = True, berry = "a", span = 0):
     print("Start catching on  \"{}\" on port {}", phone, port)
     
     p = TouchScreen(port, phone)
-    catch(port, p, distance, right, berry,span = span)
+    action(port, p, distance, right, berry,span = span)
 
 def main():
 
-    parser = PokeArgs()
     global args
+    parser = PokeArgs()
 
     parser.add_argument("-d", "--distance", action="store", default=15, \
                         help="TCP port for the connection.")

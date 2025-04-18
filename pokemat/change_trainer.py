@@ -15,8 +15,8 @@ def selectTrainer(trainer):
     trainer = trainer.lower()
     print("Select new trainer {}".format(trainer))
     sleep(0.5)
-    phone.ccolor_match_wait_click(272, 1126, 160, 219, 147, time_out_ms = 30000)
-    phone.ccolor_match_wait_click(253, 1019, 255, 255, 255)
+    phone.color_match_wait_click(272, 1126, 160, 219, 147, time_out_ms = 30000)
+    phone.color_match_wait_click(253, 1019, 255, 255, 255)
     phone.color_match_wait(503, 181, 233, 84, 50)
     sleep(3)
     if trainer in "eizu123":
@@ -36,7 +36,7 @@ def selectTrainer(trainer):
     elif trainer in "plastic":
         sleep(2)
         phone.tap_screen(546, 656)
-    elif trainer in "pokeralle":
+    elif trainer in "pokeralle123":
         print("Try pokeralle")
         sleep(2)
         phone.tap_screen(527, 1750)
@@ -46,10 +46,10 @@ def selectTrainer(trainer):
     elif trainer in "bluebird":
         sleep(1)
         phone.tap_screen(500, 1363)
-    elif trainer in "higimmi333":
+    elif trainer in "higimmi333" or trainer in "yellowthatsit":
         sleep(1)
         phone.tap_screen(565, 1570)
-    elif trainer in "higimmi444":
+    elif trainer in "higimmi444"or trainer in "blue":
         sleep(1)
         phone.tap_screen(565, 1400)
     elif trainer in "aphex":
@@ -64,7 +64,7 @@ def selectTrainer(trainer):
             phone.scroll(0, -400, start_x=900)
             sleep(1)        
         phone.tap_screen(321, 1430)
-    elif trainer in "blond":
+    elif trainer in "higimmi555"or trainer in "blond2023":
         for i in range(0,5):
             print("Scroll up")
             phone.scroll(0, -400, start_x=900)
@@ -75,36 +75,56 @@ def selectTrainer(trainer):
         print("Unknow trainer")
         sys.exit(1)
 
-def changeTrainer(port, phone_model, trainer):
+def change_trainer(port, phone_model, trainer):
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)
         
     print("Change trainers \"{}\" on port {}", phone_model, port)
     global phone
     phone = TouchScreen(port, phone_model)
-    try:
-        phone.goHome()
-        sleep(1)
-        phone.ccolor_match_wait_click(500, 1798, 255, 57, 69)
-        phone.ccolor_match_wait_click(940, 210, 212, 251, 204)
-        sleep(0.5)
-        for i in range(0,4):
-            phone.scroll(0, -400, start_x=10)
-            sleep(0.5)
-        sleep(1)
-        for y in range(1600, 1400, -20):
-            print("check y = {}".format(y))
-            if phone.color_match(500, y, 250, 251, 248):
+    new_trainer = False
+    while not new_trainer:
+        t_ret = phone.read_text_line(280, 1100, 440, 75)
+        t_gog = phone.read_text_line(260, 1000, 440, 75)
+        if not "RETURNING" in t_ret \
+           and not "Google" in t_gog:
+            try:
+                phone.screen_home()
+                sleep(1)
+                phone.color_match_wait_click(500, 1798, 255, 57, 69)
+                phone.color_match_wait_click(940, 210, 212, 251, 204)
+                sleep(0.5)
+                for i in range(0,10):
+                    phone.scroll(0, -800, start_x=10)
+                    if "Sign Outt" in phone.read_text_line(40, 1400, 250, 100):
+                        break
+                    sleep(0.5)
+                sleep(0.5)
                 print("Click sign out")
                 phone.tap_screen(500, y - 20)
+                sleep(1)
+                phone.tap_screem(500,1000)
+            except:
+                pass
+        phone.tap_screen(100, 100, 3)
+        for t in range(0, 20):
+            if "RETURNING" in phone.read_text_line(280, 1100, 440, 75):
+                # phone.tap_screen(280, 1100)
                 break
-        phone.ccolor_match_wait_click(411, 1037, 133, 217, 152, time_out_ms = 14000)
-    except:
-        pass
-
-    selectTrainer(trainer)
-    sys.exit(0)
-    
+            print("Wait for returning player")
+            sleep(1)
+            
+        selectTrainer(trainer)
+               
+        for to in range(0, 60):  # 1min.
+            try:
+                print("wait for home")
+                if phone.is_home():
+                    return
+                sleep(1)
+            except:
+                pass
+        
     
 def main():
 
@@ -117,7 +137,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    changeTrainer(args.port, args.phone, args.trainer)
+    change_trainer(args.port, args.phone, args.trainer)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

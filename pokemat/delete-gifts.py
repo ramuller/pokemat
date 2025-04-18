@@ -36,7 +36,7 @@ def deleteGifts(port, phone):
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
             phone.tap_screen(836, 521)
-            phone.ccolor_match_wait_click(352, 1044, 150, 218, 149)
+            phone.color_match_wait_click(352, 1044, 150, 218, 149)
             time.sleep(2)             
             print("Ready")
             # sys.exit(0)

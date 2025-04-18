@@ -23,7 +23,7 @@ from _operator import truediv
 
 global log
 
-def trade(host, guest):
+def tradeeeeeeee(host, guest):
     host.useThisParty()
     guest.useThisParty()
     
@@ -53,16 +53,18 @@ def trade(jsonFile):
     
     while True:
         try:
-            host.goHome()
-            guest.goHome()
-            host.searchFriend(parameter["guest"]["name"])
+            host.screen_home()
+            guest.screen_home()
+            host.screen_friend()
+            host.friend_search(parameter["guest"]["name"])
+            host.selectFirstFriend()
             if host.hasGift():
                 time.sleep(0.5)
                 host.tap_screenBack()
             host.tapTrade()
             # time.sleep(2)
             while True:
-                guest.friendScreen()
+                guest.screen_friend()
                 if guest.color_match(41, 796, 255, 246, 208, debug=True) == True:
                     log.info("Found inviting friend")
                     break
@@ -76,8 +78,8 @@ def trade(jsonFile):
             time.sleep(1)
             guest.tapTrade()
             
-            host.searchPokemon(parameter["host"]["filter"])
-            guest.searchPokemon(parameter["guest"]["filter"])
+            host.pokemon_search(parameter["host"]["filter"])
+            guest.pokemon_search(parameter["guest"]["filter"])
             
             log.info("Time : Trading loop starts {}".format(host.getTimeNow()))
             while True:
@@ -88,11 +90,11 @@ def trade(jsonFile):
                 #    pass
                 # Select left corner
                 time.sleep(1)
-                host.ccolor_match_wait_click(46, 724, 255, 255, 255)
-                guest.ccolor_match_wait_click(46, 724, 255, 255, 255)
+                host.color_match_wait_click(46, 724, 255, 255, 255)
+                guest.color_match_wait_click(46, 724, 255, 255, 255)
                 try:
-                    host.ccolor_match_wait_click(177, 724, 255, 255, 255, same=False)
-                    guest.ccolor_match_wait_click(177, 724, 255, 255, 255, same=False)
+                    host.color_match_wait_click(177, 724, 255, 255, 255, same=False)
+                    guest.color_match_wait_click(177, 724, 255, 255, 255, same=False)
                 except:
                     host.tap_screen(177, 724)
                     guest.tap_screen(177, 724)
@@ -101,14 +103,14 @@ def trade(jsonFile):
                 host.tap_screen(177, 724)
                 guest.tap_screen(177, 724)
                 # Click Next
-                host.ccolor_match_wait_click(371, 1605, 147, 217, 150)
-                guest.ccolor_match_wait_click(371, 1605, 147, 217, 150)
+                host.color_match_wait_click(371, 1605, 147, 217, 150)
+                guest.color_match_wait_click(371, 1605, 147, 217, 150)
                 # Click confirm
-                host.ccolor_match_wait_click(17, 1037, 92, 204, 146)
-                guest.ccolor_match_wait_click(17, 1037, 92, 204, 146)
+                host.color_match_wait_click(17, 1037, 92, 204, 146)
+                guest.color_match_wait_click(17, 1037, 92, 204, 146)
                 # Wait trade complete
-                host.ccolor_match_wait_click(482, 1849, 28, 135, 149, time_out_ms=30000)
-                guest.ccolor_match_wait_click(482, 1849, 28, 135, 149, time_out_ms=30000)
+                host.color_match_wait_click(482, 1849, 28, 135, 149, time_out_ms=30000)
+                guest.color_match_wait_click(482, 1849, 28, 135, 149, time_out_ms=30000)
                 host.tapTrade()
                 guest.tapTrade()
                 

@@ -95,6 +95,7 @@ def gifting(port, phone):
                 
             phone.selectFirstFriend()
             can_send_gifts = phone.sendGift(has_gift = has_gift)
+            sleep(4)
             phone.tap_back()
 
                     
@@ -118,7 +119,7 @@ def main():
     log = logging.getLogger("gifting")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    gifting(args.port, args.phone)
+    # gifting(args.port, args.phone)
     go_on = True
     while go_on:
         try:

@@ -53,8 +53,8 @@ def battleFriend(jsonFile):
     while True:
         log.info("Time : Batteling starts from beginning {}".format(host.getTimeNow()))
         try:
-            host.goHome()
-            guest.goHome()
+            host.screen_home()
+            guest.screen_home()
         
             host.inviteFriend(parameter["guest"]["name"], parameter["league"])
             guest.acceptBattleInvite()
@@ -68,13 +68,13 @@ def battleFriend(jsonFile):
                 for i in range(0, 20):
                     try:
                         if not host_ok:
-                            host.ccolor_match_wait_click(355, 1275, 147, 217, 150, threashold=20, time_out_ms=1000)
+                            host.color_match_wait_click(355, 1275, 147, 217, 150, threashold=20, time_out_ms=1000)
                             host_ok = True
                     except Exception as e:
                         pass
                     try:
                         if not guest_ok:
-                            guest.ccolor_match_wait_click(355, 1275, 147, 217, 150, threashold=20, time_out_ms=1000)
+                            guest.color_match_wait_click(355, 1275, 147, 217, 150, threashold=20, time_out_ms=1000)
                             guest_ok = True
                     except Exception as e:
                         pass

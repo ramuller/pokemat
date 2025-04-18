@@ -68,7 +68,7 @@ class TouchScreen:
                     return True
             sleep(0.100)
             timeOutMs = timeOutMs - 100
-            # raise Exception('goHome : Color mismatch!')
+            # raise Exception('screen_home : Color mismatch!')
         return False
     
     def cancel(self):
@@ -85,7 +85,7 @@ class TouchScreen:
         self.click(85,190)
         self.pressOK()
         
-    def goHome(self):
+    def screen_home(self):
         log.info("Go to homescreen")
         while self.color_match(5000,18420,255,56,69) == False:
             if self.color_match(5000,18570,38,133,148):
@@ -95,7 +95,7 @@ class TouchScreen:
             # elif self.color_match(83,191,135,150,0):
             #     self.exitMode()
             else:
-                raise Exception("goHome : Unknow situation")
+                raise Exception("screen_home : Unknow situation")
             sleep(1)
     
     def trainerScreen(self):
@@ -117,7 +117,7 @@ def gifting():
     
     log.info("Start gifting mode")
     ts = TouchScreen(args.phone)
-    ts.goHome()
+    ts.screen_home()
     ts.trainerScreen()
     # ts.sortHasGift()
 

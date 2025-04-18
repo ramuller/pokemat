@@ -3,6 +3,7 @@ import argparse
 import time
 from time import sleep
 import os
+import sys
 import logging
 import math
 from pokelib import TouchScreen
@@ -14,7 +15,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 # import pytesseract
-import easyocr
+# import easyocr
 
 import json
 import sys
@@ -26,6 +27,21 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
         
     print("Start testing on  \"{}\" on port {}", phone, port)
     p = TouchScreen(port, phone)
+    # p.scroll(0,-430, start_y = 1500, tap_time = 0.1, stop_to = 0.6)
+    # sys.exit(0)
+    # print("myname {}".format(p.my_name()))
+    for i in range(0,1): 
+        # arrow text, image = p.read_text_and_image(900, 1815, 75, 75)
+        # text, image = p.read_text_and_image(500, 850, 375, 275)
+        # text, image = p.read_text_and_image(260, 1000, 440, 75)
+        text, image = p.read_text_and_image(40, 1400, 250, 100)
+        print(text)
+    plt.imshow(image, cmap='gray', vmin=0, vmax=255)
+    plt.title(f'Grayscale Bitmap')
+    plt.axis('off')
+    plt.show()
+    
+    sys.exit(1)
     reader = easyocr.Reader(['en'])
     t1 = datetime.now()
     for i in range(0, 10):
@@ -34,19 +50,22 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
         # jbuf = p.screen_capture_bw(100, 120, 200, 70)
         # jbuf = p.screen_capture_bw(550, 550, 230, 70)
         # jbuf = p.screen_capture_bw(10, 10, 980, 1980)
-        jbuf = p.screen_capture_bw(10, 550, 980, 70)
+        # jbuf = p.screen_capture_bw(10, 550, 980, 70)
+        # jbuf = p.screen_capture_bw(360, 650, 280, 76)
+        jbuf = p.screen_capture_bw(360, 350, 280, 376)
         pixel_array = np.array(jbuf["gray"], dtype=np.uint8)
         pixel_array = pixel_array.reshape((jbuf["hight"], jbuf["width"]))
         image = Image.fromarray(pixel_array, mode='L')
         # print(image.tell())
-        if True:
-            # text = reader.readtext(pixel_array)
-            text = p.read_text(550, 550, 230, 70)
-            for t in text:
-                print("Read with easyocr {}".format(t[1]))
-        # print("Read with easyocr {}".format(text))
         if False:
-            text = pytesseract.image_to_string(image)
+            # text = reader.readtext(pixel_array)
+            # text = p.read_text(550, 550, 230, 70)
+            text, image = p.read_text_and_image(350, 1650, 300, 76)
+            for t in text:
+                print("Read with easyocr {}".format(t))
+        # print("Read with easyocr {}".format(text))
+        if True:
+            text, image = p.read_text_and_image(350, 1650, 300, 76)
             print("Read with tessertact {}".format(text))
         # _, image = p.read_text(290, 530, 400, 90)
     t2 = datetime.now()

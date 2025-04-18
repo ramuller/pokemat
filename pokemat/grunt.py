@@ -8,7 +8,7 @@ import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import WatchDog
-from catch import catch 
+from action import change_gym_color 
 
 import json
 import sys
@@ -97,7 +97,7 @@ def grunt(port, phone):
     print("Looking for grunt \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
     try:
-        phone.goHome()
+        phone.screen_home()
     except:
         pass
     # phone.dno_gruntoBattle()
@@ -113,11 +113,11 @@ def grunt(port, phone):
             if is_grunt_in_gym(phone):
                 no_grunt = False
         else:
-            phone.goHome()
+            phone.screen_home()
             rotate(phone)
    
     try:
-        phone.ccolor_match_wait_click(463, 855, 203, 79, 41, time_out_ms = 1500)
+        phone.color_match_wait_click(463, 855, 203, 79, 41, time_out_ms = 1500)
     except:
         pass
     time.sleep(1)
@@ -156,7 +156,7 @@ def grunt(port, phone):
     i = 10
     while i > 0:
         try:    
-            phone.ccolor_match_wait_click(348, 1554, 151, 217, 149, threashold=20, time_out_ms = 1000)
+            phone.color_match_wait_click(348, 1554, 151, 217, 149, threashold=20, time_out_ms = 1000)
             print("Wait for ?")
             i = 0
         except:
@@ -176,7 +176,7 @@ def grunt(port, phone):
     phone.tap_screen(500, 1800)
     
     # try:
-    #     phone.ccolor_match_wait_click(338, 1779, 162, 220, 148, threashold=20, time_out_ms = 15500)
+    #     phone.color_match_wait_click(338, 1779, 162, 220, 148, threashold=20, time_out_ms = 15500)
     # except:
     #     pass
     watch_dog.reset()
@@ -198,7 +198,7 @@ def grunt(port, phone):
     # Wait for trainer
     for i in range(1,10):
         try:
-            phone.ccolor_match_wait_click(305, 1773, 137, 216, 153, time_out_ms = 2000)
+            phone.color_match_wait_click(305, 1773, 137, 216, 153, time_out_ms = 2000)
             break
         except:
             phone.tap_screen(305, 1773)
@@ -206,12 +206,12 @@ def grunt(port, phone):
     phone.tap_screen(512, 873) 
 
     sleep(6)
-    print("Try to catch")
+    print("Try to action")
     watch_dog.reset()
-    catch(port, phone, berry = "g")     
-    print("Try to catch")
-    phone.goHome()  
-    phone.goHome()
+    action(port, phone, berry = "g")     
+    print("Try to action")
+    phone.screen_home()  
+    phone.screen_home()
     phone.healAll()  
 
 def wd_callback():

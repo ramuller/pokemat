@@ -1,4 +1,8 @@
 #!/bin/env python
+#
+# Got the al friends and up-date the status
+# Plan is provide alist 
+#
 import time
 from time import sleep
 import os
@@ -39,15 +43,26 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
     # sql = "INSERT INTO friends (name, trainer) VALUES (%s, %s)"
     
     my_name = p.my_name()
-    print("My name = {}".format(my_name))
-    p.friendScreen()
+    print("My name = '{}'".format(my_name))
+    # print("From DB {}".format(db.get_trainer(my_name)[0][1]))
+    my_len = len(my_name)
+    for rest in range(my_len -3, my_len):
+        if len(db.get_trainer(my_name[:(my_len-rest)])) == 1:
+            my_name = db.get_trainer(my_name[:my_len-rest])
+            print("Myname {}".format(my_name))
+            break
+    my_name = db.get_trainer(my_name)[0][1]
+    print("My name = '{}'".format(my_name))
+    p.screen_friend()
+    # p.friend_search("lucky")
     p.selectFirstFriend()
-    
+    sleep(1)
     # for i in range(0,5):
     while len(set(hist_names)) > 1:
         if p.hasGift():
             p.tap_screenBack()
-            sleep(1.5)
+            print("Has gift")
+            sleep(0.5)
         p.tap_screen(270, 360)
         sleep(1.5)
         # Friend level
@@ -67,7 +82,7 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
         except:
             days_to_go = 0
         print("Days to go : {}".format(days_to_go))
-        db.add_friend(name, my_name, days_to_go, friend_level)
+        print(db.add_friend(name, my_name, days_to_go, friend_level))
         p.tap_screen(100, 100, button = 3)   
         p.scroll(-600, 0, 900, 1600)
         hist_names[hist_idx % hist_size] = name

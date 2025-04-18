@@ -32,16 +32,17 @@ start_app()
 
 echo $app | grep "\.py" ||  app="${app}.py"
 
-[ -z "$first" ] || first=1
-last=6
-# killall python
+[ -z "$first" ] && first=1
+[ -z "$last" ] && last=6
 
-echo Check app status
-for i in $(seq ${first} ${last})
+while sleep 0.01
 do
-	# echo restarting $app on port 300$i logfile /tmp/app-300$i.log
-	# start_app 300$i $*	
-	echo ./${app} -p 300$i $*
-	./${app} -p 300$i $* &
+	echo Check app status
+	for i in $(seq ${first} ${last})
+	do
+		# echo restarting $app on port 300$i logfile /tmp/app-300$i.log
+		start_app 300$i $*	
+		# echo ./${app} -p $port $* &
+	done
+	sleep 1
 done
-

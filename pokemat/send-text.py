@@ -7,6 +7,7 @@ import logging
 import math
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
+from pokelib import PokeArgs
 
 import json
 import sys
@@ -16,24 +17,18 @@ def action(port, phone, text):
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)
         
-    print("Start testing on  \"{}\" on port {}", port, phone, text)
+    print("Start sending text on  \"{}\" on port {} '{}'", port, phone, text)
     p = TouchScreen(port, phone)
-    p.tap_screen(510, 375)
+    # p.tap_screen(510, 375)
     sleep(0.5)
     p.typeString(text)
     
 def main():
 
-    parser = argparse.ArgumentParser()
-    # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
-    #                     "evolve - send and receive gifts")
-    parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
-    parser.add_argument("-p", "--port", action="store", required=False, default="NA", \
-                        help="TCP port for the connection.")
-    parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
-                        help="Name os the phone model. Check phones.json.")
-    parser.add_argument("text", type=str, help="text to send")
+    parser = PokeArgs()
     global args
+    parser.add_argument("text", type=str, help="text to send")
+
     args = parser.parse_args()
     global log 
     if args.port != "NA":

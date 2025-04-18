@@ -101,7 +101,7 @@ def gifting(port, phone):
             
             if can_get_gifts:
                 if phone.hasGift():
-                    if phone.openGift() == False:  # False = daily limit
+                    if phone.gift_open() == False:  # False = daily limit
                         can_get_gifts = False
                         switch_order = True
                 else:
@@ -131,12 +131,12 @@ def main():
     parser = argparse.ArgumentParser()
     # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
     #                     "gifting - send and receive gifts")
-    parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
-    # parser.add_argument("-p", "--phone", action="store", \
+    parser.add_argument('--loglevel', '-l', change_gym_color='store', default=logging.INFO)
+    # parser.add_argument("-p", "--phone", change_gym_color="store", \
     #                     help="Set phone name default path '/tmp'"
-    parser.add_argument("-p", "--port", action="store", required=True, \
+    parser.add_argument("-p", "--port", change_gym_color="store", required=True, \
                         help="TCP port for the connection.")
-    parser.add_argument("-P", "--phone", action="store", default="s7", \
+    parser.add_argument("-P", "--phone", change_gym_color="store", default="s7", \
                         help="Name os the phone model. Check phones.json.")
     global args
     args = parser.parse_args()

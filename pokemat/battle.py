@@ -15,6 +15,7 @@ import os
 import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
+from pokelib import PokeArgs
 
 import json
 import sys
@@ -49,9 +50,9 @@ def battle(port, phone, type, league):
     while cont:
         # cont = False
         try:
-            phone.goHome()
+            phone.screen_home()
             log.info("Time : battle {}".format(phone.getTimeNow()))
-            phone.goBattle()
+            phone.screen_battle()
             if type == "league" or type == "l":
                 phone.battleLeague()
             elif type == "trainer1":
@@ -70,23 +71,14 @@ def battle(port, phone, type, league):
 
 def main():
 
-    parser = argparse.ArgumentParser()
-    # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
-    #                     "battle - send and receive gifts")
-    # parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
-    parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
-    # parser.add_argument("-p", "--phone", action="store", \
-    #                     help="Set phone name default path '/tmp'")
-    parser.add_argument("-p", "--port", action="store", required=True, \
-                        help="TCP port for the connection.")
-    parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
-                        help="Name os the phone model. Check phones.json.")
-    parser.add_argument("-t", "--type", action="store", required=False, default="trainer2", \
+    parser = PokeArgs()
+    global args
+    parser.add_argument("-t", "--type", action="store", required=False, default="league", \
                         help="Battle type firstleague.")
     parser.add_argument("-L", "--league", action="store", required=False, default="great", \
                         help="Battle type firstleague.")
-    global args
     args = parser.parse_args()
+
     global log 
     log = logging.getLogger("battle")
     logging.basicConfig(level=args.loglevel)

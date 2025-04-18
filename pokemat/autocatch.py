@@ -1,5 +1,4 @@
 #!/bin/env python
-import argparse
 import time
 from time import sleep
 import os
@@ -7,7 +6,9 @@ import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import ExPokeNoHomeError
-from catch import catch 
+from pokelib import PokeArgs
+
+from action import change_gym_color 
 import defeat_gym
 import heal
 
@@ -33,18 +34,18 @@ def search_pokemon():
                 sleep(3)
                 if p.screen_is_catch_pokemon():
                     print("Pokemon screen")
-                    # p.goHome()
+                    # p.screen_home()
                     return True
                 if p.screen_is_pokestop() == "stop_and_spin" and args.spin:
                     p.spin_disk()
-                    p.goHome()
+                    p.screen_home()
                 if p.screen_is_defeat_gym() and args.spin:
                     defeat_gym.defeat(args.port, args.phone)
                     heal.heal(args.port, args.phone)
-                    p.goHome()
+                    p.screen_home()
                 else:
                     print("Something else")
-                    p.goHome()
+                    p.screen_home()
                 rotate()
         rotate()
             
@@ -58,33 +59,30 @@ def autocatch(port, phone_model):
     p = TouchScreen(port, phone_model)
     while True:
         not_home = True
-        p.goHome()
-        p.goHome()
+        p.screen_home()
+        p.screen_home()
         if search_pokemon():
-            # if not catch(port, p, distance = 6, berry = "a", max_tries = 5, span = 3):
-            if not catch(port, p, distance = 6, berry = "a", max_tries = 6, span = 4):
-                # turn away if no catch !!!
+            # if not action(port, p, distance = 6, berry = "a", max_tries = 5, span = 3):
+            if not action(port, p, distance = 6, berry = "a", max_tries = 6, span = 4):
+                # turn away if no action !!!
                 rotate(90)
     
    
     
 def main():
 
-    parser = argparse.ArgumentParser()
-    # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
-    #                     "evolve - send and receive gifts")
-    parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
-    parser.add_argument("-p", "--port", action="store", required=True, \
-                        help="TCP port for the connection.")
-    parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
+    parser = PokeArgs()
+    parser.add_argument("-b", "--berry", action="store", required=False, default="a", \
                         help="Name os the phone model. Check phones.json.")
+    parser.add_argument("-d", "--span", action="store", required=False, default=0, \
+                        help="Vary distance by span.")
     parser.add_argument("-s", "--spin", action="store", required=False, default=False, \
-                        help="Spin pokestops")
-    parser.add_argument("-k", "--kill", action="store", required=False, default=True, \
-                        help="Defeat everything")
+                        help="Spin pokestops")    
     global args
     args = parser.parse_args()
+    
     global log 
+    
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))

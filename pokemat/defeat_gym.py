@@ -39,6 +39,8 @@ def defeat(port, phone_model):
                 if phone.is_home():
                     print("is home try to tap gym and wait 5 seconds")
                     phone.tap_screen(500, 600)
+                    phone.tap_screen(500, 800)
+                    phone.tap_screen(500, 100)
                     sleep(5)
                 elif phone.button_is_back():
                     print("Has back button")
@@ -51,7 +53,7 @@ def defeat(port, phone_model):
     
             phone.tap_screen(829, 1605)
             print("Start battle")
-            phone.ccolor_match_wait_click(345, 777, 134, 217, 153)
+            phone.color_match_wait_click(345, 777, 134, 217, 153)
             print("Wait for initial white screen")
             while not whiteScreen():
                 time.sleep(0.2)
@@ -79,6 +81,7 @@ def main():
     parser = PokeArgs()
     global args
     args = parser.parse_args()
+
     global log 
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)

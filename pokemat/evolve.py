@@ -15,6 +15,7 @@ import os
 import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
+from pokelib import PokeArgs
 
 import json
 import sys
@@ -35,7 +36,7 @@ def evolve(port, phone, filter):
     # phone.scroll(0, -100)
     # sys.exit(0)
     phone.selectPokemon(filter)
-    sleep(1)
+    sleep(2)
     giftsSent = 0
     giftsReceived = 0
     evolve_count = 0
@@ -59,20 +60,13 @@ def evolve(port, phone, filter):
 
 def main():
 
-    parser = argparse.ArgumentParser()
-    # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
-    #                     "evolve - send and receive gifts")
-    parser.add_argument('--loglevel', '-l', action='store', default=logging.ERROR)
-    # parser.add_argument("-p", "--phone", action="store", \
-    #                     help="Set phone name default path '/tmp'")
-    parser.add_argument("-p", "--port", action="store", required=True, \
-                        help="TCP port for the connection.")
-    parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
-                        help="Name os the phone model. Check phones.json.")
+    parser = PokeArgs()
+    global args
     parser.add_argument("-f", "--filter", action="store", required=True, \
                         help="Pokemon filter string.")
     global args
     args = parser.parse_args()
+    
     global log 
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)

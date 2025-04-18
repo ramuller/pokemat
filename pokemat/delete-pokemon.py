@@ -38,16 +38,16 @@ def delete_pokemon(port, phone):
         try:
             phone.selectFirstPokemon()
             print("Click menu")
-            phone.ccolor_match_wait_click(866, 1800, 28, 135, 149)
+            phone.color_match_wait_click(866, 1800, 28, 135, 149)
             print("Click transfer")
-            phone.ccolor_match_wait_click(800, 1634, 42, 108, 120)
-            phone.ccolor_match_wait_click(637, 1123, 80, 211, 162, threashold=20)
+            phone.color_match_wait_click(800, 1634, 42, 108, 120)
+            phone.color_match_wait_click(637, 1123, 80, 211, 162, threashold=20)
             try:
-                phone.ccolor_match_wait_click(368, 1031, 146, 216, 149, time_out_ms = 1500)
+                phone.color_match_wait_click(368, 1031, 146, 216, 149, time_out_ms = 1500)
             except:
                 print("No extra tab")
                 pass
-            # phone.ccolor_match_wait_click(352, 1044, 150, 218, 149)
+            # phone.color_match_wait_click(352, 1044, 150, 218, 149)
             time.sleep(2)             
             print("Ready")
             # sys.exit(0)

@@ -15,6 +15,8 @@ import os
 import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
+from pokelib import PokeArgs
+
 import string
 import random
 
@@ -60,7 +62,7 @@ def gifting(port, phone):
     giftsSent = 0
     giftsReceived = 0
     receive_gifts = True
-    last_tries = 
+    last_tries = 3
     while receive_gifts:  # and len(shuffled_letters) > 0:
         try:
             # Wait for trainer screen
@@ -82,6 +84,10 @@ def gifting(port, phone):
             if len(shuffled_letters) > 0:
                 phone.typeString("!ff & !lucky & {}".format(shuffled_letters[0]))
             else:
+                last_tries -= 1
+                if last_tries <= 0:
+                    phone.screen_home()
+                    sys.exit(0)
                 phone.typeString("!ff & !lucky")
             time.sleep(0.5)
             phone.tapTextOK()      
@@ -92,7 +98,7 @@ def gifting(port, phone):
             else:
                 print("Friend has gift")
                 phone.selectFirstFriend()
-                receive_gifts = phone.openGift()
+                receive_gifts = phone.gift_open()
                 # Back to trainer screen
                 phone.tap_screen(500,1850)
                    
@@ -111,17 +117,8 @@ def gifting(port, phone):
 
 def main():
 
+    parser = PokeArgs()
     global args
-    parser = argparse.ArgumentParser()
-    # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
-    #                     "gifting - send and receive gifts")
-    parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
-    # parser.add_argument("-p", "--phone", action="store", \
-    #                     help="Set phone name default path '/tmp'"
-    parser.add_argument("-p", "--port", action="store", required=True, \
-                        help="TCP port for the connection.")
-    parser.add_argument("-P", "--phone", action="store", default="s7", \
-                        help="Name os the phone model. Check phones.json.")
     args = parser.parse_args()
     global log 
     log = logging.getLogger("gifting")

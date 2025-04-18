@@ -30,8 +30,15 @@ CREATE TABLE IF NOT EXISTS  friends (
     comment CHAR(255),
     UNIQUE (name, trainer)
 );
+CREATE TABLE IF NOT EXISTS  pokemon (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name CHAR(32) NOT NULL COLLATE utf8_general_ci,
+    trainer CHAR(32) NOT NULL COLLATE utf8_general_ci
+);
+
+
 # CONSTRAINT check_days CHECK (friendlevel <= 4);
-INSERT INTO trainers (name, team, trainer_code) VALUE ("aphextvin", "red", "2671 5362 7329");
+INSERT INTO trainers (name, team, trainer_code) VALUE ("AphexTvin", "red", "2671 5362 7329");
 INSERT INTO trainers (name, team, trainer_code) VALUE ("pokeralle123", "yellow", "6114 6158 2235");
 INSERT INTO trainers (name, team, trainer_code) VALUE ("higimmi222", "yellow", "4410 2896 2317");
 INSERT INTO trainers (name, team, trainer_code) VALUE ("Yellowthatsit", "yellow", "0908 2008 8686");
@@ -43,7 +50,7 @@ INSERT INTO trainers (name, team, trainer_code) VALUE ("schlumpiz", "red", "6054
 INSERT INTO trainers (name, team, trainer_code) VALUE ("localhost", "red", "3617 4276 1937");
 INSERT INTO trainers (name, team, trainer_code) VALUE ("plasticgirl", "yellow", "7071 2099 8261");
 
-INSERT INTO trainers (name, team, trainer_code) VALUE ("helmut kaali", "blue","9599 1796 1593");
+INSERT INTO trainers (name, team, trainer_code) VALUE ("helmutkaali", "blue","9599 1796 1593");
 INSERT INTO trainers (name, team, trainer_code) VALUE ("eizu123", "blue", "3040 7450 1791");
 
-INSERT INTO friends (name, trainer, team, keep) VALUE ("Helmut Kaali", "aphextvin", "blue", TRUE);
+INSERT INTO friends (name, trainer, team, keep) VALUE ("HelmutKaali", "aphextvin", "blue", TRUE);
