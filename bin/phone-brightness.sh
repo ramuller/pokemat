@@ -1,15 +1,14 @@
 #!/bin/bash
 
-serial()
-{
-    adb devices |grep -v List | cut -f 1
-}
+val=$1
+shift
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source $SCRIPT_DIR/phone-lib.sh
 
 for s in $(serial)
 do
     echo $s
-
-    adb -s $s shell     settings put system screen_brightness $1 &
+    adb -s $s shell     settings put system screen_brightness $val &
 done
 

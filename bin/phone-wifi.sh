@@ -1,15 +1,14 @@
 #!/bin/bash
 
-serial()
-{
-    adb devices |grep -v List | cut -f 1
-}
+val=$1
+shift
 
-op="$1"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source $SCRIPT_DIR/phone-lib.sh
 
 for s in $(serial)
 do
-    case $op in
+    case $val in
         "off" | "disabled")
             echo "Disable WiFi on $s"
             adb -s $s shell svc wifi disable

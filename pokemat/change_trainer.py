@@ -31,14 +31,14 @@ def selectTrainer(trainer):
             sleep(1)        
         sleep(1)
         phone.tap_screen(439, 900)
-    elif trainer in "pokeeizu":
+    elif trainer in "pokeeizu123":
         sleep(1)
         phone.tap_screen(439, 1199)
     elif trainer in "schlumpiz":
         phone.tap_screen(390, 1931)
     elif trainer in "localhost":
         phone.tap_screen(543, 828)
-    elif trainer in "plastic":
+    elif trainer in "plasticgirl..":
         sleep(2)
         phone.tap_screen(546, 656)
     elif trainer in "pokeralle123":

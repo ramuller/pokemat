@@ -1,0 +1,16 @@
+{
+    "mode": "trade",
+    "league": "master",
+    "host": { 
+        "port": "3005",
+        "name": "blond",
+		"filter": "xp1 & !norade & !traded",
+		"filter-1": "karrablast,shelmet & !norade & !traded & !shiny"
+   },
+    "guest": {
+        "port": "3006",
+        "name": "yellow",
+		"filter": "xp1 & !norade & !traded",
+		"filter-1": "karrablast,shelmet & !norade & !traded & !shiny"
+    }
+}

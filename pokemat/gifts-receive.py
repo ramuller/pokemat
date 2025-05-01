@@ -46,15 +46,19 @@ def gifting(port, phone):
     can_send_gifts = True
     switch_order = False
     daily_limit = False
-    with open("phone-spec.json", 'r') as file:
-        phones = json.load(file)
+    # with open("phone-spec.json", 'r') as file:
+    #     phones = json.load(file)
 
     # create a list of all random letters
     l_and_d =  string.ascii_lowercase + string.digits
     shuffled_letters = random.sample(l_and_d, len(l_and_d))
 
-    print("Start receiving gifts using phone \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
+    print("Start receiving gifts using phone \"{}\" on port {}", phone, port)
+    name = None
+    while name == None:
+        name = phone.get_my_name()
+        print(f"My name {name}")
     phone.sort_has_gift()
     # phone.tapSearch()
     # phone.tap_screen(440, 837)

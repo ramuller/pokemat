@@ -12,6 +12,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import pytesseract
+import re
 
 log = logging.getLogger("pokelib")
 from .pixelvector import PixelVector
@@ -54,7 +55,6 @@ def poke_timeout():
         # def _handle_timeout(signum, frame):
         #     raise ExPokeTimeoutHandler(f"Function '{func.__name__}' timed out after {seconds} seconds")
 
-        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             # Set the signal handler and a timer
             try:
@@ -86,6 +86,7 @@ class TouchScreen:
         self.log = logging.getLogger(name)
         self.log.info("Pokemat phone : {}".format(tcpPort))
         self.url = "http://localhost:{}/v1".format(tcpPort)
+        self.my_name = None
         self.scaleX = scaleX
         self.scaleY = scaleY
         self.httpErrorCount = 0
@@ -115,6 +116,7 @@ class TouchScreen:
         
     def write_to_phone(self, cmd):
         self.log.debug("Send CMD - {}".format(cmd))
+        # print("Send CMD - {} url {}".format(cmd, self.url))
         try:
             return requests.get("{}/{}".format(self.url, cmd))
         except Exception as e:
@@ -392,13 +394,13 @@ class TouchScreen:
         time.sleep(stop_to)
         self.tapUp(int(x + dx), int(y + dy))
 
-    def tapOpen(self):
-        self.log.debug("tapOpen")
+    def top_open_gift(self):
+        self.log.debug("top_open_gift")
         # time.sleep(1)
         # self.color_match_wait_click(406, 1654, 137, 218, 154)
         to = 30
         while to > 0:
-            text = self.read_text(400, 1620, 200, 76)
+            text, _ = self.pocr_read((400, 1620), (200, 76))
             if "OPEN" in ''.join(text):
                 break
             sleep(0.2)
@@ -415,7 +417,7 @@ class TouchScreen:
             self.tap_screen(876, 1652, duration = 10)
             time.sleep(1)
         while self.color_match(406, 1600, 137, 218, 154):
-            print("tapOpen")
+            print("top_open_gift")
             self.tap_screen(406, 1654)
             time.sleep(0.2)
                 
@@ -436,23 +438,35 @@ class TouchScreen:
     def tap_add_friend(self):
         return self.tap_screen(387, 480)
 
-    def my_name(self):
+    def get_my_name(self):
+        if self.my_name != None:
+            return self.my_name
         self.screen_go_to_home()
         self.screen_friend()
         sleep(1)
         self.tap_add_friend()
         sleep(2)
-        my_name,_ = self.pocr_read_line((300, 540),(420, 70))        
+        for i in range(5):
+            mn,_ = self.pocr_read_line((300, 540),(420, 70))
+            for i in range(2, len(mn)):
+                print(mn[:i])
+                ret = db_p().get_trainer(mn[:i])
+                if len(ret) == 1:
+                    self.my_name = ret[0][1]
+                    print(f"My name from DB {self.my_name}")
+                    self.screen_go_to_home()
+                    return self.my_name                    
         self.screen_go_to_home()
        # print("MYNAME {}".format(text[0]))
         
-        return my_name
+        return None
     
     def tapFriends(self):
         self.log.debug("tapFriends")
         for timeout in reversed(range(0,100)):
             if self.screen_is_friend() == True:
                 break
+            print("TAP")
             self.tap_screen(493, 193)
             time.sleep(0.2)
 
@@ -525,7 +539,7 @@ class TouchScreen:
                     found = True
                     break
         if found == False:
-            text, image = self.pocr_read(350, 1650, 300, 76)
+            text, image = self.pocr_read((350, 1650), (300, 76))
             self.tap_screen(100, 100, button = 3)
             time.sleep(1)
             if "POWER" in ''.join(text):
@@ -576,6 +590,7 @@ class TouchScreen:
                 c = "\\" + text[i]
                 i += 1
             # print("RALF string '{}'".format(c))
+            print(c)
             self.write_to_phone("key:{}".format(c))
             time.sleep(0.0035)
 
@@ -601,6 +616,12 @@ class TouchScreen:
         self.tap_screen(500,1850)
     
     def screen_is_friend(self):
+        
+        text, image = self.pocr_read_line((400, 125), (200, 70))
+        if "FRIENDS" in text:
+            return True
+        return False
+    
         if self.color_match(319, 843, 0, 0, 0) \
             and self.color_match(319, 1246, 0, 0, 0) \
             and self.color_match(678, 843, 0, 0, 0):
@@ -699,6 +720,7 @@ class TouchScreen:
     def screen_friend(self):
         self.screen_go_to_home()
         self.tapAvatar()
+        sleep(1)
         self.tapFriends()
 
     def screen_me(self):
@@ -1269,7 +1291,49 @@ class TouchScreen:
         print("Friend has no gift yet.")
         return False
     
+        
+    '''
+    Return name, friendship level amd time to become best friend
+    Must start from the friend screen
+    '''
+    def friend_get_info(self):
+        # Open 4th heart under friend name
+        self.tap_screen(270, 360)
+        sleep(1.5)
+        friend_level, _ = self.pocr_read_line((360, 650), (280, 50)) # Tap the last heart for details
+        self.tap_screen(750, 880)
+        sleep(1)
+        name, _ = self.pocr_read_line((290, 530), (400, 90)) # Best friends do not open so bit care
+        try:
+            text, _ = self.pocr_read_line((400, 1080), (50, 50))
+            tl = re.findall(r'\d+\.?\d*', text)
+            days_to_go = int(tl[0])
+        except:
+            days_to_go = 0
+        self.tap_screen(500, 1850)
+        sleep(0.5)
+        return name, days_to_go, friend_level
+
+    '''
+    Update friend level
+    '''
+    def friend_update_db(self, opened=False, sent=False):
+        if self.my_name == None:
+            self.my_name = self.get_my_name()
+        name, days_to_go, friend_level = self.friend_get_info()
+        ret = db_p().add_friend(name, self.my_name, days_to_go, friend_level)
+        print(ret.gen)
+        if ret.gen:
+            return False
+        else:
+            db_p().update_friend(name, self.my_name, days_to_go, friend_level, opened, sent)
+
+    def friend_change_nick(self, nick):
+        print(f"Change nick to {nick}")
+        self.scroll(0, -400)
+
     def gift_open(self):
+        opened = True
         self.log.info("tap gift")
         try:
             self.color_match_wait(496, 1000, 230, 51, 198, time_out_ms = 4000, threashold=50)
@@ -1280,17 +1344,20 @@ class TouchScreen:
         # time.sleep(0.1)
         # self.tap_screen(500, 1000)
         self.log.info("gift_open")
-        self.tapOpen()
+        self.top_open_gift()
         while self.color_match(85, 1960, 255, 255, 255) == False:
             # if ping_limit:
             #     return False
             if self.color_match(376, 1630, 144, 217, 149):
                 print("Daily limit reached")
                 self.tap_screen(500, 1850)
-                return False
-            self.tap_screen(85, 1960)
-            time.sleep(0.5)
-        return True
+                opened = False
+            else:
+                self.tap_screen(85, 1960)
+                time.sleep(0.5)
+        # name, days_to_go, level = self.friend_get_status()
+        self.friend_update_db(opened=opened)
+        return opened
     
     def sendGift(self, has_gift = False):
         print("Send gift")

@@ -39,6 +39,31 @@ class Database:
                     print("Unknow error {} - {}".format(e.errno, e.msg))
                     print("Unknow error {} - {}".format(e.errno, e.msg))
                     raise
+                
+    @contextmanager
+    def update_friend(self, name, trainer, days_to_go, friend_level, opened=False, sent=False):
+        sql = "UPDATE friends SET last_check = CURDATE(), days_to_go = %s, friend_level = %s WHERE name = %s and trainer = %s;"
+        values = (days_to_go, friend_level, name, trainer)
+        # values = (name, "Aphex Twin")
+        for retry in range(0,7):
+            try:
+                self.conn.start_transaction()
+                self.cursor.execute(sql, values)
+                self.conn.commit()
+                return True
+            except mysql.connector.Error as e:
+                self.conn.rollback()
+                if e.errno == 1213:  # Deadlock
+                    print("Deadlock detected, retrying...")
+                    sleep(randrange(1,10)/100.0)
+                elif e.errno == 1062:
+                    print("Duplicate entry...ignoring {}".format(values))
+                    return False
+                else:
+                    print("Unknow error {} - {}".format(e.errno, e.msg))
+                    print("Unknow error {} - {}".format(e.errno, e.msg))
+                    raise
+
 
     # @contextmanager
     def get_trainer(self, name):

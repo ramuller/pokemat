@@ -38,7 +38,24 @@ def change_gym_color():
     
     for t in db.get_trainer_in_team(args.color):
         print(t)
-        my_name = TouchScreen(args.port, args.phone).my_name()
+        my_name = None
+        while my_name == None:
+            try:
+                p = TouchScreen(args.port)
+                mn = p.get_my_name()
+                for i in range(2, len(mn)):
+                    print(mn[:i])
+                    ret = db.get_trainer(mn[:i])
+                    if len(ret) == 1:
+                        my_name = ret[0][1]
+                        print(f"My name from DB {my_name}")
+                        break                    
+            except:
+                print("Invalid name")
+                sleep(1)
+                
+            
+            
         if t.lower() != my_name.lower():
             change_trainer.change_trainer(args.port, args.phone, t)
             print("Let stabilize")
@@ -65,6 +82,8 @@ def change_gym_color():
                     return False
             except:
                 pass
+            
+    change_trainer.change_trainer(args.port, args.phone, "no-trainer")
             
 def main():
 

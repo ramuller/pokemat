@@ -42,15 +42,15 @@ INSERT INTO trainers (name, team, trainer_code) VALUE ("AphexTvin", "red", "2671
 INSERT INTO trainers (name, team, trainer_code) VALUE ("pokeralle123", "yellow", "6114 6158 2235");
 INSERT INTO trainers (name, team, trainer_code) VALUE ("higimmi222", "yellow", "4410 2896 2317");
 INSERT INTO trainers (name, team, trainer_code) VALUE ("Yellowthatsit", "yellow", "0908 2008 8686");
-INSERT INTO trainers (name, team, trainer_code) VALUE ("higimmi444", "blue", "1512 5107 1002");
 INSERT INTO trainers (name, team, trainer_code) VALUE ("blond2023", "yellow", "2430 5402 4528");
-
+INSERT INTO trainers (name, team, trainer_code) VALUE ("plasticgirl", "yellow", "7071 2099 8261");
 
 INSERT INTO trainers (name, team, trainer_code) VALUE ("schlumpiz", "red", "6054 6366 9708");
 INSERT INTO trainers (name, team, trainer_code) VALUE ("localhost", "red", "3617 4276 1937");
-INSERT INTO trainers (name, team, trainer_code) VALUE ("plasticgirl", "yellow", "7071 2099 8261");
+INSERT INTO trainers (name, team, trainer_code) VALUE ("pokeeizu123", "red", "9793 9385 8200");
 
 INSERT INTO trainers (name, team, trainer_code) VALUE ("helmutkaali", "blue","9599 1796 1593");
 INSERT INTO trainers (name, team, trainer_code) VALUE ("eizu123", "blue", "3040 7450 1791");
+INSERT INTO trainers (name, team, trainer_code) VALUE ("higimmi444", "blue", "1512 5107 1002");
 
 INSERT INTO friends (name, trainer, team, keep) VALUE ("HelmutKaali", "aphextvin", "blue", TRUE);

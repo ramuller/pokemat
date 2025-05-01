@@ -28,8 +28,8 @@ def delete_pokemon(port, phone):
     
     can_get_gifts = True
     can_send_gifts = True
-    with open("phone-spec.json", 'r') as file:
-        phones = json.load(file)
+    # with open("phone-spec.json", 'r') as file:
+    #     phones = json.load(file)
         
     print("Delete difts phone \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
@@ -38,9 +38,13 @@ def delete_pokemon(port, phone):
         try:
             phone.pokemon_select_first()
             print("Click menu")
+            sleep(0.5)
             phone.color_match_wait_click(866, 1800, 28, 135, 149)
             print("Click transfer")
+            sleep(0.5)
             phone.color_match_wait_click(800, 1634, 42, 108, 120)
+            sleep(0.5)
+            print("Tap transfer")
             phone.color_match_wait_click(637, 1123, 80, 211, 162, threashold=20)
             try:
                 phone.color_match_wait_click(368, 1031, 146, 216, 149, time_out_ms = 1500)

@@ -61,17 +61,19 @@ def trade(jsonFile):
             if host.hasGift():
                 time.sleep(0.5)
                 host.tap_screenBack()
+            sleep(1)
             host.tapTrade()
             # time.sleep(2)
             while True:
                 guest.screen_friend()
+                sleep(3)
                 if guest.color_match(41, 796, 255, 246, 208, debug=True) == True:
                     log.info("Found inviting friend")
                     break
                 log.info("No one invites let's retry")
-                    
-                
+                                   
             guest.selectFirstFriend()
+            sleep(5)
             if guest.hasGift():
                 print("Has gift")
                 guest.tap_screenBack()
@@ -132,8 +134,7 @@ def main():
     parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
     # parser.add_argument("-p", "--phone", action="store", \
     #                     help="Set phone name default path '/tmp'")
-    parser.add_argument("-j", "--json", action="store", required=True, \
-                        help="json file with the battle configuration.")
+    parser.add_argument("json", help="json file with the battle configuration.")
     global args
     args = parser.parse_args()
     global log 

@@ -51,6 +51,7 @@ def battle(port, phone, type, league):
         # cont = False
         try:
             phone.screen_go_to_home()
+            connection_retry = 0
             log.info("Time : battle {}".format(phone.getTimeNow()))
             phone.screen_battle()
             if type == "league" or type == "l":
@@ -63,8 +64,12 @@ def battle(port, phone, type, league):
                 phone.battleTrainer(3, league)
             
         except ExPokeLibFatal as e:
-            log.fatal("Unrecoverable situation. Give up")
-            sys.exit(1)
+            sleep(1)
+            if connection_retry > 100: # Seems really dead
+                log.fatal("Unrecoverable situation. Give up")
+                sys.exit(1)
+            connection_retry += 1
+            print(f"Retry phone connection {connection_retry}")
 
         except Exception as e:
             print("Upps something went wrong but who cares?: {}", e)

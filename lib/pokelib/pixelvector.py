@@ -27,7 +27,7 @@ class PixelVector():
                 self.y_data.append(self.phone.getRGB(self.x_start, y))
                 self.x_data.append(y)
             self.len = self.y_end - self.y_start
-            print("Length = {}",self.len)
+            print("Length = {}".format(self.len))
         elif self.y_start == self.y_end: # horizontal
             for x in range(self.x_start, self.x_end, self.step):
                 self.y_data.append(self.phone.getRGB(x, self.y_start))

@@ -42,17 +42,9 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
     # SQL statement to insert a record
     # sql = "INSERT INTO friends (name, trainer) VALUES (%s, %s)"
     
-    my_name = p.my_name()
+    my_name = p.get_my_name()
     print("My name = '{}'".format(my_name))
-    # print("From DB {}".format(db.get_trainer(my_name)[0][1]))
-    my_len = len(my_name)
-    for rest in range(my_len -3, my_len):
-        if len(db.get_trainer(my_name[:(my_len-rest)])) == 1:
-            my_name = db.get_trainer(my_name[:my_len-rest])
-            print("Myname {}".format(my_name))
-            break
-    my_name = db.get_trainer(my_name)[0][1]
-    print("My name = '{}'".format(my_name))
+
     p.screen_friend()
     # p.friend_search("lucky")
     p.selectFirstFriend()
@@ -66,17 +58,17 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
         p.tap_screen(270, 360)
         sleep(1.5)
         # Friend level
-        friend_level = p.read_text(360, 650, 280, 50)[0]
+        friend_level, _ = p.pocr_read_line((360, 650), (280, 50))
         print("Friend level '{}'".format(friend_level))               
         p.tap_screen(750, 880)
         sleep(1.5)
         # jbuf = p.screen_capture_bw(290, 530, 400, 90)
         # Name
-        name = p.read_text(290, 530, 400, 90)[0]
+        name,_ = p.pocr_read_line((290, 530), (400, 90))
         print("Name '{}'".format(name))               
         # days to play
         try:
-            text = p.read_text(400, 1080, 50, 50)[0]
+            text,_ = p.pocr_read_line((400, 1080), (50, 50))
             tl = re.findall(r'\d+\.?\d*', text)
             days_to_go = int(tl[0])
         except:
@@ -95,7 +87,6 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
         print("Pokename : {}".format(text))
 
     print(text)    #cursor.close()
-    conn.close()    
     plt.imshow(image, cmap='gray', vmin=0, vmax=255)
     plt.title(f'Grayscale Bitmap')
     plt.axis('off')

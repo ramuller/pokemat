@@ -21,6 +21,9 @@ import json
 import sys
 from datetime import datetime
 
+'''
+Capture a range of regions and show
+'''
 def cap_and_show():
     # upper circle in gym
     # for y in range(1636,1670,2):
@@ -59,35 +62,17 @@ def cap_and_show():
     plt.show()
     
 def action(port, phone, distance = 15, right = True, berry = "g"):
-    with open("phone-spec.json", 'r') as file:
-        phones = json.load(file)
         
     print("Start testing on  \"{}\" on port {}", phone, port)
     global p
     p = TouchScreen(port, phone)
-    if False:
-        startTime = datetime.now()
-        for i in range(0,1000):
-            p.get_maxima_horizontal((780, 1642), 250, threshold=40)
-        print(((datetime.now() - startTime).total_seconds() * 1000))
-    # p.screen_is_defeat_gym()
-    cap_and_show()
-    # p.scroll(0,-430, start_y = 1500, tap_time = 0.1, stop_to = 0.6)
-    # sys.exit(0)
-    # print("myname {}".format(p.my_name()))
-    for i in range(0,1): 
-        # arrow text, image = p.pocr_read(900, 1815, 75, 75)
-        # text, image = p.pocr_read(500, 850, 375, 275)
-        # text, image = p.pocr_read(260, 1000, 440, 75)
-        text, image = p.pocr_read((1880,1890), (250, 100))
-        print(text)
-    plt.imshow(image, cmap='gray', vmin=0, vmax=255)
-    plt.title(f'Grayscale Bitmap')
-    plt.axis('off')
-    plt.show()
+    startTime = datetime.now()
+    
+    
+    p.friend_change_nick("newnick")
     
     sys.exit(1)
-    reader = easyocr.Reader(['en'])
+    # reader = easyocr.Reader(['en'])
     t1 = datetime.now()
     for i in range(0, 10):
         # import easyocr

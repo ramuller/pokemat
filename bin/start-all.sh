@@ -1,8 +1,10 @@
 #/!bin/bash
 
-first=1
-last="$1"
-[ -n "$1" ] || last=6
+first="$1"
+last="$2"
+
+[ -n "$1" ] || first=1
+[ -n "$2" ] || last=6
 
 thisdir="$(dirname $0)"
 

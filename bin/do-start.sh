@@ -1,4 +1,7 @@
 #/!bin/bash
+#!/usr/bin/env bash
+#!/usr/bin/env bash
+#!/usr/bin/env bash
 
 killall python
 
@@ -30,7 +33,7 @@ start_app()
     fi
 }
 
-echo $app | grep "\.py" ||  app="${app}.py"
+# echo $app | grep "\.py" ||  app="${app}.py"
 
 [ -z "$first" ] || first=1
 last=6

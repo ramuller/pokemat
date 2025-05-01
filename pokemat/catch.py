@@ -1,3 +1,6 @@
+#!/usr/bin/python
+
+
 #!/bin/env python
 import time
 from time import sleep
@@ -27,7 +30,7 @@ def end_catch(p):
     print("Go home")
     p.screen_go_to_home()
 
-def action(port, p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
+def catch(port, p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
     while max_tries >= 0: # not p.color_match(90, 1414, 245, 254, 242):
         max_tries -= 1
         for to in range(20, 0, -1):
@@ -121,7 +124,7 @@ def action(port, phone, distance = 15, right = True, berry = "a", span = 0):
     print("Start catching on  \"{}\" on port {}", phone, port)
     
     p = TouchScreen(port, phone)
-    action(port, p, distance, right, berry,span = span)
+    catch(port, p, distance, right, berry,span = span)
 
 def main():
 
