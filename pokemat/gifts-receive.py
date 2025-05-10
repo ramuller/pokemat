@@ -84,15 +84,15 @@ def gifting(port, phone):
                 time.sleep(0.3)
             time.sleep(0.5)
             phone.selectAll()
-            phone.typeString("\b")
+            phone.text_line_ok("\b")
             if len(shuffled_letters) > 0:
-                phone.typeString("!ff & !lucky & {}".format(shuffled_letters[0]))
+                phone.text_line_ok("!ff & !lucky & {}".format(shuffled_letters[0]))
             else:
                 last_tries -= 1
                 if last_tries <= 0:
                     phone.screen_go_to_home()
                     sys.exit(0)
-                phone.typeString("!ff & !lucky")
+                phone.text_line_ok("!ff & !lucky")
             time.sleep(0.5)
             phone.tapTextOK()      
             time.sleep(0.3)
@@ -101,7 +101,7 @@ def gifting(port, phone):
                 print("No gift. Letters to go {}".format(len(shuffled_letters)))
             else:
                 print("Friend has gift")
-                phone.selectFirstFriend()
+                phone.friend_select_first()
                 receive_gifts = phone.gift_open()
                 # Back to trainer screen
                 phone.tap_screen(500,1850)

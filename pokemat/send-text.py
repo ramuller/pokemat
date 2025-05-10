@@ -21,7 +21,7 @@ def action(port, phone, text):
     p = TouchScreen(port, phone)
     # p.tap_screen(510, 375)
     sleep(0.5)
-    p.typeString(text)
+    p.text_line_ok(text)
     
 def main():
 

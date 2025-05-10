@@ -57,7 +57,8 @@ def trade(jsonFile):
             guest.screen_go_to_home()
             host.screen_friend()
             host.friend_search(parameter["guest"]["name"])
-            host.selectFirstFriend()
+            host.friend_select_first()
+            sleep(2)
             if host.hasGift():
                 time.sleep(0.5)
                 host.tap_screenBack()
@@ -72,8 +73,8 @@ def trade(jsonFile):
                     break
                 log.info("No one invites let's retry")
                                    
-            guest.selectFirstFriend()
-            sleep(5)
+            guest.friend_select_first()
+            sleep(2)
             if guest.hasGift():
                 print("Has gift")
                 guest.tap_screenBack()

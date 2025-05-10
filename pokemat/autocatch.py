@@ -8,13 +8,12 @@ from pokelib import ExPokeLibFatal
 from pokelib import ExPokeNoHomeError
 from pokelib import PokeArgs
 
-from action import change_gym_color 
 import defeat_gym
-import heal
 
 import json
 import sys
 from datetime import datetime
+from catch import catch
 
 def rotate(angle = 40):
     print("Rotate {}", angle)
@@ -39,7 +38,7 @@ def search_pokemon():
                 if p.screen_is_pokestop() == "stop_and_spin" and args.spin:
                     p.spin_disk()
                     p.screen_go_to_home()
-                if p.screen_gym_need_defeat() and args.spin:
+                if p.screen_gym_need_defeat() and False:
                     defeat_gym.defeat(args.port, args.phone)
                     heal.heal(args.port, args.phone)
                     p.screen_go_to_home()
@@ -63,7 +62,7 @@ def autocatch(port, phone_model):
         p.screen_go_to_home()
         if search_pokemon():
             # if not action(port, p, distance = 6, berry = "a", max_tries = 5, span = 3):
-            if not action(port, p, distance = 6, berry = "a", max_tries = 6, span = 4):
+            if not catch(port, p, distance = 7, berry = "a", max_tries = 7, span = 3):
                 # turn away if no action !!!
                 rotate(90)
     

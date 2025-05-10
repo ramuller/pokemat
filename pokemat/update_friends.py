@@ -47,7 +47,7 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
 
     p.screen_friend()
     # p.friend_search("lucky")
-    p.selectFirstFriend()
+    p.friend_select_first()
     sleep(1)
     # for i in range(0,5):
     while len(set(hist_names)) > 1:

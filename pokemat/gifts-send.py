@@ -79,8 +79,8 @@ def gifting(port, phone):
                 time.sleep(0.3)
             time.sleep(1)
             phone.selectAll()
-            phone.typeString("\b")
-            phone.typeString("!ff & !lucky")
+            phone.text_line_ok("\b")
+            phone.text_line_ok("!ff & !lucky")
             time.sleep(1)
             phone.tapTextOK()      
             time.sleep(0.3)
@@ -93,7 +93,7 @@ def gifting(port, phone):
                 has_gift = True
                 # can_send_gifts = phone.sendGift(has_gift = True)
                 
-            phone.selectFirstFriend()
+            phone.friend_select_first()
             can_send_gifts = phone.sendGift(has_gift = has_gift)
             sleep(4)
             phone.tap_back()

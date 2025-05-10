@@ -28,7 +28,7 @@ start_app()
     if ! ls /proc/ |grep $(cat /tmp/$port.pid)
     then
     	echo ./${app} -p $port $*
-    	./${app} -p $port $* &
+    	${app} -p $port $* &
     	echo $! >/tmp/$port.pid
     fi
 }
@@ -45,6 +45,6 @@ do
 	# echo restarting $app on port 300$i logfile /tmp/app-300$i.log
 	# start_app 300$i $*	
 	echo ./${app} -p 300$i $*
-	./${app} -p 300$i $* &
+	${app} -p 300$i $* &
 done
 

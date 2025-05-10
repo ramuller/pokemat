@@ -86,15 +86,15 @@ def gifting(port, phone):
                 time.sleep(0.3)
             time.sleep(1)
             phone.selectAll()
-            phone.typeString("\b")
+            phone.text_line_ok("\b")
             if len(shuffled_letters) > 0:
-                phone.typeString("!ff & !lucky & {}".format(shuffled_letters[0]))
+                phone.text_line_ok("!ff & !lucky & {}".format(shuffled_letters[0]))
             else:
-                phone.typeString("!ff & !lucky")
+                phone.text_line_ok("!ff & !lucky")
             time.sleep(1)
             phone.tapTextOK()      
             time.sleep(0.3)
-            if not phone.selectFirstFriend():
+            if not phone.friend_select_first():
                 shuffled_letters.pop(0)
                 continue
             # time.sleep(2)

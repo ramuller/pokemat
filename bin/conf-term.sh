@@ -25,9 +25,11 @@ do
 	xdotool type "export PHONE_PORT=$(( 3001 + $i))"
 	xdotool key Return
     split_term "left"
-	sleep 0.02
+	sleep 0.1
     
 done
+[ -z "$2" ] || exit 0
+
 xdotool type "export PHONE_PORT=$(( 3001 + $i))"
 xdotool key Return
 xdotool mousemove --window $(xdotool getactivewindow) 130 150

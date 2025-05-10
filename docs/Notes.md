@@ -17,7 +17,10 @@ p.selectAll()
 
 # Filter 2nd level and special evolutions
 while sleep 1; do \
-./evolve.py -f '!novolve&!dollif&!tyrunt&!metapod&!sunkern&!pansear&!qwilf&evolve&!sliggoo&!tranquill&!crocalor&!pidgeotto&!dusclops&!kirlia&!minccino&!ursaring&!cascoon&!silcoon&!kakuna&!charmeleon&!floragato&!linoone&!primeape&!tangela&!machoke&!kadabra&!floette&!gurdurr&!croconaw&!staravia&t&!graveler' ;\
+./evolve.py -f 'e8&!novolve&!dollif&!tyrunt&!metapod&!sunkern&!pansear&!qwilf&evolve&!sliggoo&!tranquill&!crocalor&!pidgeotto&!dusclops&!kirlia&!minccino&!ursaring&!cascoon&!silcoon&!kakuna&!charmeleon&!floragato&!linoone&!primeape&!tangela&!machoke&!kadabra&!floette&!gurdurr&!croconaw&!staravia&!graveler'
+
+
+;\
 done
 
 # Filter 2nd level and special evolutions but not free tradeevovle

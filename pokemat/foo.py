@@ -61,15 +61,23 @@ def cap_and_show():
     plt.axis('off')
     plt.show()
     
-def action(port, phone, distance = 15, right = True, berry = "g"):
+def action(port, arg = None):
         
-    print("Start testing on  \"{}\" on port {}", phone, port)
+    print("Start testing port {}",port)
     global p
-    p = TouchScreen(port, phone)
+    p = TouchScreen(port)
     startTime = datetime.now()
     
-    
-    p.friend_change_nick("newnick")
+    p.screen_friend()
+    sleep(3)
+    p.friend_select_first()
+    sleep(3)
+    # for name in ["eagal-", "88","test3"]:
+    for name in range(65, 72):
+        n2 = "dummy-{}".format(name)
+        p.friend_change_nick(f"new_{n2}")
+  
+    # p.friend_change_nick("new_98")
     
     sys.exit(1)
     # reader = easyocr.Reader(['en'])
@@ -116,7 +124,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    action(args.port, args.phone)
+    action(args.port)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

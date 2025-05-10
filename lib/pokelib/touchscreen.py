@@ -191,7 +191,7 @@ class TouchScreen:
     
     def color_match_wait(self, x, y, r, g, b, threashold=10, time_out_ms=10000, 
                        freq_in_s = 1, same=True,
-                       debug=False):
+                       debug=False, ex=True):
 
         self.log.info("color_match_wait x{},y{},r{},g{},b{},t{},to{},f{},m{}".format(x, y, r, g, b, threashold, time_out_ms, freq_in_s, same))
         startTime = datetime.now()
@@ -202,18 +202,22 @@ class TouchScreen:
             if ((datetime.now() - startTime).total_seconds() * 1000) > time_out_ms:
                 self.log.warn("Timeout waiting {}ms for x:{},y{} r{},g{},b{}".format(time_out_ms, x, y, r, g, b))
                 r, g, b = self.getRGB(x, y)
-                raise ExPokeLibError("Timeout waiting {}ms for x:{},y{} r{},g{},b{}".format(time_out_ms, x, y, r, g, b))
+                if ex:
+                    raise ExPokeLibError("Timeout waiting {}ms for x:{},y{} r{},g{},b{}".format(time_out_ms, x, y, r, g, b))
+                else:
+                    return False
             time.sleep(freq_in_s)
     
     def color_match_wait_click(self, x, y, r, g, b, threashold=10, time_out_ms=10000, 
                                freq_in_s = 1, same=True, delay=0.8,
-                               debug=False):
+                               debug=False, ex=True):
         self.log.info("color_match_wait_click x{},y{},r{},g{},b{},t{},to{},f{},m{}".format(x, y, r, g, b, threashold, time_out_ms, freq_in_s, same))
         time.sleep(delay)
-        self.color_match_wait(x, y, r, g, b, threashold, time_out_ms, freq_in_s, 
-                            same=same, debug=debug)
-        # time.sleep(0.)
-        self.tap_screen(x, y)
+        if self.color_match_wait(x, y, r, g, b, threashold, time_out_ms, freq_in_s, 
+                            same=same, debug=debug, ex=ex):
+            self.tap_screen(x, y)
+            return True
+        return False
     
     def tap_screenBack(self):
         self.log.info("Tap Screen back")
@@ -337,7 +341,7 @@ class TouchScreen:
         return (delta_max - delta_min) > 150
     
     def screen_is_pokestop(self):
-        m = self.get_maxima_x(27, 1931, 200, threshold = 1)
+        m = self.get_maxima_horizontal((27, 1931), 200, threshold = 1)
         if m == 0:
             r,g,b = self.getRGB(27, 1931)
             if b > 200 and r < 50:
@@ -485,7 +489,7 @@ class TouchScreen:
         # self.color_match_wait_click(871, 1152, 34, 34, 34)
         self.tap_screen(871, 1152)
         
-    def selectFirstFriend(self):
+    def friend_select_first(self):
         time.sleep(0.2)
         try:
             self.color_match_wait_click(147, 808, 255, 255,255, same=False, time_out_ms=4000)
@@ -545,7 +549,7 @@ class TouchScreen:
             if "POWER" in ''.join(text):
                 print("Power up")
                 self.tap_screen(500,975)
-                self.typeString("\\anovolve")
+                self.text_line_ok("\\anovolve")
                 sleep(0.2)
                 self.tapTextOK()
                 sleep(0.2)
@@ -574,7 +578,7 @@ class TouchScreen:
         # self.color_match_wait_click(826, 1683, 20, 150, 200, threashold=20, debug=True)
         self.color_match_wait_click(826, 1900, 20, 200, 240, threashold=20, debug=True)
     
-    def typeString(self, text):
+    def text_line_ok(self, text):
         time.sleep(0.1)
         # self.log.debug("type string {}".format(text))
         i = 0
@@ -590,12 +594,13 @@ class TouchScreen:
                 c = "\\" + text[i]
                 i += 1
             # print("RALF string '{}'".format(c))
-            print(c)
+            # print(c)
             self.write_to_phone("key:{}".format(c))
-            time.sleep(0.0035)
+            # time.sleep(0.0035)
+            time.sleep(0.01)
 
     def selectAll(self):
-        self.typeString("\\a")
+        self.text_line_ok("\\a")
     
     def getTimeNow(self):
         return datetime.now().strftime("%d-%m-%Y %H:%M:%S")
@@ -617,10 +622,10 @@ class TouchScreen:
     
     def screen_is_friend(self):
         
-        text, image = self.pocr_read_line((400, 125), (200, 70))
-        if "FRIENDS" in text:
-            return True
-        return False
+        # text, image = self.pocr_read_line((400, 125), (200, 70))
+        # if "FRIENDS" in text:
+        #    return True
+        # return False
     
         if self.color_match(319, 843, 0, 0, 0) \
             and self.color_match(319, 1246, 0, 0, 0) \
@@ -647,6 +652,25 @@ class TouchScreen:
         self.log.info("Go to homescreen")
         print("Go Home")
         count = 10 # Try count time
+
+        # sys.exit()
+        # Try left button as long als possible!
+        while self.is_home() == False and count > 0:
+            # self.showColor(300, 1803)
+            if self.color_match(357, 1005, 150, 218, 151, debug=True):
+                self.tapConfirm()
+            elif self.color_match(300, 1805, 150, 218, 151, debug=True):
+                self.tap_screen(500, 1800)
+            else:
+                self.tap_screen(100, 100, button = 3)
+            sleep(2)
+
+        if count == 0:
+            log.info("No homescreen found!")
+            return False
+        log.info("Now we are on the home screen {}".format(self.is_home()))
+        return True
+        
         while self.is_home() == False and count > 0:
             self.log.warning("Wrong color")
             if self.color_match(501, 1826, 30, 134, 149):
@@ -720,7 +744,7 @@ class TouchScreen:
     def screen_friend(self):
         self.screen_go_to_home()
         self.tapAvatar()
-        sleep(1)
+        sleep(3)
         self.tapFriends()
 
     def screen_me(self):
@@ -740,14 +764,14 @@ class TouchScreen:
         self.tapPokeSearch()
         self.color_match_wait(121, 1154, 255, 255, 255)
         time.sleep(0.4)
-        self.typeString(filter)
+        self.text_line_ok(filter)
         time.sleep(1)        
         self.tapTextOK()
         
     def friend_search(self, name):
         self.tapSearch()
         print("done")
-        self.typeString(name)
+        self.text_line_ok(name)
         self.tapTextOK()
 
     def pokemon_search(self, filter):
@@ -755,7 +779,7 @@ class TouchScreen:
         time.sleep(1)
         self.selectAll()
         time.sleep(0.2)
-        self.typeString(filter)
+        self.text_line_ok(filter)
         self.tapTextOK()
     
     def swipe(self, x1, y1, x2, y2):
@@ -818,8 +842,12 @@ class TouchScreen:
         print("wait")
         self.tapPokeBall()
         self.color_match_wait_click(795, 1542, 240, 254, 238)
-        
-        
+        try:
+            self.color_match_wait(824, 1855, 245, 245, 242, threashold=14, time_out_ms=3000)
+        except:
+            return False
+        return True
+               
     def screen_battle(self):
         print("Tap pokeball")
         self.tapPokeBall()
@@ -828,33 +856,37 @@ class TouchScreen:
     def healAll(self):
         print("Heal all")
         self.screen_item()
+        sleep(1)
         # Revive
+        revived = False
         for y in [960, 550]:
-            # for x in [750, 455, 150]
-            
-            time.sleep(1)
-            for x in range(900,100, -20):
-                # self.showColor(x, y)
-                if self.color_match(x, y, 220, 220, 110, threashold=35):
+            # for x in [750, 455, 150]           
+            for x in range(800,100, -20):
+                self.showColor(x, y)
+                if self.color_match(x, y, 220, 215, 110, threashold=35):
                     print("Found revive at {},{}".format(x,y))
                     self.tap_screen(x, y)
                     time.sleep(0.5)
-                    if self.color_match(67, 205, 141, 205, 145):
-                        self.tap_screen(328, 1648)
-                        time.sleep(1)
-                        if self.color_match(525, 1850, 28, 135, 149):
-                            self.tap_screen(525, 1850)
-                            break
+                    if not self.color_match_wait_click(350, 1650, 159, 218, 148, ex=False, time_out_ms=1000):
+                        revived = True
+                    self.color_match_wait_click(525, 1850, 28, 135, 149, ex=False)
+                if revived:
+                    break
+            if revived:
+                break
+                            
         time.sleep(1)
         # Potion
-        for x in [250, 500, 750]:
-            self.tap_screen(x, 550)
+        healed = False
+        for i in range(0, 3):
+            # upper left potion
+            self.tap_screen(250, 550)
+            if not self.color_match_wait_click(350, 1650, 159, 218, 148, ex=False, time_out_ms=1000):
+                healed = True
+            self.color_match_wait_click(525, 1850, 28, 135, 149, ex=False)
+            if healed:
+                break
             time.sleep(1)
-            if self.color_match(67, 205, 141, 205, 145):
-                self.tap_screen(328, 1648)
-                time.sleep(1)
-                if self.color_match(525, 1850, 28, 135, 149):
-                    self.tap_screen(525, 1850)
         self.screen_go_to_home()
 
     
@@ -1330,7 +1362,26 @@ class TouchScreen:
 
     def friend_change_nick(self, nick):
         print(f"Change nick to {nick}")
-        self.scroll(0, -400)
+        sleep(1)
+        self.scroll(0, -1700, start_x = 50, start_y = 1750, tap_time = 0.3, stop_to = 0.5)
+        print("Sroll up to nickname and wait")
+        sleep(1)
+        retries = 0
+        text = ""
+        while not "SET" in text:
+            self.scroll(0, -1700, start_x = 50, start_y = 1750, tap_time = 0.3, stop_to = 0.5)
+            sleep(1)
+            text, _ = self.pocr_read_line((400, 1355), (300, 70))
+            if retries > 30:
+                return False
+        # Tap set nickname
+        self.tap_screen(500,1400)   
+        sleep(1)
+        self.text_line_ok(nick)
+        self.tapTextOK()
+        # nail it down
+        sleep(0.5)
+        self.tap_screen(286, 1105)
 
     def gift_open(self):
         opened = True
