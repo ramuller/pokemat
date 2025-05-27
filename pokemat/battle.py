@@ -55,7 +55,7 @@ def battle(port, phone, type, league):
             log.info("Time : battle {}".format(phone.getTimeNow()))
             phone.screen_battle()
             if type == "league" or type == "l":
-                phone.battleLeague()
+                phone.battle_league()
             elif type == "trainer1":
                 phone.battleTrainer(1, league)
             elif type == "trainer2":

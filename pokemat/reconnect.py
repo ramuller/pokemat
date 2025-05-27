@@ -6,6 +6,7 @@ import os
 import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
+from pokelib import PokeArgs
 
 import json
 import sys
@@ -29,7 +30,7 @@ def reconnect(port, phone):
             time.sleep(2)
             phone.screen_go_to_home()
             print("Check connection status")
-            phone.color_match_wait_click(914, 583, 149, 97, 121, time_out_ms=20000)
+            phone.color_match_wait_click(914, 423, 149, 97, 121, time_out_ms=20000)
             print("Color match")
             time.sleep(1)
             phone.color_match_wait(114, 136, 45, 49, 50, time_out_ms=30000)
@@ -51,22 +52,14 @@ def reconnect(port, phone):
                 time.sleep(6)
                 if phone.color_match(914, 582, 255, 1, 0):
                     break
-            time.sleep(30)
+            time.sleep(60)
         except Exception as e:
             print("Upps something went wrong but who cares?: {}", e)
             
        
 def main():
 
-    parser = argparse.ArgumentParser()
-    # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
-    #                     "evolve - send and receive gifts")
-    parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
-    parser.add_argument("-p", "--port", action="store", required=True, \
-                        help="TCP port for the connection.")
-    parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
-                        help="Name os the phone model. Check phones.json.")
-    global args
+    parser = PokeArgs()
     args = parser.parse_args()
     global log 
     log = logging.getLogger("evolve")

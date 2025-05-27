@@ -1,6 +1,3 @@
-#!/usr/bin/python
-
-
 #!/bin/env python
 import time
 from time import sleep
@@ -117,13 +114,10 @@ def catch(port, p, distance = 6, right = True, berry = "a", max_tries = 25, span
             return False
     return True
                 
-def action(port, phone, distance = 15, right = True, berry = "a", span = 0):
-    with open("phone-spec.json", 'r') as file:
-        phones = json.load(file)
-        
-    print("Start catching on  \"{}\" on port {}", phone, port)
+def action(port, distance = 15, right = True, berry = "a", span = 0):
+    print("Start catching on  \"{}\" on port {}", port)
     
-    p = TouchScreen(port, phone)
+    p = TouchScreen(port)
     catch(port, p, distance, right, berry,span = span)
 
 def main():
@@ -143,7 +137,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    action(args.port, args.phone, int(args.distance), berry = args.berry, span = int(args.span))
+    action(args.port, int(args.distance), berry = args.berry, span = int(args.span))
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

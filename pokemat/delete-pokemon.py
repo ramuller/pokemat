@@ -15,6 +15,7 @@ import os
 import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
+from pokelib import PokeArgs
 
 import json
 import sys
@@ -64,16 +65,8 @@ def delete_pokemon(port, phone):
 
 def main():
 
-    parser = argparse.ArgumentParser()
-    # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
-    #                     "gifting - send and receive gifts")
-    parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
-    # parser.add_argument("-p", "--phone", action="store", \
-    #                     help="Set phone name default path '/tmp'")
-    parser.add_argument("-p", "--port", action="store", required=True, \
-                        help="TCP port for the connection.")
-    parser.add_argument("-P", "--phone", action="store", default="s7", \
-                        help="Name os the phone model. Check phones.json.")
+
+    parser = PokeArgs()
     global args
     args = parser.parse_args()
     global log 

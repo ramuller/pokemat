@@ -8,7 +8,7 @@ import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import WatchDog
-from action import change_gym_color 
+from action import change_gym_color
 
 import json
 import sys
@@ -39,7 +39,7 @@ def is_grunt_in_gym(p):
             and p.color_match(404, 857, 206, 90, 49) \
             and p.color_match(418, 814, 211, 90, 49):
         return True
-    
+
     if True \
             and p.color_match(404, 857, 206, 90, 49) \
             and p.color_match(418, 814, 211, 90, 49):
@@ -50,7 +50,7 @@ def is_grunt_in_gym(p):
             and p.color_match(390, 900, 205, 80, 49)\
             :
         return True
-    
+
     # print("No grunt")
     return False
 
@@ -58,7 +58,7 @@ def is_red_in_the_sky(p):
     if p.color_match(465, 394, 155, 64, 61):
         print("bingo")
         sys.exit(0)
-      
+
 def rotate(phone):
     phone.scroll(0, 800, start_y=200, start_x = 980, stop_to=0.1)
     phone.scroll(0, 800, start_y=200, start_x = 980, stop_to=0.1)
@@ -87,13 +87,13 @@ def scan_sky(phone, print, no_grunt):
         print("Search grunt {}, {}".format(x, gy))
         watch_dog.reset()
         gy = gy + 20
-    
+
     return no_grunt
 
 def grunt(port, phone):
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)
-        
+
     print("Looking for grunt \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
     try:
@@ -106,16 +106,16 @@ def grunt(port, phone):
     while no_grunt:
         # rotate(phone)
         # if is_red_in_the_sky(phone):
-        #     no_grunt = False     
+        #     no_grunt = False
         no_grunt = scan_sky(phone, print, no_grunt)
         if not no_grunt:
-            time.sleep(1) 
+            time.sleep(1)
             if is_grunt_in_gym(phone):
                 no_grunt = False
         else:
             phone.screen_go_to_home()
             rotate(phone)
-   
+
     try:
         phone.color_match_wait_click(463, 855, 203, 79, 41, time_out_ms = 1500)
     except:
@@ -128,8 +128,8 @@ def grunt(port, phone):
         go_out = 2
         while i > 0:
             i = i -1
-            print("Wait opponent and spin{}".format(i))       
-                
+            print("Wait opponent and spin{}".format(i))
+
             phone.spinDisk()
             if phone.color_match(506, 849, 206, 92, 51, threashold = 20) or \
                    phone.color_match(506, 880, 206, 92, 51, threashold = 20) or \
@@ -152,10 +152,10 @@ def grunt(port, phone):
         print(e)
         pass
     print("Wait battle")
-    
+
     i = 10
     while i > 0:
-        try:    
+        try:
             phone.color_match_wait_click(348, 1554, 151, 217, 149, threashold=20, time_out_ms = 1000)
             print("Wait for ?")
             i = 0
@@ -166,21 +166,21 @@ def grunt(port, phone):
     phone.tap_screen(388, 1552)
     time.sleep(1)
     phone.tap_screen(388, 1552)
-    
+
     phone.color_match_wait(350, 1771, 155, 222, 146)
     time.sleep(5)
-    print("Select other party")    
+    print("Select other party")
     phone.tap_screen(970, 1452)
     time.sleep(2)
     print("Wait go battle")
     phone.tap_screen(500, 1800)
-    
+
     # try:
     #     phone.color_match_wait_click(338, 1779, 162, 220, 148, threashold=20, time_out_ms = 15500)
     # except:
     #     pass
     watch_dog.reset()
-    
+
     startTime = datetime.now()
     while not phone.black_screen():
         if ((datetime.now() - startTime).total_seconds() * 1000) > 10000:
@@ -194,7 +194,7 @@ def grunt(port, phone):
         time.sleep(0.05)
     print("do battle")
     phone.doBattle()
-    
+
     # Wait for trainer
     for i in range(1,10):
         try:
@@ -203,23 +203,23 @@ def grunt(port, phone):
         except:
             phone.tap_screen(305, 1773)
         pass
-    phone.tap_screen(512, 873) 
+    phone.tap_screen(512, 873)
 
     sleep(6)
     print("Try to action")
     watch_dog.reset()
-    action(port, phone, berry = "g")     
+    action(port, phone, berry = "g")
     print("Try to action")
-    phone.screen_go_to_home()  
     phone.screen_go_to_home()
-    phone.healAll()  
+    phone.screen_go_to_home()
+    phone.heal_all()
 
 def wd_callback():
     print("Watchdog timeout strike just exit {}".format(threading.main_thread().native_id))
     watch_dog.kill()
-       
+
 def main():
-    global watch_dog 
+    global watch_dog
     watch_dog = WatchDog(time_out = 240, _callback = wd_callback)
     parser = argparse.ArgumentParser()
     # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
@@ -231,7 +231,7 @@ def main():
                         help="Name os the phone model. Check phones.json.")
     global args
     args = parser.parse_args()
-    global log 
+    global log
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))

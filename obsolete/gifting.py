@@ -111,7 +111,7 @@ def gifting(port, phone):
                         switch_order = True
                         can_get_gifts = False
                 
-            can_send_gifts = phone.sendGift()
+            can_send_gifts = phone.gift_send()
             phone.tap_back()
 
                     

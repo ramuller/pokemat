@@ -17,7 +17,7 @@ p.selectAll()
 
 # Filter 2nd level and special evolutions
 while sleep 1; do \
-./evolve.py -f 'e8&!novolve&!dollif&!tyrunt&!metapod&!sunkern&!pansear&!qwilf&evolve&!sliggoo&!tranquill&!crocalor&!pidgeotto&!dusclops&!kirlia&!minccino&!ursaring&!cascoon&!silcoon&!kakuna&!charmeleon&!floragato&!linoone&!primeape&!tangela&!machoke&!kadabra&!floette&!gurdurr&!croconaw&!staravia&!graveler'
+./evolve.py -f '!novolve&!dollif&!tyrunt&!metapod&!sunkern&!pansear&!qwilf&!sliggoo&!tranquill&!crocalor&!pidgeotto&!dusclops&!kirlia&!minccino&!ursaring&!cascoon&!silcoon&!kakuna&!charmeleon&!floragato&!linoone&!primeape&!tangela&!machoke&!kadabra&!floette&!gurdurr&!croconaw&!staravia&!graveler!pumpka&!phant&!graveler&!shelmet&!karrablast&!haunter&!kadabra&!gurdurr&!boldore&!machoke&!charjabug&!gastly&!abra&!geodude&!machop&!pumpka&evolve'
 
 
 ;\
@@ -25,6 +25,19 @@ done
 
 # Filter 2nd level and special evolutions but not free tradeevovle
 while sleep 1; do \
- ./evolve.py -f '!novolve&!dollif&!tyrunt&!metapod&!sunkern&!pansear&!qwilf&evolve&!sliggoo&!tranquill&!crocalor&!pidgeotto&!dusclops&!kirlia&!minccino&!ursaring&!cascoon&!silcoon&!kakuna&!charmeleon&!floragato&!linoone&!primeape&!tangela&!floette&!staravia' ;\
+ ./evolve.py -f '!novolve&!dollif&!tyrunt&!metapod&!sunkern&!pansear&!qwilf&evolve&!sliggoo&!tranquill&!crocalor&!pidgeotto&!dusclops&!kirlia&!minccino&!ursaring&!cascoon&!silcoon&!kakuna&!charmeleon&!floragato&!linoone&!primeape&!tangela&!floette&!staravia'    ;\
 done
 
+evolve.py -f '!novolve&!dollif&!tyrunt&!metapod&!sunkern&!pansear&!qwilf&evolve&!sliggoo&!tranquill&!crocalor&!pidgeotto&!dusclops&!kirlia&!minccino&!ursaring&!cascoon&!silcoon&!kakuna&!charmeleon&!floragato&!linoone&!primeape&!tangela&!floette&!staravia&!pawmi' 
+evolve.py -f '!novolve&!dollif&!tyrunt&!metapod&!sunkern&!pansear&!qwilf&evolve&!sliggoo&!tranquill&!crocalor&!pidgeotto&!dusclops&!kirlia&!minccino&!ursaring&!cascoon&!silcoon&!kakuna&!charmeleon&!floragato&!linoone&!primeape&!tangela&!floette&!staravia&!pawmi&!wurmrple&!pidov&!skiploom' 
+'\aevolve&wurmple,pidov'
+evolve.py -f '\aevolve,wurmple,pidov' 
+
+ ./evolve.py -f '!novolve&pawmi'
+
+# Filter trade evovle
+
+evolve.py -f '!pumpka&!phant&!graveler&!shelmet&!karrablast&!haunter&!kadabra&!gurdurr&!boldore&!machoke&!charjabug&!gastly&!abra&!geodude&!machop&evolve&!novolve&!applin&hoppip&pa'
+
+# Filter start of free
+ ./evolve.py -f 'evolve&abra,geodude,gastly,machop,timburr'

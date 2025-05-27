@@ -55,6 +55,11 @@ def gifting(port, phone):
         
     print("Start gifting using phone \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
+    name = None
+    while name == None:
+        name = phone.get_my_name()
+        print(f"My name {name}")    
+
     phone.friendSortCanReceive()
     # phone.tapSearch()
     # phone.tap_screen(440, 837)
@@ -87,14 +92,14 @@ def gifting(port, phone):
             # time.sleep(2)
             
             if phone.color_match(359, 884, 250,250,250):
-                # can_send_gifts = phone.sendGift(has_gift = False)
+                # can_send_gifts = phone.gift_send(has_gift = False)
                 has_gift = False
             else:
                 has_gift = True
-                # can_send_gifts = phone.sendGift(has_gift = True)
+                # can_send_gifts = phone.gift_send(has_gift = True)
                 
             phone.friend_select_first()
-            can_send_gifts = phone.sendGift(has_gift = has_gift)
+            can_send_gifts = phone.gift_send(has_gift = has_gift)
             sleep(4)
             phone.tap_back()
 

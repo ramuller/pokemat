@@ -25,7 +25,7 @@ def search_pokemon():
         # for y in range(1300, 600, -50):
         for y in range(1300, 800, -50):
         # for y in range(1300, 1049, -50):
-            p.showColor(500, y)
+            p.color_show(500, y)
             p.tap_screen(500, y)
             sleep(0.25)
             if not p.is_home():
@@ -62,7 +62,7 @@ def autocatch(port, phone_model):
         p.screen_go_to_home()
         if search_pokemon():
             # if not action(port, p, distance = 6, berry = "a", max_tries = 5, span = 3):
-            if not catch(port, p, distance = 7, berry = "a", max_tries = 7, span = 3):
+            if not catch(port, p, distance = 6, berry = "a", max_tries = 7, span = 2):
                 # turn away if no action !!!
                 rotate(90)
     

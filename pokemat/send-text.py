@@ -19,7 +19,8 @@ def action(port, phone, text):
         
     print("Start sending text on  \"{}\" on port {} '{}'".format(port, phone, text))
     p = TouchScreen(port, phone)
-    # p.tap_screen(510, 375)
+    if args.select:
+        p.tap_screen(510, 375)
     sleep(0.5)
     p.text_line_ok(text)
     
@@ -28,7 +29,7 @@ def main():
     parser = PokeArgs()
     global args
     parser.add_argument("text", type=str, help="text to send")
-
+    parser.add_argument("-s", "--select", action='store_true', help='select pokemon')    
     args = parser.parse_args()
     global log 
     if args.port != "NA":

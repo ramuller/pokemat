@@ -40,9 +40,9 @@ class Ocr:
         np_a = np_a.reshape((jbuf["hight"], jbuf["width"]))                       
         image = Image.fromarray(np_a, mode='L')
         text = pytesseract.image_to_string(np_a)
-        # print(text)
+        # print(f"Reader {text}")
         rt = []
         for t in text.split("\n"):
             rt.append(t)
         # print(rt)
-        return rt, image
+        return rt

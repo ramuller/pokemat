@@ -20,9 +20,9 @@ def heal(port, phone_model):
     global phone
     phone = TouchScreen(port, phone_model)
     phone.screen_go_to_home()
-    phone.healAll()
+    phone.heal_all()
     # time.sleep(1)
-    # phone.healAll()
+    # phone.heal_all()
    
     
 def main():

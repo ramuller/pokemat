@@ -85,7 +85,9 @@ def gifting(port, phone):
             time.sleep(0.5)
             phone.selectAll()
             phone.text_line_ok("\b")
-            if len(shuffled_letters) > 0:
+            if args.all:
+                phone.text_line_ok("!ff & !lucky")
+            elif len(shuffled_letters) > 0:
                 phone.text_line_ok("!ff & !lucky & {}".format(shuffled_letters[0]))
             else:
                 last_tries -= 1
@@ -123,6 +125,8 @@ def main():
 
     parser = PokeArgs()
     global args
+    parser.add_argument("-a", "--all", action='store_true', \
+                        help="No special filter")
     args = parser.parse_args()
     global log 
     log = logging.getLogger("gifting")

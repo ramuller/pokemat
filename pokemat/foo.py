@@ -68,10 +68,33 @@ def action(port, arg = None):
     p = TouchScreen(port)
     startTime = datetime.now()
     
-    p.screen_friend()
-    sleep(3)
-    p.friend_select_first()
-    sleep(3)
+    p.screen_go_to_home()
+    
+    sys.exit(0)
+    p.friend_set_nickname("test")
+    
+    
+    for y in range(100, 1900,20):
+        text, image = p.pocr_read_line((200, y),(300, 50))
+        if text != '':
+            print(f"Read at {y} text : {text.lower()}")
+    
+    for i in range(0,2):
+        print("Scroll up")
+        p.scroll(0, -1800, start_x=900, start_y=1900)
+        sleep(1)        
+
+    for y in range(100, 1900,20):
+        text, image = p.pocr_read_line((200, y),(300, 50))
+        if text != '':
+            print(f"Read at {y} text : {text.lower()}")
+    
+    for i in range(0,2):
+        print("Scroll up")
+        p.scroll(0, 1800, start_x=900, start_y=100)
+        sleep(1)        
+    sys.exit(0)
+    
     # for name in ["eagal-", "88","test3"]:
     for name in range(65, 72):
         n2 = "dummy-{}".format(name)
