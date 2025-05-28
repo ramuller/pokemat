@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 def read_text(port, tx, ty, tw, th):
 
             
-    print("Start catching on  port {}",port)
+    print("Start reading on  port {}",port)
 
     p = TouchScreen(port)
     

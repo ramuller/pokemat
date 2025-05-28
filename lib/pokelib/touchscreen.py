@@ -488,7 +488,7 @@ class TouchScreen:
         self.tap_add_friend()
         sleep(2)
         for i in range(5):
-            mn = self.pocr_read_line((300, 540),(420, 70))
+            mn = self.pocr_read_line_center((500, 575),(420, 70))
             for i in range(2, len(mn)):
                 print(mn[:i])
                 ret = db_p().get_trainer(mn[:i])

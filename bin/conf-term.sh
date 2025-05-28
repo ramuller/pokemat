@@ -24,7 +24,7 @@ split_term()
 }
 
 split_term "up"
-sleep 0.1
+sleep 0.3
 	
 for (( i = 0 ; i < $count - 1 ; i++ ))
 do
@@ -33,7 +33,7 @@ do
 	xdotool type "export PHONE_PORT=$(( 3001 + $i))"
 	xdotool key Return
     split_term "left"
-	sleep 0.1
+	sleep 0.3
     
 done
 [ -z "$2" ] || return
@@ -50,7 +50,7 @@ do
 	xdotool type "export PHONE_PORT=$(( 3001 + $i))"
 	xdotool key Return
     split_term "left"
-	sleep 0.02
+	sleep 0.03
 done
 xdotool type "export PHONE_PORT=$(( 3001 + $i))"
 xdotool key Return
