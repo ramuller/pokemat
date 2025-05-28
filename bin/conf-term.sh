@@ -1,5 +1,13 @@
 #!/bin/bash
 
+if ! echo $PATH |grep -silent pokemat
+then
+    # pd="$(dirname "$(cd "$(dirname "$0")" && pwd)")"
+    pd="/space/home/ralf/git/pokemat"
+    echo Add pokemat patch $pd
+    export PATH="$PATH:$pd/bin:$pd/pokemat"
+    export PYTHONPATH="$PYTHONPATH:$pd/lib"
+fi
 count=6
 [ -z "$1" ] || count=$1
 
@@ -28,7 +36,7 @@ do
 	sleep 0.1
     
 done
-[ -z "$2" ] || exit 0
+[ -z "$2" ] || return
 
 xdotool type "export PHONE_PORT=$(( 3001 + $i))"
 xdotool key Return

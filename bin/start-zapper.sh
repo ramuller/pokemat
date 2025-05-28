@@ -56,6 +56,9 @@ elif [ "$1" == "6" ];then
 elif [ "$1" == "a40" ];then
     [ -z $SN ] && SN=R58M93ND7BF
     ./run x $EXTRA --window-title="$1" -s $SN $STD_ARGS --window-x=0 --window-y=1070 --rest-api-port=3040 
+elif [ "$1" == "u" ];then
+    echo unknow phone using port 3010 no $SN
+    ./run x $EXTRA --window-title=3010 $STD_ARGS --window-x=0 --window-y=0 --rest-api-port=3010
 else
     echo unknow phone using port 3099 title $SN
     ./run x $EXTRA --window-title="$SN" -s $SN $STD_ARGS --rest-api-port=3099

@@ -12,8 +12,8 @@ class Ocr:
         jbuf = self.ts.screen_capture_bw(start,size)
         np_a = np.array(jbuf["gray"], dtype=np.uint8)
         np_a = np_a.reshape((jbuf["hight"], jbuf["width"]))                       
-        # image = Image.fromarray(pixel_array, mode='L')
-        text = self.reader.readtext(np_a)
+        image = Image.fromarray(pixel_array, mode='L')
+        # text = self.reader.readtext(np_a)
         rt = []
         for t in text:
             rt.append(t[1])
@@ -35,14 +35,19 @@ class Ocr:
         return t
 
     def pocr_read(self,start,size):
+        text,_ = self.pocr_read_and_image()
+        return text
+        
+    def pocr_read_and_image(self,start,size):
         jbuf = self.ts.screen_capture_bw(start, size)
         np_a = np.array(jbuf["gray"], dtype=np.uint8)
         np_a = np_a.reshape((jbuf["hight"], jbuf["width"]))                       
         image = Image.fromarray(np_a, mode='L')
         text = pytesseract.image_to_string(np_a)
+        # text = "ddsf"
         # print(f"Reader {text}")
         rt = []
         for t in text.split("\n"):
             rt.append(t)
         # print(rt)
-        return rt
+        return rt, image

@@ -366,9 +366,13 @@ class TouchScreen:
         t = self.pocr_read(cs, size)
         return "".join(t)        
 
+    def pocr_read_and_image_center(self, start, size):
+        cs = (start[0] - size[0]/2, start[1] - size[1]/2,)
+        return self.pocr_read_and_image(cs, size)
+
     def pocr_read_line(self, start, size):
         t = self.pocr_read(start, size)
-        self.log.debug(f"pocr_read_line {"".join(t)}")
+        # self.log.debug(f"pocr_read_line {"".join(t)}")
         return "".join(t)
 
     def clip_boundaries(self, start, size):
@@ -390,6 +394,17 @@ class TouchScreen:
             sleep(1)
             return [""]
 
+    def pocr_read_and_image(self, start, size):
+        if not self.reader:
+            self.reader = Ocr(self)
+        try:
+            # if check_boundaries(start, size):
+            #    return self.reader.pocr_read(start, size)
+            return self.reader.pocr_read_and_image(start, size)
+        except:
+            print("No good")
+            sleep(1)
+            return [""]
     
     @poke_timeout()
     def pocr_wait_text(self, start, size, text, pause=0,  to_ms=0, debug=False):
@@ -679,16 +694,18 @@ class TouchScreen:
         while self.is_home() == False and count > 0:
             # self.color_show(300, 1803)
             # OK on green in the middle
-            if self.color_match(357, 1005, 150, 218, 151, debug=False):
+            if self.color_match(300, 1805, 150, 218, 151, debug=False):
+                self.tap_screen(500, 1800)
+            elif self.color_match(300, 1705, 150, 218, 151, debug=False):
+                self.tap_screen(500, 1800)            
+            elif self.color_match(500, 1828, 28, 135, 151, debug=False):
+                self.tap_screen(500, 1828)            
+            elif self.color_match(357, 1005, 150, 218, 151, debug=False):
                 # Not exit pokemon
                 if not "GO" in self.pocr_read_line_center((790, 800), (100, 70)):
                     self.tapConfirm()
                 else:
                     self.tap_screen(100, 100, button = 3)
-            elif self.color_match(300, 1805, 150, 218, 151, debug=False):
-                self.tap_screen(500, 1800)
-            elif self.color_match(300, 1705, 150, 218, 151, debug=False):
-                self.tap_screen(500, 1800)
             else:
                 self.tap_screen(100, 100, button = 3)
             sleep(2)

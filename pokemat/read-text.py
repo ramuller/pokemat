@@ -16,20 +16,25 @@ import sys
 from datetime import datetime
 from mercurial.hgweb.common import continuereader
 from random import randrange
+import matplotlib.pyplot as plt
 
                 
 def read_text(port, tx, ty, tw, th):
 
             
     print("Start catching on  port {}",port)
-    
+
     p = TouchScreen(port)
     
     
-    text = p.pocr_read_line_center((tx, ty), (tw, th))
-    
+    text,image = p.pocr_read_and_image_center((tx, ty), (tw, th))
     print(text)
-    
+    if args.show:
+        plt.imshow(image, cmap='gray', vmin=0, vmax=255)
+        plt.title(f'Grayscale Bitmap')
+        plt.axis('off')
+        plt.show()
+
     return
         
             
@@ -44,14 +49,15 @@ def main():
 
     global args
     parser = PokeArgs()
-    
+    parser.add_argument("-s", "--show", action="store_true", required=False, default=0, \
+                        help="Vary distance by span.")    
     parser.add_argument("tx", type=int, help="Text x")
     parser.add_argument("ty", type=int, help="Text y")
     parser.add_argument("tw", type=int, help="Text widht")
     parser.add_argument("th", type=int, help="Text high")
     
     args = parser.parse_args()
-
+    print(args.show)
     global log 
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
