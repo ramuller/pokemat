@@ -35,7 +35,7 @@ class Ocr:
         return t
 
     def pocr_read(self,start,size):
-        text,_ = self.pocr_read_and_image()
+        text,_ = self.pocr_read_and_image(start,size)
         return text
         
     def pocr_read_and_image(self,start,size):
