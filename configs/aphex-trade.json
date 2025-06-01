@@ -1,0 +1,16 @@
+{
+    "mode": "trade",
+    "league": "master",
+    "host": { 
+        "port": "3005",
+        "name": "aphex",
+		"filter-f": "vanillish,wooper & !shiny & !favorite",
+		"filter": "xp1 & !shiny & !norade & !traded & !favorite"
+   },
+    "guest": {
+        "port": "3006",
+        "name": "helmut",
+		"filter-f": "machop & !shiny & !norade & !favorite",
+		"filter": "xp1 & !norade & !traded & !favorites"
+    }
+}
