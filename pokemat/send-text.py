@@ -14,9 +14,7 @@ import sys
 from datetime import datetime
 
 def action(port, phone, text):
-    with open("phone-spec.json", 'r') as file:
-        phones = json.load(file)
-        
+      
     print("Start sending text on  \"{}\" on port {} '{}'".format(port, phone, text))
     p = TouchScreen(port, phone)
     if args.select:

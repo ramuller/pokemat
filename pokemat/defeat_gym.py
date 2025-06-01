@@ -23,9 +23,6 @@ def whiteScreen():
 
 
 def defeat_gym(port, phone_model, max_round=5):
-    with open("phone-spec.json", 'r') as file:
-        phones = json.load(file)
-        
     print("Start Deafeat \"{}\" on port {}", phone_model, port)
     global phone 
     phone = TouchScreen(port, phone_model)
