@@ -1,0 +1,2 @@
+ mysql -h leo -u pokemat -ppokemat123 
+mysql -h leo -u pokemat -ppokemat123 -e 'select * from trainers;'  pokemat 
