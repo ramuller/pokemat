@@ -30,7 +30,7 @@ def reconnect(port, phone):
             time.sleep(2)
             phone.screen_go_to_home()
             print("Check connection status")
-            phone.color_match_wait_click(914, 423, 149, 97, 121, time_out_ms=20000)
+            phone.color_match_wait_click(914, 585, 149, 97, 121, time_out_ms=20000)
             print("Color match")
             time.sleep(1)
             phone.color_match_wait(114, 136, 45, 49, 50, time_out_ms=30000)

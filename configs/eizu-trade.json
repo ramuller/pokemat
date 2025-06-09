@@ -9,7 +9,7 @@
    },
     "guest": {
         "port": "3005",
-        "name": "pokeeiz",
+        "name": "blond",
 		"filter": "xp1 & !norade & !traded & !favorite",
 		"filter-f": "sandygast & !norade & !traded & !shiny & !favorite"
     }
