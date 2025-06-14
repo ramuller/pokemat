@@ -37,13 +37,9 @@ def battle(host, guest):
                 return True
             time.sleep(0.2)
     
-def battle(port, phone, type, league):
+def battle(port, type, league):
     
-    with open("phone-spec.json", 'r') as file:
-        phones = json.load(file)
-        
-    print("Start battle\" on port {}", phone, port)
-    phone = TouchScreen(port, phone)
+    phone = TouchScreen(port)
     # phone.scroll(0, -100)
     # sys.exit(0)
     cont = True
@@ -88,7 +84,7 @@ def main():
     log = logging.getLogger("battle")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    battle(args.port, args.phone, args.type, args.league)
+    battle(args.port, args.type, args.league)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

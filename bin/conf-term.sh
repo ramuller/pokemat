@@ -43,7 +43,8 @@ xdotool key Return
 xdotool mousemove --window $(xdotool getactivewindow) 130 150
 xdotool mousedown --window $(xdotool getactivewindow) 1
 xdotool mouseup --window $(xdotool getactivewindow) 1
-for (( i = 0 ; i < $count - 1 ; i++ ))
+# for (( i = 0 ; i < $count - 1 ; i++ ))
+for (( i = 0 ; i < 3 - 1 ; i++ ))
 do
 	xdotool type "export PHONE_PORT=$(( 3001 + $i))"
 	xdotool key Return

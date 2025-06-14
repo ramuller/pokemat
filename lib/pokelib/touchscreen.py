@@ -936,7 +936,7 @@ class TouchScreen:
 
     
     def battle_league(self):
-        time.sleep(2)
+        time.sleep(3)
         self.color_show(200, 1900)
         if self.color_match(200, 1900, 255, 180, 82):
             print("Claim rewards")

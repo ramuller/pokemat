@@ -140,7 +140,7 @@ def change_trainer(port, phone_model, trainer):
     phone = TouchScreen(port, phone_model)
     t = phone.pocr_read_line((280, 1100), (440, 75))
     print(f"change_trainer{t}")
-    if args.direct:
+    if not args.check:
         do_change_trainer(port, phone_model, trainer)
     else:
         while phone.pocr_wait_text((280, 1100), (440, 75), "RETURNING", pause=2, to_ms=1) \
@@ -153,7 +153,7 @@ def main():
 
     parser = PokeArgs()
     parser.add_argument("trainer", help="Name of the new trainer")
-    parser.add_argument("-d", "--direct", action='store_true', help="Don't check current name")    
+    parser.add_argument("-c", "--check", action='store_true', help="Don't check current name")    
     global args
     args = parser.parse_args()
     
