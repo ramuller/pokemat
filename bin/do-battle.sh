@@ -30,7 +30,7 @@ function ctrl_c() {
 start_app()
 {
     port=$1
-    ./${app} -p 300$i  -t league &
+    ${app} -p 300$i  -t league &
     echo $! >/tmp/$port.pid
 }
 

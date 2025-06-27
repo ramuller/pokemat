@@ -125,7 +125,7 @@ def main():
     global args
     parser = PokeArgs()
 
-    parser.add_argument("-d", "--distance", action="store", default=15, \
+    parser.add_argument("-d", "--distance", action="store", default=6, \
                         help="TCP port for the connection.")
     parser.add_argument("-b", "--berry", action="store", required=False, default="a", \
                         help="Name os the phone model. Check phones.json.")

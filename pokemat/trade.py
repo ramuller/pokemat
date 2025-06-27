@@ -114,6 +114,7 @@ def trade(jsonFile):
                 # Wait trade complete
                 host.color_match_wait_click(482, 1849, 28, 135, 149, time_out_ms=30000)
                 guest.color_match_wait_click(482, 1849, 28, 135, 149, time_out_ms=30000)
+                time.sleep(2)
                 host.tapTrade()
                 guest.tapTrade()
                 

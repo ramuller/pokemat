@@ -57,10 +57,10 @@ def change_gym_color():
             
             
         if t.lower() != my_name.lower():
-            change_trainer.change_trainer(args.port, args.phone, t)
+            change_trainer.change_trainer(args.port, t)
             print("Let stabilize")
             sleep(10)
-            heal(args.port, args.phone)
+            heal(args.port)
         defeated = False
         max_tries = 10
         while defeated == False:
@@ -70,10 +70,10 @@ def change_gym_color():
                 sys.exit(1)
             try:
                 try:
-                    defeated = defeat_gym(args.port, args.phone)
+                    defeated = defeat_gym(args.port)
                 except:
                     pass
-                heal(args.port, args.phone)
+                heal(args.port)
                 if defeated == False:
                     print("Defeat failed. Try again")
                     
@@ -83,7 +83,7 @@ def change_gym_color():
             except:
                 pass
             
-    change_trainer.change_trainer(args.port, args.phone, "no-trainer")
+    change_trainer.change_trainer(args.port,  "no-trainer")
             
 def main():
 

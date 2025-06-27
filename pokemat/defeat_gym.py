@@ -22,10 +22,10 @@ def whiteScreen():
     return True
 
 
-def defeat_gym(port, phone_model, max_round=5):
-    print("Start Deafeat \"{}\" on port {}", phone_model, port)
+def defeat_gym(port, max_round=5):
+    print("Start Deafeat on port {}", port)
     global phone 
-    phone = TouchScreen(port, phone_model)
+    phone = TouchScreen(port)
     defeated = False
     round = 0
     while not defeated:
@@ -77,6 +77,7 @@ def defeat_gym(port, phone_model, max_round=5):
     phone.pokemon_search("cp1500-2000")
     phone.pokemon_select_first()
     phone.color_match_wait_click(277, 1029, 162, 220, 148)
+    return defeated
         # except Exception as e:
         #     print("Upps something went wrong but who cares?: {}", e)
             
@@ -91,7 +92,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    defeat_gym(args.port, args.phone)
+    defeat_gym(args.port)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

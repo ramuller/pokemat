@@ -16,12 +16,9 @@ def deleteRedBalls(phone):
     phone.screen_go_to_home()
     phone.tap_screen()
 
-def reconnect(port, phone):
-    with open("phone-spec.json", 'r') as file:
-        phones = json.load(file)
-        
-    print("Start evolutions \"{}\" on port {}", phone, port)
-    phone = TouchScreen(port, phone)
+def reconnect(port):
+    print("Start reconnect on port {}", port)
+    phone = TouchScreen(port)
    
     while True:
         try:
@@ -52,7 +49,7 @@ def reconnect(port, phone):
                 time.sleep(6)
                 if phone.color_match(914, 582, 255, 1, 0):
                     break
-            time.sleep(60)
+            time.sleep(180)
         except Exception as e:
             print("Upps something went wrong but who cares?: {}", e)
             
@@ -65,7 +62,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    reconnect(args.port, args.phone)
+    reconnect(args.port)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

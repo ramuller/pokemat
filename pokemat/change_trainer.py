@@ -66,7 +66,7 @@ def selectTrainer(trainer):
                 phone.tap_screen(500, y + 10)
                 sleep(10)
                 return True
-
+    sleep(1)
     for i in range(0,2):
         print("Scroll up")
         phone.scroll(0, -1800, start_x=900, start_y=1900)
@@ -88,7 +88,7 @@ def selectTrainer(trainer):
             
    
 
-def do_change_trainer(port, phone_model, trainer):
+def do_change_trainer(port, trainer):
     new_trainer = False
     text = phone.pocr_read_line((240, 320), (520, 70))
     if not "choose" in text.lower():
@@ -134,19 +134,19 @@ def do_change_trainer(port, phone_model, trainer):
             except:
                 pass
         
-def change_trainer(port, phone_model, trainer):
-    print("Change trainers \"{}\" on port {}", phone_model, port)
+def change_trainer(port, trainer, check=False):
+    print("Change trainers on port {}", port)
     global phone
-    phone = TouchScreen(port, phone_model)
+    phone = TouchScreen(port)
     t = phone.pocr_read_line((280, 1100), (440, 75))
     print(f"change_trainer{t}")
-    if not args.check:
-        do_change_trainer(port, phone_model, trainer)
+    if not check:
+        do_change_trainer(port, trainer)
     else:
         while phone.pocr_wait_text((280, 1100), (440, 75), "RETURNING", pause=2, to_ms=1) \
-              or not trainer.lower() in TouchScreen(port, phone_model).get_my_name().lower():
+              or not trainer.lower() in TouchScreen(port).get_my_name().lower():
             print("Start change")
-            do_change_trainer(port, phone_model, trainer)
+            do_change_trainer(port, trainer)
         
     
 def main():
@@ -161,7 +161,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    change_trainer(args.port, args.phone, args.trainer)
+    change_trainer(args.port, args.trainer, args.check)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

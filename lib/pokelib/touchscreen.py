@@ -50,7 +50,7 @@ def timeout(seconds):
         return wrapper
     return decorator
 
-def poke_timeout():
+def poke_timeout(to_ms=10000):
     def decorator(func):
         # def _handle_timeout(signum, frame):
         #     raise ExPokeTimeoutHandler(f"Function '{func.__name__}' timed out after {seconds} seconds")
@@ -612,8 +612,17 @@ class TouchScreen:
     
     def tapTrade(self):
         self.log.info("Tap Trade")
-        self.color_match_wait_click(826, 1900, 20, 200, 240, threashold=20, debug=False)
-    
+        for i in range(0,20):
+            if self.color_match(826, 1900, 20, 200, 240, threashold=20, debug=False):
+                self.tap_screen(826, 1900)
+                return
+            if self.color_match(595, 1937, 45, 115, 116, threashold=20, debug=False):
+                self.tap_screen(595, 1937)
+                return
+            print("Wait for trade button")
+            time.sleep(1)
+        raise
+        
     def text_line_ok(self, text):
         time.sleep(0.1)
         # self.log.debug("type string {}".format(text))
@@ -1465,7 +1474,7 @@ class TouchScreen:
                 time.sleep(0.5)
         name, days_to_go, level = self.friend_get_info()
         self.friend_update_db(name, days_to_go, level, opened=opened)
-        if days_to_go <= 2:
+        if days_to_go <= 2 or days_to_go == 62 or days_to_go == 61:
             self.friend_set_nickname("ff pokemat")
         return opened
     
@@ -1485,7 +1494,7 @@ class TouchScreen:
         # Check for post card
         name, days_to_go, level = self.friend_get_info()
         self.friend_update_db(name, days_to_go, level)
-        if days_to_go <= 2 or (days_to_go >= 62 and days_to_go < 60):
+        if days_to_go <= 2 or days_to_go == 62 or days_to_go == 61:
             self.friend_set_nickname("ff pokemat")
             sleep(1)
         while self.color_match(700, 857, 255, 255, 255,threashold=1) == False \

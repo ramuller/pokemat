@@ -5,38 +5,38 @@ from time import sleep
 import os
 import logging
 import random
+import math
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 
 import json
 import sys
 from datetime import datetime
-from yaml import _yaml
-import _ruamel_yaml
-from ply.yacc import yacc
+
+
 
 def action(port, phone, distance = 15, right = True, berry = "g"):
-    with open("phone-spec.json", 'r') as file:
-        phones = json.load(file)
-        
-    p = TouchScreen(port, phone)
-    x = 500
-    y = 1250
-    r = 220
-    while True:
-        x1 = x + random.randint(-r,r) 
-        y1 = y +  random.randint(-r,r) 
-        x2 = x + random.randint(-r,r) 
-        y2 = y +  random.randint(-r,r)
-        p.tapDown(x1, y1)
-        for xa in range(x1, x2, int((x2 - x1) / 10)):
-            for ya in range(y1, y2, int ((y2 - y1) / 10)):
-                p.moveCursor(x1, y1, xa, ya)
-                x1 = xa
-                y1 = yacc
-        sleep(0.1)           
-        p.tapUp(x2, y2)
+    def getX(d, r, offset=0, tilt = 0.0):
+        return math.sin(math.radians(d)) * float(r) + float(offset) + float(tilt)    
+    def getY(d, r, offset=0, tilt = 0.0):
+        return math.cos(math.radians(d)) * float(r) + float(offset) + float(tilt)
 
+    p = TouchScreen(port, phone)
+    rx = 220
+    ry = 420
+    degree = 0
+    xs = int(getX(degree, ry, 500))
+    ys = int(getY(degree, rx, 1200))
+    p.tap_down(xs, ys, button, duration)
+    while True:
+        degree += 10
+        x = int(getX(degree, ry, 500))
+        y = int(getY(degree, rx, 1200))
+        p.moveCursor(xs, ys, x, y)
+        xs = x
+        ys = y
+        sleep(1)
+        
 def main():
 
     parser = argparse.ArgumentParser()

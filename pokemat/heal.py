@@ -12,13 +12,11 @@ import sys
 from datetime import datetime
 
 
-def heal(port, phone_model):
-    with open("phone-spec.json", 'r') as file:
-        phones = json.load(file)
-        
-    print("Change trainers \"{}\" on port {}", phone_model, port)
+def heal(port):
+
+    print("Change trainers on port {}", port)
     global phone
-    phone = TouchScreen(port, phone_model)
+    phone = TouchScreen(port)
     phone.screen_go_to_home()
     phone.heal_all()
     # time.sleep(1)
@@ -37,7 +35,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    heal(args.port, args.phone)
+    heal(args.port)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

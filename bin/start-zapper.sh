@@ -19,7 +19,7 @@ ZAPPER_DIR=$HOME/git/scrcpyzapper
 # [ -n "$EXTRA" ] || EXTRA="-S --disable-screensaver"
 [ -n "$EXTRA" ] || EXTRA="--disable-screensaver"
 
-STD_ARGS="-m 1024 --max-fps=8 --no-audio-playback --raw-key-events"
+STD_ARGS="-m 1024 --max-fps=8 --no-audio-playback --raw-key-events --no-resize"
 
 cd $ZAPPER_DIR
 
