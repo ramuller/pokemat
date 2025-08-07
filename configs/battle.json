@@ -1,0 +1,14 @@
+{
+    "mode": "battle-friend",
+	"league": "great",
+	"league-u": "ultra",
+    "guest": { 
+        "port": "3006",
+        "name": "aphex"
+
+   },
+    "host": {
+        "port": "3005",
+        "name": "yellow"
+    }
+}

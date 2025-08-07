@@ -68,6 +68,11 @@ def action(port, arg = None):
     p = TouchScreen(port)
     startTime = datetime.now()
     
+    while True:
+        print("Wating for an egg")
+        print(p.egg_handle())
+        time.sleep(1)
+    
     p.screen_go_to_home()
     
     sys.exit(0)

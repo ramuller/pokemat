@@ -9,9 +9,6 @@ import time
 from time import sleep
 import os
 import logging
-from xlwt.ExcelFormulaParser import RB
-from sympy.core.tests import test_truediv
-from _ast import And
 
 maxX = 100000
 maxY = 200000
@@ -36,7 +33,7 @@ class TouchScreen:
         self.writeToTouch("click:{},{},{},{}\n".format(x,y,button, duration))
         time.sleep(0.001 * duration)
     
-    def getRGB(self, x, y):
+    def get_rgb(self, x, y):
         self.fi.seek(0, 2)            
         self.writeToTouch("color:{},{}\n".format(x,y))
         # time.sleep(1)
@@ -51,7 +48,7 @@ class TouchScreen:
         vl = ll[1].split(",")
         # print(vl)
         r,g,b = int(vl[2]), int(vl[3]), int(vl[4])
-        log.debug("getRGB : ({},{}) r{} g{} b{}".format(x, y, r, g,b))
+        log.debug("get_rgb : ({},{}) r{} g{} b{}".format(x, y, r, g,b))
         return r, g, b
     
 
@@ -60,7 +57,7 @@ class TouchScreen:
     '''
     def color_match(self, x, y, r, g, b, threshold=10, timeOutMs=1):
         while timeOutMs > 0:
-            sr, sg, sb = self.getRGB(x, y)
+            sr, sg, sb = self.get_rgb(x, y)
             if      sr < (r + threshold) and  sr > (r - threshold) and \
                     sg < (g + threshold) and  sg > (g - threshold) and \
                     sb < (b + threshold) and  sb > (b - threshold):
@@ -140,8 +137,8 @@ def testing():
     for y in range(200,201,1):
         #print("read Y : {}".format(y))
         # time.sleep(1)
-        #print(ts.getRGB(200,y))
-        print(ts.getRGB(200,200))
+        #print(ts.get_rgb(200,y))
+        print(ts.get_rgb(200,200))
         
 def main():
 

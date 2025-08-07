@@ -6,6 +6,7 @@ import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
+from heal import heal
 
 import json
 import sys
@@ -14,7 +15,7 @@ from _ast import If
 
 def whiteScreen():
     for x in range(100, 800, 150):
-        print("{}",format(phone.getRGB(x, 2 * x)))
+        print("{}",format(phone.get_rgb(x, 2 * x)))
         if not phone.color_match(x, 2 * x, 255, 255, 255):
             print("NOOO White screen")
             return False
@@ -72,7 +73,8 @@ def defeat_gym(port, max_round=5):
             if round > max_round:
                 return "give-up"
             defeated = phone.screen_gym_has_place()
-    
+            heal(args.port)
+
     phone.tap_screen(871, 1632)
     phone.pokemon_search("cp1500-2000")
     phone.pokemon_select_first()

@@ -37,7 +37,12 @@ evolve.py -f '\aevolve,wurmple,pidov'
 
 # Filter trade evovle
 
-evolve.py -f '!pumpka&!phant&!graveler&!shelmet&!karrablast&!haunter&!kadabra&!gurdurr&!boldore&!machoke&!charjabug&!gastly&!abra&!geodude&!machop&evolve&!novolve&!applin&hoppip&pa'
+evolve.py -f 
 
 # Filter start of free
  ./evolve.py -f 'evolve&abra,geodude,gastly,machop,timburr'
+
+send-text.py -s '\aage-9&!pumpka&!phant&!graveler&!shelmet&!karrablast&!haunter&!kadabra&!gurdurr&!boldore&!machoke&!charjabug&!gastly&!abra&!geodude&!machop&evolve&!novolve&!applin&!4*&!pidove&!pidgey'
+
+
+send-text.py -s '\a abra,applin,aron,axew,beldum,bellsprout,bidoof,buneary,bunnelby,chespin,chikorita,chimchar,chinchou,cutiefly,dratini,drowzee,ducklett,duskull,exeggcute,flabebe,fletchling,froakie,fuecoco,gastly,geodude,gloom,goomy,gothita,grimmer,growlihte,grubbin,gulpin,hoppip,jigglypuff,joltik,larvitar,lechonk,lillipup,litleo,lotad,machop,magnemite,makuhita,mankey,mareanie,meditite,meltan,meowth&traded'

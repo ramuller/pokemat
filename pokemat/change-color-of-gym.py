@@ -60,7 +60,6 @@ def change_gym_color():
             change_trainer.change_trainer(args.port, t)
             print("Let stabilize")
             sleep(10)
-            heal(args.port)
         defeated = False
         max_tries = 10
         while defeated == False:
@@ -73,7 +72,6 @@ def change_gym_color():
                     defeated = defeat_gym(args.port)
                 except:
                     pass
-                heal(args.port)
                 if defeated == False:
                     print("Defeat failed. Try again")
                     

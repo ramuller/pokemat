@@ -47,6 +47,8 @@ def battle(port, type, league):
         # cont = False
         try:
             phone.screen_go_to_home()
+            sleep(2)
+            phone.egg_handle()
             connection_retry = 0
             log.info("Time : battle {}".format(phone.getTimeNow()))
             phone.screen_battle()

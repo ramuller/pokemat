@@ -46,5 +46,6 @@ do
 	# start_app 300$i $*	
 	echo ./${app} -p 300$i $*
 	${app} -p 300$i $* &
+    echo $! >/tmp/300$i.pid
 done
 

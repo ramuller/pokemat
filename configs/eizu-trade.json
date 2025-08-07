@@ -2,15 +2,15 @@
     "mode": "trade",
     "league": "master",
     "host": { 
-        "port": "3005",
+        "port": "3006",
         "name": "eizu123",
 		"filter": "xp1 & !norade & !traded & !favorite",
-		"filter-f": "shelmet & !norade & !traded & !shiny & !favorite"
+		"filter-1": "jigglypuff & !norade & !traded & !shiny & !favorite"
    },
     "guest": {
-        "port": "3006",
-        "name": "blond",
+        "port": "3005",
+        "name": "higimmi444",
 		"filter": "xp1 & !norade & !traded & !favorite",
-		"filter-f": "sandygast & !norade & !traded & !shiny & !favorite"
+		"filter-1": "jigglypuff & !norade & !traded & !shiny & !favorite"
     }
 }

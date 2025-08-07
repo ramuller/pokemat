@@ -14,7 +14,6 @@ class PokeArgs(ArgumentParser):
                               help="TCP port for the connection.")
         self.add_argument("-P", "--phone", action="store", required=False, default="s7", \
                                 help="Name os the phone model. Check phones.json.")
-        self.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
-            
+        self.add_argument('-l', '--loglevel', action='store', default=logging.INFO)            
             
         

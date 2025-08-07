@@ -23,19 +23,22 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
 
     p = TouchScreen(port, phone)
     rx = 220
-    ry = 420
+    ry = 120
     degree = 0
     xs = int(getX(degree, ry, 500))
-    ys = int(getY(degree, rx, 1200))
-    p.tap_down(xs, ys, button, duration)
+    ys = int(getY(degree, rx, 1000))
+    p.tap_down(xs, ys)
     while True:
         degree += 10
-        x = int(getX(degree, ry, 500))
-        y = int(getY(degree, rx, 1200))
+        x = int(getX(degree*3, ry, 500)) + random.randint(-10, 10)
+        y = int(getY(degree, rx, 1000)) + random.randint(-10, 10)
         p.moveCursor(xs, ys, x, y)
+        p.tap_up(x, y)
+        sleep(0.01)
+        p.tap_down(x, y)
         xs = x
         ys = y
-        sleep(1)
+        sleep(0.01)
         
 def main():
 

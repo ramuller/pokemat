@@ -21,27 +21,32 @@ import json
 import sys
 from datetime import datetime
 from _operator import truediv
+from skimage.filters.rank.generic import threshold
 
 global log
 
-def deleteGifts(port, phone):
+def delete_pokemon(port, phone):
     
     can_get_gifts = True
     can_send_gifts = True
-
-    print("Delete postcards phone \"{}\" on port {}", phone, port)
+    # with open("phone-spec.json", 'r') as file:
+    #     phones = json.load(file)
+        
+    print("Delete difts phone \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
     while True:
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
-            phone.tap_screen(822, 533)
-            phone.color_match_wait_click(331, 1048, 153, 219, 149, ex=False)
-            time.sleep(1.5)      
-            # phone.tap_screen(871, 1603)
-            # time.sleep(1.5)
-            # phone.tap_screen(418, 1089)
-            # time.sleep(1.5) 
-            # print("Ready")
+            phone.tap_screen(189, 792)
+            print("Click menu")
+            phone.color_match_wait_click(366, 1775, 232, 128, 181)
+            sleep(0.5)
+            time.sleep(2)             
+            phone.color_match_wait_click(333, 1146, 151, 217, 147)
+            sleep(12)
+            print("Ready")
+            phone.color_match_wait_click(505, 1880, 28, 135, 149)
+            sleep(3)
             # sys.exit(0)
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
@@ -52,16 +57,15 @@ def deleteGifts(port, phone):
 
 def main():
 
+
     parser = PokeArgs()
     global args
-    parser.add_argument("-a", "--all", action='store_true', \
-                        help="No special filter")
     args = parser.parse_args()
     global log 
     log = logging.getLogger("gifting")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    deleteGifts(args.port, args.phone)
+    delete_pokemon(args.port, args.phone)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

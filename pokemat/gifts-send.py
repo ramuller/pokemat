@@ -71,7 +71,8 @@ def gifting(port, phone):
         try:
             # Wait for trainer screen
             for timeout in reversed(range(0,100)):
-                if phone.color_match(444, 494, 255, 255, 255) and \
+                # if phone.color_match(444, 494, 255, 255, 255) and \
+                if phone.color_match(444, 601, 255, 255, 255) and \
                    phone.color_match(812, 1851, 28, 135, 149):
                     break
                 time.sleep(0.1)
@@ -85,7 +86,7 @@ def gifting(port, phone):
             time.sleep(1)
             phone.selectAll()
             phone.text_line_ok("\b")
-            phone.text_line_ok("!ff & !lucky")
+            phone.text_line_ok("!ff & !lucky & interactable")
             time.sleep(1)
             phone.tapTextOK()      
             time.sleep(0.3)
