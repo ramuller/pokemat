@@ -45,4 +45,10 @@ evolve.py -f
 send-text.py -s '\aage-9&!pumpka&!phant&!graveler&!shelmet&!karrablast&!haunter&!kadabra&!gurdurr&!boldore&!machoke&!charjabug&!gastly&!abra&!geodude&!machop&evolve&!novolve&!applin&!4*&!pidove&!pidgey'
 
 
-send-text.py -s '\a abra,applin,aron,axew,beldum,bellsprout,bidoof,buneary,bunnelby,chespin,chikorita,chimchar,chinchou,cutiefly,dratini,drowzee,ducklett,duskull,exeggcute,flabebe,fletchling,froakie,fuecoco,gastly,geodude,gloom,goomy,gothita,grimmer,growlihte,grubbin,gulpin,hoppip,jigglypuff,joltik,larvitar,lechonk,lillipup,litleo,lotad,machop,magnemite,makuhita,mankey,mareanie,meditite,meltan,meowth&traded'
+evolve.py -f '\a abra,applin,aron,axew,beldum,bellsprout,bidoof,buneary,bunnelby,chespin,chikorita,chimchar,chinchou,cutiefly,dratini,drowzee,ducklett,duskull,exeggcute,flabebe,fletchling,froakie,fuecoco,gastly,geodude,gloom,goomy,gothita,grimmer,growlihte,grubbin,gulpin,hoppip,jigglypuff,joltik,larvitar,lechonk,lillipup,litleo,lotad,machop,magnemite,makuhita,mankey,mareanie,meditite,meltan,meowth&!traded&evolve&!nv&!novolve&3*4*'
+
+
+send-text.py -s '\a !shelmet&!karrablast&!phantump&!snom&!norade&!graveler&!boldore&!nv!4*&age-1'
+
+
+send-text.py -s '\a age-5,shelmet,karrablast,phantump,snom'

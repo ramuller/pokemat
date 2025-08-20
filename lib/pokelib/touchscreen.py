@@ -320,6 +320,16 @@ class TouchScreen:
             sleep(3)
         return False
 
+    def screen_go_to_gifts(self):
+        for i in range(0, 3):
+            if self.screen_is_in_gym():
+                return True
+            self.tap_screen(500, 700)
+            self.tap_screen(500, 700)
+            self.tap_screen(500, 700)
+            sleep(3)
+        return False
+
     def screen_is_in_gym(self):
         maxima = self.get_maxima_horizontal((790, 1880), 180, threshold=40)
         print(f"Is in gym m {maxima}")
@@ -473,7 +483,7 @@ class TouchScreen:
         self.log.debug("tap_open_gift")
         # time.sleep(1)
         # self.color_match_wait_click(406, 1654, 137, 218, 154)
-        to = 30
+        to = 50
         while to > 0:
             text = self.pocr_read((400, 1620), (200, 76))
             print(text)
@@ -483,7 +493,7 @@ class TouchScreen:
             to -= 1
         if to == 0:
             print("Problem to open gift")
-            return
+            return True
         # Pin
         if 1 == 1:
             print("Postit")
@@ -648,12 +658,11 @@ class TouchScreen:
     def tapTrade(self):
         self.log.info("Tap Trade")
         for i in range(0,20):
-            if self.color_match(826, 1900, 20, 200, 240, threashold=20, debug=False):
-                self.tap_screen(826, 1900)
-                return
-            if self.color_match(595, 1937, 45, 115, 116, threashold=20, debug=False):
-                self.tap_screen(595, 1937)
-                return
+            for y in range(1970, 1950, -2):
+                if self.color_match(427, y, 60, 60, 60, threashold=20, debug=True):
+                    print(f"TAP {y}") 
+                    self.tap_screen(427, y)
+                    return
             print("Wait for trade button")
             time.sleep(1)
         raise
@@ -661,7 +670,7 @@ class TouchScreen:
     def tap_battle(self):
         self.log.info("Tap battle")
         for i in range(0,20):
-            if self.color_match(802, 1923, 103, 174, 89, threashold=20, debug=True):
+            if self.color_match(802, 1923, 103, 174, 89, threashold=20, debug=False):
                 self.tap_screen(800, 1923)
                 return
             print("Wait for battle button")
@@ -866,7 +875,7 @@ class TouchScreen:
         self.tapAvatar()
         sleep(3)
         self.tapFriends()
-        self.color_match_wait(878, 1562, 255, 255, 255)
+        self.color_match_wait(878, 1562, 255, 255, 255, time_out_ms=30000)
 
     def screen_me(self):
         self.screen_go_to_home()
