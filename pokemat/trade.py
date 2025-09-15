@@ -35,7 +35,7 @@ def tradeeeeeeee(host, guest):
                 log.info("Battle has ended")
                 return True
             time.sleep(0.2)
-    
+
 def trade(jsonFile):
     with open(jsonFile, 'r') as file:
         parameter = json.load(file)
@@ -64,7 +64,7 @@ def trade(jsonFile):
                 time.sleep(0.5)
                 host.tap_screenBack()
             sleep(1)
-            host.tapTrade()
+            host.tap_trade()
             # time.sleep(2)
             while True:
                 guest.screen_friend()
@@ -80,7 +80,7 @@ def trade(jsonFile):
                 print("Has gift")
                 guest.tap_screenBack()
             time.sleep(1)
-            guest.tapTrade()
+            guest.tap_trade()
             
             host.pokemon_search(parameter["host"]["filter"])
             guest.pokemon_search(parameter["guest"]["filter"])
@@ -103,21 +103,24 @@ def trade(jsonFile):
                     host.tap_screen(177, 724)
                     guest.tap_screen(177, 724)
                 # tap twice because sometimes it missing a tap
-                time.sleep(0.2)
+                time.sleep(0.5)
                 host.tap_screen(177, 724)
                 guest.tap_screen(177, 724)
                 # Click Next
                 host.color_match_wait_click(371, 1605, 147, 217, 150)
                 guest.color_match_wait_click(371, 1605, 147, 217, 150)
+                # for to in range(0, 10):
+                #     host.pocr_wait_text_center((), (), "CONFIRM", pause=0.5)
+                #     break
                 # Click confirm
-                host.color_match_wait_click(17, 1037, 92, 204, 146)
-                guest.color_match_wait_click(17, 1037, 92, 204, 146)
+                host.color_match_wait_click(17, 1037, 92, 204, 146, time_out_ms=30000)
+                guest.color_match_wait_click(17, 1037, 92, 204, 146, time_out_ms=30000)
                 # Wait trade complete
                 host.color_match_wait_click(482, 1849, 28, 135, 149, time_out_ms=30000)
                 guest.color_match_wait_click(482, 1849, 28, 135, 149, time_out_ms=30000)
                 time.sleep(2)
-                host.tapTrade()
-                guest.tapTrade()
+                host.tap_trade()
+                guest.tap_trade()
                 
                 print("Fertig")
                 # sys.exit(0)

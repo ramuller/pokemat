@@ -11,6 +11,7 @@ from pokelib import PokeArgs
 import json
 import sys
 from datetime import datetime
+from delete_balls import delete_red_balls
 
 def deleteRedBalls(phone):
     phone.screen_go_to_home()
@@ -21,11 +22,18 @@ def connect(phone):
         print("Check connection status")
         if not phone.color_match(914, 585, 149, 97, 121):
             return False
+        if args.delete_balls:
+            try:
+                delete_red_balls(phone)
+            except:
+                phone.screen_go_to_home()
         # phone.color_match_wait(914, 585, 149, 97, 121, time_out_ms=20000)
+        
         phone.tap_screen(914, 585)
         print("Color match")
         time.sleep(1)
-        phone.color_match_wait(137, 361, 22, 22, 22, time_out_ms=30000)
+        # phone.color_match_wait(137, 361, 22, 22, 22, time_out_ms=30000)
+        phone.color_match_wait(92, 205, 168, 238, 255, time_out_ms=30000)
         print("Connect screen detected")
         for x in range(230, 280, 4):
             r, g, b = phone.get_rgb(x, 369)
@@ -66,6 +74,9 @@ def reconnect(port):
 def main():
 
     parser = PokeArgs()
+    parser.add_argument("-d", "--delete-balls", action='store_true', required=False, default=False, \
+                        help="Delete all red balls before connect")
+    global args
     args = parser.parse_args()
     global log 
     log = logging.getLogger("evolve")

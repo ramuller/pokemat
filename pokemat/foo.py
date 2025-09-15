@@ -1,4 +1,5 @@
 #!/bin/env python
+import easyocr
 import argparse
 import time
 from time import sleep
@@ -15,7 +16,6 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 # import pytesseract
-# import easyocr
 
 import json
 import sys
@@ -60,14 +60,35 @@ def cap_and_show():
     plt.title(f'Grayscale Bitmap')
     plt.axis('off')
     plt.show()
+def ocr_test(p):
+    print("Start ocr testing")
+    t1 = datetime.now()
+    jbuf = p.screen_capture_bw((0,0), (575, 1023), scale=False)
+    pixel_array = np.array(jbuf["gray"], dtype=np.uint8)
+    pixel_array = pixel_array.reshape((jbuf["hight"], jbuf["width"]))
+    image = Image.fromarray(pixel_array, mode='L')
+    
+    reader = easyocr.Reader(['en'])
+    text = reader.readtext(pixel_array)
+    t2 = datetime.now()
+    print("Elapsed time {}s".format((t2-t1).total_seconds()))
+    for t in text:
+        print(t)
+    # return
+    plt.imshow(image, cmap='gray', vmin=0, vmax=255)
+    plt.title(f'Grayscale Bitmap')
+    plt.axis('off')
+    plt.show()    
     
 def action(port, arg = None):
         
     print("Start testing port {}",port)
-    global p
+    # global p
     p = TouchScreen(port)
     startTime = datetime.now()
-    
+    ocr_test(p)
+
+    return
     while True:
         print("Wating for an egg")
         print(p.egg_handle())
@@ -152,6 +173,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
+    # action(args.port)
     action(args.port)
     # ts.click(200,200)
     print("end")
