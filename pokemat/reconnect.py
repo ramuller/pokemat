@@ -22,11 +22,11 @@ def connect(phone):
         print("Check connection status")
         if not phone.color_match(914, 585, 149, 97, 121):
             return False
-        if args.delete_balls:
-            try:
+        try:
+            if args.delete_balls:
                 delete_red_balls(phone)
-            except:
-                phone.screen_go_to_home()
+        except:
+            phone.screen_go_to_home()
         # phone.color_match_wait(914, 585, 149, 97, 121, time_out_ms=20000)
         
         phone.tap_screen(914, 585)

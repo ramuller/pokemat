@@ -12,10 +12,10 @@ echo Killall python
 killall python
 sleep 60
 echo Change trainer
-do-start.sh change-trainer.py lkjdsa
+do-start.sh change_trainer.py lkjdsa
 sleep 60
 echo Change trainer
-do-start.sh change-trainer.py lkjdsa
+do-start.sh change_trainer.py lkjdsa
 sleep 60
 phone-power-off.sh
 sleep 60

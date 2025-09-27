@@ -8,7 +8,7 @@ import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import WatchDog
-from action import change_gym_color
+from pokelib import PokeArgs
 
 import json
 import sys
@@ -90,12 +90,9 @@ def scan_sky(phone, print, no_grunt):
 
     return no_grunt
 
-def grunt(port, phone):
-    with open("phone-spec.json", 'r') as file:
-        phones = json.load(file)
-
-    print("Looking for grunt \"{}\" on port {}", phone, port)
-    phone = TouchScreen(port, phone)
+def grunt(port):
+    print("Looking for grunt \"{}\" on port {}", port)
+    phone = TouchScreen(port)
     try:
         phone.screen_go_to_home()
     except:
@@ -221,22 +218,17 @@ def wd_callback():
 def main():
     global watch_dog
     watch_dog = WatchDog(time_out = 240, _callback = wd_callback)
-    parser = argparse.ArgumentParser()
-    # parser.add_argument("mode", help="Operation mode. Tell pokemate what you want to do\n" + \
-    #                     "evolve - send and receive gifts")
-    parser.add_argument('--loglevel', '-l', action='store', default=logging.INFO)
-    parser.add_argument("-p", "--port", action="store", required=True, \
-                        help="TCP port for the connection.")
-    parser.add_argument("-P", "--phone", action="store", required=False, default="s7", \
-                        help="Name os the phone model. Check phones.json.")
+    
+    parser = PokeArgs()
     global args
     args = parser.parse_args()
+    
     global log
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
     try:
-        grunt(args.port, args.phone)
+        grunt(args.port)
     except Exception as e:
             print("Upps something went wrong but who cares?: {}", e)    # ts.click(200,200)
     print("end")

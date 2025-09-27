@@ -26,19 +26,13 @@ global log
 
 def evolve(port, phone, filter):
     
-    can_get_gifts = True
-    can_send_gifts = True
-    with open("phone-spec.json", 'r') as file:
-        phones = json.load(file)
-        
     print("Start evolutions \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
     # phone.scroll(0, -100)
     # sys.exit(0)
     phone.selectPokemon(filter)
     sleep(2)
-    giftsSent = 0
-    giftsReceived = 0
+
     evolve_count = 0
     print("Start time : Evolve {}".format(phone.getTimeNow()))
     while True:

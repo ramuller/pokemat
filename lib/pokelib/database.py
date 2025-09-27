@@ -34,7 +34,7 @@ class Database:
                     sleep(randrange(1,10)/100.0)
                 elif e.errno == 1062:
                     print("Duplicate entry...ignoring {}".format(values))
-                    return False
+                    return True
                 else:
                     print("Unknow error {} - {}".format(e.errno, e.msg))
                     print("Unknow error {} - {}".format(e.errno, e.msg))
@@ -57,8 +57,8 @@ class Database:
                     print("Deadlock detected, retrying...")
                     sleep(randrange(1,10)/100.0)
                 elif e.errno == 1062:
-                    print("Duplicate entry...ignoring {}".format(values))
-                    return False
+                    print("Duplicate entry in update...ignoring {}".format(values))
+                    return True
                 else:
                     print("Unknow error {} - {}".format(e.errno, e.msg))
                     print("Unknow error {} - {}".format(e.errno, e.msg))

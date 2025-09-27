@@ -5,7 +5,6 @@ source $SCRIPT_DIR/phone-lib.sh
 
 for s in $(serial)
 do
-    echo $s
     adb -s $s shell "su -c \"reboot\"" &
 done
 

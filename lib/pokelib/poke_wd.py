@@ -1,3 +1,9 @@
+import os
+import time
+import threading
+import signal
+import sys
+
 class WatchDog():
     def __init__(self, time_out, _callback = None):
         self.next_t = time.time()

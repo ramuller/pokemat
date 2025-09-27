@@ -2,13 +2,15 @@
     "mode": "trade",
     "league": "master",
     "host": { 
-        "port": "3004",
+        "port": "3002",
         "name": "aphex",
+		"ffilter": "\\a zangoose,swak,tropius,turtonator,sudowoodo,stufful,solrock & !favorite & ! traded &!4*&!3*",
 		"filter": "xp1"
    },
     "guest": {
-        "port": "3005",
-        "name": "localhost",
-		"filter": "phantump & !norade & !traded & !favorite"
+        "port": "3001",
+        "name": "higimmi222",
+		"filterr": "xp1",
+		"filter": "karrablast,shelmet,phantump & !norade & !traded & !favorite"
     }
 }

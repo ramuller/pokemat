@@ -251,10 +251,10 @@ class TouchScreen:
         # self.color_match_wait_click(501, 1826, 30, 134, 149)
         self.tap_screen(501, 1800)
         
-    def tapExitMode(self):
+    def tap_exit_mode(self):
         self.tap_screen(85,190)
         
-    def tapConfirm(self):
+    def tap_confirm(self):
         self.tap_screen(357, 1005)
         
     def tapAvatar(self):
@@ -393,15 +393,16 @@ class TouchScreen:
         # ad from ready...
         return "Oh" in t or "ad" in t
 
-    def screen_capture_bw(self, start, size):
+    def screen_capture_bw(self, start, size, scale=True):
         x, y = start
         w, h = size
         if x < 0 or (x + w) >= self.maxX \
            or y < 0 or (y + h) >= self.maxY:
             self.log.error("clip out of range x{}, y{}, width{}, hight{}", x, y, w, h)
             return None
-        x, y = self.scaleXY(x, y)
-        w, h = self.scaleXY(w, h)
+        if scale:
+            x, y = self.scaleXY(x, y)
+            w, h = self.scaleXY(w, h)
     
         response = self.write_to_phone("snip_gray:{},{},{},{}".format(x ,y ,w, h))           
         return response.json()
@@ -460,6 +461,15 @@ class TouchScreen:
         sleep(pause)
         return False
     
+    def pocr_wait_text_center(self, start, size, text, pause=0.99,  to_ms=5.5, debug=False):
+        cs = (start[0] - size[0]/2, start[1] - size[1]/2,)
+        while to_ms > 0:
+            if self.pocr_wait_text(cs, size, text, pause, to_ms, debug) != False:
+                return True
+            sleep(pause)
+            to_ms -= pause
+        return False
+
     def scroll(self, dx, dy, start_x = 100, start_y = 1000, tap_time = 0.1, stop_to = 0.6):
         # self.log.info("Scroll")
         # x = maxX / 2
@@ -580,16 +590,22 @@ class TouchScreen:
         return True
         
     def pokemon_select_first(self):
+        found_poke = False
         time.sleep(0.2)
         self.color_match_wait(79, 179, 255, 255, 255)
-        time.sleep(0.2)
-        if self.color_match(184, 777, 251, 254, 249) and \
-           self.color_match(184, 750, 255, 255, 255) and \
-           self.color_match(178, 730, 255, 255, 255) and \
-           self.color_match(184, 710,255, 255, 255):
-            print("No more pokemons with this filter")
+        for i in range(0,15):
+            time.sleep(0.1)
+            if self.color_match(184, 777, 251, 254, 249) and \
+                self.color_match(184, 750, 255, 255, 255) and \
+                self.color_match(178, 730, 255, 255, 255) and \
+                self.color_match(184, 710,255, 255, 255):
+                print(f"No more pokemons with this filter round{i}")
+            else:
+                found_poke = True
+                break
+        if not found_poke:
             return False
-        print("Tao 177, 751")
+        print("Tap 177, 751")
         self.tap_screen(177, 751)
         return True
     
@@ -655,7 +671,7 @@ class TouchScreen:
     def tapBattle(self):
         self.color_match_wait_click(496, 1681, 95, 166, 83, delay=3)
     
-    def tapTrade(self):
+    def tap_trade(self):
         self.log.info("Tap Trade")
         for i in range(0,20):
             for y in range(1970, 1950, -2):
@@ -770,7 +786,7 @@ class TouchScreen:
             elif self.color_match(357, 1005, 150, 218, 151, debug=False):
                 # Not exit pokemon
                 if not "GO" in self.pocr_read_line_center((790, 800), (100, 70)):
-                    self.tapConfirm()
+                    self.tap_confirm()
                 else:
                     self.tap_screen(100, 100, button = 3)
             else:
@@ -816,9 +832,9 @@ class TouchScreen:
                 self.log.debug("whith like gym press?")
                 self.tap_screenBack()
             elif self.color_match(86, 187, 27, 134, 148):
-                self.tapExitMode()
+                self.tap_exit_mode()
             elif self.color_match(357, 1005, 150, 218, 151):
-                self.tapConfirm()
+                self.tap_confirm()
             elif self.color_match(357, 1138, 150, 218, 151):
                 self.tap_screen(357, 1138)
             elif self.color_match(357, 1000, 143, 215, 150):
@@ -945,9 +961,10 @@ class TouchScreen:
         for i in range(0,5):
             try:
                 print("Collect award {}".format(i))
-                for x in range( 100,800,40):
-                    self.color_show(x, 1630)
+                for x in range( 100,800,20):
+                    # self.color_show(x, 1630)
                     if self.color_match(x, 1630, 254, 183, 86):
+                        
                     # if not self.color_match(x, 1630, 254, 250, 250):
                         self.tap_screen(x, 1630)
                         time.sleep(5)

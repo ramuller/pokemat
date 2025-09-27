@@ -37,10 +37,12 @@ evolve.py -f '\aevolve,wurmple,pidov'
 
 # Filter trade evovle
 
-evolve.py -f 
+evolve.py -f '\a abra,geodude,gastly,Roggenrola,Timburr&!traded&evolve'
+
+send-text.py -s '\a abra,geodude,gastly,Roggenrola,Timburr&!traded'
 
 # Filter start of free
- ./evolve.py -f 'evolve&abra,geodude,gastly,machop,timburr'
+ ./evolve.py -f 'evolve&abra,geodude,gastly,machop,timburr,'
 
 send-text.py -s '\aage-9&!pumpka&!phant&!graveler&!shelmet&!karrablast&!haunter&!kadabra&!gurdurr&!boldore&!machoke&!charjabug&!gastly&!abra&!geodude&!machop&evolve&!novolve&!applin&!4*&!pidove&!pidgey'
 
@@ -52,3 +54,24 @@ send-text.py -s '\a !shelmet&!karrablast&!phantump&!snom&!norade&!graveler&!bold
 
 
 send-text.py -s '\a age-5,shelmet,karrablast,phantump,snom'
+
+
+temp
+dragonair,crocalor,artibax,frogadier,fletchinger,metapod
+
+send-text.py -s '\a  traded&!3*&!4*&!xss&!xxl&!background&!3*'
+
+beldum
+
+evolve.py -f '\a  bergemite,bounsweet,buizel,bronzor,budew,bulbasaur,buneary'
+evolve.py -f '\a  evolve&barboach,bergemite,bidoof,burmy,cyndaquil,dwebble,eevee'
+evolve.py -f '\a  evolve&ekans,electrike,elgyem,espurr,exeggcute,fletchling,fuecoco,froakie,frillish'
+evolve.py -f '\a  evolve&!favorite&grimer,gible,glameow'
+evolve.py -f '\a  evolve&!favorite&grookey'
+evolve.py -f '\a  evolve&!favorite&grovyle,growlithe,grubbin,gulpin,hatenna,hekioptile,honedge,hoothoot,hoppip,houndour'
+evolve.py -f '\a  evolve&!favorite&grimer'
+evolve.py -f '\a  evolve&!favorite&grimer'
+evolve.py -f '\a  evolve&!favorite&grimer'
+evolve.py -f '\a  evolve&!favorite&grimer'
+
+

@@ -80,7 +80,7 @@ def auto_catch(phone):
         elif target == "pokemon":
             if args.catch:
                 action_count += 1
-                if not catch(phone, distance = 6, berry = "a", max_tries = 7, span = 2):
+                if not catch(phone, distance = 6, berry = args.berry, max_tries = 7, span = 2):
                     rotate(phone, 90)
                 spins_after_poke += 1
         elif target == "gym-defeat":

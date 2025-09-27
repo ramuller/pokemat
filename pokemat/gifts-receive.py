@@ -95,7 +95,8 @@ def gifting(port, phone):
                 if last_tries <= 0:
                     phone.screen_go_to_home()
                     sys.exit(0)
-                phone.text_line_ok("!ff & !lucky & interactable")
+                # phone.text_line_ok("!ff & !lucky & interactable")
+                phone.text_line_ok("!ff & !lucky")
             time.sleep(0.5)
             phone.tapTextOK()      
             time.sleep(0.3)
