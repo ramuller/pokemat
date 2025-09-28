@@ -631,7 +631,7 @@ class TouchScreen:
         time.sleep(1.2)
          # Search and tap yes
         found = False
-        for i in range(0, 2):
+        for i in range(0, 4):
             print("Wait for yes")
             for y in range(1200, 1400, 10):
                 if self.color_match(319, y, 151, 218, 147):

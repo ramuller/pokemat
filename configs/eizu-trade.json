@@ -2,15 +2,15 @@
     "mode": "trade",
     "league": "master",
     "host": { 
-        "port": "3006",
+        "port": "3003",
         "name": "eizu123",
-		"filter-x": "xp1 & !norade & !traded & !favorite",
-		"filter": "xp1 & !norade & !traded & !favorite"
+		"filter": "floette & !3* & !norade & !traded & !favorite",
+		"filterx": "xp1 & !norade & !traded & !favorite"
    },
     "guest": {
-        "port": "3005",
+        "port": "3004",
         "name": "yellow",
 		"ffilter": "'karrablast,shelmet",
-		"filter": "xp1 & !norade & !traded & !shiny & !favorite"
+		"filter": "shelmet,karrablast & !norade & !traded & !shiny & !favorite"
     }
 }
