@@ -32,7 +32,7 @@ def delete_pokemon(port, phone):
     # with open("phone-spec.json", 'r') as file:
     #     phones = json.load(file)
         
-    print("Delete difts phone \"{}\" on port {}", phone, port)
+    print("Delete pokemon phone \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
     while True:
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))

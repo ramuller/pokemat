@@ -102,7 +102,7 @@ def gifting(port, phone):
                 
             phone.friend_select_first()
             can_send_gifts = phone.gift_send(has_gift = has_gift)
-            sleep(4)
+            sleep(1.5)
             phone.tap_back()
 
                     

@@ -22,8 +22,11 @@ def connect(phone):
         print("Check connection status")
         if not phone.color_match(914, 585, 149, 97, 121):
             return False
+        
         try:
             if args.delete_balls:
+                delete_red_balls(phone)
+                delete_red_balls(phone)
                 delete_red_balls(phone)
         except:
             phone.screen_go_to_home()
@@ -66,7 +69,7 @@ def reconnect(port):
         time.sleep(2)
         phone.screen_go_to_home()
         connect(phone)
-        time.sleep(180)
+        time.sleep(60)
         
    
 

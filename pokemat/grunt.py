@@ -127,7 +127,7 @@ def grunt(port):
             i = i -1
             print("Wait opponent and spin{}".format(i))
 
-            phone.spinDisk()
+            phone.spin_disk()
             if phone.color_match(506, 849, 206, 92, 51, threashold = 20) or \
                    phone.color_match(506, 880, 206, 92, 51, threashold = 20) or \
                    phone.color_match(611, 880, 206, 92, 51, threashold = 20) or \
@@ -138,13 +138,12 @@ def grunt(port):
                 break
             if phone.color_match(498, 1824, 235, 242, 242):
                 phone.tap_screen(498, 1824)
-            if phone.isHome():
+            if phone.is_home():
                 i = 0
             sleep(1)
         print("oponent {}".format(oponent))
         if not oponent:
             print("No opponent found")
-            watch_dog.kill()
     except Exception as e:
         print(e)
         pass
@@ -205,7 +204,7 @@ def grunt(port):
     sleep(6)
     print("Try to action")
     watch_dog.reset()
-    action(port, phone, berry = "g")
+    # action(port, phone, berry = "g")
     print("Try to action")
     phone.screen_go_to_home()
     phone.screen_go_to_home()
@@ -217,7 +216,6 @@ def wd_callback():
 
 def main():
     global watch_dog
-    watch_dog = WatchDog(time_out = 240, _callback = wd_callback)
     
     parser = PokeArgs()
     global args
@@ -227,6 +225,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
+    watch_dog = WatchDog(time_out = 240, _callback = wd_callback)
     try:
         grunt(args.port)
     except Exception as e:
