@@ -14,8 +14,11 @@ trap ctrl_c TERM
 function ctrl_c() {
     echo "INT signal"
     # Kill all children
-    for pf in $(ls /tmp/300*pid); do kill $(cat $pf);done
-    killall python
+    for p in "${pids[@]}"
+    do
+        echo Killing $p
+        kill $p
+    done
     exit 0
 }
 
@@ -29,7 +32,7 @@ start_app()
     then
     	echo ./${app} -p $port $*
     	${app} -p $port $* &
-    	echo $! >/tmp/$port.pid
+    	pid[$port]=$!
     fi
 }
 
@@ -39,6 +42,7 @@ start_app()
 last=6
 # killall python
 
+pids=()
 echo Check app status
 for i in $(seq ${first} ${last})
 do
@@ -46,6 +50,7 @@ do
 	# start_app 300$i $*	
 	echo ./${app} -p 300$i $*
 	${app} -p 300$i $* &
-    echo $! >/tmp/300$i.pid
+    pids+=($!)
 done
 
+while sleep 100; do sleep 1; done

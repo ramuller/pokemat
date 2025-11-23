@@ -10,6 +10,9 @@ from pokelib import ExPokeLibFatal
 from pokelib import WatchDog
 from pokelib import PokeArgs
 
+from catch import catch
+from reconnect import connect
+
 import json
 import sys
 from sys import exit
@@ -66,7 +69,7 @@ def rotate(phone):
 
 
 def scan_sky(phone, print, no_grunt):
-    gy = 500
+    gy = 400
     while gy < 880 and no_grunt:
         x = 100
         while x < 900 and no_grunt:
@@ -76,12 +79,16 @@ def scan_sky(phone, print, no_grunt):
                     or phone.color_match(x, gy, 180, 90, 70) \
                     or phone.color_match(x, gy, 225, 130, 115):
                 print("Grunt R found")
-                phone.tap_screen(x, gy + 250)
+                phone.tap_screen(x, gy + 100)
+                sleep(0.2)
+                phone.tap_screen(x, gy + 200)
                 time.sleep(2)
             if is_grunt_in_gym(phone) \
                     or phone.color_match(868, 197, 241, 247, 240) \
                     or phone.color_match(506, 849, 206, 92, 51):
-                print("In stop")
+                if "BATTLE" in phone.pocr_read_line_center((444, 1464), (300, 120)):
+                    print("Max battle or so")
+                    continue
                 no_grunt = False
             x = x + 35
         print("Search grunt {}, {}".format(x, gy))
@@ -98,6 +105,8 @@ def grunt(port):
     except:
         pass
     # phone.dno_gruntoBattle()
+    if args.autoconnect:
+        connect(phone, del_balls=args.delete_balls)    
     no_grunt = False
     no_grunt = True
     while no_grunt:
@@ -164,7 +173,7 @@ def grunt(port):
     phone.tap_screen(388, 1552)
 
     phone.color_match_wait(350, 1771, 155, 222, 146)
-    time.sleep(5)
+    time.sleep(4)
     print("Select other party")
     phone.tap_screen(970, 1452)
     time.sleep(2)
@@ -197,12 +206,15 @@ def grunt(port):
             phone.color_match_wait_click(305, 1773, 137, 216, 153, time_out_ms = 2000)
             break
         except:
-            phone.tap_screen(305, 1773)
+            print("Wait for rescue")
+            phone.tap_screen(305, 773)
         pass
     phone.tap_screen(512, 873)
 
-    sleep(6)
-    print("Try to action")
+    sleep(2)
+    print("Try to catch")    
+    watch_dog.reset()
+    catch(phone, distance = 6, max_tries = 12, span = 2)
     watch_dog.reset()
     # action(port, phone, berry = "g")
     print("Try to action")
@@ -218,6 +230,10 @@ def main():
     global watch_dog
     
     parser = PokeArgs()
+    parser.add_argument("-a", "--autoconnect", action='store_true', required=False, default=False, \
+                        help="Connnect to autocatch.")    
+    parser.add_argument("-d", "--delete-balls", action='store_true', required=False, default=False, \
+                        help="Delete all red balls before connect")
     global args
     args = parser.parse_args()
     

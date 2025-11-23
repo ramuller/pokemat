@@ -34,6 +34,8 @@ def defeat_gym(port, max_round=5):
             print("Start defeat")
             retry = 3
             in_defeat = False
+            if not phone.screen_is_in_gym():
+                phone.screen_go_to_home()
             if phone.screen_go_to_gym() == False:
                 print("Dont know how to enter defeat mode bye bye")
                 phone.screen_go_to_home()
@@ -49,7 +51,10 @@ def defeat_gym(port, max_round=5):
 
             phone.tap_screen(829, 1605)
             print("Start battle")
-            phone.color_match_wait_click(345, 777, 134, 217, 153)
+            phone.pocr_wait_text_center((494, 789), (230, 80), "GO BATTLE")
+            sleep(0.5)
+            phone.tap_screen(494, 789)
+            # phone.color_match_wait_click(345, 777, 134, 217, 153)
             print("Wait for initial white screen")
             while not whiteScreen():
                 time.sleep(0.2)
@@ -63,20 +68,40 @@ def defeat_gym(port, max_round=5):
                 time.sleep(0.2)
             print("Start fight")
             #                  and not phone.button_is_back() \
+            fight = True
             while not phone.screen_is_in_gym() \
-                  and not phone.is_home():
+                  and not phone.is_home() \
+                  and fight:
+                if phone.screen_is_in_gym():
+                    for i in range(10):
+                        sleep(0.2)
+                        if not phone.screen_is_in_gym():
+                            continue
+                    break                    
                 for x in [250, 500, 750]:
-                    phone.tap_screen(x,1750)
-                    time.sleep(0.1)
+                    if not phone.screen_is_in_gym():
+                        phone.tap_screen(x,1750)
+                        time.sleep(0.1)
+                    else:
+                        print("Dont tap in gym")
+                        if not phone.screen_is_in_gym():
+                            phone.tap_screen(100, 100, button = 3)
+                        fight = False
                     
             round += 1
             if round > max_round:
                 return "give-up"
             defeated = phone.screen_gym_has_place()
-            heal(args.port)
+            # heal(args.port)
 
+    # phone.pokemon_search("cp1500-2000")
+    if phone.screen_go_to_gym() == False:
+        print("Dont know how to enter defeat mode bye bye")
+        phone.screen_go_to_home()
+        return False    
     phone.tap_screen(871, 1632)
-    phone.pokemon_search("cp1500-2000")
+    # phone.pokemon_search("cp10-500&0*")
+    phone.pokemon_search("cp2800-5000&3*")
     phone.pokemon_select_first()
     phone.color_match_wait_click(277, 1029, 162, 220, 148)
     return defeated

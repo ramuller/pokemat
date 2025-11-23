@@ -11,13 +11,14 @@ class WatchDog():
         self.done = False
         self.time_out = time_out
         self.callback = _callback
-        self._run()
+        threading.Timer( self.next_t - time.time(), self._run).start()
+        # self._run()
 
     def _run(self):
         print("WATCHDOG hello {}, done {}".format(self.i,self.done))
         self.next_t-=1
         self.i-=1
-        time.sleep(1)
+        time.sleep(10)
         if self.i < 0:
             print("WATCHDOG callback ")
             self.callback()

@@ -66,7 +66,7 @@ def auto_catch(phone):
         not_home = True
         # phone.screen_go_to_home()
         phone.screen_go_to_home()
-        if args.autocatch:
+        if args.autoconnect:
             connect(phone)
         target = search_target(phone)
         if target == "egg":
@@ -127,7 +127,7 @@ def main():
     parser = PokeArgs()
     parser.add_argument("-b", "--berry", action="store", required=False, default="a", \
                         help="Name os the phone model. Check phones.json.")
-    parser.add_argument("-a", "--autocatch", action='store_true', required=False, default=False, \
+    parser.add_argument("-a", "--autoconnect", action='store_true', required=False, default=False, \
                         help="Connnect to autocatch.")
     parser.add_argument("-d", "--span", action="store", required=False, default=0, \
                         help="Vary distance by span.")

@@ -17,7 +17,7 @@ def deleteRedBalls(phone):
     phone.screen_go_to_home()
     phone.tap_screen()
 
-def connect(phone):
+def connect(phone, del_balls=False):
     try:
         print("Check connection status")
         if not phone.color_match(914, 585, 149, 97, 121):
@@ -29,7 +29,14 @@ def connect(phone):
                 delete_red_balls(phone)
                 delete_red_balls(phone)
         except:
-            phone.screen_go_to_home()
+            try:
+                if del_balls:
+                    delete_red_balls(phone)
+                    delete_red_balls(phone)
+                    delete_red_balls(phone)
+            except:
+                pass
+        phone.screen_go_to_home()
         # phone.color_match_wait(914, 585, 149, 97, 121, time_out_ms=20000)
         
         phone.tap_screen(914, 585)

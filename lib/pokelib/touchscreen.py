@@ -82,10 +82,13 @@ def poke_timeout(to_ms=10000):
 class TouchScreen:
     maxX = 0
     maxY = 0
-    def __init__(self, tcpPort, name = "unknown", scaleX = 0.576, scaleY = 0.512):
-        self.log = logging.getLogger(name)
-        self.log.info("Pokemat phone : {}".format(tcpPort))
+    specs = {}
+    def __init__(self, tcpPort, name = "no-set", scaleX = 0.576, scaleY = 0.512):
+        self.log = logging.getLogger(str(tcpPort))
+        self.log.info("\nPokemat phone : {}".format(tcpPort))
         self.url = "http://localhost:{}/v1".format(tcpPort)
+        self.specs = self._get_phone_specs()
+        
         self.my_name = None
         self.scaleX = scaleX
         self.scaleY = scaleY
@@ -100,12 +103,42 @@ class TouchScreen:
             tb = self.screen_capture_bw((100,100), (self.min_width, 100))
             if tb["width"] == 1:
                 break
-        for self.min_hight in range(1,100):
-            tb = self.screen_capture_bw((100,100), (100, self.min_hight))
-            if tb["hight"] == 1:
+        for self.min_height in range(1,100):
+            tb = self.screen_capture_bw((100,100), (100, self.min_height))
+            if tb["height"] == 1:
                 break
+    
         pass
-
+    
+    def _get_phone_specs(self):
+        specs = self.write_to_phone("info").json()
+        specs["h"] = specs["height"]
+        specs["w"] = specs["width"]
+        # Check if we have a buttonbar
+        c = self.get_rgb(0, specs["height"] -1, scale=False)
+        print(c)
+        nav_bar = True
+        for x in range(0, specs["width"]-1):
+            c2 = self.get_rgb(x, specs["height"] -1, scale=False)
+            if c != c2:
+                print(f"no nav_bar {x} {c2}")
+                nav_bar = False
+                break
+        if nav_bar:
+            c = self.get_rgb(specs["width"] // 3, specs["height"] -1, scale=False)
+            for y in range(specs["height"] - 1, int(specs["height"]/2)):
+                c2 = self.get_rgb(specs["width"] // 3, y, scale=False)
+                if c != c2:
+                    print(f"nav_bar hight {specs['h'] - y}")
+                    specs["h"] = y
+                    break
+            
+        specs["max_y"] = specs["h"] - 1
+        specs["max_x"] = specs["w"] - 1  
+        self.log.debug(f"Phone specs {specs}")
+        return specs
+        
+    
     def get_vector_object_left_right(self):
         return self.vector_left_right
     
@@ -183,8 +216,9 @@ class TouchScreen:
             return False
         
     
-    def get_rgb(self, x, y):
-        x, y = self.scaleXY(x, y)
+    def get_rgb(self, x, y, scale=True):
+        if scale:
+            x, y = self.scaleXY(x, y)
         response = self.write_to_phone("color:{},{}".format(x,y))           
         self.write_to_phone("color:{},{}\n".format(x,y))
         self.log.debug("Response : {}".format(response.status_code))
@@ -289,7 +323,7 @@ class TouchScreen:
         return False
     
     def get_maxima_horizontal(self, start, len, threshold=40, debug=False):
-        jbuf = self.screen_capture_bw(start, (200, self.min_hight))
+        jbuf = self.screen_capture_bw(start, (200, self.min_height))
         npa = np.array(jbuf["gray"], dtype=np.uint8)
         delta = np.diff(npa.astype(np.int16))
         maxima = (np.abs(delta) > threshold).sum()
@@ -393,18 +427,42 @@ class TouchScreen:
         # ad from ready...
         return "Oh" in t or "ad" in t
 
+    def screen_capture_cent_bw(self, start, size, scale=True):
+        x, y = start
+        w, h = map(lambda x: x - 1, size)
+        x = x - w/2
+        y = y - h/2
+        response = self.write_to_phone("snip_gray:{},{},{},{}".format(x ,y ,w, h))           
+        return response.json()
+
+
     def screen_capture_bw(self, start, size, scale=True):
         x, y = start
-        w, h = size
+        w, h = map(lambda x: x - 1, size)
         if x < 0 or (x + w) >= self.maxX \
            or y < 0 or (y + h) >= self.maxY:
-            self.log.error("clip out of range x{}, y{}, width{}, hight{}", x, y, w, h)
+            self.log.error("clip out of range x{}, y{}, width{}, height{}", x, y, w, h)
             return None
         if scale:
             x, y = self.scaleXY(x, y)
             w, h = self.scaleXY(w, h)
     
         response = self.write_to_phone("snip_gray:{},{},{},{}".format(x ,y ,w, h))           
+        return response.json()
+    
+    def screen_capture(self, start, size, scale=True):
+        x, y = start
+        # w, h = map(lambda x: x, size)
+        w, h = size
+        if x < 0 or (x + w) >= self.maxX \
+           or y < 0 or (y + h) >= self.maxY:
+            self.log.error("clip out of range x{}, y{}, width{}, height{}", x, y, w, h)
+            return None
+        if scale:
+            x, y = self.scaleXY(x, y)
+            w, h = self.scaleXY(w, h)
+    
+        response = self.write_to_phone("snip:{},{},{},{}".format(x ,y ,w, h))           
         return response.json()
         
     def pocr_read_line_center(self, start, size):
@@ -428,46 +486,46 @@ class TouchScreen:
         if (start[0] + size[0] / 2) >= self.maxX:
             start[0] = self.maxX < size[0] / 2
 
-    def pocr_read(self, start, size):
+    def pocr_read(self, start, size, scale=True):
         if not self.reader:
             self.reader = Ocr(self)
         try:
             # if check_boundaries(start, size):
             #    return self.reader.pocr_read(start, size)
-            return self.reader.pocr_read(start, size)
+            return self.reader.pocr_read(start, size, scale)
         except:
             print("No good")
             sleep(1)
             return [""]
 
-    def pocr_read_and_image(self, start, size):
+    def pocr_read_and_image(self, start, size, scale=True):
         if not self.reader:
             self.reader = Ocr(self)
         try:
             # if check_boundaries(start, size):
             #    return self.reader.pocr_read(start, size)
-            return self.reader.pocr_read_and_image(start, size)
+            return self.reader.pocr_read_and_image(start, size, scale)
         except:
             print("No good")
             sleep(1)
             return [""]
     
     @poke_timeout()
-    def pocr_wait_text(self, start, size, text, pause=0,  to_ms=0, debug=False):
-        t = self.pocr_read_line(start, size)
+    def pocr_wait_text(self, start, size, text, pause=0,  to_ms=0, debug=False, scale=True):
+        t = self.pocr_read_line(start, size, scale)
         self.log.debug("read {}".format(t))
         if text in t:
             return t
         sleep(pause)
         return False
     
-    def pocr_wait_text_center(self, start, size, text, pause=0.99,  to_ms=5.5, debug=False):
+    def pocr_wait_text_center(self, start, size, text, pause=0.99,  to_s=6, debug=False, scale=True):
         cs = (start[0] - size[0]/2, start[1] - size[1]/2,)
-        while to_ms > 0:
-            if self.pocr_wait_text(cs, size, text, pause, to_ms, debug) != False:
+        while to_s > 0:
+            if self.pocr_wait_text(cs, size, text, pause, to_s, debug, scale) != False:
                 return True
             sleep(pause)
-            to_ms -= pause
+            to_s -= pause
         return False
 
     def scroll(self, dx, dy, start_x = 100, start_y = 1000, tap_time = 0.1, stop_to = 0.6):
@@ -647,7 +705,10 @@ class TouchScreen:
             if "POWER" in ''.join(text):
                 print("Power up")
                 self.tap_screen(500,975)
-                self.text_line_ok("\\anovolve")
+                sleep(1)
+                self.text_line_ok("\\a")
+                sleep(0.2)
+                self.text_line_ok("novolve")
                 sleep(0.2)
                 self.tapTextOK()
                 sleep(0.2)
@@ -1005,6 +1066,12 @@ class TouchScreen:
         self.screen_item()
         sleep(1)
         # Revive
+        for i in range(0, 21, 5):
+            self.tap_screen(920+i, 320+1)
+            sleep(0.2)
+        while not "MEDICINE" in self.pocr_read_line_center((496, 341), (300, 50)):
+            print(f"READ{self.pocr_read_line_center((496, 341), (300, 50))}")
+            self.scroll(0, -37, start_x=900, start_y=1900)
         revived = False
         for y in [960, 550]:
             # for x in [750, 455, 150]           
@@ -1073,6 +1140,9 @@ class TouchScreen:
                 if self.color_match(328, 939, 255, 255, 255):
                     self.tap_screen(328, 939)
                     break
+                # if self.color_match(500, 1150, 255, 255, 255):
+                #   self.tap_screen(500, 1150)
+                #   break
                 if self.color_match(347, 1812, 144, 218, 152):
                     self.tap_screen(347, 1812)
                 time.sleep(1)
@@ -1385,7 +1455,7 @@ class TouchScreen:
                     for d in range(0, 320, 80):
                         if not self.color_match(200 + d, 1150 + d, 241, 241, 241, threashold=15):
                         # if not self.color_match(200 + d, 1250, 241, 241, 241, threashold=15):
-                            print("no white screen")
+                            self.log.debug("no white screen")
                             in_battle = True
                             break
                 
@@ -1438,12 +1508,12 @@ class TouchScreen:
                             yy = 660 + i
                             r,g,b =self.get_rgb(xx, yy)
                             print("{},{},{},{},{}".format(xx, yy, r, g, b))
-                    time.sleep(0.01)
-                    self.tap_screen(x, 1780)
-                    time.sleep(0.01)
-                    self.tap_screen(x, 1790)
-                    time.sleep(0.01)
-                    self.tap_screen(x, 1800)
+                    time.sleep(0.03)
+                    self.tap_screen(x, 1780, duration = 80)
+                    time.sleep(0.03)
+                    # self.tap_screen(x, 1790)
+                    # time.sleep(0.01)
+                    self.tap_screen(x, 1800, duration = 80)
                     # self.tap_screen(x, 1810)
                     # wait for ready of last red ball disappear
                     if self.black_screen():
@@ -1600,7 +1670,7 @@ class TouchScreen:
         # while self.color_match(800, 857, 255, 255, 255,threashold=1) == False:
         # Check for post card
         name, days_to_go, level = self.friend_get_info()
-        self.friend_update_db(name, days_to_go, level)
+        # self.friend_update_db(name, days_to_go, level)
         if days_to_go <= 2 or days_to_go == 62 or days_to_go == 61:
             self.friend_set_nickname("ff pokemat")
             sleep(1)
@@ -1620,9 +1690,13 @@ class TouchScreen:
             self.color_match_wait_click(407, 1638, 140, 216, 152)
         except:
             print("Gift not sent !?!?")
-        sleep(0.5)
+        sleep(2.5)
         if self.color_match(105, 1000, 232, 128, 181):
-            print("No gifts")   
+            print("No gifts")
+            
+                        
+        self.tap_back()
+        
         # self.color_match_wait_click(503, 1820, 30, 134, 149)
         return True
     

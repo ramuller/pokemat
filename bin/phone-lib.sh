@@ -14,14 +14,14 @@ export SN_3006=ce11160bc1ce7d1705
 my_args=$*
 export my_args
 
-# echo $my_args
 # echo len now "${#my_args[@]}"
-
 serial()
 {
     if [[ "${#my_args[@]}" -eq 0 || "${my_args[0]}" = "" ]]; then
+        echo "All" >&2
         adb devices |grep -v List | cut -f 1
     else
+        
         for a in ${my_args[@]}; do
             a="SN_$a"
             echo -ne "${!a} "

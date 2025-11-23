@@ -66,7 +66,11 @@ def trade(jsonFile):
             sleep(1)
             host.tap_trade()
             # time.sleep(2)
+            retry = 0
             while True:
+                if retry > 3:
+                    raise
+                retry += 1
                 guest.screen_friend()
                 sleep(3)
                 if guest.color_match(41, 796, 255, 246, 208, debug=True) == True:

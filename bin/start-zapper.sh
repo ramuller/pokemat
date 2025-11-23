@@ -53,6 +53,10 @@ elif [ "$1" == "6" ];then
     [ -z $SN ] && SN=ce11160bc1ce7d1705
     adb -s $SN shell "su -c \"echo 1040000 >/sys/power/cpufreq_max_limit\""
     ./run x $EXTRA --window-title="$1" -s $SN $STD_ARGS --window-x=3000 --window-y=0 --rest-api-port=300$1
+elif [ "$1" == "7" ];then
+    [ -z $SN ] && SN=R58N648E8EX
+    # adb -s $SN shell "su -c \"echo 1040000 >/sys/power/cpufreq_max_limit\""
+    ./run x $EXTRA --window-title="$1" -s $SN $STD_ARGS --window-x=0 --window-y=1024 --window-y=0 --rest-api-port=300$1
 elif [ "$1" == "a40" ];then
     [ -z $SN ] && SN=R58M93ND7BF
     ./run x $EXTRA --window-title="$1" -s $SN $STD_ARGS --window-x=0 --window-y=1070 --rest-api-port=3040 

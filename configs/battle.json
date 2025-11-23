@@ -1,14 +1,15 @@
 {
     "mode": "battle-friend",
-	"league": "great",
+	"league": "master",
+	"league-g": "great",
 	"league-u": "ultra",
-    "guest": { 
-        "port": "3006",
+    "host": { 
+        "port": "3002",
         "name": "aphex"
 
    },
-    "host": {
-        "port": "3005",
-        "name": "yellow"
+    "guest": {
+        "port": "3001",
+        "name": "higimmi222"
     }
 }

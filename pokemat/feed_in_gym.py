@@ -18,8 +18,8 @@ def heal(port):
     global phone
     phone = TouchScreen(port)
     while True:
-        phone.tap_screen(550,1600)
-        sleep(1)
+        phone.tap_screen(500,1680)
+        sleep(2)
     # time.sleep(1)
     # phone.heal_all()
    

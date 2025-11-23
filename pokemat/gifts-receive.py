@@ -67,7 +67,7 @@ def gifting(port, phone):
     giftsReceived = 0
     receive_gifts = True
     last_tries = 3
-    while receive_gifts:  # and len(shuffled_letters) > 0:
+    while receive_gifts or True:  # and len(shuffled_letters) > 0:
         try:
             # Wait for trainer screen
             for timeout in reversed(range(0,100)):

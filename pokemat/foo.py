@@ -59,7 +59,7 @@ def cap_and_show():
     plt.imshow(image, cmap='gray', vmin=0, vmax=255)
     plt.title(f'Grayscale Bitmap')
     plt.axis('off')
-    plt.show()Bipolar-ICs
+    plt.show()
 def ocr_test(p):
     print("Start ocr testing")
     reader = easyocr.Reader(['en'])

@@ -1,16 +1,19 @@
 {
     "mode": "trade",
     "league": "master",
-    "host": { 
-        "port": "3006",
-        "name": "aphex",
-		"filter": "\\a pidgeotto&!3* & !favorite & ! traded &!4*&!3*",
-		"ffilter": "xp1 & !favorite"
-   },
-    "guest": {
+    "guest": { 
         "port": "3005",
-        "name": "higimmi1234",
-		"filterr": "evolve & xp1 &!favorite",
-		"filter": "karrablast,shelmet,phantump & !norade & !traded & !favorite"
+        "name": "aphex",
+		"filterr": "\\a pidgeotto&!3* & !favorite & ! traded &!4*&!3*",
+		"filtere": "xp1 & !favorite",
+		"filter1": "pumpkaboo,karrablast,shelmet,phantump & !norade & !traded & !favorite",
+		"filter": "gastly"
+   },
+    "host": {
+        "port": "3004",
+        "name": "localhost",
+		"filterr": "!traded & xp1 &!favorite",
+		"filterr": "xp1",
+		"filter": "ice"
     }
 }
