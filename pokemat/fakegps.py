@@ -10,7 +10,7 @@ parser.add_argument("-l", "--location", action="store", required=True, default="
                         help="Name os the phone model. Check phones.json.")
 args = parser.parse_args()
 
-for ph in range(1,7):
+for ph in range(1,8):
     try:
         p = ts(3000 + ph)
         # p.tap_screen(450,140)

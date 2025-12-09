@@ -16,6 +16,22 @@ class Ocr:
         t = self.reader.readtext(np_a)
         return t
 
+    def easyocr_read_center(self, start, size, scale=True):
+        results = self.easyocr_read(start, size, scale)
+        output = []
+        for box, text, conf in results:
+            # box is a list of 4 points: [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
+            xs = [p[0] for p in box]
+            ys = [p[1] for p in box]
+            cx = sum(xs) / 4.0
+            cy = sum(ys) / 4.0
+            output.append({
+                "text": text,
+                "center": (int(cx), int(cy)),
+                "confidence": conf
+            })
+        return output
+
     def easyocr_read_text(self, start, size, scale=True):
         rt = []
         for t in self.easyocr_read(start, size, scale=True):

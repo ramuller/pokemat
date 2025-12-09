@@ -3,7 +3,7 @@
 #!/usr/bin/env bash
 #!/usr/bin/env bash
 
-killall python
+# killall python
 
 app="$1"
 shift
@@ -38,8 +38,9 @@ start_app()
 
 # echo $app | grep "\.py" ||  app="${app}.py"
 
-[ -z "$first" ] || first=1
-last=6
+[ -n "$first" ] || first=1
+[ -n "$last" ] || last=6
+
 # killall python
 
 pids=()
@@ -53,4 +54,24 @@ do
     pids+=($!)
 done
 
-while sleep 100; do sleep 1; done
+while true
+do
+    ps -ef |grep -v grep |grep $app || ctrl_c
+    echo "Process found"
+    sleep 1
+done
+
+exit 0
+while true
+do
+    for p in "${pids[@]}"
+    do
+        if ps -a |grep $p ; then
+           echo "Process found"
+           continue
+        fi
+        echo No process left
+        ctrl_c
+    done
+    sleep 1
+done

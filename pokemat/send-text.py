@@ -19,7 +19,7 @@ def action(port, phone, text):
     p = TouchScreen(port, phone)
     if args.select:
         p.tap_screen(510, 375)
-    sleep(0.5)
+    sleep(1)
     p.text_line_ok(text)
     
 def main():

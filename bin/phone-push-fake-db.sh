@@ -15,7 +15,7 @@ do
     adb -s $s shell "su -c \"killall com.incorporateapps.fakegps_route \""
     adb -s $s shell "su -c \"killall com.incorporateapps.fakegps_route \""
     sleep 1
-    # adb -s $s shell "su -c \"cp /sdcard/Download/$db /data/data/com.incorporateapps.fakegps_route/databases/FakeGPSRoutesInc.db \""
+    echo adb -s $s shell "su -c \"cp /sdcard/Download/$db /data/data/com.incorporateapps.fakegps_route/databases/FakeGPSRoutesInc.db \""
 
 done
 

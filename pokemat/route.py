@@ -28,24 +28,37 @@ def quit_route(phone):
 def end_route(phone):
     print("End route!!!")
     phone.tap_screen(904, 1542)
-    phone.color_match_wait(343, 1699, 137, 215, 155)
-    phone.tap_screen(343, 1699)
-    phone.color_match_wait(371, 1060, 144, 216, 151)
-    phone.tap_screen(371, 1060)
-    sleep(5)
+    
+    sleep(1)
+    regex = "COMPLETE ROUTE"
+    t, _ = phone.pocr_find_regex(regex)
+    if t:
+        phone.tap_screen(t['center'], scale=False)
+    else:
+        return False
+            
+    sleep(1)
+    t, _ = phone.pocr_find_regex('YES')
+    if t:
+        phone.tap_screen(t['center'], scale=False)
+    
     for i in range(6):
         phone.tap_screen(373, 1950)
         sleep(0.5)
+    return True
+
 
 def route(port, phone):
-    print("Start evolutions \"{}\" on port {}", phone, port)
+    print("Start route \"{}\" on port {}", phone, port)
     phone = TouchScreen(port, phone)
     
+    phone.screen_go_to_home()
+    end_route(phone)
     # select route
     while True:
         try:
             phone.screen_go_to_home()
-            if phone.color_match(960, 1617, 255, 142, 142) or phone.color_match(904, 1542, 255, 158, 0):
+            if phone.color_match(923, 1542, 252, 255, 253) or phone.color_match(904, 1542, 255, 158, 0):
                 quit_route(phone)
             sleep(0.5)
             phone.tap_screen(900, 1850)

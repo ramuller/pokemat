@@ -98,7 +98,8 @@ class TouchScreen:
         self.vector_left_right = PixelVector(self, 850, 850 + 201, 1850, 1850, 3, "left_right")
         self.vector_top_down = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
         self.vector = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
-        self.reader = None
+        # self.pocr = None
+        self.pocr =Ocr(self)
         for self.min_width in range(1,100):
             tb = self.screen_capture_bw((100,100), (self.min_width, 100))
             if tb["width"] == 1:
@@ -156,9 +157,12 @@ class TouchScreen:
             raise ExPokeLibFatal("No connection")
             # self.log.fatal("No connection")
         
-    def tap_screen(self, x, y, button = 1, duration = 30):
+    def tap_screen(self, x, y=None, button = 1, duration = 30, scale=True):
+        if y == None:
+            x, y = x
         self.log.debug("tap {},{},{},{}".format(x,y,button, duration))
-        x, y = self.scaleXY(x, y)
+        if scale:
+            x, y = self.scaleXY(x, y)
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
         response = self.write_to_phone("click:{},{},{},{}".format(x,y,button, duration))
         self.log.debug("Response : {}".format(response))
@@ -367,7 +371,7 @@ class TouchScreen:
     def screen_is_in_gym(self):
         maxima = self.get_maxima_horizontal((790, 1880), 180, threshold=40)
         print(f"Is in gym m {maxima}")
-        if maxima >= 5 and maxima < 10:
+        if maxima >= 5 and maxima < 13:
             for i in range(5):
                 maxima = self.get_maxima_horizontal((790, 1880), 180, threshold=40)
                 print(f"Is verfy in gym {maxima}")
@@ -420,7 +424,9 @@ class TouchScreen:
         return "stop_no"
     
     def screen_is_egg(self):
-        if not self.color_match(364, 1091, 233, 255, 225):
+        t, _ = self.pocr_find_regex('Oh?')
+                                 
+        if not t:
             return False
         t, _ = self.pocr_read_and_image_center((480, 408), (100,100))
         t =  "".join(t)
@@ -465,17 +471,17 @@ class TouchScreen:
         response = self.write_to_phone("snip:{},{},{},{}".format(x ,y ,w, h))           
         return response.json()
         
-    def pocr_read_line_center(self, start, size):
+    def pocr_read_line_center(self, start, size, scale=True):
         cs = (start[0] - size[0]/2, start[1] - size[1]/2,)
-        t = self.pocr_read(cs, size)
+        t = self.pocr_read(cs, size, scale=scale)
         return "".join(t)        
 
-    def pocr_read_and_image_center(self, start, size):
+    def pocr_read_and_image_center(self, start, size, scale=True):
         cs = (start[0] - size[0]/2, start[1] - size[1]/2,)
-        return self.pocr_read_and_image(cs, size)
+        return self.pocr_read_and_image(cs, size, scale=scale)
 
-    def pocr_read_line(self, start, size):
-        t = self.pocr_read(start, size)
+    def pocr_read_line(self, start, size, scale=True):
+        t = self.pocr_read(start, size, scale=scale)
         # self.log.debug(f"pocr_read_line {"".join(t)}")
         return "".join(t)
 
@@ -487,24 +493,24 @@ class TouchScreen:
             start[0] = self.maxX < size[0] / 2
 
     def pocr_read(self, start, size, scale=True):
-        if not self.reader:
-            self.reader = Ocr(self)
+        if not self.pocr:
+            self.pocr = Ocr(self)
         try:
             # if check_boundaries(start, size):
-            #    return self.reader.pocr_read(start, size)
-            return self.reader.pocr_read(start, size, scale)
+            #    return self.pocr.pocr_read(start, size)
+            return self.pocr.pocr_read(start, size, scale)
         except:
             print("No good")
             sleep(1)
             return [""]
 
     def pocr_read_and_image(self, start, size, scale=True):
-        if not self.reader:
-            self.reader = Ocr(self)
+        if not self.pocr:
+            self.pocr = Ocr(self)
         try:
             # if check_boundaries(start, size):
-            #    return self.reader.pocr_read(start, size)
-            return self.reader.pocr_read_and_image(start, size, scale)
+            #    return self.pocr.pocr_read(start, size)
+            return self.pocr.pocr_read_and_image(start, size, scale=scale)
         except:
             print("No good")
             sleep(1)
@@ -512,17 +518,34 @@ class TouchScreen:
     
     @poke_timeout()
     def pocr_wait_text(self, start, size, text, pause=0,  to_ms=0, debug=False, scale=True):
-        t = self.pocr_read_line(start, size, scale)
+        t = self.pocr_read_line(start, size, scale=scale)
         self.log.debug("read {}".format(t))
         if text in t:
             return t
         sleep(pause)
         return False
     
+    '''
+    Find a regex in screen
+    Paramters:
+    re : regex
+    ul : upper left tuple
+    lr : lower right tuple 
+    '''
+    def pocr_find_regex(self, regex, ul=(0, 0), lr=None, fs=None):
+        if fs == None:
+            if lr == None:
+                lr = (self.specs ['w'], self.specs['h'])
+            fs = self.pocr.easyocr_read_center(ul, lr, scale=False)
+        for s in fs:
+            if re.search(regex, s['text']):
+                return s, fs
+        return None, fs
+    
     def pocr_wait_text_center(self, start, size, text, pause=0.99,  to_s=6, debug=False, scale=True):
         cs = (start[0] - size[0]/2, start[1] - size[1]/2,)
         while to_s > 0:
-            if self.pocr_wait_text(cs, size, text, pause, to_s, debug, scale) != False:
+            if self.pocr_wait_text(cs, size, text, pause, to_s, debug, scale=scale) != False:
                 return True
             sleep(pause)
             to_s -= pause
@@ -1137,12 +1160,13 @@ class TouchScreen:
             for to in range(1,10):
                 if self.color_match(288, 1806, 151, 217, 147):
                     self.tap_screen(288, 1806)
-                if self.color_match(328, 939, 255, 255, 255):
+                # Frist battle
+                if self.color_match(328, 939, 255, 255, 255) and False:
                     self.tap_screen(328, 939)
                     break
-                # if self.color_match(500, 1150, 255, 255, 255):
-                #   self.tap_screen(500, 1150)
-                #   break
+                if self.color_match(500, 1150, 255, 255, 255):
+                    self.tap_screen(500, 1150)
+                    break
                 if self.color_match(347, 1812, 144, 218, 152):
                     self.tap_screen(347, 1812)
                 time.sleep(1)

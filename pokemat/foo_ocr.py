@@ -26,28 +26,30 @@ def action(port, arg = None):
         
     print("Start testing port {}",port)
     global p
-    p = TouchScreen(port)
-    startTime = datetime.now()
-    
     rounds = 1
-    p.pocr_read((0, 0), (10,10), scale=False)
-    
-    t1 = datetime.now()
-    for i in range(rounds):
-        text = p.pocr_read((0, 0), (p.specs['w'], p.specs['h']), scale=False)
-    t2 = datetime.now()
-    print("Elapsed time {}s".format((t2-t1).total_seconds()))
-    print(text)
+    p = TouchScreen(port)
+    # startTime = datetime.now()
+    #
+    # rounds = 1
+    # p.pocr_read((0, 0), (10,10), scale=False)
+    #
+    # t1 = datetime.now()
+    # for i in range(rounds):
+    #     text = p.pocr_read((0, 0), (p.specs['w'], p.specs['h']), scale=False)
+    # t2 = datetime.now()
+    # print("Elapsed time {}s".format((t2-t1).total_seconds()))
+    # print(text)
 
     t1 = datetime.now()
     for i in range(rounds):
-        text = p.reader.easyocr_read((0, 0), (p.specs['w'], p.specs['h']), scale=False)
+        text = p.pocr.easyocr_read_center((0, 0), (p.specs['w'], p.specs['h']), scale=False)
     t2 = datetime.now()
     print("Elapsed time {}s".format((t2-t1).total_seconds()))
     
     print(text)
     for t in text:
-        print(t)
+        print(t["text"])
+        print(t["center"])
     
     
 def main():

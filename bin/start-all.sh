@@ -4,7 +4,7 @@ first="$1"
 last="$2"
 
 [ -n "$1" ] || first=1
-[ -n "$2" ] || last=6
+[ -n "$2" ] || last=7
 
 thisdir="$(dirname $0)"
 
@@ -33,7 +33,7 @@ do
             echo restarting scrcpy on port 300$i logfile /tmp/sc-300$i.log
             $thisdir/start-zapper.sh $i >/tmp/sc-300$i.log  2>&1 &
         fi
-        net_mon $port
+        # net_mon $port
     done
     sleep 10
 done

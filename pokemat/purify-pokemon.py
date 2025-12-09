@@ -38,12 +38,19 @@ def delete_pokemon(port, phone):
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
             phone.tap_screen(189, 792)
+            sleep(1)
             print("Click menu")
-            phone.color_match_wait_click(366, 1775, 232, 128, 181)
-            sleep(0.5)
-            time.sleep(2)             
-            phone.color_match_wait_click(333, 1146, 151, 217, 147)
-            sleep(12)
+            phone.scroll(0, -100)
+
+            for y in range(1700, 1998, 2):
+                if phone.color_match(144, y, 231, 128, 183):
+                    print("Tap purify")
+                    phone.tap_screen(144, y)
+                    sleep(1)
+                    break
+
+            phone.color_match_wait_click(376, 1148, 145, 218, 152)
+            sleep(10)
             print("Ready")
             phone.color_match_wait_click(505, 1880, 28, 135, 149)
             sleep(3)

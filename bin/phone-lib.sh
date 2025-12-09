@@ -1,7 +1,7 @@
 # Schlumpiz
 export SN_3001=ce091609f2237a1904
 # Pokeralle
-export SN_3002=ce091719d290250304
+export SN_3007=ce091719d290250304
 # White
 export SN_3003=ce12160c4dac273705
 # Gold
@@ -10,6 +10,8 @@ export SN_3004=ce0117119076d82a0c
 export SN_3005=ce091609ec79190d04
 # Broken dev
 export SN_3006=ce11160bc1ce7d1705
+# Gold from Eoija
+export SN_3002=ce01182118d5b02a0c
 
 my_args=$*
 export my_args
