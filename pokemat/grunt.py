@@ -21,6 +21,11 @@ from sys import exit
 from datetime import datetime
 
 def is_grunt_in_gym(p):
+
+    if True \
+        and p.color_match(861, 1850, 194, 150, 253) \
+        and p.color_match(67, 1850, 194, 150, 253):
+        return True
     if True \
         and p.color_match(861, 1917, 61, 64, 63) \
         and p.color_match(67, 1925, 61, 64, 63):
@@ -54,6 +59,11 @@ def is_grunt_in_gym(p):
             and p.color_match(50, 1837, 31, 132, 241) \
             and p.color_match(951, 1792, 31, 132, 241) \
             and p.color_match(500, 1330, 40, 174, 247):
+        return True
+    if True \
+            and p.color_match(39, 1875, 31, 106, 222) \
+            and p.color_match(489, 1951, 31, 106, 222) \
+            and p.color_match(946, 1810, 31, 106, 222):
         return True
         
 
@@ -107,6 +117,7 @@ def scan_sky(phone, print, no_grunt):
                     or phone.color_match(x, gy, 152, 60, 60) \
                     or phone.color_match(x, gy, 180, 90, 70) \
                     or phone.color_match(x, gy, 225, 130, 115) \
+                    or phone.color_match(x, gy, 192, 99, 82) \
                     or phone.color_match(482, 582, 209, 127, 114):
                 print("Grunt R found")
                 for i in range(3):
@@ -114,6 +125,7 @@ def scan_sky(phone, print, no_grunt):
                     phone.tap_screen(x, y)
                     sleep(0.1)
                 time.sleep(4)
+                no_grunt = False
             if is_grunt_in_gym(phone) \
                     or phone.color_match(868, 197, 241, 247, 240) \
                     or phone.color_match(506, 849, 206, 92, 51):
@@ -128,6 +140,69 @@ def scan_sky(phone, print, no_grunt):
 
     return no_grunt
 
+
+def select_team(phone):    
+    start = None
+    for i in range(15):
+        start, _ = phone.pocr_find_regex('USE THIS.*')
+        print(f"Start {start}")
+        if start:
+            watch_dog.reset()
+            print("Found grunt")
+            # sleep(1)
+            break
+        sleep(1)
+    if start: 
+
+        phone.tap_screen(970, 1452)
+        time.sleep(2)
+        phone.tap_screen(start['center'], scale=False)
+        print("Wait go battle")
+    return start
+
+def prepare_battle(phone):
+    if not select_team(phone):
+        return False
+
+    # try:
+    #     phone.color_match_wait_click(338, 1779, 162, 220, 148, threashold=20, time_out_ms = 15500)
+    # except:
+    #     pass
+    # watch_dog.reset()
+
+    startTime = datetime.now()
+    while not phone.black_screen():
+        if ((datetime.now() - startTime).total_seconds() * 1000) > 10000:
+            break
+        print("Wait black screen")
+        time.sleep(0.05)
+    while phone.black_screen():
+        if ((datetime.now() - startTime).total_seconds() * 1000) > 3000:
+            break
+        print("Wait black screen")
+        time.sleep(0.05)
+    print("do battle")
+    phone.doBattle()
+
+    # Wait for trainer
+    for i in range(1,10):
+        try:
+            phone.color_match_wait_click(305, 1773, 137, 216, 153, time_out_ms = 2000)
+            break
+        except:
+            print("Wait for rescue")
+            phone.tap_screen(305, 773)
+        pass
+    phone.tap_screen(512, 873)
+
+    sleep(2)
+    print("Try to catch")    
+    watch_dog.reset()
+    catch(phone, distance = 6, max_tries = 12, span = 2)
+    watch_dog.reset()
+    # action(port, phone, berry = "g")
+    print("Try to action")
+    
 def grunt(port):
     print("Looking for grunt \"{}\" on port {}", port)
     phone = TouchScreen(port)
@@ -167,7 +242,7 @@ def grunt(port):
             i = i -1
             print("Wait opponent and spin{}".format(i))
 
-            # phone.spin_disk()
+            phone.spin_disk()
             phone.tap_screen(498, 1824)
             sleep(3)
             print("after sleep")
@@ -213,74 +288,12 @@ def grunt(port):
             # phone.color_match_wait_click(348, 1554, 151, 217, 149, threashold=20, time_out_ms = 1000)
         except:
             i = i -1
-    if not start_grunt:
-        print("TP 0 No grunt")
-        phone.screen_go_to_home()
-    else:
-        time.sleep(2)
+    if start_grunt:
         phone.tap_screen(battle['center'], scale=False)
-        sleep(1)
+        sleep(0.5)
         phone.tap_screen(battle['center'], scale=False)
-        print("TP 1 battle pressed")
-        start = None
-        for i in range(15):
-            start, _ = phone.pocr_find_regex('USE THIS.*')
-            print(f"Start {start}")
-            if start:
-                watch_dog.reset()
-                print("Found grunt")
-                sleep(1)
-                break
-        if start == None:
-            return
-        
-          
-        phone.color_match_wait(350, 1771, 155, 222, 146)
-        time.sleep(4)
-        print("Select other party")
-        phone.tap_screen(970, 1452)
-        time.sleep(2)
-        print("Wait go battle")
-        phone.tap_screen(start['center'], scale=False)
-    
-        # try:
-        #     phone.color_match_wait_click(338, 1779, 162, 220, 148, threashold=20, time_out_ms = 15500)
-        # except:
-        #     pass
-        # watch_dog.reset()
-    
-        startTime = datetime.now()
-        while not phone.black_screen():
-            if ((datetime.now() - startTime).total_seconds() * 1000) > 10000:
-                break
-            print("Wait black screen")
-            time.sleep(0.05)
-        while phone.black_screen():
-            if ((datetime.now() - startTime).total_seconds() * 1000) > 3000:
-                break
-            print("Wait black screen")
-            time.sleep(0.05)
-        print("do battle")
-        phone.doBattle()
-    
-        # Wait for trainer
-        for i in range(1,10):
-            try:
-                phone.color_match_wait_click(305, 1773, 137, 216, 153, time_out_ms = 2000)
-                break
-            except:
-                print("Wait for rescue")
-                phone.tap_screen(305, 773)
-            pass
-        phone.tap_screen(512, 873)
-    
-        sleep(2)
-        print("Try to catch")    
-        watch_dog.reset()
-        catch(phone, distance = 6, max_tries = 12, span = 2)
-        watch_dog.reset()
-        # action(port, phone, berry = "g")
-        print("Try to action")
+        prepare_battle(phone)
+
         phone.screen_go_to_home()
         phone.screen_go_to_home()
         phone.heal_all()
