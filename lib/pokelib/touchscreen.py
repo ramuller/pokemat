@@ -18,6 +18,8 @@ log = logging.getLogger("pokelib")
 from .pixelvector import PixelVector
 from .ocr import Ocr
 from .database import Database as db_p
+from .screen_capture import ScreenCapture
+
 from pokelib import ExPokeLibError, ExPokeNoHomeError, ExPokeLibFatal
 
 import signal
@@ -92,6 +94,8 @@ class TouchScreen:
         self.my_name = None
         self.scaleX = scaleX
         self.scaleY = scaleY
+        self.scaleX = self.specs['w'] / 1000
+        self.scaleY = self.specs['h'] / 2000
         self.httpErrorCount = 0
         self.maxX = 1000
         self.maxY = 2000
@@ -99,7 +103,8 @@ class TouchScreen:
         self.vector_top_down = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
         self.vector = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
         # self.pocr = None
-        self.pocr =Ocr(self)
+        self.pocr = Ocr(self)
+        self.sc = ScreenCapture(self)
         for self.min_width in range(1,100):
             tb = self.screen_capture_bw((100,100), (self.min_width, 100))
             if tb["width"] == 1:
@@ -127,7 +132,7 @@ class TouchScreen:
                 break
         if nav_bar:
             c = self.get_rgb(specs["width"] // 3, specs["height"] -1, scale=False)
-            for y in range(specs["height"] - 1, int(specs["height"]/2)):
+            for y in range(specs["height"] - 1, int(specs["height"]/2), -1):
                 c2 = self.get_rgb(specs["width"] // 3, y, scale=False)
                 if c != c2:
                     print(f"nav_bar hight {specs['h'] - y}")
@@ -424,7 +429,7 @@ class TouchScreen:
         return "stop_no"
     
     def screen_is_egg(self):
-        t, _ = self.pocr_find_regex('Oh?')
+        t, _ = self.pocr_find_regex('.*Oh?.*')
                                  
         if not t:
             return False
@@ -458,8 +463,7 @@ class TouchScreen:
     
     def screen_capture(self, start, size, scale=True):
         x, y = start
-        # w, h = map(lambda x: x, size)
-        w, h = size
+        w, h = map(lambda x: x - 1, size)
         if x < 0 or (x + w) >= self.maxX \
            or y < 0 or (y + h) >= self.maxY:
             self.log.error("clip out of range x{}, y{}, width{}, height{}", x, y, w, h)
@@ -1532,9 +1536,9 @@ class TouchScreen:
                             yy = 660 + i
                             r,g,b =self.get_rgb(xx, yy)
                             print("{},{},{},{},{}".format(xx, yy, r, g, b))
-                    time.sleep(0.03)
+                    time.sleep(0.4)
                     self.tap_screen(x, 1780, duration = 80)
-                    time.sleep(0.03)
+                    time.sleep(0.4)
                     # self.tap_screen(x, 1790)
                     # time.sleep(0.01)
                     self.tap_screen(x, 1800, duration = 80)

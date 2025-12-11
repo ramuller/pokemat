@@ -2,19 +2,20 @@
     "mode": "trade",
     "league": "master",
     "host": { 
-        "port": "3003",
-        "name": "yellow",
+        "port": "3001",
+        "name": "schlumpiz",
 		"filterr": "\\a pidgeotto&!3* & !favorite & ! traded &!4*&!3*",
-		"filter": "shelmet,phantump,karrablast & !favorite & !shadow &!shiny",
+		"filter": "ice & !favorite & !shadow &!shiny",
 		"filter2": "gastly"
    },
     "guest": {
-        "port": "3005",
+        "port": "3002",
         "name": "aphex",
 		"filter_3": "!traded & xp1 &!favorite",
 		"filter_2": "xp1",
+		"filter": "dusclops & !favorite & !shadow &!shiny &!xxs&!xxl&!purified&!shadow",
+		"filter-3": "graveler,shelmet,phantump,karrablast & !favorite & !shadow &!shiny",
 		"filter_1": "pumpkaboo,karrablast,shelmet,phantump & !norade & !traded & !favorite",		
-		"filter": "carvanha,combee & !favorite &!4* &!shiny &!shadow",		
 		"filterx": "wooper,trumbeak & !xxs & !xxl & !4* & !3* & !favorite"
     }
 }

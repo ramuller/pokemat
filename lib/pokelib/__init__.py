@@ -11,3 +11,4 @@ from .pixelvector import PixelVector
 from .database import Database
 from .screens import Screens
 from .poke_logger import PokeLogger
+from .screen_capture import ScreenCapture

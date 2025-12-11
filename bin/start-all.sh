@@ -4,7 +4,7 @@ first="$1"
 last="$2"
 
 [ -n "$1" ] || first=1
-[ -n "$2" ] || last=7
+[ -n "$2" ] || last=8
 
 thisdir="$(dirname $0)"
 

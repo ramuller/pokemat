@@ -13,6 +13,9 @@ export SN_3006=ce11160bc1ce7d1705
 # Gold from Eoija
 export SN_3002=ce01182118d5b02a0c
 
+# Aphex
+export SN_3008=R58N648E8EX
+
 my_args=$*
 export my_args
 
