@@ -46,15 +46,18 @@ def action(port, arg = None):
     t1 = datetime.now()
     for i in range(rounds):
         # text = p.pocr.easyocr_read_center((0, 0), (p.specs['w'], p.specs['h']), scale=False)
-        text, _ = p.pocr.read_rec_lines((0, 0), (p.specs['w'], p.specs['h']), scale=False, verbose=1)
+        text, _ = p.pocr.read_rec_lines((0, 0), (p.specs['w'], p.specs['h']), scale=False, verbose=0)
+        pass
     t2 = datetime.now()
     print("Elapsed time {}s".format((t2-t1).total_seconds()))
     
+    '''
     t1 = datetime.now()
     for i in range(rounds):
         # text = p.pocr.easyocr_read_center((0, 0), (p.specs['w'], p.specs['h']), scale=False)
         text, _ = p.pocr.read_rec_lines((0, 0), (p.specs['w'], p.specs['h']), scale=False, verbose=-1)
     t2 = datetime.now()
+    '''
     print("Elapsed time {}s".format((t2-t1).total_seconds()))
         # print(text)
     print('No dict')

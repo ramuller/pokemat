@@ -117,40 +117,33 @@ class Ocr:
             jbuf = self.ts.screen_capture_bw(start, size, scale)
             np_array = np.array(jbuf["gray"], dtype=np.uint8)
             np_array = np_array.reshape((jbuf["height"], jbuf["width"]))
-        if verbose < 0:
-            ocr_data = self.read_with_api(np_array, mode='L')
-            image = Image.fromarray(np_array, mode='L')
-    
-            self.api.SetImage(image)
-            df = self.api.GetUTF8Text()
-            # Get the iterator object
-            # ri stands for ResultIterator
-            ri = self.api.GetIterator() 
+        return self._tesserocr_from_array(np_array, confidence=confidence, verbose=verbose)
         
-            # Define the level you want to iterate over (WORD is level 5)
-            level = RIL.WORD
-            
-            # --- 2. Iterate and Extract Data ---
-            # iterate_level is a helper function that handles the iteration logic
-            ocr_data = []
-            wi = 1
-            for r in iterate_level(ri, level):
-                
-                # Get the text string for the current level (word)
-                text = r.GetUTF8Text(level)
-                
-                # Get the confidence score (0-100)
-                conf = r.Confidence(level)
-                
-                # Get the bounding box coordinates (left, top, right, bottom)
-                # Note: tesserocr returns (left, top, right, bottom), not (x, y, w, h)
-                left, top, right, bottom = r.BoundingBox(level)
-                
-                # Calculate width and height (required to match pytesseract output format)
-                width = right - left
-                height = bottom - top
-                # word_index = r.GetElementIndex(level)
-                # Append the data to the list
+        # return self.tesseract_from_array(np_array, confidence=confidence, verbose=verbose)
+
+    def _tesserocr_from_array(self, np_array, mode='L', confidence=20.0, verbose=0):
+        """Run tesserocr on a numpy array and return extracted words plus the PIL image.
+
+        Returns (ocr_data, image)
+        """
+        image = Image.fromarray(np_array, mode=mode)
+        self.api.SetImage(image)
+        # trigger recognition (GetUTF8Text returns full text, iterator used below)
+        _ = self.api.GetUTF8Text()
+        ri = self.api.GetIterator()
+
+        level = RIL.WORD
+        ocr_data = []
+        wi = 1
+        for r in iterate_level(ri, level):
+            if verbose > 0:
+                print(dir(r))
+            text = r.GetUTF8Text(level)
+            conf = r.Confidence(level)
+            left, top, right, bottom = r.BoundingBox(level)
+            width = right - left
+            height = bottom - top
+            if conf > confidence:
                 ocr_data.append({
                     'text': text,
                     'conf': conf,
@@ -160,52 +153,49 @@ class Ocr:
                     'height': height,
                     'word': wi,
                     'center': (left + width//2, top + height//2)
-                })        
+                })
                 if len(text) > 1:
                     wi += 1
                 else:
                     wi = 1
-                
-                
-            return ocr_data, image
-        
-        else:
-            # text = pytesseract.image_to_string(np_a)
-            df = pytesseract.image_to_data(np_array, output_type=Output.DATAFRAME)
-            # text = "ddsf"
-            if verbose > 0:
-                print(f"Reader {df}")
-            rt = []
-            wc = 0
-            for index, row in df.iterrows():
-                # Example 1: Accessing columns by name
-                text = row['text']
-                c = row['conf']
-        
-                # Example 2: Accessing the bounding box coordinates
-                x = row['left']
-                y = row['top']
-                w = row['width']
-                h = row['height']
-                c = row['conf']
-                if text and c > confidence: # Check if the text is not None/empty
-                    wc += 1
-                    rt.append({
-                        "text": text,
-                        "center": (x + w//2, y + h//2),
-                        "h": h,
-                        "w": w,
-                        "confidence": c,
-                        "word": row['word_num']
-                    })
-                    if verbose > 0:
-                        print(f"Index: {index}, Word: {text}, Confidence: {c}")
-            #for t in text.split("\n"):
-            #     rt.append(t)
-            # print(rt)
-            if verbose > 0:
-                print(f"Total words {wc}")
-            return rt, np_array
+
+        return ocr_data, image
+
+    def tesseract_from_array(self, np_array, confidence=20.0, verbose=0):
+        """Run pytesseract on a numpy array and return extracted words plus the array.
+
+        Returns (rt, np_array) where `rt` is a list of word dicts with keys
+        `text`, `center`, `h`, `w`, `confidence`, `word`.
+        """
+        # text = pytesseract.image_to_string(np_a)
+        df = pytesseract.image_to_data(np_array, output_type=Output.DATAFRAME)
+        if verbose > 0:
+            print(f"Reader {df}")
+        rt = []
+        wc = 0
+        for index, row in df.iterrows():
+            text = row['text']
+            # bounding box and confidence
+            x = row['left']
+            y = row['top']
+            w = row['width']
+            h = row['height']
+            c = row['conf']
+            if text and c > confidence:  # Check if the text is not None/empty
+                wc += 1
+                rt.append({
+                    "text": text,
+                    "center": (x + w//2, y + h//2),
+                    "h": h,
+                    "w": w,
+                    "confidence": c,
+                    "word": row['word_num']
+                })
+                if verbose > 0:
+                    print(f"Index: {index}, Word: {text}, Confidence: {c}")
+        if verbose > 0:
+            print(f"Total words {wc}")
+        return rt, np_array
     
     def find_regex(self,
                    regex,

@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run foo_ocr.py --port 3009",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/foo_ocr.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--port",
+        "3009"
+      ]
+    }
+  ]
+}
