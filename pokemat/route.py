@@ -22,7 +22,7 @@ def quit_route(phone):
         sleep(0.5)
     
     phone.tap_screen(491, 1458)
-    sleep(0.5)
+    sleep(1)
     phone.tap_screen(491, 1458)
     
 def end_route(phone):
@@ -31,7 +31,7 @@ def end_route(phone):
     sleep(1)
     phone.tap_screen(920, 1552)    
     sleep(1)
-    regex = "COMPLETE ROUTE"
+    regex = ".*COMPLETE.*"
     t, _ = phone.pocr_find_regex(regex)
     if t:
         phone.tap_screen(t['center'], scale=False)
@@ -48,10 +48,37 @@ def end_route(phone):
         sleep(0.5)
     return True
 
+def screen_go_overview(phone):
+    t, _ = phone.pocr_find_regex('.*RSVP.*')
+    if t:
+        return 0
+    phone.screen_go_to_home()
+    sleep(0.75)
+    phone.tap_screen(900, 1850)
+    sleep(0.75)
 
-def route(port, phone):
-    print("Start route \"{}\" on port {}", phone, port)
-    phone = TouchScreen(port, phone)
+
+def follow_route(phone):
+    screen_go_overview(phone)
+    t, _ = phone.pocr_find_regex('.*ROUTE.*')
+    phone.tap_screen(t['center'][0], t['center'][1]-20, scale=False)
+    sleep(1)
+        
+    t, _ = phone.pocr_find_regex('.*NEARBY.*')
+    phone.tap_screen(t['center'], scale=False)    
+    sleep(1)
+        
+    t, _ = phone.pocr_find_regex('.*min.*')
+    phone.tap_screen(t['center'], scale=False)    
+    sleep(1)    
+    
+    t, _ = phone.pocr_find_regex('.*FOLLOW.*')
+    phone.tap_screen(t['center'], scale=False)    
+    sleep(1)    
+         
+def route(port):
+    print("Start on port {}", port)
+    phone = TouchScreen(port)
     quit_route(phone)
     phone.screen_go_to_home()
     end_route(phone)
@@ -60,21 +87,7 @@ def route(port, phone):
         try:
             if phone.color_match(923, 1542, 252, 255, 253) or phone.color_match(904, 1542, 255, 158, 0):
                 quit_route(phone)
-            sleep(0.75)
-            phone.tap_screen(900, 1850)
-            sleep(0.75)
-            # route 
-            phone.tap_screen(876, 287)
-            # Nearby
-            phone.color_match_wait_click(503, 1587, 114, 215, 156)
-            sleep(2)
-            # first route
-            phone.tap_screen(300, 1600)
-            phone.color_match_wait(338, 1533, 114, 215, 156, threashold=20)
-            sleep(0.5)
-            phone.tap_screen(338, 1533)
-            sleep(1)
-            phone.tap_screen(373, 1950)
+            follow_route(phone)
             timeout = 300
             while not phone.color_match(960, 1617, 255, 142, 142) \
                     and timeout > 0:
@@ -107,7 +120,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    route(args.port, args.phone)
+    route(args.port)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)
