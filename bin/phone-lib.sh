@@ -15,7 +15,8 @@ export SN_3002=ce01182118d5b02a0c
 
 # Aphex
 export SN_3008=R58N648E8EX
-
+# Plastic
+export SN_3009=ce0718273126160104
 my_args=$*
 export my_args
 

@@ -497,12 +497,11 @@ class TouchScreen:
             start[0] = self.maxX < size[0] / 2
 
     def pocr_read(self, start, size, scale=True):
-        if not self.pocr:
-            self.pocr = Ocr(self)
+
         try:
             # if check_boundaries(start, size):
             #    return self.pocr.pocr_read(start, size)
-            return self.pocr.pocr_read(start, size, scale)
+            return self.pocr.read_rec_lines(start, size, scale)
         except:
             print("No good")
             sleep(1)
@@ -522,7 +521,7 @@ class TouchScreen:
     
     @poke_timeout()
     def pocr_wait_text(self, start, size, text, pause=0,  to_ms=0, debug=False, scale=True):
-        t = self.pocr_read_line(start, size, scale=scale)
+        t = self.pocr.read_line(start, size, scale=scale)
         self.log.debug("read {}".format(t))
         if text in t:
             return t

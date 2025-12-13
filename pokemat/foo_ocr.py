@@ -9,6 +9,7 @@ import math
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
+from pokelib import Ocr
 
 import numpy as np
 from PIL import Image
@@ -40,17 +41,28 @@ def action(port, arg = None):
     # print("Elapsed time {}s".format((t2-t1).total_seconds()))
     # print(text)
 
+    
+    
     t1 = datetime.now()
     for i in range(rounds):
-        text = p.pocr.easyocr_read_center((0, 0), (p.specs['w'], p.specs['h']), scale=False)
+        # text = p.pocr.easyocr_read_center((0, 0), (p.specs['w'], p.specs['h']), scale=False)
+        text, _ = p.pocr.read_rec_lines((0, 0), (p.specs['w'], p.specs['h']), scale=False, verbose=1)
     t2 = datetime.now()
     print("Elapsed time {}s".format((t2-t1).total_seconds()))
     
-    print(text)
+    t1 = datetime.now()
+    for i in range(rounds):
+        # text = p.pocr.easyocr_read_center((0, 0), (p.specs['w'], p.specs['h']), scale=False)
+        text, _ = p.pocr.read_rec_lines((0, 0), (p.specs['w'], p.specs['h']), scale=False, verbose=-1)
+    t2 = datetime.now()
+    print("Elapsed time {}s".format((t2-t1).total_seconds()))
+        # print(text)
+    print('No dict')
+    # text = p.pocr.pocr_read_and_image((0, 0), (p.specs['w'], p.specs['h']), scale=False, output_type='dict')
+    # print(text)
     for t in text:
-        print(t["text"])
-        print(t["center"])
-    
+        print(t)
+
     
 def main():
 
