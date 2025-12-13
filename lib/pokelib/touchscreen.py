@@ -761,13 +761,12 @@ class TouchScreen:
     def tap_trade(self):
         self.log.info("Tap Trade")
         for i in range(0,20):
-            for y in range(1970, 1950, -2):
-                if self.color_match(427, y, 60, 60, 60, threashold=20, debug=True):
-                    print(f"TAP {y}") 
-                    self.tap_screen(427, y)
-                    return
+            t, _ = self.pocr_find_regex('LO.AL.*')
             print("Wait for trade button")
-            time.sleep(1)
+            if t:
+                self.tap_screen(t['center'], scale=False)
+                return
+            time.sleep(0.5)
         raise
         
     def tap_battle(self):
