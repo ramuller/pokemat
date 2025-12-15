@@ -11,6 +11,29 @@
         "--port",
         "3009"
       ]
+    },
+    {
+      "name": "Run route",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/route.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--port",
+        "3003"
+      ]
+    },
+    {
+      "name": "Change trainer",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/change_trainer.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--port",
+        "3001",
+        "schlumpiz"
+      ]
     }
   ]
 }

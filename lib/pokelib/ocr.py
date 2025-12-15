@@ -94,14 +94,17 @@ class Ocr:
             last_word = w['word']
         return rt, np_array
 
-    def read_rec(self, start, size, scale=False):
+    def read_rec(self, 
+                 start=(0, 0), 
+                 size=None, 
+                 scale=False):
         text,_ = self.read_rec_and_np_array(start,size,scale)
         # text,_ = self.pocr_read_and_image(start,size,scale)
         return text
         
     def read_rec_and_np_array(self, 
-                              start, 
-                              size, 
+                              start=(0, 0), 
+                              size=None, 
                               verbose=0,
                               np_array=None,
                               confidence=20.0,
@@ -114,19 +117,22 @@ class Ocr:
             pd.set_option('display.max_colwidth', None) # Show all text within each column (don't truncate long strings)
 
         if not np_array:
+            if size == None:
+                size = (self.ts.specs ['w'], self.ts.specs['h'])
             jbuf = self.ts.screen_capture_bw(start, size, scale)
             np_array = np.array(jbuf["gray"], dtype=np.uint8)
             np_array = np_array.reshape((jbuf["height"], jbuf["width"]))
-        return self._tesserocr_from_array(np_array, confidence=confidence, verbose=verbose)
+        return self._tesserocr_from_array(np_array, start, size, confidence=confidence, verbose=verbose)
         
         # return self.tesseract_from_array(np_array, confidence=confidence, verbose=verbose)
 
-    def _tesserocr_from_array(self, np_array, mode='L', confidence=20.0, verbose=0):
+    def _tesserocr_from_array(self, np_array, start, size, mode='L', confidence=20.0, verbose=0):
         """Run tesserocr on a numpy array and return extracted words plus the PIL image.
 
         Returns (ocr_data, image)
         """
         image = Image.fromarray(np_array, mode=mode)
+
         self.api.SetImage(image)
         # trigger recognition (GetUTF8Text returns full text, iterator used below)
         _ = self.api.GetUTF8Text()
@@ -138,7 +144,10 @@ class Ocr:
         for r in iterate_level(ri, level):
             if verbose > 0:
                 print(dir(r))
-            text = r.GetUTF8Text(level)
+            try:
+                text = r.GetUTF8Text(level)
+            except:
+                continue
             conf = r.Confidence(level)
             left, top, right, bottom = r.BoundingBox(level)
             width = right - left
@@ -152,7 +161,7 @@ class Ocr:
                     'width': width,
                     'height': height,
                     'word': wi,
-                    'center': (left + width//2, top + height//2)
+                    'center': ((left + width//2) + start[0], (top + height//2) + start[1])
                 })
                 if len(text) > 1:
                     wi += 1
@@ -208,7 +217,7 @@ class Ocr:
         if np_array == None:
             if size == None:
                 size = (self.ts.specs ['w'], self.ts.specs['h'])
-            lines = self.read_rec_lines(start=start, size=size, 
+            lines, np_array = self.read_rec_and_np_array(start=start, size=size, 
                                      verbose=verbose, np_array=np_array,
                                      confidence=confidence,
                                      scale=scale)

@@ -2,8 +2,8 @@
     "mode": "trade",
     "league": "master",
     "host": { 
-        "port": "3002",
-        "name": "pokeralle",
+        "port": "3004",
+        "name": "helmut",
 		"filterr": "\\a pidgeotto&!3* & !favorite & ! traded &!4*&!3*",
 		"filter": "ice & !favorite & !shadow &!shiny&!legendary",
 		"filter2": "gastly"

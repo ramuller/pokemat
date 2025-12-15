@@ -16,6 +16,7 @@ import re
 
 log = logging.getLogger("pokelib")
 from .pixelvector import PixelVector
+
 from .ocr import Ocr
 from .database import Database as db_p
 from .screen_capture import ScreenCapture
@@ -429,7 +430,7 @@ class TouchScreen:
         return "stop_no"
     
     def screen_is_egg(self):
-        t, _ = self.pocr_find_regex('.*Oh?.*')
+        t, _ = self.pocr.find_regex('.*Oh.*')
                                  
         if not t:
             return False
