@@ -79,7 +79,7 @@ def select_trainer(trainer):
     
             
 def detect_screen(phone):     
-    fs = phone.pocr.easyocr_read_center((0, 0), (phone.specs['w'], phone.specs['h']), scale=False)
+    fs = phone.pocr.read_rec(scale=False)
     print(fs[1])
     screen = "pogo"
     for i in range(len(fs)):
@@ -161,8 +161,8 @@ def change_trainer(port, trainer, check=False):
     phone = TouchScreen(port)
     print(f"change_trainer{trainer}")
     regex = trainer_regex(trainer)
-    t, _ = phone.pocr_find_regex(regex, ul=(0, phone.specs['h'] - phone.specs['h'] // 4), \
-                                 lr=(phone.specs['w'] // 2, phone.specs['h'] // 4))
+    t, _ = phone.pocr.find_regex(regex, start=(0, phone.specs['h'] - phone.specs['h'] // 4), 
+                                    size=(phone.specs['w'] // 2, phone.specs['h'] // 4))
     if t:
         print(f"Trainer is already {t['text']}")
         return

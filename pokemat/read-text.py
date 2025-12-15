@@ -24,7 +24,7 @@ def read_text(port, tx, ty, tw, th):
             
     print("Start reading on  port {}",port)
     p = TouchScreen(port)
-    text,image = p.pocr_read_and_image_center((tx, ty), (tw, th))
+    text,image = p.pocr.read_rec_and_np_array((tx, ty), (tw, th))
     print(text)
     if args.show:
         plt.imshow(image, cmap='gray', vmin=0, vmax=255)

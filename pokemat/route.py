@@ -4,6 +4,7 @@ import time
 from time import sleep
 import os
 import logging
+import traceback
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
@@ -15,14 +16,14 @@ from datetime import datetime
 
 def quit_route(phone):
     print("Quit route!!!")
-    phone.tap_screen(960, 1617)
+    phone.tap_screen(916, 1552)
     sleep(0.75)
     for i in range(3):
         phone.scroll(0, -1800, start_x=900, start_y=1900)
         sleep(0.5)
     
     phone.tap_screen(491, 1458)
-    sleep(1)
+    sleep(2)
     phone.tap_screen(491, 1458)
     
 def end_route(phone):
@@ -32,7 +33,7 @@ def end_route(phone):
     phone.tap_screen(920, 1552)    
     sleep(1)
     regex = ".*COMPLETE.*"
-    t, _ = phone.pocr_find_regex(regex)
+    t, _ = phone.pocr.find_regex(regex)
     if t:
         phone.tap_screen(t['center'], scale=False)
     else:
@@ -49,7 +50,7 @@ def end_route(phone):
     return True
 
 def screen_go_overview(phone):
-    t, _ = phone.pocr_find_regex('.*RSVP.*')
+    t, _ = phone.pocr.find_regex('.*RSVP.*')
     if t:
         return 0
     phone.screen_go_to_home()
@@ -60,19 +61,22 @@ def screen_go_overview(phone):
 
 def follow_route(phone):
     screen_go_overview(phone)
-    t, _ = phone.pocr_find_regex('.*ROUTE.*')
-    phone.tap_screen(t['center'][0], t['center'][1]-20, scale=False)
+    t, _ = phone.pocr.find_regex('.*ROUTE.*')
+    phone.tap_screen(t['center'], scale=False)
     sleep(1)
-        
-    t, _ = phone.pocr_find_regex('.*NEARBY.*')
+
+    start = (0, phone.specs['h']//2)
+    start = (0, 750)
+    size = (phone.specs ['w'], 200)
+    t, _ = phone.pocr.find_regex('.*NEARBY.*', start, size)
     phone.tap_screen(t['center'], scale=False)    
     sleep(1)
         
-    t, _ = phone.pocr_find_regex('.*min.*')
+    t, _ = phone.pocr.find_regex('.*min.*', start, size)
     phone.tap_screen(t['center'], scale=False)    
     sleep(1)    
     
-    t, _ = phone.pocr_find_regex('.*FOLLOW.*')
+    t, _ = phone.pocr.find_regex('.*FOLLOW.*', start, size)
     phone.tap_screen(t['center'], scale=False)    
     sleep(1)    
          
@@ -102,9 +106,11 @@ def route(port):
                 sleep(2)
                 
             
-        except:
+        except Exception as e:
+            print(e, traceback.format_exc())
             print("Something went wrong ignore")
             sleep(10)
+            os._exit(1)
         
 
     
