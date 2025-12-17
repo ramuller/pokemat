@@ -33,8 +33,18 @@
         "--port",
         "3008"
       ]
-    },
+    },  
     {
+      "name": "Run test-ocr",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/testing/test-ocr.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--port",
+        "3007"
+      ]
+    },    {
       "name": "Change trainer",
       "type": "python",
       "request": "launch",
@@ -42,9 +52,10 @@
       "console": "integratedTerminal",
       "args": [
         "--port",
-        "3001",
-        "schlumpiz"
+        "3007",
+        "schlumpiz
       ]
     }
+
   ]
 }

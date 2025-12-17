@@ -66,7 +66,7 @@ def select_trainer(trainer):
     print(f"RE {regex}")
      
     for i in range(2):
-        t, _ = phone.pocr_find_regex(regex)
+        t, _ = phone.pocr.find_regex(regex)
         if t:
             phone.tap_screen(t['center'], scale=False)
             return
@@ -80,7 +80,7 @@ def select_trainer(trainer):
             
 def detect_screen(phone):     
     fs = phone.pocr.read_rec(scale=False)
-    print(fs[1])
+    print(fs)
     screen = "pogo"
     for i in range(len(fs)):
         if "account" in fs[i]["text"]:
@@ -102,6 +102,11 @@ def do_change_trainer(port, trainer):
     print(f"On screen {screen}")
     
     if screen == "pogo":
+        t, _ = phone.pocr.find_regex(regex, start=(0, phone.specs['h'] - phone.specs['h'] // 4), 
+                                    size=(phone.specs['w'] // 2, phone.specs['h'] // 4))
+        if t:
+            print(f"Trainer is already {t['text']}")
+            return
         try:
             phone.screen_go_to_home()
             sleep(1)
@@ -111,13 +116,10 @@ def do_change_trainer(port, trainer):
             for i in range(0,10):
                 phone.scroll(0, -800, start_x=10)
                 sleep(1)
-                if phone.pocr_wait_text((40, 1400), (250, 100), "Sign Out"):
+                t,_ = phone.pocr.find_button("Sign")
+                if t:
+                    phone.tap_screen(t['center'], scale=False)
                     break
-            sleep(1)
-            print("Click sign out")
-            phone.tap_screen(40, 1450)
-            sleep(1.5)
-            phone.tap_screen(500,1000)
         except:
             pass
         while screen != "start":
@@ -125,22 +127,14 @@ def do_change_trainer(port, trainer):
             screen,x , y = detect_screen(phone)
             sleep(2)
  
-    if screen == "start":
-        phone.tap_screen(x, y, scale=False)
-        print("hit")
-        while screen != "login":
-            print("Check screen")
-            screen,x , y = detect_screen(phone)
-            sleep(2)
-
-    if screen == "login":
-        phone.tap_screen(x, y, scale=False)
-        print("hit")
-        while screen != "accounts":
-            print("Check screen")
-            screen,x , y = detect_screen(phone)
-            sleep(2)
-        
+    t, npa = phone.pocr.find_button('RETURNING', verbose=0)
+    if t:
+        phone.tap_screen(t['center'], scale=False)
+        sleep(1)
+    t, npa = phone.pocr.find_button('Google', verbose=0)
+    if t:
+        phone.tap_screen(t['center'], scale=False)
+        sleep(1)
 
     if select_trainer(trainer):
         for to in range(0, 60):  # 1min.
@@ -161,11 +155,7 @@ def change_trainer(port, trainer, check=False):
     phone = TouchScreen(port)
     print(f"change_trainer{trainer}")
     regex = trainer_regex(trainer)
-    t, _ = phone.pocr.find_regex(regex, start=(0, phone.specs['h'] - phone.specs['h'] // 4), 
-                                    size=(phone.specs['w'] // 2, phone.specs['h'] // 4))
-    if t:
-        print(f"Trainer is already {t['text']}")
-        return
+
     if not check:
         do_change_trainer(port, trainer)
     else:

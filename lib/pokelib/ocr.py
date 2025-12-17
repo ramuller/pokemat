@@ -7,6 +7,7 @@ import cv2
 from pytesseract import Output
 from tesserocr import PyTessBaseAPI, RIL, iterate_level
 import pandas as pd
+import re
 
 TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
 
@@ -17,48 +18,56 @@ class Ocr:
         # self.reader = easyocr.Reader(['en'])
         pass
 
-    # def easyocr_read(self, start, size, scale=True):
-    #     jbuf = self.ts.screen_capture_bw(start,size, scale)
-    #     np_a = np.array(jbuf["gray"], dtype=np.uint8)
-    #     np_a = np_a.reshape((jbuf["height"], jbuf["width"]))                       
-    #     # image = Image.fromarray(pixel_array, mode='L')
-    #     t = self.reader.readtext(np_a)
-    #     return t
-    #
-    # def easyocr_read_center(self, start, size, scale=True):
-    #     results = self.easyocr_read(start, size, scale)
-    #     output = []
-    #     for box, text, conf in results:
-    #         # box is a list of 4 points: [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
-    #         xs = [p[0] for p in box]
-    #         ys = [p[1] for p in box]
-    #         cx = sum(xs) / 4.0
-    #         cy = sum(ys) / 4.0
-    #         output.append({
-    #             "text": text,
-    #             "center": (int(cx), int(cy)),
-    #             "confidence": conf
-    #         })
-    #     return output
-    #
-    # def easyocr_read_text(self, start, size, scale=True):
-    #     rt = []
-    #     for t in self.easyocr_read(start, size, scale=True):
-    #         rt.append(t[1])
-    #     return rt
-    #
-    # def easyocr_read_and_image(self, start, size, scale=True):
-    #     jbuf = self.screen_capture_bw(start,size, scale)
-    #     np_a = np.array(jbuf["gray"], dtype=np.uint8)
-    #     np_a = np_a.reshape((jbuf["height"], jbuf["width"]))                       
-    #     # image = Image.fromarray(pixel_array, mode='L')
-    #     text = self.reader.readtext(np_a)
-    #     rt = []
-    #     for t in text:
-    #         rt.append(t[1])
-    #     return rt, Image.fromarray(np_a, mode='L')
-    #
-    
+    def __del__(self):
+        pass
+
+    def boxes_get(self, img, verbose=0):
+        candidates = []
+        H, W = img.shape
+        edges = cv2.Canny(img, 50, 150)
+        if verbose > 5:
+            self.ts.sc.schow_image(edges, wait=1000)
+        contours, _ = cv2.findContours(
+            edges,
+            # cv2.RETR_EXTERNAL,
+            cv2.RETR_TREE,
+            cv2.CHAIN_APPROX_SIMPLE
+            )
+            
+        for cnt in contours:
+            x, y, w, h = cv2.boundingRect(cnt)
+            area = w * h
+            if verbose > 2:
+                print(f'Cont : x{x},y{y},w{w},h{h}')
+            # reject small stuff
+            if area < 0.01 * W * H:
+                continue
+        
+            # reject near-fullscreen
+            if area > 0.9 * W * H:
+                continue
+        
+            # aspect ratio sanity
+            aspect = w / float(h)
+            # if 0.5 < aspect < 2.5: 
+            if 0.5 < aspect < 6: 
+                candidates.append((x, y, w, h))
+        unique = set(candidates)
+        boxes = []
+        if unique:
+            for d in unique:
+                x, y, w, h = d
+                pad = 10  # pixels
+                boxes.append({'rois': img[
+                    y+pad : y+h-pad,
+                    x+pad : x+w-pad
+                    ],
+                    'x': x+pad, 'y': y+pad
+                    })
+                if verbose > 5:
+                    self.ts.sc.show_image(boxes[-1], wait=2000, title='box')
+        return boxes
+
     def read_rec_line(self,
                        start,
                        size,
@@ -123,34 +132,24 @@ class Ocr:
             jbuf = self.ts.screen_capture_bw(start, size, scale)
             np_array = np.array(jbuf["gray"], dtype=np.uint8)
             np_array = np_array.reshape((jbuf["height"], jbuf["width"]))
-        return self._tesserocr_from_array(np_array, start, size, confidence=confidence, verbose=verbose)
+        return self._tesserocr_from_array(np_array, confidence=confidence, verbose=verbose)
         
         # return self.tesseract_from_array(np_array, confidence=confidence, verbose=verbose, show=False)
 
-    def _tesserocr_from_array(self, np_array, start, size, mode='L', confidence=20.0, verbose=0):
+    def _tesserocr_from_array(self, array, confidence=20.0, verbose=0):
         """Run tesserocr on a numpy array and return extracted words plus the PIL image.
 
         Returns (ocr_data, image)
         """
-
-        # roi = cv2.normalize(np_array, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
-        roi = cv2.normalize(np_array, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
-        roi = cv2.adaptiveThreshold(
-                                    roi,
-                                    255,
-                                    cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                    cv2.THRESH_BINARY,
-                                    31, 5)
-
-        image = Image.fromarray(roi, mode=mode)
-        if verbose > 0:      
-            cv2.imshow("Image", roi)
-            print("Press any key to continue...")
-            cv2.waitKey(0)  
-            cv2.destroyAllWindows()
-        self.api.SetImage(image)
+        h, w = array.shape
+        self.api.SetImageBytes(
+                array.tobytes(),
+                w, h,
+                1,      # bytes per pixel (grayscale)
+                w       # bytes per line
+        )        
         # trigger recognition (GetUTF8Text returns full text, iterator used below)
-        _ = self.api.GetUTF8Text()
+        t = self.api.GetUTF8Text()
         ri = self.api.GetIterator()
 
         level = RIL.WORD
@@ -176,14 +175,25 @@ class Ocr:
                     'width': width,
                     'height': height,
                     'word': wi,
-                    'center': ((left + width//2) + start[0], (top + height//2) + start[1])
+                    'center': ((left + width//2), (top + height//2))
                 })
                 if len(text) > 1:
                     wi += 1
                 else:
                     wi = 1
 
-        return ocr_data, np_array
+        return ocr_data, array
+    def _concat_tesserocr_results(self, words):
+        """Concatenate tesserocr results based on word index."""
+        concatenated = []
+        for w in words:
+            if w['word'] == 1:
+                concatenated.append(w)
+            else:
+                concatenated[-1]['text'] += ' ' + w['text']
+        return concatenated
+
+
 
     def tesseract_from_array(self, np_array, confidence=20.0, verbose=0):
         """Run pytesseract on a numpy array and return extracted words plus the array.
@@ -217,6 +227,7 @@ class Ocr:
                 })
                 if verbose > 0:
                     print(f"Index: {index}, Word: {text}, Confidence: {c}")
+
         if verbose > 0:
             print(f"Total words {wc}")
         return rt, np_array
@@ -240,3 +251,55 @@ class Ocr:
             if re.search(regex, l['text']):
                 return l, np_array
         return None, np_array
+    
+    def find_button(self,
+                   name,
+                   start=(0,0),
+                   size=None,    
+                   verbose=0,
+                   npa=None,
+                   confidence=20.0,
+                   scale=False):
+        if npa == None:
+            if size == None:
+                size = (self.ts.specs ['w'], self.ts.specs['h'])
+            npa = self.ts.sc.scan_image(x=start[0], y=start[1], w=size[0], h=size[1], channel='gray')
+
+        boxes = self.boxes_get(npa, verbose=0)            
+
+        for box in boxes:
+            if verbose > 5:
+                self.ts.sc.show_image(box['rois'], wait=1000, title='button-candidate')
+            t, _ = self._tesserocr_from_array(box['rois'])
+
+            for w in t:
+                print("Found word: {}".format(w['text']))
+                if re.search(name, w['text']):
+                    w['left'] += box['x'] + w['left']
+                    w['top']  += box['y'] + w['top']
+                    w['center'] = (w['center'][0] + box['x'], w['center'][1] + box['y'])                  
+                    return w, npa
+
+            roi = cv2.normalize(box['rois'], None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+            roi = cv2.bitwise_not(roi)
+            roi = cv2.adaptiveThreshold(
+                roi,
+                255,
+                cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                cv2.THRESH_BINARY,
+                31,
+                5
+            )
+            if verbose > 5:
+                self.ts.sc.show_image(roi, wait=1000, title='button-candidate-preprocessed')
+            words, _ = self._tesserocr_from_array(roi)
+            texts = self._concat_tesserocr_results(words)
+            for w in texts:
+                print("Found word: {}".format(w['text']))
+                if re.search(f'.*{name}.*', w['text']):
+                    w['left'] += box['x'] + w['left']
+                    w['top']  += box['y'] + w['top']
+                    w['center'] = (w['center'][0] + box['x'], w['center'][1] + box['y'])                  
+                    return w, npa   
+
+        return None, npa
