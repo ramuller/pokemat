@@ -450,7 +450,7 @@ class TouchScreen:
 
     def screen_capture_bw(self, start, size, scale=True):
         x, y = start
-        w, h = map(lambda x: x - 1, size)
+        w, h = size
         if x < 0 or (x + w) >= self.maxX \
            or y < 0 or (y + h) >= self.maxY:
             self.log.error("clip out of range x{}, y{}, width{}, height{}", x, y, w, h)
@@ -464,7 +464,8 @@ class TouchScreen:
     
     def screen_capture(self, start, size, scale=True):
         x, y = start
-        w, h = map(lambda x: x - 1, size)
+        w, h = size
+        # w, h = map(lambda x: x - 1, size)
         if x < 0 or (x + w) >= self.maxX \
            or y < 0 or (y + h) >= self.maxY:
             self.log.error("clip out of range x{}, y{}, width{}, height{}", x, y, w, h)
@@ -473,7 +474,7 @@ class TouchScreen:
             x, y = self.scaleXY(x, y)
             w, h = self.scaleXY(w, h)
     
-        response = self.write_to_phone("snip:{},{},{},{}".format(x ,y ,w, h))           
+        response = self.write_to_phone("snip:{},{},{},{}".format(x ,y ,w , h))           
         return response.json()
         
     def pocr_read_line_center(self, start, size, scale=True):
@@ -889,9 +890,9 @@ class TouchScreen:
                         print(f"Something green at {y}")
                         b_text = self.pocr_read_line_center((500, y + 50), (100, 100))
                         print(f"Button text {b_text}")
-                        if re.match(b_text, ".*OK.*"):
+                        if re.match(b_text, ".*CANCEL.*"):
                             print("Found OK")
-                            self.tap_screen(500, y)
+                            self.tap_screen(b_text['center'])
                             break
                 count = 0
             sleep(1)
@@ -1164,10 +1165,10 @@ class TouchScreen:
                 if self.color_match(288, 1806, 151, 217, 147):
                     self.tap_screen(288, 1806)
                 # Frist battle
-                if self.color_match(328, 939, 255, 255, 255) and False:
+                if self.color_match(328, 939, 255, 255, 255):
                     self.tap_screen(328, 939)
                     break
-                if self.color_match(500, 1150, 255, 255, 255):
+                if self.color_match(500, 1150, 255, 255, 255) and False:
                     self.tap_screen(500, 1150)
                     break
                 if self.color_match(347, 1812, 144, 218, 152):
@@ -1535,9 +1536,9 @@ class TouchScreen:
                             yy = 660 + i
                             r,g,b =self.get_rgb(xx, yy)
                             print("{},{},{},{},{}".format(xx, yy, r, g, b))
-                    time.sleep(0.4)
+                    time.sleep(0.15)
                     self.tap_screen(x, 1780, duration = 80)
-                    time.sleep(0.4)
+                    time.sleep(0.15)
                     # self.tap_screen(x, 1790)
                     # time.sleep(0.01)
                     self.tap_screen(x, 1800, duration = 80)

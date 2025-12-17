@@ -20,7 +20,18 @@
       "console": "integratedTerminal",
       "args": [
         "--port",
-        "3003"
+        "3004"
+      ]
+    },    
+    {
+      "name": "Run get_rgb",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/testing/find_rgb.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--port",
+        "3008"
       ]
     },
     {

@@ -8,8 +8,12 @@ class ScreenCapture:
         self.ts = ts
         self.s = self.ts.specs
         
-    def schow_image(self, img, title="picture", x=0, y=0, scale=1):
+    def show_image(self, img, title="picture", x=0, y=0, scale=1, wait=0):
         cv2.imshow(title, img)
+        cv2.waitKey(wait)
+        cv2.destroyAllWindows()
+
+          
    
     def scan_image(self, x=0, y=0, w=0, h=0, channel="gray"):
         if w == 0:
@@ -24,11 +28,11 @@ class ScreenCapture:
             jbuf = self.ts.screen_capture((x, y), (w, h), scale=False)
             rgb = self.yuv420_dict_to_rgb(jbuf)
             if channel == "red":
-                pixel_array = np.array(rgb[:, :, 0], dtype=np.uint8).reshape(h-1, w-1)
+                pixel_array = np.array(rgb[:, :, 0], dtype=np.uint8).reshape(h, w)
             elif channel == "green":
-                pixel_array = np.array(rgb[:, :, 0], dtype=np.uint8).reshape(h-1, w-1)
+                pixel_array = np.array(rgb[:, :, 1], dtype=np.uint8).reshape(h, w)
             elif channel == "blue":
-                pixel_array = np.array(rgb[:, :, 0], dtype=np.uint8).reshape(h-1, w-1)
+                pixel_array = np.array(rgb[:, :, 2], dtype=np.uint8).reshape(h, w)
         return pixel_array
         return Image.fromarray(pixel_array, mode='L')
    

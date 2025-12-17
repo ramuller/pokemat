@@ -3,6 +3,7 @@ import numpy as np
 from PIL import Image
 # import easyocr
 import pytesseract
+import cv2
 from pytesseract import Output
 from tesserocr import PyTessBaseAPI, RIL, iterate_level
 import pandas as pd
@@ -108,7 +109,7 @@ class Ocr:
                               verbose=0,
                               np_array=None,
                               confidence=20.0,
-                              scale=False, 
+                              scale=False
                               ):
         if verbose > 0:
             pd.set_option('display.max_rows', None)     # Show all rows
@@ -124,15 +125,29 @@ class Ocr:
             np_array = np_array.reshape((jbuf["height"], jbuf["width"]))
         return self._tesserocr_from_array(np_array, start, size, confidence=confidence, verbose=verbose)
         
-        # return self.tesseract_from_array(np_array, confidence=confidence, verbose=verbose)
+        # return self.tesseract_from_array(np_array, confidence=confidence, verbose=verbose, show=False)
 
     def _tesserocr_from_array(self, np_array, start, size, mode='L', confidence=20.0, verbose=0):
         """Run tesserocr on a numpy array and return extracted words plus the PIL image.
 
         Returns (ocr_data, image)
         """
-        image = Image.fromarray(np_array, mode=mode)
 
+        # roi = cv2.normalize(np_array, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+        roi = cv2.normalize(np_array, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+        roi = cv2.adaptiveThreshold(
+                                    roi,
+                                    255,
+                                    cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                    cv2.THRESH_BINARY,
+                                    31, 5)
+
+        image = Image.fromarray(roi, mode=mode)
+        if verbose > 0:      
+            cv2.imshow("Image", roi)
+            print("Press any key to continue...")
+            cv2.waitKey(0)  
+            cv2.destroyAllWindows()
         self.api.SetImage(image)
         # trigger recognition (GetUTF8Text returns full text, iterator used below)
         _ = self.api.GetUTF8Text()
@@ -168,7 +183,7 @@ class Ocr:
                 else:
                     wi = 1
 
-        return ocr_data, image
+        return ocr_data, np_array
 
     def tesseract_from_array(self, np_array, confidence=20.0, verbose=0):
         """Run pytesseract on a numpy array and return extracted words plus the array.

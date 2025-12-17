@@ -13,9 +13,11 @@ from pokelib import PokeArgs
 
 import numpy as np
 from PIL import Image
+import cv2
 import matplotlib.pyplot as plt
 
-# import pytesseract
+import pytesseract
+from pytesseract import Output
 
 import json
 import sys
@@ -54,21 +56,50 @@ def cap_and_show():
         y += xr[2]
     #print(dd[3003])
     pixel_array = np.array(jbuf["gray"], dtype=np.uint8)
-    pixel_array = pixel_array.reshape((jbuf["hight"], jbuf["width"]))
+    pixel_array = pixel_array.reshape((jbuf["height"], jbuf["width"]))
     image = Image.fromarray(pixel_array, mode='L')    
     plt.imshow(image, cmap='gray', vmin=0, vmax=255)
     plt.title(f'Grayscale Bitmap')
     plt.axis('off')
     plt.show()
-def ocr_test(p):
+    
+    
+def ocr_ex(p):
     print("Start ocr testing")
-    reader = easyocr.Reader(['en'])
-    jbuf = p.screen_capture_bw((0,0), (575, 1023), scale=False)
-    for i in range(0, 300):
+
+    jbuf = p.screen_capture((0,0), (576, 1024), scale=False)
+    for i in range(1):
         # print(f"Round {i}")
         t1 = datetime.now()
         pixel_array = np.array(jbuf["gray"], dtype=np.uint8)
-        pixel_array = pixel_array.reshape((jbuf["hight"], jbuf["width"]))
+        pixel_array = pixel_array.reshape((jbuf["height"], jbuf["width"]))
+        image = Image.fromarray(pixel_array, mode='L')
+        pa = np.array(jbuf["gray"], dtype=np.uint8).reshape((jbuf["height"], jbuf["width"]))
+        pu = np.array(jbuf["v"], dtype=np.uint8).reshape((jbuf["height"]//2, jbuf["width"]//2))
+        image = Image.fromarray(pu, mode='L')
+        df = pytesseract.image_to_data(pa, output_type=Output.DATAFRAME)
+        print(df)
+        # text = reader.readtext(pixel_array)
+        t2 = datetime.now()
+        # print("Elapsed time {}s".format((t2-t1).total_seconds()))
+    # for t in text:
+    # print(text)
+       
+    cv2.imshow("Image", pa)
+    print("Press any key to continue...")
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()    
+    
+    
+def ocr_test(p):
+    print("Start ocr testing")
+    reader = easyocr.Reader(['en'])
+    jbuf = p.screen_capture((0,0), (575, 1023), scale=False)
+    for i in range(1):
+        # print(f"Round {i}")
+        t1 = datetime.now()
+        pixel_array = np.array(jbuf["gray"], dtype=np.uint8)
+        pixel_array = pixel_array.reshape((jbuf["height"], jbuf["width"]))
         image = Image.fromarray(pixel_array, mode='L')
         
         text = reader.readtext(pixel_array)
@@ -76,6 +107,12 @@ def ocr_test(p):
         # print("Elapsed time {}s".format((t2-t1).total_seconds()))
     for t in text:
        print(t)
+       
+    cv2.imshow("Image", pixel_array)
+    print("Press any key to continue...")
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    
     return
     plt.imshow(image, cmap='gray', vmin=0, vmax=255)
     plt.title(f'Grayscale Bitmap')
@@ -88,7 +125,7 @@ def action(port, arg = None):
     # global p
     p = TouchScreen(port)
     startTime = datetime.now()
-    ocr_test(p)
+    ocr_ex(p)
 
     return
     while True:
