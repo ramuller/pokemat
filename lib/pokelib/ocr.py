@@ -242,8 +242,8 @@ class Ocr:
                    scale=False):
         if np_array == None:
             if size == None:
-                size = (self.ts.specs ['w'], self.ts.specs['h'])
-            lines, np_array = self.read_rec_and_np_array(start=start, size=size, 
+                size = (self.ts.specs ['max_x'], self.ts.specs['max_y'])
+            lines, np_array = self.read_rec_lines(start=start, size=size, 
                                      verbose=verbose, np_array=np_array,
                                      confidence=confidence,
                                      scale=scale)
@@ -262,8 +262,8 @@ class Ocr:
                    scale=False):
         if npa == None:
             if size == None:
-                size = (self.ts.specs ['w'], self.ts.specs['h'])
-            npa = self.ts.sc.scan_image(x=start[0], y=start[1], w=size[0], h=size[1], channel='gray')
+                size = (self.ts.specs ['max_x'], self.ts.specs['max_y'])
+            npa = self.ts.sc.scan_image(xs=start[0], ys=start[1], xe=size[0], ye=size[1], channel='gray')
 
         boxes = self.boxes_get(npa, verbose=0)            
 
@@ -296,7 +296,7 @@ class Ocr:
             texts = self._concat_tesserocr_results(words)
             for w in texts:
                 print("Found word: {}".format(w['text']))
-                if re.search(f'.*{name}.*', w['text']):
+                if re.search(f'{name}', w['text']):
                     w['left'] += box['x'] + w['left']
                     w['top']  += box['y'] + w['top']
                     w['center'] = (w['center'][0] + box['x'], w['center'][1] + box['y'])                  

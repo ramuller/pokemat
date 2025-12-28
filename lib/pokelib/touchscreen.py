@@ -873,9 +873,11 @@ class TouchScreen:
                 self.tap_screen(57, 365)
             elif self.color_match(357, 1005, 150, 218, 151, debug=False):
                 # Not exit pokemon
-                if not "GO" in self.pocr_read_line_center((790, 800), (100, 70)):
+                t,_ = self.pocr.find_regex('.*exit Pok.mon GO.*', verbose=10)
+                if not t:
                     self.tap_confirm()
                 else:
+                    # return to home
                     self.tap_screen(100, 100, button = 3)
             else:
                 self.tap_screen(100, 100, button = 3)

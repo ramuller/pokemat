@@ -15,14 +15,14 @@ class ScreenCapture:
 
           
    
-    def scan_image(self, x=0, y=0, w=0, h=0, channel="gray"):
-        if w == 0:
-            w = self.s['w']
-        if h == 0:
-            h = self.s['h']
+    def scan_image(self, xs=0, ys=0, xe=0, ye=0, channel="gray"):
+        if xe == 0:
+            xe = self.s['max_x']
+        if ye == 0:
+            ye = self.s['max_y']
             
         if channel == "gray":
-            jbuf = self.ts.screen_capture_bw((x, y), (w, h), scale=False)
+            jbuf = self.ts.screen_capture_bw((xs, ys), (xe, ye), scale=False)
             pixel_array = np.array(jbuf["gray"], dtype=np.uint8).reshape((jbuf["height"], jbuf["width"]))
         else:
             jbuf = self.ts.screen_capture((x, y), (w, h), scale=False)

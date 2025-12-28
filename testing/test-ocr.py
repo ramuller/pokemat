@@ -22,7 +22,7 @@ import sys
 from datetime import datetime
 
 
-def action(port, arg = None):
+def login(port, arg = None):
         
     print("Start testing port {}",port)
     global p
@@ -32,15 +32,32 @@ def action(port, arg = None):
     t, npa = p.pocr.find_button('RETURNING', verbose=0)
     if t:
         p.tap_screen(t['center'], scale=False)
+        sleep(2)
     t, npa = p.pocr.find_button('Google', verbose=0)
     if t:
         p.tap_screen(t['center'], scale=False)
-    t, npa = p.pocr.find_regex('Aphex', verbose=0)
-    if t:
-        p.tap_screen(t['center'], scale=False)
+        sleep(2)
+    t = None
+    while not t:
+        t, npa = p.pocr.find_button('Plastic.*', verbose=0)
+        if t:
+            p.tap_screen(t['center'], scale=False)
     endTime = datetime.now()
     delta = endTime - startTime
     print(f"Duration: {delta.total_seconds()} seconds")
+
+
+def no_exit():
+    p.screen_go_to_home()
+
+
+def action(port, arg = None):
+    global p
+    p = TouchScreen(port)
+    t1 = datetime.now()
+    no_exit()
+    t2 = datetime.now()
+    print("Elapsed time {}s".format((t2-t1).total_seconds()))
 
 def main():
 
