@@ -113,7 +113,8 @@ def defeat_gym(port, max_round=5):
         phone.screen_go_to_home()
         return False    
     phone.tap_screen(871, 1632)
-    phone.pokemon_search("cp10-100&0*,1*")
+    phone.pokemon_search("cp1500-2000")
+    # phone.pokemon_search("cp10-100&0*,1*")
     # phone.pokemon_search("cp2800-5000&3*")
     phone.pokemon_select_first()
     phone.color_match_wait_click(277, 1029, 162, 220, 148)

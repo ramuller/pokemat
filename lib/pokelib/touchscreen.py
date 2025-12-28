@@ -1164,10 +1164,10 @@ class TouchScreen:
                 if self.color_match(288, 1806, 151, 217, 147):
                     self.tap_screen(288, 1806)
                 # Frist battle
-                if self.color_match(328, 939, 255, 255, 255) and False:
+                if self.color_match(328, 939, 255, 255, 255):
                     self.tap_screen(328, 939)
                     break
-                if self.color_match(500, 1150, 255, 255, 255):
+                if self.color_match(500, 1150, 255, 255, 255) and False:
                     self.tap_screen(500, 1150)
                     break
                 if self.color_match(347, 1812, 144, 218, 152):
