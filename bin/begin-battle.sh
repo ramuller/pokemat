@@ -5,7 +5,7 @@ sleep $1
 echo Lets battle 7500s
 do-battle.sh &
 do_pid=$!
-sleep 7200
+sleep 8000
 echo Stop battlle
 kill $do_pid
 echo Killall python
