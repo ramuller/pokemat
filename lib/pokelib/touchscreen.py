@@ -20,6 +20,7 @@ from .pixelvector import PixelVector
 from .ocr import Ocr
 from .database import Database as db_p
 from .screen_capture import ScreenCapture
+from .ocr import Ocr
 
 from pokelib import ExPokeLibError, ExPokeNoHomeError, ExPokeLibFatal
 
@@ -104,8 +105,8 @@ class TouchScreen:
         self.vector_top_down = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
         self.vector = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
         # self.pocr = None
-        self.pocr = Ocr(self)
         self.sc = ScreenCapture(self)
+        self.pocr = Ocr(self)
         for self.min_width in range(1,100):
             tb = self.screen_capture_bw((100,100), (self.min_width, 100))
             if tb["width"] == 1:
@@ -430,7 +431,7 @@ class TouchScreen:
         return "stop_no"
     
     def screen_is_egg(self):
-        t, _ = self.pocr.find_regex('.*Oh.*')
+        t, _ = self.pocr.regex('.*Oh.*')
                                  
         if not t:
             return False
@@ -873,7 +874,11 @@ class TouchScreen:
                 self.tap_screen(57, 365)
             elif self.color_match(357, 1005, 150, 218, 151, debug=False):
                 # Not exit pokemon
-                t,_ = self.pocr.find_regex('.*exit Pok.mon GO.*', verbose=10)
+                # t,_ = self.pocr.find_regex('.*exit Pok.mon GO.*', verbose=0)
+                mode = self.pocr.mode
+                self.pocr.mode = "line"
+                t,_ = self.pocr.regex('.*Do you want to exit Pok.*', verbose=10)
+                self.pocr.mode = mode
                 if not t:
                     self.tap_confirm()
                 else:

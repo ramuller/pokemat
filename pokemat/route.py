@@ -32,30 +32,38 @@ def end_route(phone):
     sleep(1)
     phone.tap_screen(920, 1552)    
     sleep(1)
-    regex = ".*COMPLETE.*"
-    # regex = ".*"
-    t, _ = phone.pocr.find_regex(regex)
-    if t:
-        phone.tap_screen(t['center'], scale=False)
+    phone.pocr.invert = True
+    b, _ = phone.pocr.button('.*COMPLETE.*')
+    if b:
+        phone.tap_screen(b['center'], scale=False)    
     else:
         return False
-            
     sleep(1)
-    if phone.color_match(390, 1046, 141, 218, 151):
-        phone.tap_screen(390, 1046)
-        sleep(0.5)    
+    b, _ = phone.pocr.button('.*YES.*')
+    if b:
+        phone.tap_screen(b['center'], scale=False)    
+    else:
+        return False    
+    sleep(1)
+    b, _ = phone.pocr.button('.*OK.*')
+    if b:
+        phone.tap_screen(b['center'], scale=False)    
+    else:
+        return False
+    phone.pocr.invert = False    
+    sleep(1)
 
     # t, _ = phone.pocr.find_regex('YES')
     # if t:
     #     phone.tap_screen(t['center'], scale=False)
     
-    for i in range(18):
+    for i in range(10):
         phone.tap_screen(15, 100)
         sleep(0.5)
     return True
 
 def screen_go_overview(phone):
-    t, _ = phone.pocr.find_regex('.*RSVP.*')
+    t, _ = phone.pocr.regex('.*RSVP.*')
     if t:
         return 0
     phone.screen_go_to_home()
@@ -66,29 +74,23 @@ def screen_go_overview(phone):
 
 def follow_route(phone):
     screen_go_overview(phone)
-    t, _ = phone.pocr.find_regex('.*ROUTE.*')
+    t, _ = phone.pocr.regex('.*ROUTE.*')
     phone.tap_screen(t['center'], scale=False)
     sleep(1)
-
-    start = (0, phone.specs['h']//2)
-    start = (0, 765)
-    size = (phone.specs ['w'], 200)
-    t, _ = phone.pocr.find_regex('.*NEARBY.*', start, size)
-    phone.tap_screen(t['center'], scale=False)    
+    b, _ = phone.pocr.button('.*NEARBY.*')
+    phone.tap_screen(b['center'], scale=False)    
     sleep(1)
         
-    t, _ = phone.pocr.find_regex('.*min.*', start, size)
+    t, _ = phone.pocr.regex('.*crossroad.*')
     phone.tap_screen(t['center'], scale=False)    
     sleep(2)    
-     
-    if phone.color_match(385, 1556, 111, 211, 143):
-        phone.tap_screen(385, 1556)
-        sleep(0.5)
-        phone.tap_screen(385, 1556)
-        sleep(1.5)
-    # t, _ = phone.pocr.find_regex('.*FOLLOW.*', verbose=1)
-    # phone.tap_screen(t['center'], scale=False)    
-    # sleep(1)    
+    
+    phone.pocr.invert = True
+    b, _ = phone.pocr.button('.*FOLLOW.*')
+    phone.pocr.invert = False
+    phone.tap_screen(b['center'], scale=False)    
+    sleep(1)
+
     phone.tap_screen(15, 100)
     sleep(1.3)    
 

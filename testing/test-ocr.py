@@ -22,12 +22,9 @@ import sys
 from datetime import datetime
 
 
-def login(port, arg = None):
+def login():
         
-    print("Start testing port {}",port)
-    global p
-    p = TouchScreen(port)
-    startTime = datetime.now()
+    print("Start login")
     # t, npa = p.pocr.find_regex('.*RETURING.*', verbose=0)
     t, npa = p.pocr.find_button('RETURNING', verbose=0)
     if t:
@@ -39,23 +36,48 @@ def login(port, arg = None):
         sleep(2)
     t = None
     while not t:
-        t, npa = p.pocr.find_button('Plastic.*', verbose=0)
+        t, npa = p.pocr.find_regex('Plastic.*', verbose=10)
         if t:
             p.tap_screen(t['center'], scale=False)
-    endTime = datetime.now()
-    delta = endTime - startTime
-    print(f"Duration: {delta.total_seconds()} seconds")
-
 
 def no_exit():
     p.screen_go_to_home()
 
+def test_regex():   
+    button, npa = p.pocr.regex('.*ROUTE.*', verbose=10)
+    if button:
+        p.tap_screen(button['center'], scale=False)
+        sleep(2)
+    button, npa = p.pocr.regex('.*Nuuksio.*', verbose=10)
+    if button:
+        p.tap_screen(button['center'], scale=False)
+        sleep(2)
+
+def test_button():   
+    button, npa = p.pocr.button('.*NEARBY.*', verbose=10)
+    print(f"Button {button} ")
+    if button:
+        p.tap_screen(button['center'], scale=False)
+        sleep(2)
+
+
+def pure_read():
+    # text, _ = p.pocr.read_rec_lines(start=(0,30), scale=False, verbose=10, mode='symbol')
+    # p.pocr.mode = 'line'
+    text, _ = p.pocr.read()
+    print("OCR Text:")
+    for t in text:
+        print("   {}".format(t))
 
 def action(port, arg = None):
     global p
     p = TouchScreen(port)
     t1 = datetime.now()
-    no_exit()
+    # no_exit()
+    # login()
+    test_regex()
+    # pure_read()
+    # test_button()
     t2 = datetime.now()
     print("Elapsed time {}s".format((t2-t1).total_seconds()))
 

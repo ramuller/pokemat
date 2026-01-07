@@ -20,7 +20,7 @@
       "console": "integratedTerminal",
       "args": [
         "--port",
-        "3004"
+        "3007"
       ]
     },    
     {

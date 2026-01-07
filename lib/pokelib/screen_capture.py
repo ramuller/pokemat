@@ -15,14 +15,21 @@ class ScreenCapture:
 
           
    
-    def scan_image(self, xs=0, ys=0, xe=0, ye=0, channel="gray"):
-        if xe == 0:
+    def scan_region(self, xs=0, ys=0, xe=0, ye=0, channel="gray"):
+        if xe == 0 or xe > self.s['max_x']:
             xe = self.s['max_x']
-        if ye == 0:
+        if ye == 0 or ye > self.s['max_y']:
             ye = self.s['max_y']
-            
+        if xs < 0:
+            xs = 0
+        if ys < 0:
+            ys = 0
+        w = xe - xs
+        h = ye - ys
+        x = xs
+        y = ys
         if channel == "gray":
-            jbuf = self.ts.screen_capture_bw((xs, ys), (xe, ye), scale=False)
+            jbuf = self.ts.write_to_phone(f"snip_gray:{x},{y},{w},{h}").json()
             pixel_array = np.array(jbuf["gray"], dtype=np.uint8).reshape((jbuf["height"], jbuf["width"]))
         else:
             jbuf = self.ts.screen_capture((x, y), (w, h), scale=False)

@@ -4,24 +4,36 @@ from PIL import Image
 # import easyocr
 import pytesseract
 import cv2
-from pytesseract import Output
-from tesserocr import PyTessBaseAPI, RIL, iterate_level
+# from pytesseract import Output
+from tesserocr import PyTessBaseAPI, RIL, iterate_level, PSM
 import pandas as pd
 import re
+from .screen_capture import ScreenCapture
 
 TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
 
 class Ocr:
     def __init__(self, ts):
-        self.ts =ts
+        self.ts = ts
+        self.sc = ts.sc
         self.api = PyTessBaseAPI(path=TESSDATA_PATH, lang='eng')
+        self.capture = ScreenCapture(ts)
         # self.reader = easyocr.Reader(['en'])
-        pass
+        self.startx = 0
+        self.starty = 0
+        self.endx = ts.specs['max_x']
+        self.endy = ts.specs['max_y']
+        self.confidence = 20.0
+        self.invert = False
+        self.process = True
+        self.color = 'gray'
+        self.mode = 'word'
+        self.npa = None
 
     def __del__(self):
         pass
 
-    def boxes_get(self, img, verbose=0):
+    def _boxes_get(self, img, verbose=0):
         candidates = []
         H, W = img.shape
         edges = cv2.Canny(img, 50, 150)
@@ -67,33 +79,53 @@ class Ocr:
                 if verbose > 5:
                     self.ts.sc.show_image(boxes[-1], wait=2000, title='box')
         return boxes
-
+    
+    def _process_array(self, npa, verbose=0):
+        if self.invert:
+            npa = cv2.bitwise_not(npa)
+        npa = cv2.normalize(npa, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+        if self.process:
+            npa = cv2.adaptiveThreshold(
+                npa,
+                255,
+                cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                cv2.THRESH_BINARY,
+                31,
+                5
+            )
+        return npa
+    
+ 
     def read_rec_line(self,
                        start,
-                       size,
+                       end,
                        verbose=0,
                        np_array=None,
                        confidence=20.0,
                        scale=False
                        ):
-        t, _ = self.read_rec_line(start=start, size=size, 
+        t, _ = self.read_rec_line(start=start, end=end, 
                                           verbose=verbose, np_array=np_array,
                                           confidence=confidence,
                                           scale=scale)
         return t[0]
     
     def read_rec_lines(self,
-                       start,
-                       size,
+                       start=(0, 0), 
+                       end=None,
                        verbose=0,
                        np_array=None,
                        confidence=20.0,
-                       scale=False
+                       scale=False,
+                       mode='word'
                        ):
-        t, np_array = self.read_rec_and_np_array(start=start, size=size, 
-                                          verbose=verbose, np_array=np_array,
-                                          confidence=confidence,
-                                          scale=scale)
+        t, np_array = self.read_rec_and_np_array(start=start, end=end, 
+                                            verbose=verbose, np_array=np_array,
+                                            confidence=confidence,
+                                            scale=scale,
+                                            mode=mode
+                                            )
+        return t, np_array
         rt = []
         last_word=1000000
         for w in t:
@@ -106,19 +138,20 @@ class Ocr:
 
     def read_rec(self, 
                  start=(0, 0), 
-                 size=None, 
+                 end=None, 
                  scale=False):
-        text,_ = self.read_rec_and_np_array(start,size,scale)
-        # text,_ = self.pocr_read_and_image(start,size,scale)
+        text,_ = self.read_rec_and_np_array(start,end,scale)
+        # text,_ = self.pocr_read_and_image(start,end,scale)
         return text
         
     def read_rec_and_np_array(self, 
-                              start=(0, 0), 
-                              size=None, 
+                              start=(0, 20),
+                              end=None, 
                               verbose=0,
                               np_array=None,
                               confidence=20.0,
-                              scale=False
+                              scale=False,
+                              mode='word'
                               ):
         if verbose > 0:
             pd.set_option('display.max_rows', None)     # Show all rows
@@ -127,37 +160,47 @@ class Ocr:
             pd.set_option('display.max_colwidth', None) # Show all text within each column (don't truncate long strings)
 
         if not np_array:
-            if size == None:
-                size = (self.ts.specs ['w'], self.ts.specs['h'])
-            jbuf = self.ts.screen_capture_bw(start, size, scale)
-            np_array = np.array(jbuf["gray"], dtype=np.uint8)
-            np_array = np_array.reshape((jbuf["height"], jbuf["width"]))
-        return self._tesserocr_from_array(np_array, confidence=confidence, verbose=verbose)
+            if end == None:
+                end = (self.ts.specs['max_x'], self.ts.specs['max_y'])
+            np_array = self.sc.scan_region(start[0], start[1], end[0], end[1], channel="gray")
+        return self._tesserocr_from_array(np_array, confidence=confidence, verbose=verbose, mode=mode)
         
         # return self.tesseract_from_array(np_array, confidence=confidence, verbose=verbose, show=False)
 
-    def _tesserocr_from_array(self, array, confidence=20.0, verbose=0):
+    def _tesserocr_from_array(self, array, verbose=0):
         """Run tesserocr on a numpy array and return extracted words plus the PIL image.
 
         Returns (ocr_data, image)
         """
+
+
+        if verbose > 5:
+            self.ts.sc.show_image(array, wait=2000, title='button-candidate-preprocessed')
+        # trigger recognition (GetUTF8Text returns full text, iterator used below)
+        # Only tesserocr after here
+        # self.api.SetPageSegMode(PSM.SINGLE_WORD)
+
         h, w = array.shape
         self.api.SetImageBytes(
                 array.tobytes(),
                 w, h,
                 1,      # bytes per pixel (grayscale)
                 w       # bytes per line
-        )        
-        # trigger recognition (GetUTF8Text returns full text, iterator used below)
+        )
         t = self.api.GetUTF8Text()
         ri = self.api.GetIterator()
-
-        level = RIL.WORD
+        if self.mode == 'line':
+            level = RIL.TEXTLINE
+        elif self.mode == 'symbol':
+            self.level = RIL.SYMBOL
+        else:
+            level = RIL.WORD
+        # level = RIL.TEXTLINE
         ocr_data = []
         wi = 1
+        # For line detection
+        button_of_line = -1
         for r in iterate_level(ri, level):
-            if verbose > 0:
-                print(dir(r))
             try:
                 text = r.GetUTF8Text(level)
             except:
@@ -166,7 +209,7 @@ class Ocr:
             left, top, right, bottom = r.BoundingBox(level)
             width = right - left
             height = bottom - top
-            if conf > confidence:
+            if conf > self.confidence:
                 ocr_data.append({
                     'text': text,
                     'conf': conf,
@@ -183,6 +226,7 @@ class Ocr:
                     wi = 1
 
         return ocr_data, array
+    
     def _concat_tesserocr_results(self, words):
         """Concatenate tesserocr results based on word index."""
         concatenated = []
@@ -232,64 +276,32 @@ class Ocr:
             print(f"Total words {wc}")
         return rt, np_array
     
-    def find_regex(self,
-                   regex,
-                   start=(0,0),
-                   size=None,    
-                   verbose=0,
-                   np_array=None,
-                   confidence=20.0,
-                   scale=False):
-        if np_array == None:
-            if size == None:
-                size = (self.ts.specs ['max_x'], self.ts.specs['max_y'])
-            lines, np_array = self.read_rec_lines(start=start, size=size, 
-                                     verbose=verbose, np_array=np_array,
-                                     confidence=confidence,
-                                     scale=scale)
+    def read(self, npa=None,verbose=0):
+        if npa == None:
+            npa = self.capture.scan_region(xs=self.startx, ys=self.starty, xe=self.endx, ye=self.endy, channel=self.color)
+        self.npa = npa
+        if self.process:
+            npa = self._process_array(npa, verbose=verbose)
+        t, _ = self._tesserocr_from_array(npa, verbose=verbose)
+ 
+        return t, self.npa
+
+    def regex(self, regex, npa=None, verbose=0):
+        lines, self.npa = self.read(npa, verbose=verbose)
         for l in lines:
             if re.search(regex, l['text']):
-                return l, np_array
-        return None, np_array
+                return l, self.npa
+        return None, self.npa
     
-    def find_button(self,
-                   name,
-                   start=(0,0),
-                   size=None,    
-                   verbose=0,
-                   npa=None,
-                   confidence=20.0,
-                   scale=False):
+    def button(self, name, npa=None, verbose=0):
         if npa == None:
-            if size == None:
-                size = (self.ts.specs ['max_x'], self.ts.specs['max_y'])
-            npa = self.ts.sc.scan_image(xs=start[0], ys=start[1], xe=size[0], ye=size[1], channel='gray')
-
-        boxes = self.boxes_get(npa, verbose=0)            
+            npa = self.capture.scan_region(xs=self.startx, ys=self.starty, xe=self.endx, ye=self.endy, channel=self.color)
+        self.npa = npa
+    
+        boxes = self._boxes_get(npa, verbose=0)            
 
         for box in boxes:
-            if verbose > 5:
-                self.ts.sc.show_image(box['rois'], wait=1000, title='button-candidate')
-            t, _ = self._tesserocr_from_array(box['rois'])
-
-            for w in t:
-                print("Found word: {}".format(w['text']))
-                if re.search(name, w['text']):
-                    w['left'] += box['x'] + w['left']
-                    w['top']  += box['y'] + w['top']
-                    w['center'] = (w['center'][0] + box['x'], w['center'][1] + box['y'])                  
-                    return w, npa
-
-            roi = cv2.normalize(box['rois'], None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
-            roi = cv2.bitwise_not(roi)
-            roi = cv2.adaptiveThreshold(
-                roi,
-                255,
-                cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                cv2.THRESH_BINARY,
-                31,
-                5
-            )
+            roi = self._process_array(box['rois'], verbose=verbose)
             if verbose > 5:
                 self.ts.sc.show_image(roi, wait=1000, title='button-candidate-preprocessed')
             words, _ = self._tesserocr_from_array(roi)
@@ -297,9 +309,10 @@ class Ocr:
             for w in texts:
                 print("Found word: {}".format(w['text']))
                 if re.search(f'{name}', w['text']):
+                    # self.ts.sc.show_image(roi, wait=000, title='button-candidate-preprocessed')
                     w['left'] += box['x'] + w['left']
                     w['top']  += box['y'] + w['top']
                     w['center'] = (w['center'][0] + box['x'], w['center'][1] + box['y'])                  
-                    return w, npa   
+                    return w, self.npa
 
-        return None, npa
+        return None, self.npa
