@@ -16,47 +16,26 @@ from datetime import datetime
 
 def quit_route(phone):
     print("Quit route!!!")
+    phone.screen_go_to_home()
     phone.tap_screen(916, 1552)
     sleep(0.75)
     for i in range(3):
         phone.scroll(0, -1800, start_x=900, start_y=1900)
         sleep(0.5)
-    
-    phone.tap_screen(491, 1458)
-    sleep(2)
-    phone.tap_screen(491, 1458)
-    
+    phone.buttons.black_on_white('.*QUIT.*', action='press')
+    sleep(1)
+    phone.buttons.black_on_white('.*QUIT.*', action='press')
+    sleep(1)
+
 def end_route(phone):
     print("End route!!!")
     phone.tap_screen(920, 1552)
     sleep(1)
     phone.tap_screen(920, 1552)    
     sleep(1)
-    phone.pocr.invert = True
-    b, _ = phone.pocr.button('.*COMPLETE.*')
-    if b:
-        phone.tap_screen(b['center'], scale=False)    
-    else:
-        return False
-    sleep(1)
-    b, _ = phone.pocr.button('.*YES.*')
-    if b:
-        phone.tap_screen(b['center'], scale=False)    
-    else:
-        return False    
-    sleep(1)
-    b, _ = phone.pocr.button('.*OK.*')
-    if b:
-        phone.tap_screen(b['center'], scale=False)    
-    else:
-        return False
-    phone.pocr.invert = False    
-    sleep(1)
-
-    # t, _ = phone.pocr.find_regex('YES')
-    # if t:
-    #     phone.tap_screen(t['center'], scale=False)
-    
+    button = phone.buttons.green('.*COMPLETE.*')
+    button = phone.buttons.green('.*YES.*')
+    sleep(4)    
     for i in range(10):
         phone.tap_screen(15, 100)
         sleep(0.5)
@@ -74,27 +53,25 @@ def screen_go_overview(phone):
 
 def follow_route(phone):
     screen_go_overview(phone)
-    t, _ = phone.pocr.regex('.*ROUTE.*')
-    phone.tap_screen(t['center'], scale=False)
+    button = phone.buttons.black_on_white('.*ROUTE.*')
+    button = phone.buttons.green('.*NEARBY.*', retries=30)
+    if not button:
+        print("Failed to find NEARBY button")
+        return False
+    button = phone.buttons.black_on_white('.*KNOWN.*')
+    button = phone.buttons.black_on_white('.*cross.*')
+    button = phone.buttons.green('.*FOLLOW.*', verbose=2)
+    if not button:
+        print("Failed to find FOLLOW button")
+        return False
     sleep(1)
-    b, _ = phone.pocr.button('.*NEARBY.*')
-    phone.tap_screen(b['center'], scale=False)    
-    sleep(1)
-        
-    t, _ = phone.pocr.regex('.*crossroad.*')
-    phone.tap_screen(t['center'], scale=False)    
-    sleep(2)    
-    
-    phone.pocr.invert = True
-    b, _ = phone.pocr.button('.*FOLLOW.*')
-    phone.pocr.invert = False
-    phone.tap_screen(b['center'], scale=False)    
-    sleep(1)
-
+    # Tap to remove info banner
     phone.tap_screen(15, 100)
-    sleep(1.3)    
-
-    phone.screen_go_to_home()
+    sleep(1)    
+    phone.tap_screen(15, 100)
+    sleep(1)
+    print("Following route")
+    return True
 
 def route(port):
     print("Start on port {}", port)
@@ -102,38 +79,44 @@ def route(port):
     # quit_route(phone)
     # end_route(phone)
     # select route
-    phone.screen_go_to_home()
-    timeout = 1
+    # phone.screen_go_to_home()
+    timeout = 3
     follow = False
     while True:
         try:
             while not phone.color_match(960, 1617, 255, 142, 142) \
                     and timeout > 0:
-
+                timeout -= 1
+                print("Following route, time left: {}s".format(timeout))
+                screen, _ = phone.pocr.read(verbose=0)
+                quit = any(
+                    any(word in text.get("text", "") for word in \
+                        ["PAUSED", "DISTANCE"])
+                    for text in screen
+                )
                 if (phone.color_match(895, 1535, 255, 255, 255) and phone.color_match(947, 1576, 255, 255, 255) \
-                                    and follow == False) or timeout == 0:
+                                    and follow == False) or timeout <= 0 or quit:
                     quit_route(phone)
                     follow = False
                     timeout = 0
                     break                       
-                if phone.color_match(904, 1542, 255, 158, 0) or timeout == 0:
+                if phone.color_match(904, 1542, 255, 158, 0):
                     end_route(phone)
                     timeout = 0
                     follow = False
                     break
                 phone.egg_handle()
-                sleep(2)
-                timeout -= 2
+                sleep(1)
             phone.screen_go_to_home()
-            follow_route(phone)
-            follow = True
-            timeout = 300
+            if follow_route(phone):
+                follow = True
+                timeout = 600
                 
             
         except Exception as e:
             print(e, traceback.format_exc())
             print("Something went wrong ignore")
-            sleep(10)
+            sleep(600)
             return
         
 

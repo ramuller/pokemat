@@ -44,7 +44,7 @@ def no_exit():
     p.screen_go_to_home()
 
 def test_regex():   
-    button, npa = p.pocr.regex('.*ROUTE.*', verbose=10)
+    button, npa = p.pocr.regex('.*paused.*', verbose=0)
     if button:
         p.tap_screen(button['center'], scale=False)
         sleep(2)
@@ -53,12 +53,13 @@ def test_regex():
         p.tap_screen(button['center'], scale=False)
         sleep(2)
 
-def test_button():   
-    button, npa = p.pocr.button('.*NEARBY.*', verbose=10)
-    print(f"Button {button} ")
-    if button:
-        p.tap_screen(button['center'], scale=False)
-        sleep(2)
+def test_button():
+    p.buttons.ocr.mode = 'line'
+    button = p.buttons.green('.*NEAR.*', action='check', verbose=2)
+    if not button:
+        print("Failed to find POWER button")
+    else:
+        print("Pressed POWER button")
 
 
 def pure_read():
@@ -69,14 +70,19 @@ def pure_read():
     for t in text:
         print("   {}".format(t))
 
+def test_egg():
+    p.egg_handle()
+
+
 def action(port, arg = None):
     global p
     p = TouchScreen(port)
     t1 = datetime.now()
     # no_exit()
     # login()
-    test_regex()
-    # pure_read()
+    # test_regex()
+    pure_read()
+    # test_egg()
     # test_button()
     t2 = datetime.now()
     print("Elapsed time {}s".format((t2-t1).total_seconds()))

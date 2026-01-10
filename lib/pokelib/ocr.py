@@ -19,19 +19,22 @@ class Ocr:
         self.api = PyTessBaseAPI(path=TESSDATA_PATH, lang='eng')
         self.capture = ScreenCapture(ts)
         # self.reader = easyocr.Reader(['en'])
+        self.reset_parameters()
+
+    def __del__(self):
+        pass
+
+    def reset_parameters(self):
         self.startx = 0
         self.starty = 0
-        self.endx = ts.specs['max_x']
-        self.endy = ts.specs['max_y']
+        self.endx = self.ts.specs['max_x']
+        self.endy = self.ts.specs['max_y']
         self.confidence = 20.0
         self.invert = False
         self.process = True
         self.color = 'gray'
         self.mode = 'word'
         self.npa = None
-
-    def __del__(self):
-        pass
 
     def _boxes_get(self, img, verbose=0):
         candidates = []
@@ -187,6 +190,8 @@ class Ocr:
                 1,      # bytes per pixel (grayscale)
                 w       # bytes per line
         )
+
+        # with suppress_stderr():
         t = self.api.GetUTF8Text()
         ri = self.api.GetIterator()
         if self.mode == 'line':
@@ -210,6 +215,7 @@ class Ocr:
             width = right - left
             height = bottom - top
             if conf > self.confidence:
+                # print(f"Detected text: '{text}' with confidence {conf}")
                 ocr_data.append({
                     'text': text,
                     'conf': conf,
@@ -224,7 +230,7 @@ class Ocr:
                     wi += 1
                 else:
                     wi = 1
-
+        # print(f"Total OCR words: {ocr_data}")
         return ocr_data, array
     
     def _concat_tesserocr_results(self, words):
@@ -305,9 +311,10 @@ class Ocr:
             if verbose > 5:
                 self.ts.sc.show_image(roi, wait=1000, title='button-candidate-preprocessed')
             words, _ = self._tesserocr_from_array(roi)
-            texts = self._concat_tesserocr_results(words)
-            for w in texts:
-                print("Found word: {}".format(w['text']))
+            # texts = self._concat_tesserocr_results(words)
+            for w in words:
+                if verbose > 2:
+                    print("Found word: {}".format(w['text']))
                 if re.search(f'{name}', w['text']):
                     # self.ts.sc.show_image(roi, wait=000, title='button-candidate-preprocessed')
                     w['left'] += box['x'] + w['left']

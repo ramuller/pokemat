@@ -21,6 +21,7 @@ from .ocr import Ocr
 from .database import Database as db_p
 from .screen_capture import ScreenCapture
 from .ocr import Ocr
+from .buttons import Buttons
 
 from pokelib import ExPokeLibError, ExPokeNoHomeError, ExPokeLibFatal
 
@@ -105,8 +106,11 @@ class TouchScreen:
         self.vector_top_down = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
         self.vector = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
         # self.pocr = None
+
         self.sc = ScreenCapture(self)
         self.pocr = Ocr(self)
+        self.buttons = Buttons(self)
+
         for self.min_width in range(1,100):
             tb = self.screen_capture_bw((100,100), (self.min_width, 100))
             if tb["width"] == 1:
@@ -207,13 +211,15 @@ class TouchScreen:
             try:
                 # Open egg
                 self.tap_screen(500, 1000)
-                # exit pokemon scree
+                # exit pokemon screen
                 self.color_match_wait_click(493, 1826, 28, 135, 149, time_out_ms=20000)
                 sleep(5)
                 # Select egg
                 self.tap_screen(190, 544)
                 # Tap incubate
-                self.color_match_wait_click(493, 1425, 119, 215, 155)
+                sleep(2)
+                self.mode = 'word'
+                b = self.buttons.green('INCUBATE', verbose=2)
                 sleep(2)
                 # Select incubator
                 self.tap_screen(140, 1470)
@@ -435,10 +441,7 @@ class TouchScreen:
                                  
         if not t:
             return False
-        t, _ = self.pocr_read_and_image_center((480, 408), (100,100))
-        t =  "".join(t)
-        # ad from ready...
-        return "Oh" in t or "ad" in t
+        return True
 
     def screen_capture_cent_bw(self, start, size, scale=True):
         x, y = start
@@ -877,7 +880,7 @@ class TouchScreen:
                 # t,_ = self.pocr.find_regex('.*exit Pok.mon GO.*', verbose=0)
                 mode = self.pocr.mode
                 self.pocr.mode = "line"
-                t,_ = self.pocr.regex('.*Do you want to exit Pok.*', verbose=10)
+                t,_ = self.pocr.regex('.*Do you want to exit Pok.*', verbose=0)
                 self.pocr.mode = mode
                 if not t:
                     self.tap_confirm()

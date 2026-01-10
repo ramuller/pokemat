@@ -9,7 +9,7 @@
       "console": "integratedTerminal",
       "args": [
         "--port",
-        "3009"
+        "3007"
       ]
     },
     {
@@ -31,7 +31,7 @@
       "console": "integratedTerminal",
       "args": [
         "--port",
-        "3008"
+        "3007"
       ]
     },  
     {
