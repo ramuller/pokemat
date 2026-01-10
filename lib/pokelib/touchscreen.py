@@ -22,6 +22,7 @@ from .database import Database as db_p
 from .screen_capture import ScreenCapture
 from .ocr import Ocr
 from .buttons import Buttons
+from .phone_db import PhoneDB
 
 from pokelib import ExPokeLibError, ExPokeNoHomeError, ExPokeLibFatal
 
@@ -93,7 +94,7 @@ class TouchScreen:
         self.log.info("\nPokemat phone : {}".format(tcpPort))
         self.url = "http://localhost:{}/v1".format(tcpPort)
         self.specs = self._get_phone_specs()
-        
+        self.pdb = PhoneDB.open_for_phone(self.specs['model'])        
         self.my_name = None
         self.scaleX = scaleX
         self.scaleY = scaleY

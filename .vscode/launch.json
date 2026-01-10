@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run foo_ocr.py --port 3009",
+      "name": "Run foo_ocr.py",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/foo_ocr.py",
@@ -10,6 +10,16 @@
       "args": [
         "--port",
         "3007"
+      ]
+    },    {
+      "name": "Run learning phone",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/learn_phone.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--port",
+        "3009"
       ]
     },
     {

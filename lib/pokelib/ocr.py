@@ -97,79 +97,7 @@ class Ocr:
                 5
             )
         return npa
-    
  
-    def read_rec_line(self,
-                       start,
-                       end,
-                       verbose=0,
-                       np_array=None,
-                       confidence=20.0,
-                       scale=False
-                       ):
-        t, _ = self.read_rec_line(start=start, end=end, 
-                                          verbose=verbose, np_array=np_array,
-                                          confidence=confidence,
-                                          scale=scale)
-        return t[0]
-    
-    def read_rec_lines(self,
-                       start=(0, 0), 
-                       end=None,
-                       verbose=0,
-                       np_array=None,
-                       confidence=20.0,
-                       scale=False,
-                       mode='word'
-                       ):
-        t, np_array = self.read_rec_and_np_array(start=start, end=end, 
-                                            verbose=verbose, np_array=np_array,
-                                            confidence=confidence,
-                                            scale=scale,
-                                            mode=mode
-                                            )
-        return t, np_array
-        rt = []
-        last_word=1000000
-        for w in t:
-            if w['word'] <=  last_word:
-                rt.append(w)
-            else:
-                rt[-1]['text'] = f"{rt[-1]['text']} {w['text']}"
-            last_word = w['word']
-        return rt, np_array
-
-    def read_rec(self, 
-                 start=(0, 0), 
-                 end=None, 
-                 scale=False):
-        text,_ = self.read_rec_and_np_array(start,end,scale)
-        # text,_ = self.pocr_read_and_image(start,end,scale)
-        return text
-        
-    def read_rec_and_np_array(self, 
-                              start=(0, 20),
-                              end=None, 
-                              verbose=0,
-                              np_array=None,
-                              confidence=20.0,
-                              scale=False,
-                              mode='word'
-                              ):
-        if verbose > 0:
-            pd.set_option('display.max_rows', None)     # Show all rows
-            pd.set_option('display.max_columns', None)  # Show all columns
-            pd.set_option('display.width', None)        # Use full width of the terminal/notebook
-            pd.set_option('display.max_colwidth', None) # Show all text within each column (don't truncate long strings)
-
-        if not np_array:
-            if end == None:
-                end = (self.ts.specs['max_x'], self.ts.specs['max_y'])
-            np_array = self.sc.scan_region(start[0], start[1], end[0], end[1], channel="gray")
-        return self._tesserocr_from_array(np_array, confidence=confidence, verbose=verbose, mode=mode)
-        
-        # return self.tesseract_from_array(np_array, confidence=confidence, verbose=verbose, show=False)
-
     def _tesserocr_from_array(self, array, verbose=0):
         """Run tesserocr on a numpy array and return extracted words plus the PIL image.
 
