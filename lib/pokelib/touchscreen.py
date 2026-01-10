@@ -316,7 +316,7 @@ class TouchScreen:
         return True
 
     def tapSearch(self):
-        self.color_match_wait(626, 457, 78, 208, 175,time_out_ms=2000)
+        self.color_match_wait(631, 474, 74, 210, 173,time_out_ms=6000)
         self.tap_screen(626, 457)
         # Wait for light grey fromkeyboard
         # self.color_match_wait(46, 1480, 37, 50, 55)
@@ -681,8 +681,10 @@ class TouchScreen:
         for i in range(0,15):
             time.sleep(0.1)
             if self.color_match(184, 777, 251, 254, 249) and \
+                self.color_match(185, 628, 255, 255, 255) and \
                 self.color_match(184, 750, 255, 255, 255) and \
                 self.color_match(178, 730, 255, 255, 255) and \
+                self.color_match(144, 689, 255, 255, 255) and \
                 self.color_match(184, 710,255, 255, 255):
                 print(f"No more pokemons with this filter round{i}")
             else:
