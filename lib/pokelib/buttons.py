@@ -34,14 +34,14 @@ class Buttons:
                 elif action == 'check':
                     ret = button
                     break
-                sleep(0.5)
+                sleep(1)
             retries -= 1
             print("Retrying to find green button '{}' ({} retries left)".format(text, retries))
             sleep(1)
         self.ocr.reset_parameters()
         return ret
     
-    def black_on_white(self, text, action='press', retries=3, verbose=0):
+    def black_on_white(self, text, action='press', retries=3, verbose=0,delay=1.0):
         self.ocr.invert = False
         ret = None
         while retries > 0:
@@ -52,6 +52,7 @@ class Buttons:
                     ret = button
                     break
             retries -= 1
+            sleep(delay)
         self.ocr.reset_parameters()
         return ret
     

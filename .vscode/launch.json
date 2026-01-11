@@ -57,7 +57,18 @@
         "--port",
         "3007"
       ]
-    },    {
+    },  
+    {
+      "name": "Trade",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/trade.py",
+      "console": "integratedTerminal",
+      "args": [
+        "${workspaceFolder}/configs/eizu-trade.json"
+      ]
+    },
+    {
       "name": "Change trainer",
       "type": "python",
       "request": "launch",
@@ -66,7 +77,7 @@
       "args": [
         "--port",
         "3007",
-        "schlumpiz
+        "schlumpiz"
       ]
     }
 

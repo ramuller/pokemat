@@ -58,6 +58,7 @@ def follow_route(phone):
     if not button:
         print("Failed to find NEARBY button")
         return False
+    sleep(1)
     button = phone.buttons.black_on_white('.*KNOWN.*')
     button = phone.buttons.black_on_white('.*cross.*')
     button = phone.buttons.green('.*FOLLOW.*', verbose=2)
@@ -91,7 +92,7 @@ def route(port):
                 screen, _ = phone.pocr.read(verbose=0)
                 quit = any(
                     any(word in text.get("text", "") for word in \
-                        ["PAUSED", "DISTANCE"])
+                        ["PAUSED", "DISTANCE", "DIRECTION", "paused"])
                     for text in screen
                 )
                 if (phone.color_match(895, 1535, 255, 255, 255) and phone.color_match(947, 1576, 255, 255, 255) \

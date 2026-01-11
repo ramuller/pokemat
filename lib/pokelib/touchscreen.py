@@ -767,14 +767,8 @@ class TouchScreen:
     
     def tap_trade(self):
         self.log.info("Tap Trade")
-        for i in range(0,20):
-            t, _ = self.pocr_find_regex('LO.AL.*')
-            print("Wait for trade button")
-            if t:
-                self.tap_screen(t['center'], scale=False)
-                return
-            time.sleep(0.5)
-        raise
+        if self.buttons.black_on_white('.*LOCAL.*', retries=20) == None:
+            raise
         
     def tap_battle(self):
         self.log.info("Tap battle")
@@ -991,7 +985,7 @@ class TouchScreen:
         self.screen_go_to_home()
         self.tapAvatar()
         sleep(3)
-        self.tapFriends()
+        self.buttons.black_on_white('.*FRIENDS.*')
         self.color_match_wait(878, 1562, 255, 255, 255, time_out_ms=30000)
 
     def screen_me(self):
@@ -1016,7 +1010,8 @@ class TouchScreen:
         self.tapTextOK()
         
     def friend_search(self, name):
-        self.tapSearch()
+        self.buttons.black_on_white('.*SEARCH.*')
+        sleep(1)
         print("done")
         self.text_line_ok(name)
         self.tapTextOK()
