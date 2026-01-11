@@ -24,8 +24,8 @@ class ScreenCapture:
             xs = 0
         if ys < 0:
             ys = 0
-        w = xe - xs
-        h = ye - ys
+        w = xe - xs + 1 
+        h = ye - ys + 1
         x = xs
         y = ys
         if channel == "gray":

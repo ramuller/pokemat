@@ -17,6 +17,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/learn_phone.py",
       "console": "integratedTerminal",
+      "preLaunchTask": "prune-phone-dbs",
       "args": [
         "--port",
         "3009"
@@ -30,18 +31,20 @@
       "console": "integratedTerminal",
       "args": [
         "--port",
-        "3007"
+        "3002"
       ]
-    },    
+    },  
     {
-      "name": "Run get_rgb",
+      "name": "Get Icon",
       "type": "python",
       "request": "launch",
-      "program": "${workspaceFolder}/testing/find_rgb.py",
+      "program": "${workspaceFolder}/icons/get_icon.py",
+      "cwd": "${workspaceFolder}/icons",      
       "console": "integratedTerminal",
+
       "args": [
         "--port",
-        "3007"
+        "3009"
       ]
     },  
     {

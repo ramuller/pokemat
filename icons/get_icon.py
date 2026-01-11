@@ -149,7 +149,7 @@ def yuv420_dict_to_rgb(jbuf):
     rgb = np.stack([R, G, B], axis=-1)
     return rgb
 
-def scan_image(x, y, w, h, channel="gray"):
+def scan_immage(x, y, w, h, channel="gray"):
     if channel == "gray":
         jbuf = p.screen_capture_bw((x, y), (w, h), scale=False)
         pixel_array = np.array(jbuf["gray"], dtype=np.uint8).reshape((jbuf["height"], jbuf["width"]))
@@ -214,9 +214,13 @@ def action(port, arg = None):
     n = "friend_order_arrow_up.png"
     # n = "pokemon_order_recent.png"
     n = "icon.png"
+    r = 'icon-r.png'
     icon =  cv2.imread(n, cv2.IMREAD_GRAYSCALE)
+    icon_r =  cv2.imread(r, cv2.IMREAD_GRAYSCALE)
     print(f"ICON shape {icon.shape}")
-    
+    cv2.imshow("icon", icon_r)
+    cv2.waitKey(000)
+    cv2.destroyAllWindows()
     # jbuf = p.screen_capture_bw((0,0), (p.specs['width'], p.specs['height']), scale=False)
     # icon = scan_center_image(int(576/2), 943, 72,72)
     # Friend order
@@ -249,9 +253,9 @@ def action(port, arg = None):
     # scene = scan_image(0, 0, p.specs['width'], p.specs['height'])
     ende = True
     while ende:
-        scene = scan_image(0, 0, p.specs['w'], p.specs['h'])
+        scene = p.sc.scan_region() # Full screen gray
         # scene = scan_image(p.specs['width'] - 150, p.specs['height'] - 150, 150, 100)
-        cv2.imshow("result", scene)
+        # cv2.imshow("result", scene)
         ende = False    
 
     print("icon:", icon.shape, icon.dtype, int(icon.min()), int(icon.max()))
@@ -269,8 +273,11 @@ def action(port, arg = None):
     t1 = datetime.now()
     for i in range(0,1):
         # scene = scan_image(p.specs['width'] - 150, p.specs['height'] - 150, 150, 100)
-        channel="red"
-        scene = scan_image(0, 0, p.specs['w']-1, p.specs['h']-1, channel=channel)
+        # channel="red"
+        channel="gray"
+        # scene = scan_image(0, 0, p.specs['w']-1, p.specs['h']-1, channel=channel)
+        scene = p.sc.scan_region(xs=p.specs['max_x'] - p.specs['max_x'] // 4, ys=p.specs['max_y'] - p.specs['max_y'] // 4,channel=channel) # Full screen gray
+        # scene = cv2.bitwise_not(scene)
         dets = detector.detect(scene)
     t2 = datetime.now()
     print("Hybrid : Elapsed time {}s".format((t2-t1).total_seconds()))

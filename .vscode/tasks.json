@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+        "label": "prune-phone-dbs",
+        "type": "shell",
+        "command-w": "rm -f $HOME/.config/pokemat/*.db ; echo Done; read -p 'Press enter to continue...'",
+        "command": "rm -f $HOME/.config/pokemat/*.db",
+        "presentation": {
+            "reveal": "always",
+            "reevaluateOnRerun": false,
+            "panel": "dedicated",
+            "close": false
+        }
+
+        "problemMatcher": []
+    }
+  ]
+}

@@ -94,7 +94,7 @@ class TouchScreen:
         self.log.info("\nPokemat phone : {}".format(tcpPort))
         self.url = "http://localhost:{}/v1".format(tcpPort)
         self.specs = self._get_phone_specs()
-        self.pdb = PhoneDB.open_for_phone(self.specs['model'])        
+        self.p_db = PhoneDB.open_for_phone(self.specs['model'])        
         self.my_name = None
         self.scaleX = scaleX
         self.scaleY = scaleY
@@ -896,15 +896,17 @@ class TouchScreen:
                 print("Try egg")
                 if self.egg_handle():
                     break
-                for y in range(100, self.maxY - 100, 25):
-                    if self.color_match(500, y, 116, 214, 156):
-                        print(f"Something green at {y}")
-                        b_text = self.pocr_read_line_center((500, y + 50), (100, 100))
-                        print(f"Button text {b_text}")
-                        if re.match(b_text, ".*CANCEL.*"):
-                            print("Found OK")
-                            self.tap_screen(b_text['center'])
-                            break
+                self.buttons.green('.*CANCEL.*', retries=1)
+
+                # for y in range(100, self.maxY - 100, 25):
+                #     if self.color_match(500, y, 116, 214, 156):
+                #         print(f"Something green at {y}")
+                #         b_text = self.pocr_read_line_center((500, y + 50), (100, 100))
+                #         print(f"Button text {b_text}")
+                #         if re.match(b_text, ".*CANCEL.*"):
+                #             print("Found OK")
+                #             self.tap_screen(b_text['center'])
+                #             break
                 count = 0
             sleep(1)
 
