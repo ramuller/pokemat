@@ -19,13 +19,17 @@ from random import randrange
 import matplotlib.pyplot as plt
 
                 
-def read_text(port, tx, ty, tw, th):
+def read_text(port, xs, xe, ys, ye):
 
             
     print("Start reading on  port {}",port)
+    if xs != 0:
+        p.ocr.startx = xs
+
     p = TouchScreen(port)
-    text,image = p.pocr.read_rec_and_np_array((tx, ty), (tw, th))
-    print(text)
+    text,image = p.pocr.read()
+    for t in text:
+        print(t)
     if args.show:
         plt.imshow(image, cmap='gray', vmin=0, vmax=255)
         plt.title(f'Grayscale Bitmap')
@@ -47,11 +51,11 @@ def main():
     global args
     parser = PokeArgs()
     parser.add_argument("-s", "--show", action="store_true", required=False, default=0, \
-                        help="Vary distance by span.")    
-    parser.add_argument("tx", type=int, help="Text x")
-    parser.add_argument("ty", type=int, help="Text y")
-    parser.add_argument("tw", type=int, help="Text widht")
-    parser.add_argument("th", type=int, help="Text high")
+                        help="Vary distance by span.") 
+    parser.add_argument("--xs", default=0, action="store_true", required=False, help="Text x start")
+    parser.add_argument("--ys", default=0, action="store_true", required=False, help="Text y start")
+    parser.add_argument("--xe", default=0, action="store_true", required=False, help="Text x end")
+    parser.add_argument("--ye", default=0, action="store_true", required=False, help="Text y end")
     
     args = parser.parse_args()
     print(args.show)
@@ -59,7 +63,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    read_text(args.port, args.tx, args.ty, args.tw, args.th)
+    read_text(args.port, args.xs, args.ys, args.xe, args.ye)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

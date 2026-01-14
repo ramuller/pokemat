@@ -53,6 +53,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/testing/test-ocr.py",
       "console": "integratedTerminal",
+      "debugOptions": ["DisableGUI"],
       "args": [
         "--port",
         "3007"
@@ -68,6 +69,30 @@
         "${workspaceFolder}/configs/eizu-trade.json"
       ]
     },
+    {
+      "name": "read-text",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/read-text.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--port",
+        "3007"
+      ]
+    },    
+    {
+      "name": "Change trainer",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/change_trainer.py",
+      "console": "integratedTerminal",
+      "debugOptions": ["DisableGUI"],
+      "args": [
+        "--port",
+        "3007",
+        "aphex"
+      ]
+    },    
     {
       "name": "Change trainer",
       "type": "python",
