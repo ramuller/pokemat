@@ -252,7 +252,7 @@ def action(port, arg = None):
         channel="gray"
         # scene = scan_image(0, 0, p.specs['w']-1, p.specs['h']-1, channel=channel)
         # scene = p.sc.scan_region(xs=p.specs['max_x'] - p.specs['max_x'] // 4, ys=p.specs['max_y'] - p.specs['max_y'] // 4,channel=channel) # Full screen gray
-        scene = p.sc.scan_region()
+        scene = p.sc.scan_region(xs=p.specs['max_x'] // 3, xe=p.specs['max_x'] - p.specs['max_x'] // 3, ys = p.specs['max_y'] - p.specs['max_y'] / 8)
         # scene = cv2.bitwise_not(scene)
         dets = detector.detect(scene)
     t2 = datetime.now()

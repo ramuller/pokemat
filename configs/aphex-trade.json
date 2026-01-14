@@ -1,17 +1,17 @@
 {
     "mode": "trade",
     "league": "master",
-    "host": { 
+    "guest": { 
         "port": "3001",
-        "name": "helmut",
+        "name": "schlumpiz",
 		"filterr": "\\a pidgeotto&!3* & !favorite & ! traded &!4*&!3*",
 		"filterss": "ice & !favorite & !shadow &!shiny&!legendary",
 		"filter": "xp1 & !norade & !traded & !favorite",
 		"filter2": "gastly"
    },
-    "guest": {
-        "port": "3002",
-        "name": "higimmi222",
+    "host": {
+        "port": "3006",
+        "name": "blond",
 		"filter_3": "!traded & xp1 &!favorite",
 		"filter": "xp1 & !norade & !traded & !favorite",
 		"filterx": "wooper,trumbeak & !xxs & !xxl & !4* & !3* & !favorite"
