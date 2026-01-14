@@ -34,10 +34,29 @@ class Buttons:
                 elif action == 'check':
                     ret = button
                     break
-                sleep(0.5)
             retries -= 1
+            if retries > 0:
+                sleep(0.7)
             print("Retrying to find green button '{}' ({} retries left)".format(text, retries))
-            sleep(1)
+        self.ocr.reset_parameters()
+        return ret
+
+    def white(self, text, action='press', retries=3, verbose=0):
+        ret = None
+        while retries > 0:
+            button, npa = self.ocr.button(text, verbose=verbose)
+            if button:
+                if action == 'press':
+                    self.ts.tap_screen(button['center'], scale=False)
+                    ret = button
+                    break
+                elif action == 'check':
+                    ret = button
+                    break
+            retries -= 1
+            if retries > 0:
+                sleep(0.7)
+            print("Retrying to find white button '{}' ({} retries left)".format(text, retries))
         self.ocr.reset_parameters()
         return ret
     
@@ -51,7 +70,12 @@ class Buttons:
                     self.ts.tap_screen(button['center'], scale=False)
                     ret = button
                     break
+                elif action == 'check':
+                    ret = button
+                    break
             retries -= 1
+            if retries > 0:
+                sleep(0.7)
         self.ocr.reset_parameters()
         return ret
     
@@ -65,6 +89,16 @@ class Buttons:
                     self.ts.tap_screen(button['center'], scale=False)
                     ret = button
                     break
+                elif action == 'check':
+                    ret = button
+                    break
             retries -= 1
+            if retries > 0:
+                sleep(0.7)
         self.ocr.reset_parameters()
         return ret
+
+    def pokeball(self):
+        self.ts.tap_screen(292, 921, scale=False)
+
+    

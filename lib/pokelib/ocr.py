@@ -36,12 +36,18 @@ class Ocr:
         self.mode = 'word'
         self.npa = None
 
+    def set_mode(self, mode):
+        self.mode = mode
+
     def _boxes_get(self, img, verbose=0):
+        # self.ts.sc.show_image(img, wait=1000, title='unprocessed')
+        img = cv2.normalize(img, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
         candidates = []
         H, W = img.shape
         edges = cv2.Canny(img, 50, 150)
-        if verbose > 5:
-            self.ts.sc.schow_image(edges, wait=1000)
+        if verbose > 9:
+            cv2.imshow('find boxes', img)
+            cv2.waitKey(1000)
         contours, _ = cv2.findContours(
             edges,
             # cv2.RETR_EXTERNAL,
@@ -65,8 +71,11 @@ class Ocr:
             # aspect ratio sanity
             aspect = w / float(h)
             # if 0.5 < aspect < 2.5: 
-            if 0.5 < aspect < 6: 
+            if 0.5 < aspect < 20: 
                 candidates.append((x, y, w, h))
+            else:
+                if verbose > 5:
+                    print(f"Rejected box x{x},y{y},w{w},h{h} with aspect {aspect:.2f}") 
         unique = set(candidates)
         boxes = []
         if unique:
@@ -80,7 +89,7 @@ class Ocr:
                     'x': x+pad, 'y': y+pad
                     })
                 if verbose > 5:
-                    self.ts.sc.show_image(boxes[-1], wait=2000, title='box')
+                    self.ts.sc.show_image(boxes[-1]['rois'], wait=1000, title='box')
         return boxes
     
     def _process_array(self, npa, verbose=0):
@@ -222,9 +231,11 @@ class Ocr:
 
     def regex(self, regex, npa=None, verbose=0):
         lines, self.npa = self.read(npa, verbose=verbose)
+        self.reset_parameters()
         for l in lines:
             if re.search(regex, l['text']):
                 return l, self.npa
+
         return None, self.npa
     
     def button(self, name, npa=None, verbose=0):
@@ -232,7 +243,7 @@ class Ocr:
             npa = self.capture.scan_region(xs=self.startx, ys=self.starty, xe=self.endx, ye=self.endy, channel=self.color)
         self.npa = npa
     
-        boxes = self._boxes_get(npa, verbose=0)            
+        boxes = self._boxes_get(npa, verbose=verbose)            
 
         for box in boxes:
             roi = self._process_array(box['rois'], verbose=verbose)

@@ -63,12 +63,12 @@ elif [ "$1" == "7" ];then
     # [ -z $SN ] && SN=ce01182118d5b02a0c
     [ -z $SN ] && SN=$SN_3007
     # adb -s $SN shell "su -c \"echo 1040000 >/sys/power/cpufreq_max_limit\""
-    ./run x $EXTRA --window-title="$1" -s $SN $STD_ARGS --window-x=3000 --window-y=1030 --rest-api-port=300$1
+    ./run x $EXTRA --window-title="$1" -s $SN $STD_ARGS --window-x=100 --window-y=0 --rest-api-port=300$1
 elif [ "$1" == "8" ];then
     # [ -z $SN ] && SN=ce01182118d5b02a0c
     [ -z $SN ] && SN=$SN_3008
     # adb -s $SN shell "su -c \"echo 1040000 >/sys/power/cpufreq_max_limit\""
-    ./run x $EXTRA --window-title="$1" -s $SN $STD_ARGS --window-x=120 --window-y=1030 --rest-api-port=300$1
+    ./run x $EXTRA --window-title="$1" -s $SN $STD_ARGS --window-x=80 --window-y=1030 --rest-api-port=300$1
 elif [ "$1" == "9" ];then
     # [ -z $SN ] && SN=ce01182118d5b02a0c
     [ -z $SN ] && SN=$SN_3009

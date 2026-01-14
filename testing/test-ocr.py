@@ -55,7 +55,8 @@ def test_regex():
 
 def test_button():
     p.buttons.ocr.mode = 'line'
-    button = p.buttons.green('.*NEAR.*', action='check', verbose=2)
+    button = p.buttons.green('.*Sign.*', action='check', verbose=0)
+    button = p.buttons.white('.*Sign.*', action='check', verbose=0)
     if not button:
         print("Failed to find POWER button")
     else:
@@ -81,9 +82,9 @@ def action(port, arg = None):
     # no_exit()
     # login()
     # test_regex()
-    pure_read()
+    # pure_read()
     # test_egg()
-    # test_button()
+    test_button()
     t2 = datetime.now()
     print("Elapsed time {}s".format((t2-t1).total_seconds()))
 

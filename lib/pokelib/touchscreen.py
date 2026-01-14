@@ -180,26 +180,29 @@ class TouchScreen:
         self.log.debug("Response : {}".format(response))
         time.sleep(0.001 * duration)
     
-    def tap_down(self, x, y, button = 1, duration = 0):
+    def tap_down(self, x, y, button = 1, duration = 0, scale=True):
         self.log.debug("tap_down {},{},{},{}".format(x,y,button, duration))
-        x, y = self.scaleXY(x, y)
+        if scale:
+            x, y = self.scaleXY(x, y)
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
         response = self.write_to_phone("button_down:{},{},{},{}".format(x,y,button, duration))
         self.log.debug("Response : {}".format(response))
         time.sleep(0.001 * duration)
     
-    def tap_up(self, x, y, button = 1, duration = 50):
+    def tap_up(self, x, y, button = 1, duration = 50, scale=True):
         self.log.debug("tap_up {},{},{},{}".format(x,y,button, duration))
-        x, y = self.scaleXY(x, y)
+        if scale:
+            x, y = self.scaleXY(x, y)
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
         response = self.write_to_phone("button_up:{},{},{},{}".format(x,y,button, duration))
         self.log.debug("Response : {}".format(response))
         time.sleep(0.001 * duration)
         
-    def moveCursor(self, x, y, dx, dy):
+    def moveCursor(self, x, y, dx, dy, scale=True):
         self.log.debug("move {},{}".format(x,y))
-        x, y = self.scaleXY(x, y)
-        dx, dy = self.scaleXY(dx, dy)
+        if scale:
+            x, y = self.scaleXY(x, y)
+            dx, dy = self.scaleXY(dx, dy)
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
         response = self.write_to_phone("move:{},{},{},{}".format(x,y,dx,dy))
         self.log.debug("Response : {}".format(response))
@@ -561,24 +564,25 @@ class TouchScreen:
             to_s -= pause
         return False
 
-    def scroll(self, dx, dy, start_x = 100, start_y = 1000, tap_time = 0.1, stop_to = 0.6):
+
+    def scroll(self, dx, dy, start_x = 100, start_y = 1000, tap_time = 0.1, stop_to = 0.6, scale=True):
         # self.log.info("Scroll")
         # x = maxX / 2
         x = float(start_x)
         y = float(start_y)
         sx = float(dx / 20.0)
         sy = float(dy / 20.0)
-        self.tap_down(int(x), int(y), tap_time)
+        self.tap_down(int(x), int(y), tap_time, scale=scale)
         for s in range(0,20):
             x = x + sx
             y = y + sy
-            self.moveCursor(int(x), int(y), int(sx), int(sy))
+            self.moveCursor(int(x), int(y), int(sx), int(sy), scale=scale)
             # print("sy={}".format(int(sy)))
             # self.moveCursor(int(sx), int(sy))
             time.sleep(0.02)
             # self.tap_down(int(x), int(y), int(sx), int(sy))
         time.sleep(stop_to)
-        self.tap_up(int(x + dx), int(y + dy))
+        self.tap_up(int(x + dx), int(y + dy), scale=scale)
 
     def tap_open_gift(self):
         self.log.debug("tap_open_gift")
