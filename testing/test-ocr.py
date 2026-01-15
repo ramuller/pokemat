@@ -55,7 +55,7 @@ def test_regex():
 
 def test_button():
     p.buttons.ocr.mode = 'line'
-    button = p.buttons.green('.*Sign.*', action='check', verbose=0)
+    button = p.buttons.green('.*Sign.*', action='check', verbose=10)
     button = p.buttons.white('.*Sign.*', action='check', verbose=0)
     if not button:
         print("Failed to find POWER button")
@@ -66,6 +66,7 @@ def test_button():
 def pure_read():
     # text, _ = p.pocr.read_rec_lines(start=(0,30), scale=False, verbose=10, mode='symbol')
     # p.pocr.mode = 'line'
+    # p.pocr.starty = int(p.specs['max_y'] * 0.9)
     text, _ = p.pocr.read()
     print("OCR Text:")
     for t in text:

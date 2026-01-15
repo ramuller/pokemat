@@ -1,5 +1,6 @@
 {
   "version": "0.2.0",
+
   "configurations": [
     {
       "name": "Run foo_ocr.py",
@@ -93,6 +94,17 @@
         "aphex"
       ]
     },    
+    {
+      "name": "friend-battle.py",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/friend-battle.py",
+      "console": "integratedTerminal",
+      "debugOptions": ["DisableGUI"],
+      "args": [
+        "${workspaceFolder}/configs/battle.json"
+      ]
+    },
     {
       "name": "Change trainer",
       "type": "python",

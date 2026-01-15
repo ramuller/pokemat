@@ -3,13 +3,12 @@
 	"league": "master",
 	"league-g": "great",
 	"league-u": "ultra",
-    "host": { 
-        "port": "3002",
-        "name": "aphex"
-
-   },
-    "guest": {
-        "port": "3001",
+    "guest": { 
+        "port": "3004",
+        "name": "helmut"
+    },
+    "host": {
+        "port": "3003",
         "name": "higimmi222"
     }
 }

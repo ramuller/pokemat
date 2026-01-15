@@ -813,7 +813,8 @@ class TouchScreen:
 
     def is_home(self):
         # self.log.debug(f"screen_si_home{self.color_show(501,1802)}")
-        return self.color_match(501,1802,255,55,72,10)
+        return self.color_match(496, 1794, 255, 57, 69)
+        # 501,1802,255,55,72,10)
     
     def button_has_exit(self):
         for y in range(1835,1880,4):
