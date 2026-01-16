@@ -219,15 +219,20 @@ class Ocr:
             print(f"Total words {wc}")
         return rt, np_array
     
-    def read(self, npa=None,verbose=0):
+    def read_and_npa(self, npa=None,verbose=0):
         if npa == None:
             npa = self.capture.scan_region(xs=self.startx, ys=self.starty, xe=self.endx, ye=self.endy, channel=self.color)
         self.npa = npa
         if self.process:
             npa = self._process_array(npa, verbose=verbose)
         t, _ = self._tesserocr_from_array(npa, verbose=verbose)
- 
-        return t, self.npa
+        self.reset_parameters() 
+        return t, self.npa, npa
+
+    def read(self, *args, **kwargs):
+        text, self.npa, processed_npa = self.read_and_npa(*args, **kwargs)
+        return text
+
 
     def regex(self, regex, npa=None, verbose=0):
         lines, self.npa = self.read(npa, verbose=verbose)

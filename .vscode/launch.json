@@ -3,6 +3,46 @@
 
   "configurations": [
     {
+      "name": "poketool read",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "read",
+        "--port",
+        "3007",
+        "--show",
+        "--invert",
+        "--press"
+      ],
+      "comment":[
+        "--name",
+        "foo.png",
+      ]
+    },
+    {
+      "name": "poketool button",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "button",
+        "--port",
+        "3007",
+        "--show",
+        "--invert",
+        "--press",
+        "--text",
+        "DETAILS"        
+      ],
+      "comment":[
+        "--name",
+        "foo.png",
+      ]
+    },
+    {
       "name": "Run foo_ocr.py",
       "type": "python",
       "request": "launch",
@@ -12,7 +52,8 @@
         "--port",
         "3007"
       ]
-    },    {
+    },    
+    {
       "name": "Run learning phone",
       "type": "python",
       "request": "launch",

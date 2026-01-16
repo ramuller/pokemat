@@ -13,6 +13,8 @@ from .ocr import Ocr
 
 TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
 
+
+
 class Buttons:
     def __init__(self, ts):
         self.ts = ts

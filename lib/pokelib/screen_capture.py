@@ -43,6 +43,10 @@ class ScreenCapture:
         return pixel_array
         return Image.fromarray(pixel_array, mode='L')
    
+    def save_image(self, img, filename):
+        im = Image.fromarray(img)
+        im.save(filename)
+        return
         
     def yuv420_dict_to_rgb(self, jbuf):
         w = jbuf["width"]
