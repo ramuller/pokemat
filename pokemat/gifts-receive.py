@@ -40,7 +40,7 @@ def battle(host, guest):
                 return True
             time.sleep(0.2)
     
-def gifting(port, phone):
+def gifting(port):
     
     can_get_gifts = True
     can_send_gifts = True
@@ -53,10 +53,10 @@ def gifting(port, phone):
     l_and_d =  string.ascii_lowercase + string.digits
     shuffled_letters = random.sample(l_and_d, len(l_and_d))
 
-    phone = TouchScreen(port, phone)
-    print("Start receiving gifts using phone \"{}\" on port {}", phone, port)
+    phone = TouchScreen(port)
+    print("Start receiving gifts using port {}", port)
     name = None
-    while name == None:
+    while name == None and False:
         name = phone.get_my_name()
         print(f"My name {name}")
     phone.sort_has_gift()
@@ -134,7 +134,7 @@ def main():
     log = logging.getLogger("gifting")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    gifting(args.port, args.phone)
+    gifting(args.port)
     go_on = True
     while go_on:
         try:

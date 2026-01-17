@@ -223,7 +223,7 @@ class TouchScreen:
                 # Tap incubate
                 sleep(2)
                 self.mode = 'word'
-                b = self.buttons.green('INCUBATE', verbose=2)
+                b = self.buttons.dark('INCUBATE', verbose=2)
                 sleep(2)
                 # Select incubator
                 self.tap_screen(140, 1470)
@@ -895,7 +895,7 @@ class TouchScreen:
                 print("Try egg")
                 if self.egg_handle():
                     break
-                self.buttons.green('.*CANCEL.*', retries=1)
+                self.buttons.dark('.*CANCEL.*', retries=1)
 
                 # for y in range(100, self.maxY - 100, 25):
                 #     if self.color_match(500, y, 116, 214, 156):
@@ -990,6 +990,7 @@ class TouchScreen:
         self.screen_go_to_home()
         self.tapAvatar()
         sleep(3)
+        self.pocr.endy = int(0.15 * self.specs['max_y'])
         self.buttons.black_on_white('.*FRIENDS.*')
         self.color_match_wait(878, 1562, 255, 255, 255, time_out_ms=30000)
 

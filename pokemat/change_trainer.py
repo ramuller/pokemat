@@ -72,8 +72,8 @@ def select_trainer(trainer):
             
 def do_change_trainer(port, trainer):
 
-    ret = phone.buttons.green('.*RETURNING.*', action='check', retries=1)
-    gog = phone.buttons.green('.*Google.*', action='check', retries=1)
+    ret = phone.buttons.dark('.*RETURNING.*', action='check', retries=1)
+    gog = phone.buttons.dark('.*Google.*', action='check', retries=1)
     choose = phone.buttons.white_on_black('.*Choose.*', action='check', retries=1)
 
     if ret == None and gog == None and choose == None:
@@ -91,22 +91,22 @@ def do_change_trainer(port, trainer):
                 sleep(0.5)
                 t = phone.buttons.white('.*Sign.*', action='press', retries=3, verbose=0)
                 sleep(0.5)
-                t = phone.buttons.green('.*YES.*', action='press', retries=3, verbose=0)
+                t = phone.buttons.dark('.*YES.*', action='press', retries=3, verbose=0)
             else:
                 print("Not idea where we are, cannot change trainer")
                 return False
 
         except:
             pass
-        if phone.buttons.green('.*RETURNING.*', action='check', retries=30) == None:
+        if phone.buttons.dark('.*RETURNING.*', action='check', retries=30) == None:
             return False
         ret = True
 
     if ret:
-        phone.buttons.green('.*RETURNING.*', action='press')
+        phone.buttons.dark('.*RETURNING.*', action='press')
         gog = True
     if gog:
-        gog = phone.buttons.green('.*Google.*', action='press')
+        gog = phone.buttons.dark('.*Google.*', action='press')
     
     if trainer != "out":
         select_trainer(trainer)

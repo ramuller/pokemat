@@ -12,11 +12,14 @@
         "read",
         "--port",
         "3007",
+        "--xe",
+        "10%",
         "--show",
         "--invert",
         "--press"
       ],
       "comment":[
+        "--process",
         "--name",
         "foo.png",
       ]
@@ -32,17 +35,34 @@
         "--port",
         "3007",
         "--show",
-        "--invert",
-        "--press",
+        "--kind",
+        "dark",
         "--text",
-        "DETAILS"        
-      ],
+        "RETURNING PLAYER",
+        "--mode",
+        "line",
+        "--ys",
+        "0%",
+        "--verbose",
+        "0"],
       "comment":[
+        "--invert",
         "--name",
         "foo.png",
       ]
     },
     {
+      "name": "gifts receive",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/gifts-receive.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--port",
+        "3007"
+      ]
+    },   
+      {
       "name": "Run foo_ocr.py",
       "type": "python",
       "request": "launch",
@@ -52,7 +72,7 @@
         "--port",
         "3007"
       ]
-    },    
+    }, 
     {
       "name": "Run learning phone",
       "type": "python",

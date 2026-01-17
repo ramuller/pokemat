@@ -55,7 +55,7 @@ def test_regex():
 
 def test_button():
     p.buttons.ocr.mode = 'line'
-    button = p.buttons.green('.*Sign.*', action='check', verbose=10)
+    button = p.buttons.dark('.*Sign.*', action='check', verbose=10)
     button = p.buttons.white('.*Sign.*', action='check', verbose=0)
     if not button:
         print("Failed to find POWER button")

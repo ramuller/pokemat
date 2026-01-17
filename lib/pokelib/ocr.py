@@ -39,62 +39,13 @@ class Ocr:
     def set_mode(self, mode):
         self.mode = mode
 
-    def _boxes_get(self, img, verbose=0):
-        # self.ts.sc.show_image(img, wait=1000, title='unprocessed')
-        img = cv2.normalize(img, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
-        candidates = []
-        H, W = img.shape
-        edges = cv2.Canny(img, 50, 150)
-        if verbose > 9:
-            cv2.imshow('find boxes', img)
-            cv2.waitKey(1000)
-        contours, _ = cv2.findContours(
-            edges,
-            # cv2.RETR_EXTERNAL,
-            cv2.RETR_TREE,
-            cv2.CHAIN_APPROX_SIMPLE
-            )
-            
-        for cnt in contours:
-            x, y, w, h = cv2.boundingRect(cnt)
-            area = w * h
-            if verbose > 2:
-                print(f'Cont : x{x},y{y},w{w},h{h}')
-            # reject small stuff
-            if area < 0.01 * W * H:
-                continue
-        
-            # reject near-fullscreen
-            if area > 0.9 * W * H:
-                continue
-        
-            # aspect ratio sanity
-            aspect = w / float(h)
-            # if 0.5 < aspect < 2.5: 
-            if 0.5 < aspect < 20: 
-                candidates.append((x, y, w, h))
-            else:
-                if verbose > 5:
-                    print(f"Rejected box x{x},y{y},w{w},h{h} with aspect {aspect:.2f}") 
-        unique = set(candidates)
-        boxes = []
-        if unique:
-            for d in unique:
-                x, y, w, h = d
-                pad = 10  # pixels
-                boxes.append({'rois': img[
-                    y+pad : y+h-pad,
-                    x+pad : x+w-pad
-                    ],
-                    'x': x+pad, 'y': y+pad
-                    })
-                if verbose > 5:
-                    self.ts.sc.show_image(boxes[-1]['rois'], wait=1000, title='box')
-        return boxes
+
     
     def _process_array(self, npa, verbose=0):
         if self.invert:
             npa = cv2.bitwise_not(npa)
+        if not self.process:
+            return npa
         npa = cv2.normalize(npa, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
         if self.process:
             npa = cv2.adaptiveThreshold(
@@ -115,7 +66,7 @@ class Ocr:
 
 
         if verbose > 5:
-            self.ts.sc.show_image(array, wait=2000, title='button-candidate-preprocessed')
+            self.ts.sc.show_image(array, wait=4000, title='button-candidate-preprocessed')
         # trigger recognition (GetUTF8Text returns full text, iterator used below)
         # Only tesserocr after here
         # self.api.SetPageSegMode(PSM.SINGLE_WORD)
@@ -179,53 +130,13 @@ class Ocr:
             else:
                 concatenated[-1]['text'] += ' ' + w['text']
         return concatenated
-
-
-
-    def tesseract_from_array(self, np_array, confidence=20.0, verbose=0):
-        """Run pytesseract on a numpy array and return extracted words plus the array.
-
-        Returns (rt, np_array) where `rt` is a list of word dicts with keys
-        `text`, `center`, `h`, `w`, `confidence`, `word`.
-        """
-        # text = pytesseract.image_to_string(np_a)
-        df = pytesseract.image_to_data(np_array, output_type=Output.DATAFRAME)
-        if verbose > 0:
-            print(f"Reader {df}")
-        rt = []
-        wc = 0
-        for index, row in df.iterrows():
-            text = row['text']
-            # bounding box and confidence
-            x = row['left']
-            y = row['top']
-            w = row['width']
-            h = row['height']
-            c = row['conf']
-            if text and c > confidence:  # Check if the text is not None/empty
-                wc += 1
-                rt.append({
-                    "text": text,
-                    "center": (x + w//2, y + h//2),
-                    "h": h,
-                    "w": w,
-                    "confidence": c,
-                    "word": row['word_num']
-                })
-                if verbose > 0:
-                    print(f"Index: {index}, Word: {text}, Confidence: {c}")
-
-        if verbose > 0:
-            print(f"Total words {wc}")
-        return rt, np_array
     
     def read_and_npa(self, npa=None,verbose=0):
         if npa == None:
             npa = self.capture.scan_region(xs=self.startx, ys=self.starty, xe=self.endx, ye=self.endy, channel=self.color)
         self.npa = npa
-        if self.process:
-            npa = self._process_array(npa, verbose=verbose)
-        t, _ = self._tesserocr_from_array(npa, verbose=verbose)
+        self.p_npa = self._process_array(npa, verbose=verbose)
+        t, _ = self._tesserocr_from_array(self.p_npa, verbose=verbose)
         self.reset_parameters() 
         return t, self.npa, npa
 
@@ -235,7 +146,7 @@ class Ocr:
 
 
     def regex(self, regex, npa=None, verbose=0):
-        lines, self.npa = self.read(npa, verbose=verbose)
+        lines, self.npa, self.p_npa = self.read_and_npa(npa, verbose=verbose)
         self.reset_parameters()
         for l in lines:
             if re.search(regex, l['text']):
@@ -243,27 +154,3 @@ class Ocr:
 
         return None, self.npa
     
-    def button(self, name, npa=None, verbose=0):
-        if npa == None:
-            npa = self.capture.scan_region(xs=self.startx, ys=self.starty, xe=self.endx, ye=self.endy, channel=self.color)
-        self.npa = npa
-    
-        boxes = self._boxes_get(npa, verbose=verbose)            
-
-        for box in boxes:
-            roi = self._process_array(box['rois'], verbose=verbose)
-            if verbose > 5:
-                self.ts.sc.show_image(roi, wait=1000, title='button-candidate-preprocessed')
-            words, _ = self._tesserocr_from_array(roi)
-            # texts = self._concat_tesserocr_results(words)
-            for w in words:
-                if verbose > 2:
-                    print("Found word: {}".format(w['text']))
-                if re.search(f'{name}', w['text']):
-                    # self.ts.sc.show_image(roi, wait=000, title='button-candidate-preprocessed')
-                    w['left'] += box['x'] + w['left']
-                    w['top']  += box['y'] + w['top']
-                    w['center'] = (w['center'][0] + box['x'], w['center'][1] + box['y'])                  
-                    return w, self.npa
-
-        return None, self.npa

@@ -74,7 +74,7 @@ def trainer_battle(jsonFile):
                 log.info("No BATTLE button found. Retry after some time")
                 raise
             sleep(1)
-            if not host.buttons.green('.*BATTLE.*', retries=10):
+            if not host.buttons.dark('.*BATTLE.*', retries=10):
                 log.info("No BATTLE button found. Retry after some time")
                 raise
 

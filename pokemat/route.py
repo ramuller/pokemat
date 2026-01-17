@@ -33,8 +33,8 @@ def end_route(phone):
     sleep(1)
     phone.tap_screen(920, 1552)    
     sleep(1)
-    button = phone.buttons.green('.*COMPLETE.*')
-    button = phone.buttons.green('.*YES.*')
+    button = phone.buttons.dark('.*COMPLETE.*')
+    button = phone.buttons.dark('.*YES.*')
     sleep(4)    
     for i in range(10):
         phone.tap_screen(15, 100)
@@ -54,14 +54,14 @@ def screen_go_overview(phone):
 def follow_route(phone):
     screen_go_overview(phone)
     button = phone.buttons.black_on_white('.*ROUTE.*')
-    button = phone.buttons.green('.*NEARBY.*', retries=30)
+    button = phone.buttons.dark('.*NEARBY.*', retries=30)
     if not button:
         print("Failed to find NEARBY button")
         return False
     sleep(1)
     button = phone.buttons.black_on_white('.*KNOWN.*')
     button = phone.buttons.black_on_white('.*cross.*')
-    button = phone.buttons.green('.*FOLLOW.*', verbose=2)
+    button = phone.buttons.dark('.*FOLLOW.*', verbose=2)
     if not button:
         print("Failed to find FOLLOW button")
         return False
