@@ -83,9 +83,10 @@ class IconButton(PokeClip):
                                             ye=self.endy, 
                                             channel=self.color)
         dets = self.detector.detect(npa)
-
-
         # highest score and det with highest score
+
+        if verbose > 5:
+            self.ts.image.show_image(npa, wait=1000, title='button-area'        
         hs = -1
         hdet = None
         for det in dets:
@@ -105,7 +106,9 @@ class Buttons:
         self.ocr = Ocr(ts)
         self.image = ts.image
         self.pokeball = IconButton(ts, 'icons/home_pokeball.png',
-                                   ys= int(ts.specs['max_y'] * 0.8))
+                                    ys=int(ts.specs['max_y'] * 0.8),
+                                    xs=int(ts.specs['max_x'] * 0.3
+                                    xe=int(ts.specs['max_x'] * 0.7),
 
     def __del__(self):
         pass
