@@ -8,7 +8,7 @@ import cv2
 from tesserocr import PyTessBaseAPI, RIL, iterate_level, PSM
 import pandas as pd
 import re
-from .image import Image
+from .image import PokeImage
 
 TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
 
@@ -16,7 +16,7 @@ class Ocr:
     def __init__(self, ts):
         self.ts = ts
         self.api = PyTessBaseAPI(path=TESSDATA_PATH, lang='eng')
-        self.image = Image(ts)
+        self.image = PokeImage(ts)
         # self.reader = easyocr.Reader(['en'])
         self.reset_parameters()
 
@@ -115,7 +115,7 @@ class Ocr:
         if npa == None:
             npa = self.image.scan_region(xs=self.startx, ys=self.starty, xe=self.endx, ye=self.endy, channel=self.color)
         self.npa = npa
-        self.p_npa = self._process_array(npa, verbose=verbose)
+        self.p_npa = self.image.process_array(npa, self.invert, self.process, verbose=verbose)
         t, _ = self._tesserocr_from_array(self.p_npa, verbose=verbose)
         self.reset_parameters() 
         return t, self.npa, npa

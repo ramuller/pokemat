@@ -8,6 +8,7 @@ class Detection:
     icon_name: str
     score: float
     quad: np.ndarray  # 4x2 float array of corner points in the scene
+    center: np.ndarray # 2-element int array of center point in the scene
 
 def _ensure_gray(img):
     return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img
@@ -41,10 +42,11 @@ class IconDetector:
       - Uses ORB+RANSAC homography if the icon has features.
       - Falls back to multi-scale template matching for flat icons (like circles).
     """
-    def __init__(self, icons: dict[str, np.ndarray], min_kp: int = 4):
+    def __init__(self, icons: dict[str, np.ndarray], min_kp: int = 4, offset=(0,0)):
         self.db = {}
         self.orb = cv2.ORB_create(nfeatures=2000, fastThreshold=5)
         self.bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
+        self.offset = np.array(offset, dtype=np.int32)
 
         for name, img in icons.items():
             g = _ensure_gray(img)
@@ -106,7 +108,9 @@ class IconDetector:
                 W, H = rec["size"]
                 corners = np.float32([[0,0],[W,0],[W,H],[0,H]]).reshape(-1,1,2)
                 quad = cv2.perspectiveTransform(corners, Hm).reshape(4,2)
-                detections.append(Detection(name, float(mask.sum()), quad))
+                quad = quad + self.offset
+                center = quad.mean(axis=0).round().astype(int)
+                detections.append(Detection(name, float(mask.sum()), quad, center))
 
             else:  # template mode
                 tmpl0 = rec["tmpl"]
@@ -150,7 +154,9 @@ class IconDetector:
 
                 boxes, scores = _nms(boxes, scores, iou_thr=nms_iou)
                 for score, (x1, y1, x2, y2) in zip(scores, boxes):
-                    quad = np.array([[x1,y1],[x2,y1],[x2,y2],[x1,y2]], dtype=np.float32)
-                    detections.append(Detection(name, float(score), quad))
+                    quad = np.array([[x1,y1],[x2,y1],[x2,y2],[x1,y2]], dtype=np.int32) 
+                    quad = quad + self.offset
+                    center = quad.mean(axis=0).round().astype(int)
+                    detections.append(Detection(name, float(score), quad, center))
 
         return detections

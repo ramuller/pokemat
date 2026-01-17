@@ -12,8 +12,6 @@
         "read",
         "--port",
         "3007",
-        "--xe",
-        "10%",
         "--show",
         "--invert",
         "--press"
@@ -59,6 +57,35 @@
       "console": "integratedTerminal",
       "args": [
         "ico",
+        "--port",
+        "3007",
+        "--show",
+        "--kind",
+        "dark",
+        "--text",
+        "RETURNING PLAYER",
+        "--mode",
+        "line",
+        "--ys",
+        "20%",
+        "--verbose",
+        "0",
+        "--name",
+        "pokeball"
+      ],
+      "comment":[
+        "--invert",
+      ]
+    },
+    },
+        {
+      "name": "poketool screen",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "screen",
         "--port",
         "3007",
         "--show",

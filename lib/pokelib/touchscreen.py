@@ -19,9 +19,10 @@ from .pixelvector import PixelVector
 
 from .ocr import Ocr
 from .database import Database as db_p
-from .image import Image
+from .image import PokeImage
 from .ocr import Ocr
 from .buttons import Buttons
+from .screen import Screen
 from .phone_db import PhoneDB
 
 from pokelib import ExPokeLibError, ExPokeNoHomeError, ExPokeLibFatal
@@ -108,19 +109,12 @@ class TouchScreen:
         self.vector = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
         # self.pocr = None
 
-        self.image = Image(self)
+        self.image = PokeImage(self)
         self.pocr = Ocr(self)
         self.buttons = Buttons(self)
+        self.screen = Screen(self)
 
-        for self.min_width in range(1,100):
-            tb = self.screen_capture_bw((100,100), (self.min_width, 100))
-            if tb["width"] == 1:
-                break
-        for self.min_height in range(1,100):
-            tb = self.screen_capture_bw((100,100), (100, self.min_height))
-            if tb["height"] == 1:
-                break
-    
+    def __del__(self):
         pass
     
     def _get_phone_specs(self):

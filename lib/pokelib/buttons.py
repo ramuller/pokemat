@@ -10,6 +10,7 @@ import cv2
 from time import sleep
 import re
 from .ocr import Ocr
+from .image import PokeImage
 from hybrid_icon_detector import IconDetector
 
 # from hybrid_icon_detector import IconDetector
@@ -20,20 +21,26 @@ TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
 class ButtonNotFoundError(Exception):
     pass
 
-class Clip:
-    def __init__(self, ts):
+class PokeClip:
+    def __init__(self, ts, xs=0, xe=0, ys=0, ye=0):
         self.ts = ts
-        self.capture = Image(ts)
+        self.pi = PokeImage(ts)
+        self.xs = xs
+        self.ys = ys
+        if xe == 0:
+            self.xe = ts.specs['max_x']
+        if ye == 0:
+            self.ye = ts.specs['max_y']
         self.reset_parameters()
 
     def __del__(self):
         pass
 
     def reset_parameters(self):
-        self.startx = 0
-        self.starty = 0
-        self.endx = self.ts.specs['max_x']
-        self.endy = self.ts.specs['max_y']
+        self.startx = self.xs
+        self.starty = self.ys
+        self.endx = self.xe
+        self.endy = self.ye
         self.confidence = 20.0
         self.invert = False
         self.process = True
@@ -41,24 +48,64 @@ class Clip:
         self.mode = 'word'
         self.npa = None
 
-class IconButton(Clip):
-    def __init__(self, ts, icon_path):
-        super().__init__(ts)
+class IconButton(PokeClip):
+    def __init__(self, ts, icon_path, xs=0, xe=0, ys=0, ye=0):
+        super().__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye)
         self.icons = { 
              'pokeball': cv2.imread(icon_path, cv2.IMREAD_GRAYSCALE)
         }
-        self.detector = IconDetector(self.icons)        
+        self.detector = IconDetector(self.icons, offset=(self.xs, self.ys))     
 
-    def search(self, threshold=0.8):
+
+    def press(self, *args, **kwargs):
+        det = self.search(*args, **kwargs)
+        if det:
+            if kwargs.get('verbose', 0) > 2:
+                print(f"Pressing icon button '{det.icon_name}' at {det.center}")
+            sleep(kwargs.get('delay', 0.01))
+            self.ts.tap_screen(det.center, scale=False)
+            return det
+        else:
+            raise ButtonNotFoundError("Icon button not found.") 
+        
+    def search(self, 
+                npa=None,
+                threshold=0.8,
+                action='press', 
+                retries=3,
+                delay=0.01,
+                verbose=0):
         print("Searching for icon button...")
-        dets = self.detector.detect()
+        if npa == None:
+            npa = self.pi.scan_region(xs=self.startx, 
+                                            ys=self.starty, 
+                                            xe=self.endx, 
+                                            ye=self.endy, 
+                                            channel=self.color)
+        dets = self.detector.detect(npa)
+
+
+        # highest score and det with highest score
+        hs = -1
+        hdet = None
+        for det in dets:
+            if det.score >= threshold:
+                if det.score > hs:
+                    hs = det.score
+                    hdet = det
+                print(f"Found icon button with score {det.score} at {det.center}")
+        if hs > 0.0:
+            return hdet
+        print("Icon button not found.")
+        return None
 
 class Buttons:
     def __init__(self, ts):
         self.ts = ts
         self.ocr = Ocr(ts)
         self.image = ts.image
-        self.pokeball = IconButton(ts, 'icons/home_pokeball.png')
+        self.pokeball = IconButton(ts, 'icons/home_pokeball.png',
+                                   ys= int(ts.specs['max_y'] * 0.8))
 
     def __del__(self):
         pass

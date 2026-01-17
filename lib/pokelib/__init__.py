@@ -10,7 +10,7 @@ from .ocr import Ocr
 from .buttons import Buttons
 from .pixelvector import PixelVector
 from .database import Database
-from .screens import Screens
+from .screen import Screen
 from .poke_logger import PokeLogger
-from .image import Image
+from .image import PokeImage
 from .phone_db import PhoneDB
