@@ -73,5 +73,5 @@ class Screen:
         if count == 0:
             self.ts.log.info("No homescreen found!")
             return False
-        self.ts.log.info("Now we are on the home screen {}".format(self.is_home()))
+        self.ts.log.info("Now we are on the home screen"
         return True
