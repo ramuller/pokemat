@@ -86,7 +86,7 @@ def icon():
 def screen():
     
 
-    print(f'Current screen is "{phone.screen.get_current_screen()}"')
+    print(f'Current screen is "{phone.screen.get_current_screen(verbose=args.verbose)}"')
     icon_button = getattr(phone.buttons, args.name)
 
     ib = icon_button.press(delay=1)

@@ -13,8 +13,8 @@ class Screen:
     # battle - battle screen
     # gym - gym battle screen
     # menu -
-    def get_current_screen(self):
-        if self.ts.buttons.pokeball.search():
+    def get_current_screen(self, verbose=0):
+        if self.ts.buttons.pokeball.search(verbose=verbose):
             return 'home'
         else:
             return 'unknown'

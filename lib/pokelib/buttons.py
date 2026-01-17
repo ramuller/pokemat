@@ -22,11 +22,12 @@ class ButtonNotFoundError(Exception):
     pass
 
 class PokeClip:
-    def __init__(self, ts, xs=0, xe=0, ys=0, ye=0):
+    def __init__(self, ts, xs=0, xe=0, ys=0, ye=0, verbose=0):
         self.ts = ts
         self.pi = PokeImage(ts)
         self.xs = xs
         self.ys = ys
+        self.verbose = verbose
         if xe == 0:
             self.xe = ts.specs['max_x']
         if ye == 0:
@@ -49,8 +50,8 @@ class PokeClip:
         self.npa = None
 
 class IconButton(PokeClip):
-    def __init__(self, ts, icon_path, xs=0, xe=0, ys=0, ye=0):
-        super().__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye)
+    def __init__(self, ts, icon_path, xs=0, xe=0, ys=0, ye=0, verbose=0):
+        super().__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye, verbose=verbose)
         self.icons = { 
              'pokeball': cv2.imread(icon_path, cv2.IMREAD_GRAYSCALE)
         }
