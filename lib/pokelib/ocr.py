@@ -8,16 +8,16 @@ import cv2
 from tesserocr import PyTessBaseAPI, RIL, iterate_level, PSM
 import pandas as pd
 import re
-from .image import ScreenCapture
+from .image import Image
 
 TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
 
 class Ocr:
     def __init__(self, ts):
         self.ts = ts
-        self.sc = ts.sc
+        self.image = ts.image
         self.api = PyTessBaseAPI(path=TESSDATA_PATH, lang='eng')
-        self.capture = ScreenCapture(ts)
+        self.capture = Image(ts)
         # self.reader = easyocr.Reader(['en'])
         self.reset_parameters()
 

@@ -225,7 +225,7 @@ def action(port, arg = None):
 
     ende = True
     while ende:
-        scene = p.sc.scan_region() # Full screen gray
+        scene = p.image.scan_region() # Full screen gray
         # scene = scan_image(p.specs['width'] - 150, p.specs['height'] - 150, 150, 100)
         # cv2.imshow("result", scene)
         ende = False    

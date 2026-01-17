@@ -29,7 +29,7 @@ def dialogs_get(img):
     H, W = img.shape
     candidates = []
     edges = cv2.Canny(img, 50, 150)
-    p.sc.show_image(edges, wait=1000)
+    p.image.show_image(edges, wait=1000)
     contours, _ = cv2.findContours(
         edges,
         # cv2.RETR_EXTERNAL,
@@ -68,7 +68,7 @@ def dialogs_get(img):
                 ],
                 'x': x+pad, 'y': y+pad
                 })
-            #p.sc.show_image(rois[-1], wait=2000, title='dialog')
+            #p.image.show_image(rois[-1], wait=2000, title='dialog')
       
     return rois
 
@@ -82,16 +82,16 @@ def action(port, arg = None):
 
     t1 = datetime.now()
     
-    # img = p.sc.scan_image(size=(p.specs['w'], p.specs['h'] // 2))
+    # img = p.image.scan_image(size=(p.specs['w'], p.specs['h'] // 2))
     # img = img ** 2
     x = 0
     y = 0
     h = 0
     w = 0
-    img = p.sc.scan_image(x=x, y=y, h=h, w=w)
-    ir = p.sc.scan_image(x=x, y=y, h=h, w=w, channel="red")    
-    ig = p.sc.scan_image(x=x, y=y, h=h, w=w, channel="green")
-    ib = p.sc.scan_image(x=x, y=y, h=h, w=w, channel="blue")
+    img = p.image.scan_image(x=x, y=y, h=h, w=w)
+    ir = p.image.scan_image(x=x, y=y, h=h, w=w, channel="red")    
+    ig = p.image.scan_image(x=x, y=y, h=h, w=w, channel="green")
+    ib = p.image.scan_image(x=x, y=y, h=h, w=w, channel="blue")
     if True:
             pd.set_option('display.max_rows', None)     # Show all rows
             pd.set_option('display.max_columns', None)  # Show all columns
@@ -109,14 +109,14 @@ def action(port, arg = None):
         # roi = 255 - cv2.normalize(roi, None, alpha=-00, beta=255, norm_type=cv2.NORM_MINMAX)
         roi = cv2.normalize(roi, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
         # roi = cv2.GaussianBlur(roi, (3,3), 0)
-        p.sc.show_image(roi, wait=1000, title='normalized')
+        p.image.show_image(roi, wait=1000, title='normalized')
 
         ocr_data = read_roi(roi)
         print(ocr_data)
 
         roi = cv2.bitwise_not(roi)
 
-        p.sc.show_image(roi, wait=1000, title='inverted')
+        p.image.show_image(roi, wait=1000, title='inverted')
         ocr_data = read_roi(roi)
         print(ocr_data)
         roi = cv2.adaptiveThreshold(
@@ -127,17 +127,17 @@ def action(port, arg = None):
             31,
             5
         )
-        p.sc.show_image(roi, wait=000, title='preprocessed')
+        p.image.show_image(roi, wait=000, title='preprocessed')
         # cv2.imwrite("/tmp/debug_preprocessed.png", roi
         
         ocr_data = read_roi(roi)
         print(ocr_data)
         
    
-    p.sc.show_image(roi)
-    # p.sc.show_image(ir)
-    # p.sc.show_image(ig)
-    # p.sc.show_image(ib)
+    p.image.show_image(roi)
+    # p.image.show_image(ir)
+    # p.image.show_image(ig)
+    # p.image.show_image(ib)
     
     
     t2 = datetime.now()

@@ -19,7 +19,7 @@ from .pixelvector import PixelVector
 
 from .ocr import Ocr
 from .database import Database as db_p
-from .image import ScreenCapture
+from .image import Image
 from .ocr import Ocr
 from .buttons import Buttons
 from .phone_db import PhoneDB
@@ -108,7 +108,7 @@ class TouchScreen:
         self.vector = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
         # self.pocr = None
 
-        self.sc = ScreenCapture(self)
+        self.image = Image(self)
         self.pocr = Ocr(self)
         self.buttons = Buttons(self)
 
