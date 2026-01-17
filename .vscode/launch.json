@@ -99,7 +99,7 @@
       "args": [
         "screen",
         "--port",
-        "3007",
+        "3004",
         "--show",
         "--kind",
         "dark",
@@ -116,7 +116,8 @@
       ],
       "comment":[
         "--invert",
-      ]
+      ],
+      "env": { "POKEMAT_CONFIG": "/tmp"}
     },
     {
       "name": "gifts receive",

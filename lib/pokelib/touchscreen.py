@@ -11,8 +11,8 @@ import random
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-import pytesseract
 import re
+from pathlib import Path
 
 log = logging.getLogger("pokelib")
 from .pixelvector import PixelVector
@@ -95,6 +95,8 @@ class TouchScreen:
         self.log.info("\nPokemat phone : {}".format(tcpPort))
         self.url = "http://localhost:{}/v1".format(tcpPort)
         self.specs = self._get_phone_specs()
+        self.config_path = TouchScreen.phone_config_path()
+        print('config_path {}'.format(self.config_path))
         self.p_db = PhoneDB.open_for_phone(self.specs['model'])        
         self.my_name = None
         self.scaleX = scaleX
@@ -145,6 +147,17 @@ class TouchScreen:
         self.log.debug(f"Phone specs {specs}")
         return specs
         
+    
+    def phone_config_path(base_dir: Path | None = None) -> Path:
+        """
+        Returns ~/.config/pokemat/<phone>.db (or custom base_dir).
+        """
+        if base_dir is None:    
+            # Respect POKEMAT_CONFIG when present; fallback to ~/.config
+            xdg = os.environ.get('POKEMAT_CONFIG')
+            base_dir = Path(xdg).expanduser() if xdg else Path.home() / ".config" / "pokemat"
+
+        return base_dir
     
     def get_vector_object_left_right(self):
         return self.vector_left_right
