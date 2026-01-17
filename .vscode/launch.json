@@ -104,7 +104,8 @@
       ],
       "comment":[
         "--invert",
-      ]
+      ],
+      "env": { "POKEMAT_CONFIG": "/tmp"}
     },
     {
       "name": "gifts receive",

@@ -12,9 +12,9 @@ import json
 import sys
 from datetime import datetime
 
-def raid(port, phone):
-    print("Start evolutions \"{}\" on port {}", phone, port)
-    phone = TouchScreen(port, phone)
+def raid(port):
+    print("Start evolutions on port {}", port)
+    phone = TouchScreen(port)
     phone.tap_screen(650,1500)
     time.sleep(2)
     phone.tap_screen(650,1500)
@@ -51,7 +51,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    raid(args.port, args.phone)
+    raid(args.port)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)
