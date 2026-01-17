@@ -3,6 +3,14 @@
 
   "configurations": [
     {
+      "name": "Base",
+      "expamds": "Base0",
+      "type": "node",
+      "request": "launch",
+      "envFile": "${workspaceFolder}/.env",   
+
+    },
+    {
       "name": "poketool read",
       "type": "python",
       "request": "launch",
@@ -49,7 +57,7 @@
         "foo.png",
       ]
     },
-        {
+    {
       "name": "poketool icon button",
       "type": "python",
       "request": "launch",
@@ -77,9 +85,9 @@
         "--invert",
       ]
     },
-    },
-        {
+   {
       "name": "poketool home",
+      "extends": "Base",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/poketool.py",

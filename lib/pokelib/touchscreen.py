@@ -154,7 +154,7 @@ class TouchScreen:
         """
         if base_dir is None:    
             # Respect POKEMAT_CONFIG when present; fallback to ~/.config
-            xdg = os.environ.get('POKEMAT_CONFIG')
+            xdg = os.environ.get('POKEMAT_CONFIG_DIR')
             base_dir = Path(xdg).expanduser() if xdg else Path.home() / ".config" / "pokemat"
 
         return base_dir
