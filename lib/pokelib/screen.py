@@ -2,7 +2,8 @@
 # This class handle all screen navigations
 #
 
-
+from time import sleep
+import logging
 
 class Screen:
     def __init__(self, ts):
@@ -52,7 +53,7 @@ class Screen:
                 self.ts.tap_screen(100, 100, button = 3)
             count += 1
             if count > MAX_TRYS:
-                log.warn("No homescreen after {MAX_TRYS} atempts")
+                self.ts.log.warn("No homescreen after {MAX_TRYS} atempts")
                 print("Try egg")
                 if self.ts.egg_handle():
                     break
@@ -73,5 +74,5 @@ class Screen:
         if count == 0:
             self.ts.log.info("No homescreen found!")
             return False
-        self.ts.log.info("Now we are on the home screen"
+        self.ts.log.info("Now we are on the home screen")
         return True
