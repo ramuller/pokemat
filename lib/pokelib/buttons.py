@@ -14,63 +14,13 @@ from .ocr import Ocr
 TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
 
 
-def boxes_get(img, verbose=0):
-    # self.ts.sc.show_image(img, wait=1000, title='unprocessed')
-    img = cv2.normalize(img, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
-    candidates = []
-    H, W = img.shape
-    edges = cv2.Canny(img, 50, 150)
-    if verbose > 9:
-        cv2.imshow('find boxes', img)
-        cv2.waitKey(1000)
-    contours, _ = cv2.findContours(
-        edges,
-        # cv2.RETR_EXTERNAL,
-        cv2.RETR_TREE,
-        cv2.CHAIN_APPROX_SIMPLE
-        )
-        
-    for cnt in contours:
-        x, y, w, h = cv2.boundingRect(cnt)
-        area = w * h
-        if verbose > 2:
-            print(f'Cont : x{x},y{y},w{w},h{h}')
-        # reject small stuff
-        if area < 0.01 * W * H:
-            continue
-    
-        # reject near-fullscreen
-        if area > 0.9 * W * H:
-            continue
-    
-        # aspect ratio sanity
-        aspect = w / float(h)
-        # if 0.5 < aspect < 2.5: 
-        if 0.5 < aspect < 20: 
-            candidates.append((x, y, w, h))
-        else:
-            if verbose > 5:
-                print(f"Rejected box x{x},y{y},w{w},h{h} with aspect {aspect:.2f}") 
-    unique = set(candidates)
-    boxes = []
-    if unique:
-        for d in unique:
-            x, y, w, h = d
-            pad = 10  # pixels
-            boxes.append({'rois': img[
-                y+pad : y+h-pad,
-                x+pad : x+w-pad
-                ],
-                'x': x+pad, 'y': y+pad
-                })
-            if verbose > 5:
-                self.ts.sc.show_image(boxes[-1]['rois'], wait=1000, title='box')
-    return boxes
+
 
 class Buttons:
     def __init__(self, ts):
         self.ts = ts
         self.ocr = Ocr(ts)
+        
 
     def __del__(self):
         pass

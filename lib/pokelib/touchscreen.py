@@ -19,7 +19,7 @@ from .pixelvector import PixelVector
 
 from .ocr import Ocr
 from .database import Database as db_p
-from .screen_capture import ScreenCapture
+from .image import ScreenCapture
 from .ocr import Ocr
 from .buttons import Buttons
 from .phone_db import PhoneDB

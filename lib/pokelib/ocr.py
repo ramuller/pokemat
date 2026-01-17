@@ -8,7 +8,7 @@ import cv2
 from tesserocr import PyTessBaseAPI, RIL, iterate_level, PSM
 import pandas as pd
 import re
-from .screen_capture import ScreenCapture
+from .image import ScreenCapture
 
 TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
 
@@ -38,25 +38,6 @@ class Ocr:
 
     def set_mode(self, mode):
         self.mode = mode
-
-
-    
-    def _process_array(self, npa, verbose=0):
-        if self.invert:
-            npa = cv2.bitwise_not(npa)
-        if not self.process:
-            return npa
-        npa = cv2.normalize(npa, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
-        if self.process:
-            npa = cv2.adaptiveThreshold(
-                npa,
-                255,
-                cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                cv2.THRESH_BINARY,
-                31,
-                5
-            )
-        return npa
  
     def _tesserocr_from_array(self, array, verbose=0):
         """Run tesserocr on a numpy array and return extracted words plus the PIL image.
