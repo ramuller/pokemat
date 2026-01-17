@@ -10,6 +10,8 @@ import cv2
 from time import sleep
 import re
 from .ocr import Ocr
+from hybrid_icon_detector import IconDetector
+
 # from hybrid_icon_detector import IconDetector
 
 
@@ -18,19 +20,45 @@ TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
 class ButtonNotFoundError(Exception):
     pass
 
-class IconButton:
-    def __init__(self, ts, icon_path):
+class Clip:
+    def __init__(self, ts):
         self.ts = ts
-        self.icon = cv2.imread(icon_path, cv2.IMREAD_GRAYSCALE)
-        if self.icon is None:
-            raise FileNotFoundError(f"Icon file not found: {icon_path}")
+        self.capture = Image(ts)
+        self.reset_parameters()
+
+    def __del__(self):
+        pass
+
+    def reset_parameters(self):
+        self.startx = 0
+        self.starty = 0
+        self.endx = self.ts.specs['max_x']
+        self.endy = self.ts.specs['max_y']
+        self.confidence = 20.0
+        self.invert = False
+        self.process = True
+        self.color = 'gray'
+        self.mode = 'word'
+        self.npa = None
+
+class IconButton(Clip):
+    def __init__(self, ts, icon_path):
+        super().__init__(ts)
+        self.icons = { 
+             'pokeball': cv2.imread(icon_path, cv2.IMREAD_GRAYSCALE)
+        }
+        self.detector = IconDetector(self.icons)        
+
+    def search(self, threshold=0.8):
+        print("Searching for icon button...")
+        dets = self.detector.detect()
 
 class Buttons:
     def __init__(self, ts):
         self.ts = ts
         self.ocr = Ocr(ts)
         self.image = ts.image
-
+        self.pokeball = IconButton(ts, 'icons/home_pokeball.png')
 
     def __del__(self):
         pass

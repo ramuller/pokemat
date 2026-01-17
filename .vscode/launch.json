@@ -51,6 +51,34 @@
         "foo.png",
       ]
     },
+        {
+      "name": "poketool icon button",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "ico",
+        "--port",
+        "3007",
+        "--show",
+        "--kind",
+        "dark",
+        "--text",
+        "RETURNING PLAYER",
+        "--mode",
+        "line",
+        "--ys",
+        "20%",
+        "--verbose",
+        "0",
+        "--name",
+        "pokeball"
+      ],
+      "comment":[
+        "--invert",
+      ]
+    },
     {
       "name": "gifts receive",
       "type": "python",

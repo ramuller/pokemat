@@ -15,9 +15,8 @@ TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
 class Ocr:
     def __init__(self, ts):
         self.ts = ts
-        self.image = ts.image
         self.api = PyTessBaseAPI(path=TESSDATA_PATH, lang='eng')
-        self.capture = Image(ts)
+        self.image = Image(ts)
         # self.reader = easyocr.Reader(['en'])
         self.reset_parameters()
 
@@ -114,7 +113,7 @@ class Ocr:
     
     def read_and_npa(self, npa=None,verbose=0):
         if npa == None:
-            npa = self.capture.scan_region(xs=self.startx, ys=self.starty, xe=self.endx, ye=self.endy, channel=self.color)
+            npa = self.image.scan_region(xs=self.startx, ys=self.starty, xe=self.endx, ye=self.endy, channel=self.color)
         self.npa = npa
         self.p_npa = self._process_array(npa, verbose=verbose)
         t, _ = self._tesserocr_from_array(self.p_npa, verbose=verbose)
