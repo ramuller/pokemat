@@ -850,6 +850,7 @@ class TouchScreen:
         return False
     
     def screen_go_to_home(self):
+        return self.screen.go_home()
         self.log.info("Go to homescreen")
         print("Go Home")
         MAX_TRYS = 10 

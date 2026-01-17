@@ -79,6 +79,18 @@
     },
     },
         {
+      "name": "poketool home",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "home",
+        "--port",
+        "3007",
+      ]
+    },
+        {
       "name": "poketool screen",
       "type": "python",
       "request": "launch",
@@ -114,7 +126,7 @@
       "console": "integratedTerminal",
       "args": [
         "--port",
-        "3007"
+        "3004"
       ]
     },   
       {

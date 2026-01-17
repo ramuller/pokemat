@@ -85,6 +85,12 @@ def screen():
 
     print(f'Current screen is "{phone.screen.get_current_screen(verbose=args.verbose)}"')
     
+def home():
+    print(f'Current screen is "{phone.screen.get_current_screen(verbose=args.verbose)}"')
+    print(f'Try to go home screen')
+    phone.screen_go_to_home()
+    print(f'Current screen is "{phone.screen.get_current_screen(verbose=args.verbose)}"')
+    
 def button():
     if not  args.text:
         print('Button command needs --text argument')
@@ -126,6 +132,8 @@ def action(port, arg = None):
         ret = button()
     elif command == 'screen':
         ret = screen()
+    elif re.match('ho.*', command):
+        ret = home()
     elif re.match('i.*', command):
         ret = icon()
     else:
