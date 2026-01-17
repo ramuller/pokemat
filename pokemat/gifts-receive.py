@@ -106,7 +106,9 @@ def gifting(port):
             else:
                 print("Friend has gift")
                 phone.friend_select_first()
-                receive_gifts = phone.gift_open()
+                # receive_gifts = phone.gift_open()
+                
+                receive_gifts = phone.buttons.dark('.*OPEN.*', retries=3, delay=0.5)
                 # Back to trainer screen
                 phone.tap_screen(500,1850)
                    
