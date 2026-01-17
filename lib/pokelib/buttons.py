@@ -25,13 +25,15 @@ class PokeClip:
     def __init__(self, ts, xs=0, xe=0, ys=0, ye=0, verbose=0):
         self.ts = ts
         self.pi = PokeImage(ts)
+        if xe == 0:
+            xe = ts.specs['max_x']
+        if ye == 0:
+            ye = ts.specs['max_y']
         self.xs = xs
         self.ys = ys
+        self.xe = xe
+        self.ye = ye
         self.verbose = verbose
-        if xe == 0:
-            self.xe = ts.specs['max_x']
-        if ye == 0:
-            self.ye = ts.specs['max_y']
         self.reset_parameters()
 
     def __del__(self):
@@ -87,7 +89,7 @@ class IconButton(PokeClip):
         # highest score and det with highest score
 
         if verbose > 5:
-            self.ts.image.show_image(npa, wait=1000, title='button-area'        
+            self.ts.image.show_image(npa, wait=1000, title='button-area')   
         hs = -1
         hdet = None
         for det in dets:
@@ -107,9 +109,10 @@ class Buttons:
         self.ocr = Ocr(ts)
         self.image = ts.image
         self.pokeball = IconButton(ts, 'icons/home_pokeball.png',
-                                    ys=int(ts.specs['max_y'] * 0.8),
-                                    xs=int(ts.specs['max_x'] * 0.3
-                                    xe=int(ts.specs['max_x'] * 0.7),
+                                    xs=int(ts.specs['max_x'] * 0.38),
+                                    ys=int(ts.specs['max_y'] * 0.85),
+                                    xe=int(ts.specs['max_x'] * 0.62),
+                                    ye=int(ts.specs['max_y'] * 0.97))
 
     def __del__(self):
         pass

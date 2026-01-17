@@ -80,18 +80,10 @@ def icon():
     icon_button = getattr(phone.buttons, args.name)
 
     ib = icon_button.press(delay=1)
-
-    startTime = datetime.now()
     
 def screen():
-    
 
     print(f'Current screen is "{phone.screen.get_current_screen(verbose=args.verbose)}"')
-    icon_button = getattr(phone.buttons, args.name)
-
-    ib = icon_button.press(delay=1)
-
-    startTime = datetime.now()
     
 def button():
     if not  args.text:
@@ -102,7 +94,6 @@ def button():
     print(f'Search button in region x:{phone.pocr.startx}-{phone.pocr.endx} y:{phone.pocr.starty}-{phone.pocr.endy}')
     print(f'invert:{phone.pocr.invert} process:{phone.pocr.process} mode:{phone.pocr.mode} text:{args.text} kind:{args.kind} press:{args.press}')
 
-    startTime = datetime.now()
     if args.kind == 'dark':
         b = phone.buttons.dark
     elif args.kind == 'light':
@@ -119,8 +110,6 @@ def button():
             delay=args.delay, 
             retries=1, 
             verbose=args.verbose)
-    endTime = datetime.now()
-    print(f'Time to find button: {(endTime - startTime).total_seconds()}')
 
     print(f'Button found: {res}')
     return
@@ -142,7 +131,9 @@ def action(port, arg = None):
     else:
         print(f'Unknown command {command}')
         ret = None
-    startTime = datetime.now()
+    endTime = datetime.now()
+    print(f'Time to find button: {(endTime - startTime).total_seconds()}')
+
     
 def main():
 
@@ -172,7 +163,7 @@ def main():
                         help='x start.')
     parser.add_argument('--invert', action='store_true', default=False, \
                         help='x start.')
-    parser.add_argument('--name', action='store', required=False, default=False, \
+    parser.add_argument('--name', action='store', required=False, default=None, \
                         help='If defined store picture with this name.')
     parser.add_argument('--text', action='store', required=False, default=None, \
                         help='Where ever text is needed, e.g. button text or input text.')
