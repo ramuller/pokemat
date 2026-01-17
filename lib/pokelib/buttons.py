@@ -108,7 +108,7 @@ class Buttons:
         self.ts = ts
         self.ocr = Ocr(ts)
         self.image = ts.image
-        self.pokeball = IconButton(ts, 'icons/home_pokeball.png',
+        self.pokeball = IconButton(ts, f'{self.ts.config_path}/icons/home_pokeball.png',
                                     xs=int(ts.specs['max_x'] * 0.38),
                                     ys=int(ts.specs['max_y'] * 0.85),
                                     xe=int(ts.specs['max_x'] * 0.62),

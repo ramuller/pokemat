@@ -87,7 +87,7 @@
       "args": [
         "screen",
         "--port",
-        "3007",
+        "3004",
         "--show",
         "--kind",
         "dark",
