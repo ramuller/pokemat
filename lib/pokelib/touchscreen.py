@@ -857,7 +857,7 @@ class TouchScreen:
 
         # sys.exit()
         # Try left button as long als possible!
-        while self.is_home() == False:
+        while self.buttons.pokeball.search() != 'home':
             # self.color_show(300, 1803)
             # OK on green in the middle
             log.debug(f"Go home atempt {count}")
