@@ -97,7 +97,7 @@ class TouchScreen:
         self.specs = self._get_phone_specs()
         self.config_path = TouchScreen.phone_config_path()
         print('config_path {}'.format(self.config_path))
-        self.p_db = PhoneDB.open_for_phone(self.specs['model'])        
+        # self.p_db = PhoneDB.open_for_phone(self.specs['model'])        
         self.my_name = None
         self.scaleX = scaleX
         self.scaleY = scaleY
@@ -124,15 +124,28 @@ class TouchScreen:
         specs["h"] = specs["height"]
         specs["w"] = specs["width"]
         # Check if we have a buttonbar
-        c = self.get_rgb(0, specs["height"] -1, scale=False)
-        print(c)
-        nav_bar = True
-        for x in range(0, specs["width"]-1):
-            c2 = self.get_rgb(x, specs["height"] -1, scale=False)
-            if c != c2:
-                print(f"no nav_bar {x} {c2}")
-                nav_bar = False
-                break
+        if self.color_match(specs["width"] // 3, \
+                            specs["height"] - 1, \
+                            32, 109, 224 , \
+                            threashold=15, scale=False, \
+                            excep=False)\
+            or self.color_match(specs["width"] // 3, \
+                                specs["height"] - 1, \
+                                84, 81, 20 , \
+                                threashold=15, scale=False, \
+                                debug=True, excep=False):
+            print("Gym detected no nav bar")
+            nav_bar = False
+        else:
+            c = self.get_rgb(0, specs["height"] -1, scale=False)
+            print(c)
+            nav_bar = True
+            for x in range(0, specs["width"]-1):
+                    c2 = self.get_rgb(x, specs["height"] -1, scale=False)
+                    if c != c2:
+                        print(f"No nav_bar {x} {c2}")
+                        nav_bar = False
+                        break
         if nav_bar:
             c = self.get_rgb(specs["width"] // 3, specs["height"] -1, scale=False)
             for y in range(specs["height"] - 1, int(specs["height"]/2), -1):
@@ -261,11 +274,11 @@ class TouchScreen:
         print("mouse {}".format(m))
         return int(m["x"] / self.scaleX), int(m["y"] /self.scaleY)
     
-    def color_match(self, x, y, r, g, b, threashold=10, debug=False, excep = True):
-        rr, gg, bb = self.get_rgb(x, y)
+    def color_match(self, x, y, r, g, b, threashold=10, debug=False, excep = True, scale=False):
+        rr, gg, bb = self.get_rgb(x, y, scale=scale)
         if debug:
-            self.log.info("color_match x{},y{},r{},g{},b{},t{}".format(x, y, r, g, b,threashold))
-            self.log.info("color_match x{},y{},r{},g{},b{},t{}".format(x, y, rr, gg, bb, threashold))
+            self.log.debug("color_match x{},y{},r{},g{},b{},t{}".format(x, y, r, g, b,threashold))
+            self.log.debug("color_match x{},y{},r{},g{},b{},t{}".format(x, y, rr, gg, bb, threashold))
         if gg > (g + threashold) or gg < (g - threashold):
             log.debug("color_match : False")
         if      rr > (r + threashold) or rr < (r - threashold) or \
@@ -999,6 +1012,7 @@ class TouchScreen:
         self.tapAvatar()
         sleep(3)
         self.pocr.endy = int(0.15 * self.specs['max_y'])
+        self.buttons.ocr.endy = int(0.2 * self.specs['max_y'])
         self.buttons.black_on_white('.*FRIENDS.*')
         self.color_match_wait(878, 1562, 255, 255, 255, time_out_ms=30000)
 
@@ -1688,7 +1702,10 @@ class TouchScreen:
         # time.sleep(0.1)
         # self.tap_screen(500, 1000)
         self.log.info("gift_open")
-        self.tap_open_gift()
+        self.buttons.ocr.starty = 600
+        self.buttons.dark('.*OPEN.*', retries=10, delay=0.5)
+        # self.tap_open_gift()
+
         while self.color_match(85, 1960, 255, 255, 255) == False:
             # if ping_limit:
             #     return False
@@ -1700,7 +1717,7 @@ class TouchScreen:
                 self.tap_screen(85, 1960)
                 time.sleep(0.5)
         name, days_to_go, level = self.friend_get_info()
-        self.friend_update_db(name, days_to_go, level, opened=opened)
+        # self.friend_update_db(name, days_to_go, level, opened=opened)
         if days_to_go <= 2 or days_to_go == 62 or days_to_go == 61:
             self.friend_set_nickname("ff pokemat")
         return opened
@@ -1776,25 +1793,17 @@ class TouchScreen:
         print("useThisParty end")
     
     def sort_receive_gift(self, hasGift = True):
-        self.color_match_wait_click(857, 1798, 28, 135, 149)
-        if hasGift == True:
-            self.color_match_wait_click(796, 1431, 44, 113, 119)
-        else:
-            self.color_match_wait_click(913, 1644, 41, 105, 120)
+        if not self.buttons.i_has_gift.search():
+            self.buttons.i_change_sort.press()
+            self.buttons.t_gift(delay=0.5)
+        sort = self.buttons.i_sort.search(retries=30, verbose=3)
+        if sort.icon_name == 'up':
+            self.buttons.i_change_sort.press()
+            self.buttons.t_gift(delay=1)
 
     def sort_has_gift(self, noGift = False):
-        self.screen_friend()
+        self.screen.go_friends()
         self.sort_receive_gift()
-        self.color_match_wait(838, 220, 255, 255, 255)
-        # for x in range(912, 935, 2):
-        #    r, g, b = self.get_rgb(x, 1860)
-        #    print("X {},{},{},{}".format(x, r, g ,b))
-        # sys.exit(0)
-        while self.color_match(929, 1860, 170, 245, 205, threashold=20) == noGift:            
-            self.sort_receive_gift()
-            self.color_match_wait(838, 220, 255, 255, 255)
-        else:
-            print("Order is OK")
             
     def friendSortCanReceive(self, noGift = False):
         self.screen_friend()

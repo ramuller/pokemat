@@ -103,10 +103,10 @@ def do_change_trainer(port, trainer):
         ret = True
 
     if ret:
-        phone.buttons.dark('.*RETURNING.*', action='press')
+        phone.buttons.dark('.*RETURNING.*', delay=2, action='press')
         gog = True
     if gog:
-        gog = phone.buttons.dark('.*Google.*', action='press')
+        gog = phone.buttons.dark('.*Google.*', delay=2, action='press')
     
     if trainer != "out":
         select_trainer(trainer)

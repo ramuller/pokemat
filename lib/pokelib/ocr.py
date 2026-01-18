@@ -87,12 +87,13 @@ class Ocr:
                 ocr_data.append({
                     'text': text,
                     'conf': conf,
-                    'left': left,
-                    'top': top,
+                    'left': left + self.startx,
+                    'top': top + self.starty,
                     'width': width,
                     'height': height,
                     'word': wi,
-                    'center': ((left + width//2), (top + height//2))
+                    'center': ((left + width//2 + self.startx), \
+                               (top + height//2 + self.starty))
                 })
                 if len(text) > 1:
                     wi += 1
@@ -118,7 +119,7 @@ class Ocr:
         self.p_npa = self.image.process_array(npa, self.invert, self.process, verbose=verbose)
         t, _ = self._tesserocr_from_array(self.p_npa, verbose=verbose)
         self.reset_parameters() 
-        return t, self.npa, npa
+        return t, self.npa, self.p_npa
 
     def read(self, *args, **kwargs):
         text, self.npa, processed_npa = self.read_and_npa(*args, **kwargs)
