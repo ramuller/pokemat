@@ -12,32 +12,32 @@
     },
     {
       "name": "poketool read",
+      "extends": "Base",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/poketool.py",
       "console": "integratedTerminal",
       "args": [
         "read",
-        "--port",
-        "3007",
         "--show",
         "--invert",
-        "--press"
       ],
       "comment":[
         "--process",
         "--name",
         "foo.png",
+        "--xs",
+        "50%"
       ]
     },
     {
-      "name": "poketool button",
+      "name": "poketool raw_button",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/poketool.py",
       "console": "integratedTerminal",
       "args": [
-        "button",
+        "raw_button",
         "--port",
         "3007",
         "--show",
@@ -86,6 +86,21 @@
       ]
     },
    {
+      "name": "poketool button",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "button",
+        "--name",
+        "i_pokeball",
+        "--verbose",
+        "6"
+      ]
+    },
+   {
       "name": "poketool home",
       "extends": "Base",
       "type": "python",
@@ -98,7 +113,7 @@
         "3007",
       ]
     },
-        {
+    {
       "name": "poketool screen",
       "type": "python",
       "request": "launch",
@@ -130,12 +145,11 @@
     {
       "name": "gifts receive",
       "type": "python",
+      "extends": "Base",
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/gifts-receive.py",
       "console": "integratedTerminal",
       "args": [
-        "--port",
-        "3003"
       ]
     },   
       {
@@ -228,7 +242,7 @@
       "args": [
         "--port",
         "3007",
-        "aphex"
+        "higimmi222"
       ]
     },    
     {

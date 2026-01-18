@@ -20,7 +20,7 @@ def _int(x, d='y'):
 
     if re.match(r'^\d+%$', x):
         return math.floor((int(x[:-1]) * max) / 100)
-    elif re.match(r'^\d+x$', x):
+    elif re.match(r'^\d+$', x):
         return int(x)
     else:
         print(f'Unknown format {x} only abs and % supported')
@@ -29,13 +29,13 @@ def _int(x, d='y'):
 def _set_paramters_from_args(ocr):
         
     if args.xs != 0:
-        ocr.startx = _int(args.xs)
+        ocr.startx = _int(args.xs, d='x')
     if args.ys != 0:
         ocr.starty = _int(args.ys)
     if args.xe == 0:
         ocr.endx = phone.specs['max_x']
     else:    
-        ocr.endx = _int(args.xe)
+        ocr.endx = _int(args.xe, d='x')
     if args.ye == 0:
         ocr.endy = phone.specs['max_y']
     else:    
@@ -43,13 +43,20 @@ def _set_paramters_from_args(ocr):
     ocr.invert = args.invert
     ocr.process = args.process
     ocr.mode = args.mode
+    print(ocr.invert)
 
 def _post_process(p_npa):
     if args.show:
         phone.image.show_image(p_npa, wait=10000, title='Read region')
-    if args.name:
+    if args.save:
         phone.image.save_image(p_npa, args.name)
         print(f'Saved image to {args.name}')
+
+def _schow_screen(ocr):
+    
+    _set_paramters_from_args(phone.pocr)
+    npa = phone.image.scan_region(xs=ocr.startx, ys=ocr.starty, xe=ocr.endx, ye=ocr.endy, channel="gray")
+    phone.image.show_image(npa, wait=int(args.show_time), title='Screen shoot')
 
 def read():
     _set_paramters_from_args(phone.pocr)
@@ -79,21 +86,64 @@ def icon():
 
     icon_button = getattr(phone.buttons, args.name)
 
-    ib = icon_button.press(delay=1)
+    ib = icon_button.search(delay=1)
     
 def screen():
 
     print(f'Current screen is "{phone.screen.get_current_screen(verbose=args.verbose)}"')
-    
+    if args.save:
+        path = f'{phone.config_path}/icons/screens-shots/{args.save}'
+        if not re.match(r'.*\.png$', path):
+            path += '.png'
+        print(f'Saving screen to {path}')
+        npa = phone.image.scan_region(xs=0, ys=0, xe=0, ye=0, channel="gray")
+        if args.show:
+            phone.image.show_image(npa, wait=args.show, title='Screen shoot')
+        phone.image.save_image(npa, path)
+
+
+   
 def home():
     print(f'Current screen is "{phone.screen.get_current_screen(verbose=args.verbose)}"')
     print(f'Try to go home screen')
     phone.screen_go_to_home()
     print(f'Current screen is "{phone.screen.get_current_screen(verbose=args.verbose)}"')
     
+'''
+Serach high level button
+'''
 def button():
+    if not  args.name:
+        print('Raw button command needs --name argument')
+        print('Available buttons not all a really buttons!:')
+        for b in dir(phone.buttons):
+            if b.startswith('i_'): # and callable(getattr(phone.buttons, b)):
+                print(f'  {b}')
+        return
+    print(f'Search button function {args.name}')
+    method = getattr(phone.buttons, args.name)
+    rep = 3
+    for i in range(rep):
+        detection = method.search(action=args.press, 
+                 delay=args.delay, 
+                 retries=1, 
+                 verbose=args.verbose)
+        if not method.updated and detection:
+            print('Update button search area based on result')
+            method.update_area(detection)
+    print(f'Button found: {detection}')
+    _set_paramters_from_args(phone.pocr)
+    
+    if args.show:
+        _schow_screen(phone.pocr)
+    return
+
+'''
+Directly using the button functions
+'''
+def raw_button():
     if not  args.text:
-        print('Button command needs --text argument')
+        print('Raw button command needs --text argument')
         return
     _set_paramters_from_args(phone.buttons.ocr)
     
@@ -128,12 +178,14 @@ def action(port, arg = None):
     startTime = datetime.now()
     if command == 'read':
         ret = read()
-    elif command == 'button':
-        ret = button()
+    elif re.match('raw-b.*', command):
+        ret = raw_button()
     elif command == 'screen':
         ret = screen()
     elif re.match('ho.*', command):
         ret = home()
+    elif re.match('but.*', command):
+        ret = button()
     elif re.match('i.*', command):
         ret = icon()
     else:
@@ -173,6 +225,8 @@ def main():
                         help='x start.')
     parser.add_argument('--name', action='store', required=False, default=None, \
                         help='If defined store picture with this name.')
+    parser.add_argument('--save', action='store', required=False, default=None, \
+                        help='Store picture with this name.')
     parser.add_argument('--text', action='store', required=False, default=None, \
                         help='Where ever text is needed, e.g. button text or input text.')
     parser.add_argument('--kind', action='store', required=False, default='dark', \
@@ -181,7 +235,11 @@ def main():
                         help='E.g. between detect and pres a button.')
     parser.add_argument('--verbose', action='store', required=False, default=0, \
                         help='E.g. Passed to the library functions.', type=int)
-
+    parser.add_argument('-s', '--show', action='store_true', default=False, \
+                        help='E.g. show picture for given milliseconds.')
+    parser.add_argument('--show-time', action='store', default=100000, \
+                        help='E.g. show picture for given milliseconds.')
+    
     # Switches
     parser.add_argument('--process',  action='store_true', default=False, \
                         help='x start.')
@@ -189,8 +247,7 @@ def main():
                         help='If button than press default is check only.')
     parser.add_argument('-m', '--mode', action='store', required=False, default='word', \
                         help='Read mode word, line.')
-    parser.add_argument('-s', '--show', action='store_true', default=False, \
-                        help='E.g. show picture from where it reads.')    
+    
 
     args = parser.parse_args(remaining_args)
     

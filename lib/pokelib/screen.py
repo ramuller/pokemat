@@ -4,6 +4,8 @@
 
 from time import sleep
 import logging
+from datetime import datetime
+
 
 class Screen:
     def __init__(self, ts):
@@ -17,26 +19,35 @@ class Screen:
     # gym - gym battle screen
     # menu -
     def get_current_screen(self, verbose=0):
-        if self.ts.buttons.pokeball.search(verbose=verbose):
+        if self.ts.buttons.i_pokeball.search(verbose=verbose):
+
             return 'home'
         else:
             return 'unknown'
-    
+    def go_friends(self):
+        if self.ts.buttons.t_friends(retries=1):
+            return True
+        self.go_home()
+        sleep(1)
+        self.ts.buttons.c_avatar()
+        startTime = datetime.now()
+        while (datetime.now() - startTime).total_seconds() < 30:
+            self.ts.pocr.starty = int(self.ts.specs['max_y'] * 0.4)
+            self.ts.pocr.starty = int(self.ts.specs['max_y'] * 0.7)
+            t = self.ts.pocr.read()
+            if len(t) > 5:
+                sleep(1)
+                return
+        raise Exception('Trainer screen timeout!')
+
     def go_home(self):
         count = 1
         MAX_TRYS = 10
         while self.get_current_screen() != 'home':
             # self.color_show(300, 1803)
             # OK on green in the middle
-            self.ts.log.debug(f"Go home atempt {count}")
-            if self.ts.color_match(300, 1805, 150, 218, 151, debug=False):
-                self.ts.tap_screen(500, 1800)
-            elif self.ts.color_match(300, 1705, 150, 218, 151, debug=False):
-                self.ts.tap_screen(500, 1800)            
-            elif self.ts.color_match(500, 1828, 28, 135, 151, debug=False):
-                self.ts.tap_screen(500, 1828)            
-            elif self.ts.color_match(57, 365, 28, 135, 149, debug=False):
-                self.ts.tap_screen(57, 365)
+            if self.ts.buttons.i_exits.press(retries=1):
+                continue
             elif self.ts.color_match(357, 1005, 150, 218, 151, debug=False):
                 # Not exit pokemon
                 # t,_ = self.ts.pocr.find_regex('.*exit Pok.mon GO.*', verbose=0)

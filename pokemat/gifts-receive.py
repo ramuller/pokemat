@@ -70,6 +70,7 @@ def gifting(port):
     while receive_gifts or True:  # and len(shuffled_letters) > 0:
         try:
             # Wait for trainer screen
+            phone.screen.go_friends()
             for timeout in reversed(range(0,100)):
                 # if phone.color_match(444, 494, 255, 255, 255) and \
                 if phone.color_match(444, 601, 255, 255, 255) and \
