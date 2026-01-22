@@ -274,7 +274,7 @@ class TouchScreen:
         print("mouse {}".format(m))
         return int(m["x"] / self.scaleX), int(m["y"] /self.scaleY)
     
-    def color_match(self, x, y, r, g, b, threashold=10, debug=False, excep = True, scale=False):
+    def color_match(self, x, y, r, g, b, threashold=10, debug=False, excep = True, scale=True):
         rr, gg, bb = self.get_rgb(x, y, scale=scale)
         if debug:
             self.log.debug("color_match x{},y{},r{},g{},b{},t{}".format(x, y, r, g, b,threashold))
@@ -364,7 +364,7 @@ class TouchScreen:
         return False
     
     def get_maxima_horizontal(self, start, len, threshold=40, debug=False):
-        jbuf = self.screen_capture_bw(start, (200, self.min_height))
+        jbuf = self.screen_capture_bw(start, (200, 3))
         npa = np.array(jbuf["gray"], dtype=np.uint8)
         delta = np.diff(npa.astype(np.int16))
         maxima = (np.abs(delta) > threshold).sum()
