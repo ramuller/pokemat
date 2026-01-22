@@ -1693,33 +1693,28 @@ class TouchScreen:
     def gift_open(self):
         opened = True
         self.log.info("tap gift")
-        try:
-            self.color_match_wait(496, 1000, 230, 51, 198, time_out_ms = 4000, threashold=50)
-        except:
-            pass
-        time.sleep(0.5)
-        self.tap_screen(500, 1000)
-        # time.sleep(0.1)
-        # self.tap_screen(500, 1000)
+        if not self.buttons.i_friend_has_gift.press():
+            opened = False
+            return opened
         self.log.info("gift_open")
         self.buttons.ocr.starty = 600
         self.buttons.dark('.*OPEN.*', retries=10, delay=0.5)
-        # self.tap_open_gift()
-
-        while self.color_match(85, 1960, 255, 255, 255) == False:
-            # if ping_limit:
-            #     return False
-            if self.color_match(376, 1630, 144, 217, 149):
-                print("Daily limit reached")
-                self.tap_screen(500, 1850)
-                opened = False
-            else:
-                self.tap_screen(85, 1960)
-                time.sleep(0.5)
-        name, days_to_go, level = self.friend_get_info()
+        self.buttons.exits.press()
+        
+        # while sself.buttons.dark('.*OPEN.*', action='check' ,retries=10, delay=0.5):
+        #     # if ping_limit:
+        #     #     return False
+        #     if self.color_match(376, 1630, 144, 217, 149):
+        #         print("Daily limit reached")
+        #         self.tap_screen(500, 1850)
+        #         opened = False
+        #     else:
+        #         self.tap_screen(85, 1960)
+        #         time.sleep(0.5)
+        # name, days_to_go, level = self.friend_get_info()
         # self.friend_update_db(name, days_to_go, level, opened=opened)
-        if days_to_go <= 2 or days_to_go == 62 or days_to_go == 61:
-            self.friend_set_nickname("ff pokemat")
+        # if days_to_go <= 2 or days_to_go == 62 or days_to_go == 61:
+        #     self.friend_set_nickname("ff pokemat")
         return opened
     
     def gift_send(self, has_gift = False):

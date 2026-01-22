@@ -34,67 +34,57 @@ def defeat_gym(port, max_round=5):
             print("Start defeat")
             retry = 3
             in_defeat = False
-            if not phone.screen_is_in_gym():
-                phone.screen_go_to_home()
-            if phone.screen_go_to_gym() == False:
-                print("Dont know how to enter defeat mode bye bye")
-                phone.screen_go_to_home()
-                return False
-            if phone.screen_my_poke_in_gym():
-                print("Already in gym")
-                return True
-            if phone.screen_gym_has_place():
-                print("Gym is defeated")
-                break
-            if not phone.screen_gym_need_defeat():
-                print("Panic")
-            phone.tap_screen(829, 1605)
-            print("Start battle")
-            phone.pocr_wait_text_center((494, 789), (230, 80), "GO BATTLE")
-            while "GO BATTLE" in phone.pocr_read_line_center((494, 789), (230, 80), "GO BATTLE"):
-                phone.tap_screen(494, 789)
-                sleep(1)
-            # phone.color_match_wait_click(345, 777, 134, 217, 153)
-            print("Wait for initial white screen")
-            while not whiteScreen():
-                time.sleep(0.2)
-            print("Wait for initial white screen switch off")
-            while whiteScreen():
-                time.sleep(0.2)
-            print("Sleep 2s")
-            time.sleep(5)
-            print("Verify white screen is off")
-            while whiteScreen():
-                time.sleep(0.2)
-            print("Start fight")
-            #                  and not phone.button_is_back() \
+            phone.screen.go_gym()
+            det = phone.buttons.i_exits.search()
+            y_press = det.quad[0][1] - int(phone.specs['max_y'] * 0.028)
+            phone.buttons.i_gym_defeat.press()
+            sleep(1)
+            phone.buttons.endy=phone.specs['max_y']
+            phone.buttons.dark('BATTLE', action='press')
+
+            # if phone.screen_go_to_gym() == False:
+            #     print("Dont know how to enter defeat mode bye bye")
+            #     phone.screen_go_to_home()
+            #     return False
+            # if phone.screen_my_poke_in_gym():
+            #     print("Already in gym")
+            #     return True
+            # if phone.screen_gym_has_place():
+            #     print("Gym is defeated")
+            #     break
+            # if not phone.screen_gym_need_defeat():
+            #     print("Panic")
+            # phone.tap_screen(829, 1605)
+            # print("Start battle")
+            # phone.pocr_wait_text_center((494, 789), (230, 80), "GO BATTLE")
+            # while "GO BATTLE" in phone.pocr_read_line_center((494, 789), (230, 80), "GO BATTLE"):
+            #     phone.tap_screen(494, 789)
+            #     sleep(1)
+            # # phone.color_match_wait_click(345, 777, 134, 217, 153)
+
+            while not phone.buttons.i_gym_defeat_in_battle.search():
+                sleep(0.5)
+            # print("Wait for initial white screen")
+            # while not whiteScreen():
+            #     time.sleep(0.2)
+            # print("Wait for initial white screen switch off")
+            # while whiteScreen():
+            #     time.sleep(0.2)
+            # print("Sleep 2s")
+            # time.sleep(5)
+            # print("Verify white screen is off")
+            # while whiteScreen():
+            #     time.sleep(0.2)
+            # print("Start fight")
+            # #                  and not phone.button_is_back() \
             fight = True
             l = 0
-            while not phone.screen_is_in_gym() \
-                  and not phone.is_home() \
-                  and not phone.color_match(501, 1828, 240, 246, 239) \
-                  and not phone.color_match(500, 1886, 228, 242, 228) \
-                  and not phone.color_match(500, 1000, 228, 242, 228) \
-                  and fight:
-                if phone.screen_is_in_gym():
-                    for i in range(10):
-                        sleep(0.2)
-                        if not phone.screen_is_in_gym():
-                            continue
-                    break                    
+            while not phone.buttons.i_exits.search(retries=1):
                 for x in [250, 500, 750]:
-                    if not phone.screen_is_in_gym():
-                        phone.tap_screen(x,1750)
-                        time.sleep(0.1)
-                    else:
-                        print("Dont tap in gym")
-                        if not phone.screen_is_in_gym():
-                            phone.tap_screen(100, 100, button = 3)
-                        fight = False
-                l += 1
-                # if l % 20:
-                #     phone.tap_screen(501, 1859)
-                    
+                    phone.tap_screen(x, y_press, scale=False)
+                    time.sleep(0.1)
+
+            fight = False
             round += 1
             if round > max_round:
                 return "give-up"

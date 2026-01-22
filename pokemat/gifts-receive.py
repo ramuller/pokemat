@@ -59,10 +59,9 @@ def gifting(port):
     while name == None and False:
         name = phone.get_my_name()
         print(f"My name {name}")
+    phone.screen.go_friends()
     phone.sort_has_gift()
-    # phone.tapSearch()
-    # phone.tap_screen(440, 837)
-    # phone.tap_screen(440, 1150)
+
     giftsSent = 0
     giftsReceived = 0
     receive_gifts = True
@@ -71,20 +70,22 @@ def gifting(port):
         try:
             # Wait for trainer screen
             phone.screen.go_friends()
-            for timeout in reversed(range(0,100)):
-                # if phone.color_match(444, 494, 255, 255, 255) and \
-                if phone.color_match(444, 601, 255, 255, 255) and \
-                   phone.color_match(812, 1851, 28, 135, 149):
-                    break
-                time.sleep(0.1)
-            if timeout == 0:
-                print("Wait for trainer screen : Timeout exit")
-                return True
-            print("trainer screen")
-            while phone.color_match(52, 1335, 255, 255, 255):
-                phone.tap_screen(612, 494)
-                time.sleep(0.3)
-            time.sleep(0.5)
+
+            if phone.buttons.white_on_black('x'):
+                sleep(0,5)
+
+            if not phone.buttons.black_on_white('SEARCH'):
+                print('No SEARCH button found')
+                phone.screen.go_home()
+                raise Exception('No SEARCH button found')
+
+
+            # friends_raw = phone.pocr.read_area_percent(xs=25 ,xe=45 , ys=30 , ye=90)
+
+            # while phone.color_match(52, 1335, 255, 255, 255):
+            #     phone.tap_screen(612, 494)
+            #     time.sleep(0.3)
+            # time.sleep(0.5)
             phone.selectAll()
             phone.text_line_ok("\b")
             if args.all:
@@ -99,14 +100,17 @@ def gifting(port):
                 # phone.text_line_ok("!ff & !lucky & interactable")
                 phone.text_line_ok("!ff & !lucky")
             time.sleep(0.5)
-            phone.tapTextOK()      
-            time.sleep(0.3)
-            if phone.color_match(359, 884, 250,250,250) and shuffled_letters[0] != " ":
+
+            phone.buttons.ocr.startx = int(phone.specs['max_x'] * 0.8)
+            phone.buttons.black_on_white('OK')
+            g = phone.buttons.i_friends_gift.search()
+
+            if not g and shuffled_letters[0] != " ":
                 shuffled_letters.pop(0)
                 print("No gift. Letters to go {}".format(len(shuffled_letters)))
             else:
                 print("Friend has gift")
-                phone.friend_select_first()
+                phone.tap_screen(g.center, scale=False)
                 receive_gifts = phone.gift_open()
                 # Back to trainer screen
                 phone.tap_screen(500,1850)

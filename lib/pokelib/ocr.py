@@ -46,7 +46,7 @@ class Ocr:
 
 
         if verbose > 5:
-            self.ts.sc.show_image(array, wait=4000, title='button-candidate-preprocessed')
+            self.ts.image.show_image(array, wait=4000, title='button-candidate-preprocessed')
         # trigger recognition (GetUTF8Text returns full text, iterator used below)
         # Only tesserocr after here
         # self.api.SetPageSegMode(PSM.SINGLE_WORD)
@@ -118,13 +118,24 @@ class Ocr:
         self.npa = npa
         self.p_npa = self.image.process_array(npa, self.invert, self.process, verbose=verbose)
         t, _ = self._tesserocr_from_array(self.p_npa, verbose=verbose)
-        self.reset_parameters() 
         return t, self.npa, self.p_npa
 
     def read(self, *args, **kwargs):
         text, self.npa, processed_npa = self.read_and_npa(*args, **kwargs)
         return text
 
+    '''
+
+    '''
+    def read_area_percent(self, xs=0, xe=0, ys=0, ye=0, 
+                          invert=False, process=False, verbose=0):
+        self.startx = int(self.ts.specs['max_x'] * xs/100.0)
+        self.endx = int(self.ts.specs['max_x'] * xe/100.0)
+        self.starty = int(self.ts.specs['max_y'] * ys/100.0)
+        self.endy = int(self.ts.specs['max_y'] * ye/100.0)
+        self.invert = invert
+        self.process = process
+        return self.read(verbose=verbose)
 
     def regex(self, regex, npa=None, verbose=0):
         lines, self.npa, self.p_npa = self.read_and_npa(npa, verbose=verbose)

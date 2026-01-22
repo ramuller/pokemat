@@ -49,8 +49,11 @@ def _post_process(p_npa):
     if args.show:
         phone.image.show_image(p_npa, wait=10000, title='Read region')
     if args.save:
-        phone.image.save_image(p_npa, args.name)
-        print(f'Saved image to {args.name}')
+        path = f'{phone.config_path}/icons/screen-shots/{args.save}'
+        if not re.match(r'.*\.png$', path):
+            path += '.png'
+        phone.image.save_image(p_npa, path)
+        print(f'Saved image to {path}')
 
 def _schow_screen(ocr):
     
@@ -110,28 +113,29 @@ def home():
     print(f'Current screen is "{phone.screen.get_current_screen(verbose=args.verbose)}"')
     
 '''
-Serach high level button
+Search high level button
 '''
 def button():
     if not  args.name:
         print('Raw button command needs --name argument')
         print('Available buttons not all a really buttons!:')
         for b in dir(phone.buttons):
-            if b.startswith('i_'): # and callable(getattr(phone.buttons, b)):
-                print(f'  {b}')
+            if b.startswith('i_') \
+                or b.startswith('b_'): # and callable(getattr(phone.buttons, b)):
+                print(f'Button name : {b}')
         return
     print(f'Search button function {args.name}')
     method = getattr(phone.buttons, args.name)
     rep = 3
     for i in range(rep):
-        detection = method.search(action=args.press, 
-                 delay=args.delay, 
+        detection = method.search(
                  retries=1, 
                  verbose=args.verbose)
         if not method.updated and detection:
             print('Update button search area based on result')
             method.update_area(detection)
-    print(f'Button found: {detection}')
+    print(f'Button found:')
+    print(detection)
     _set_paramters_from_args(phone.pocr)
     
     if args.show:

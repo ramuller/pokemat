@@ -21,6 +21,8 @@
         "read",
         "--show",
         "--invert",
+        "--save",
+        "test.png"
       ],
       "comment":[
         "--process",
@@ -95,7 +97,7 @@
       "args": [
         "button",
         "--name",
-        "i_pokeball",
+        "b_passanger_fast",
         "--verbose",
         "6"
       ]
@@ -150,7 +152,7 @@
       "program": "${workspaceFolder}/pokemat/gifts-receive.py",
       "console": "integratedTerminal",
       "args": [
-      
+        "-a"
       ]
     },   
       {
@@ -162,6 +164,16 @@
       "args": [
         "--port",
         "3007"
+      ]
+    }, 
+      {
+      "name": "Defeat gym",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/defeat_gym.py",
+      "console": "integratedTerminal",
+      "args": [
       ]
     }, 
     {

@@ -2,6 +2,20 @@
 
 # port=$1
 
+ONCE="no"
+while getopts "o" opt; do
+  case $opt in
+    o)
+      ONCE="yes"
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
 source $SCRIPT_DIR/phone-lib.sh
 
 disable_air()
@@ -35,6 +49,10 @@ do
             
         fi
     done
+    if [ "$ONCE" = "yes" ]; then
+        echo onshot mode
+        exit 0
+    fi
     sleep 20
 done
 

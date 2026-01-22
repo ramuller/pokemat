@@ -35,5 +35,6 @@ do
         fi
         # net_mon $port
     done
+    net-mon.sh -o
     sleep 10
 done

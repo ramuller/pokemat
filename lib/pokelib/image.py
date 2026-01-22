@@ -9,11 +9,12 @@ class PokeImage:
         self.s = self.ts.specs
         
     def show_image(self, img, title="picture", x=0, y=0, scale=1, wait=0):
-        cv2.imshow(title, img)
-        cv2.waitKey(wait)
-        cv2.destroyAllWindows()
-
-          
+        try:
+            cv2.imshow(title, img)
+            cv2.waitKey(wait)
+            cv2.destroyAllWindows()
+        except Exception as e:
+            print(e)       
    
     def scan_region(self, xs=0, ys=0, xe=0, ye=0, channel="gray"):
         if xe == 0 or xe > self.s['max_x']:
@@ -138,17 +139,20 @@ class PokeImage:
         return boxes
     
     def process_array(self, npa, invert, process, verbose=0):
-        if invert:
-            npa = cv2.bitwise_not(npa)
-        if not process:
-            return npa
-        npa = cv2.normalize(npa, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
-        npa = cv2.adaptiveThreshold(
-            npa,
-            255,
-            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-            cv2.THRESH_BINARY,
-            31,
-            5
-        )
+        try:
+            if invert:
+                npa = cv2.bitwise_not(npa)
+            if not process:
+                return npa
+            npa = cv2.normalize(npa, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+            npa = cv2.adaptiveThreshold(
+                npa,
+                255,
+                cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                cv2.THRESH_BINARY,
+                31,
+                5
+            )
+        except Exception as e:
+            print('e')
         return npa

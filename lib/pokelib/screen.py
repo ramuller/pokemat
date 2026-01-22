@@ -12,6 +12,14 @@ class Screen:
         self.ts = ts
         self.specs = ts.specs
 
+    '''
+    Some buttons ar over the home screen but the pokeball is still visible
+    check if for those buttons
+    '''
+    def _button_over_home(self):
+        if self.ts.buttons.b_passanger_fast.search():
+            print('Passanger')
+
 
     # Return the current screen by name
     # home - home screen
@@ -20,12 +28,26 @@ class Screen:
     # menu -
     def get_current_screen(self, verbose=0):
         if self.ts.buttons.i_pokeball.search(verbose=verbose):
-
             return 'home'
         else:
             return 'unknown'
+        
+    def go_gym(self):
+        while not self.ts.buttons.i_gym_photo_disk.search(retries=1):
+            print("Not in gym")
+            self.ts.tap_screen(281, 339, scale=False)
+            sleep(1)
+        return True
+
+    def is_in_gym():
+        if not self.ts.buttons.i_gym_photo_disk.search(retries=1):
+            return False
+        else:
+            return True
+
+
     def go_friends(self):
-        if self.ts.buttons.t_friends(retries=1):
+        if self.ts.buttons.t_friends.search(retries=1):
             return True
         self.go_home()
         sleep(1)
