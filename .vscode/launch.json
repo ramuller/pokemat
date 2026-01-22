@@ -11,6 +11,40 @@
 
     },
     {
+      "name": "poketool snapshot",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "snapshot",
+        "--xs", "0",
+        "--xe", "0",
+        "--ys", "50%",
+        "--ye", "0",
+        "--count", "5",
+        "--name", "test"
+      ],
+    },
+    {
+      "name": "poketool ball",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "ball",
+        "--xs", "0",
+        "--xe", "0",
+        "--ys", "50%",
+        "--ye", "0",
+        "--count", "5",
+        "--name", "test"
+      ],
+    },
+    {
       "name": "poketool read",
       "extends": "Base",
       "type": "python",
@@ -235,19 +269,20 @@
       ]
     },
     {
-      "name": "read-text",
+      "name": "catch",
       "type": "python",
+      "extends": "Base",
       "request": "launch",
-      "program": "${workspaceFolder}/pokemat/read-text.py",
+      "program": "${workspaceFolder}/pokemat/catch.py",
       "console": "integratedTerminal",
       "args": [
-        "--port",
-        "3007"
+        "--berry", "a"
       ]
     },    
     {
       "name": "Change trainer",
       "type": "python",
+      "extends": "Base",
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/change_trainer.py",
       "console": "integratedTerminal",
@@ -261,6 +296,7 @@
     {
       "name": "friend-battle.py",
       "type": "python",
+      "extends": "Base",
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/friend-battle.py",
       "console": "integratedTerminal",
@@ -272,6 +308,7 @@
     {
       "name": "Change trainer",
       "type": "python",
+      "extends": "Base",
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/change_trainer.py",
       "console": "integratedTerminal",

@@ -11,8 +11,9 @@ class PokeImage:
     def show_image(self, img, title="picture", x=0, y=0, scale=1, wait=0):
         try:
             cv2.imshow(title, img)
-            cv2.waitKey(wait)
+            k = cv2.waitKey(wait)
             cv2.destroyAllWindows()
+            return k
         except Exception as e:
             print(e)       
    

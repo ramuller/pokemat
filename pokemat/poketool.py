@@ -3,6 +3,7 @@ import math
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
+from pokelib.buttons import ButtonParameter
 
 import logging
 
@@ -10,6 +11,7 @@ import json
 import sys
 import re
 from datetime import datetime
+from time import sleep
 
 
 def _int(x, d='y'):
@@ -57,9 +59,9 @@ def _post_process(p_npa):
 
 def _schow_screen(ocr):
     
-    _set_paramters_from_args(phone.pocr)
+    _set_paramters_from_args(ocr)
     npa = phone.image.scan_region(xs=ocr.startx, ys=ocr.starty, xe=ocr.endx, ye=ocr.endy, channel="gray")
-    phone.image.show_image(npa, wait=int(args.show_time), title='Screen shoot')
+    return phone.image.show_image(npa, wait=int(args.show_time), title='Screen shoot')
 
 def read():
     _set_paramters_from_args(phone.pocr)
@@ -77,6 +79,28 @@ def read():
         print(t)
     return
 
+def snapshot ():
+
+    print("Press 'q' to not save anything")
+    o= phone.pocr 
+    k = _schow_screen(o)
+    print(f"Got key {str(k)}")
+    if k == 113:
+        return
+    for i in range(int(args.count)):
+        fn = f'{phone.config_path}/icons/screen-shots/{args.name}-{i}.png'
+        print(f'Save {fn }')
+        npa = phone.image.scan_region(xs=o.startx, xe=o.endx, \
+                                      ys=o.starty, ye=o.endy)
+        phone.image.save_image(npa, fn)
+        sleep(float(args.delay))
+
+def ball ():
+
+    print("Check for ball")
+    for i in range(200):
+        print(f'checkball = {phone.buttons.i_catch_ball.search()}')
+        sleep(0.2)
 
 def icon():
     if not  args.name:
@@ -104,8 +128,6 @@ def screen():
             phone.image.show_image(npa, wait=args.show, title='Screen shoot')
         phone.image.save_image(npa, path)
 
-
-   
 def home():
     print(f'Current screen is "{phone.screen.get_current_screen(verbose=args.verbose)}"')
     print(f'Try to go home screen')
@@ -190,8 +212,12 @@ def action(port, arg = None):
         ret = home()
     elif re.match('but.*', command):
         ret = button()
+    elif re.match('snap.*', command):
+        ret = snapshot()
     elif re.match('i.*', command):
         ret = icon()
+    elif re.match('bal.*', command):
+        ret = ball()
     else:
         print(f'Unknown command {command}')
         ret = None
@@ -225,6 +251,8 @@ def main():
                         help='x start.')
     parser.add_argument('--ye', action='store', required=False, default=0, \
                         help='x start.')
+    parser.add_argument('--count', action='store', required=False, default=1, \
+                        help='If something can repeat.')
     parser.add_argument('--invert', action='store_true', default=False, \
                         help='x start.')
     parser.add_argument('--name', action='store', required=False, default=None, \

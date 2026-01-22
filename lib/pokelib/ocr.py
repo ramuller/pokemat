@@ -113,7 +113,7 @@ class Ocr:
         return concatenated
     
     def read_and_npa(self, npa=None,verbose=0):
-        if npa == None:
+        if npa is None:
             npa = self.image.scan_region(xs=self.startx, ys=self.starty, xe=self.endx, ye=self.endy, channel=self.color)
         self.npa = npa
         self.p_npa = self.image.process_array(npa, self.invert, self.process, verbose=verbose)

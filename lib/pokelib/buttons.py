@@ -61,6 +61,16 @@ ICONS_PATH = {
     'gym_defeat_in_battle': {
         'friend_gift': 'gym_defeat_in_battle.png',
     },
+    'catch_ball': {
+        'red_5': 'screen-shots/red-5.png',
+        'red_6': 'screen-shots/red-6.png',
+        'red_7': 'screen-shots/red-7.png',
+        'red_8': 'screen-shots/red-8.png',
+        'red_9': 'screen-shots/red-9.png',
+    },
+    'catch_berry': {
+        'catch_berry': 'catch_berry.png',
+    },
     'test_button': {
         'test_button': 'screen-shots/test_button.png',
     },
@@ -69,7 +79,6 @@ ICONS_PATH = {
 
 class ButtonNotFoundError(Exception):
     pass
-
 
 class ButtonParameter:
     def __init__(self, ts, xs=0, xe=0, ys=0, ye=0,
@@ -111,6 +120,9 @@ class ButtonParameter:
     def search(self, *args, **kwargs):
         pass
 
+class Coordinates(ButtonParameter):
+    def __init__(self, ts, xs=0, xe=0, ys=0, ye=0):
+        super.__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye)
 
 class TextOnly(ButtonParameter):
     def __init__(self, ts, text, invert=False, xs=0, xe=0, ys=0, ye=0):
@@ -306,11 +318,24 @@ class Buttons(ButtonParameter):
                                     xe=int(ts.specs['max_x']),
                                     ys=int(ts.specs['max_y'] * 0.75),
                                     ye=int(ts.specs['max_y'] * 0.90))
+        tb=0.02
+        self.i_catch_ball = IconButton(ts, 'catch_ball',
+                                    xs=int(ts.specs['max_x'] * (0.45 - tb)),
+                                    xe=int(ts.specs['max_x'] * (0.56 + tb)),
+                                    ys=int(ts.specs['max_y'] * (0.88 - tb)),
+                                    ye=int(ts.specs['max_y'] * (0.96 + tb)))
+        
+        self.i_catch_berry = IconButton(ts, 'catch_berry',
+                                    xs=int(ts.specs['max_x'] * 0.07),
+                                    xe=int(ts.specs['max_x'] * 0.18),
+                                    ys=int(ts.specs['max_y'] * 0.85),
+                                    ye=int(ts.specs['max_y'] * 0.96))
+        
         self.i_gym_defeat_in_battle = IconButton(ts, 'gym_defeat_in_battle',
                                     xs=int(ts.specs['max_x'] * 0.8),
                                     xe=int(ts.specs['max_x']),
                                     ys=int(ts.specs['max_y'] * 0.85),
-                                    ye=int(ts.specs['max_y'] * 0.96))
+                                    ye=int(ts.specs['max_y'] * 0.95))
         self.b_passanger_fast = TextButton(ts, 'SS', # I M A PASSANGER
                                                 invert=True,
                                                 xs=int(ts.specs['max_x'] * 0.45),
@@ -405,7 +430,7 @@ class Buttons(ButtonParameter):
         return ret
 
     def _text_from_screen(self, *args, **kwargs):
-        return self._generic_button(_flat_text_button, *args, **kwargs)
+        return self._generic_button(self._flat_text_button, *args, **kwargs)
 
     def _boxed_button(self, *args, **kwargs):
         return self._generic_button(self._button, *args, **kwargs)
