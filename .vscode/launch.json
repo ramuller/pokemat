@@ -288,8 +288,6 @@
       "console": "integratedTerminal",
       "debugOptions": ["DisableGUI"],
       "args": [
-        "--port",
-        "3007",
         "higimmi222"
       ]
     },    

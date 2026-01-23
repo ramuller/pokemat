@@ -32,11 +32,23 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
         max_tries -= 1
         for to in range(20, 0, -1):
             print("wait ball")
-            if p.buttons.i_catch_ball.search() is not None:
+            # p.buttons.ocr.process = False
+            p.buttons.startx = int(p.specs['max_x'] * 0.40)            
+            p.buttons.endx = int(p.specs['max_x'] * 0.60)            
+            p.buttons.starty = int(p.specs['max_y'] * 0.65)            
+            if p.buttons.dark('OK', action='press', retries=1, verbose=10):
+            # if p.buttons.white_on_black('OK', action='press', 
+            #                            verbose=10, retries=1):
+                p.screen_go_to_home()
+                return True
+            elif p.buttons.i_catch_ball.search() is not None:
                 print("Ball found")
                 break
+            elif p.buttons.black_on_white('BERRIES', action='check'):
+               p.tap_screen(3, int(p.specs['max_y'] * 0.5), scale=False)
+
             elif p.screen.get_current_screen() == 'home':
-                return
+                return False
             sleep(0.3)
         print("Ball ready")
 

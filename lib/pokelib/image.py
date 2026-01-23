@@ -86,7 +86,7 @@ class PokeImage:
         rgb = np.stack([R, G, B], axis=-1)
         return rgb
 
-    def boxes_get(self, img, verbose=0):
+    def boxes_get(self, img, verbose=0, pad=10):
         # self.ts.sc.show_image(img, wait=1000, title='unprocessed')
         img = cv2.normalize(img, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
         candidates = []
@@ -95,6 +95,7 @@ class PokeImage:
         if verbose > 9:
             cv2.imshow('find boxes', img)
             cv2.waitKey(1000)
+            cv2.destroyAllWindows()
         contours, _ = cv2.findContours(
             edges,
             # cv2.RETR_EXTERNAL,
@@ -110,7 +111,18 @@ class PokeImage:
             # reject small stuff
             if area < 0.01 * W * H:
                 continue
-        
+            
+            if True:  # hardcode debug
+                tpad = 0
+                cv2.imshow('current box',
+                            img[
+                                y+tpad : y+h-tpad,
+                                x+tpad : x+w-tpad
+                            ])
+                cv2.waitKey(000)
+                cv2.destroyAllWindows()
+                            
+
             # reject near-fullscreen
             if area > 0.9 * W * H:
                 continue

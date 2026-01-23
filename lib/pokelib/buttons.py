@@ -363,7 +363,9 @@ class Buttons(ButtonParameter):
                                             self.ocr.process,
                                             verbose=verbose)
             if verbose > 5:
-                self.ts.image.show_image(roi, wait=1000, title='button-candidate-preprocessed')
+                self.ts.image.show_image(roi, wait=000, title='button-candidate-preprocessed')
+            if roi is None:
+                continue
             words, _ = self.ocr._tesserocr_from_array(roi)
             # texts = self._concat_tesserocr_results(words)
             for w in words:
