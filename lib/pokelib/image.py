@@ -9,11 +9,13 @@ class PokeImage:
         self.s = self.ts.specs
         
     def show_image(self, img, title="picture", x=0, y=0, scale=1, wait=0):
-        cv2.imshow(title, img)
-        cv2.waitKey(wait)
-        cv2.destroyAllWindows()
-
-          
+        try:
+            cv2.imshow(title, img)
+            k = cv2.waitKey(wait)
+            cv2.destroyAllWindows()
+            return k
+        except Exception as e:
+            print(e)       
    
     def scan_region(self, xs=0, ys=0, xe=0, ye=0, channel="gray"):
         if xe == 0 or xe > self.s['max_x']:
@@ -84,15 +86,19 @@ class PokeImage:
         rgb = np.stack([R, G, B], axis=-1)
         return rgb
 
-    def boxes_get(self, img, verbose=0):
+    def boxes_get(self, npa, verbose=0, pad=10):
         # self.ts.sc.show_image(img, wait=1000, title='unprocessed')
-        img = cv2.normalize(img, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+        npa = cv2.normalize(npa, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
         candidates = []
-        H, W = img.shape
-        edges = cv2.Canny(img, 50, 150)
+        H, W = npa.shape
+        if verbose > 2:
+                print(f'boxes NPA : H{H},W{W}')
+
+        edges = cv2.Canny(npa, 50, 150)
         if verbose > 9:
-            cv2.imshow('find boxes', img)
+            cv2.imshow('boxes full area', npa)
             cv2.waitKey(1000)
+            cv2.destroyAllWindows()
         contours, _ = cv2.findContours(
             edges,
             # cv2.RETR_EXTERNAL,
@@ -103,12 +109,24 @@ class PokeImage:
         for cnt in contours:
             x, y, w, h = cv2.boundingRect(cnt)
             area = w * h
-            if verbose > 2:
-                print(f'Cont : x{x},y{y},w{w},h{h}')
             # reject small stuff
             if area < 0.01 * W * H:
                 continue
-        
+            
+            if verbose > 2:
+                print(f'Cont : x{x},y{y},w{w},h{h}')
+
+            if False: #True:  # hardcode debug
+                tpad = 0
+                cv2.imshow('current box',
+                            npa[
+                                y+tpad : y+h-tpad,
+                                x+tpad : x+w-tpad
+                            ])
+                cv2.waitKey(000)
+                cv2.destroyAllWindows()
+                            
+
             # reject near-fullscreen
             if area > 0.9 * W * H:
                 continue
@@ -126,29 +144,38 @@ class PokeImage:
         if unique:
             for d in unique:
                 x, y, w, h = d
-                pad = 10  # pixels
-                boxes.append({'rois': img[
-                    y+pad : y+h-pad,
-                    x+pad : x+w-pad
+                # clip area
+                ycs = y + pad
+                yce = y + h - pad
+                xcs = x + pad
+                xce = x + w - pad
+                boxes.append({'rois': npa[
+                    # y+pad : y+h-pad,
+                    ycs : yce,
+                    # x+pad : x+w-pad
+                    xcs : xce
                     ],
-                    'x': x+pad, 'y': y+pad
+                    'x': ycs, 'y': xcs 
                     })
                 if verbose > 5:
-                    self.ts.image.show_image(boxes[-1]['rois'], wait=1000, title='box')
+                    self.ts.image.show_image(boxes[-1]['rois'], wait=1000, title='apended box')
         return boxes
     
     def process_array(self, npa, invert, process, verbose=0):
-        if invert:
-            npa = cv2.bitwise_not(npa)
-        if not process:
-            return npa
-        npa = cv2.normalize(npa, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
-        npa = cv2.adaptiveThreshold(
-            npa,
-            255,
-            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-            cv2.THRESH_BINARY,
-            31,
-            5
-        )
+        try:
+            if invert:
+                npa = cv2.bitwise_not(npa)
+            if not process:
+                return npa
+            npa = cv2.normalize(npa, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+            npa = cv2.adaptiveThreshold(
+                npa,
+                255,
+                cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                cv2.THRESH_BINARY,
+                31,
+                5
+            )
+        except Exception as e:
+            print('e')
         return npa

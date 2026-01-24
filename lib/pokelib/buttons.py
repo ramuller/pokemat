@@ -13,6 +13,8 @@ from .ocr import Ocr
 from .image import PokeImage
 from pokelib import ExPokeLibFatal
 from hybrid_icon_detector import IconDetector
+import numpy as np
+from dataclasses import dataclass
 
 # from hybrid_icon_detector import IconDetector
 
@@ -46,16 +48,46 @@ ICONS_PATH = {
     },
     'friends_gift': {
         'friends_gift': 'friends_gift.png',
-    }
+    },
+    'friend_has_gift': {
+        'friend_gift': 'friend_has_gift.png',
+    },
+    'gym_photo_disk': {
+        'friend_gift': 'gym-photo-disk.png',
+    },
+    'gym_defeat': {
+        'friend_gift': 'gym-defeat.png',
+    },
+    'gym_defeat_in_battle': {
+        'friend_gift': 'gym_defeat_in_battle.png',
+    },
+    'catch_ball': {
+        'red_5': 'red-5.png',
+        'red_6': 'red-6.png',
+        'red_7': 'red-7.png',
+        'red_8': 'red-8.png',
+        'red_9': 'red-9.png',
+    },
+    'catch_berry': {
+        'catch_berry': 'catch_berry.png',
+    },
+    'buttons': {
+        'ok': 'button-ok.png',
+    },
+    'test_button': {
+        'test_button': 'screen-shots/test_button.png',
+    },
 }
+
 
 class ButtonNotFoundError(Exception):
     pass
 
-class PokeClip:
-    def __init__(self, ts, xs=0, xe=0, ys=0, ye=0, verbose=0):
+class ButtonParameter:
+    def __init__(self, ts, xs=0, xe=0, ys=0, ye=0,
+                 confidence=25.0, invert=False, process=False,
+                 color='gray', mode='word'):
         self.ts = ts
-        self.pi = PokeImage(ts)
         if xe == 0:
             xe = ts.specs['max_x']
         if ye == 0:
@@ -64,7 +96,11 @@ class PokeClip:
         self.ys = ys
         self.xe = xe
         self.ye = ye
-        self.verbose = verbose
+        self.confidence = confidence
+        self.invert = invert
+        self.process = process
+        self.color = color
+        self.mode = mode
         self.reset_parameters()
 
     def __del__(self):
@@ -72,20 +108,103 @@ class PokeClip:
 
     def reset_parameters(self):
         self.startx = self.xs
-        self.starty = self.ys
         self.endx = self.xe
+        self.starty = self.ys
         self.endy = self.ye
         self.confidence = 20.0
         self.invert = False
         self.process = True
         self.color = 'gray'
         self.mode = 'word'
-        self.npa = None
 
-class IconButton(PokeClip):
-    def __init__(self, ts, icons, xs=0, xe=0, ys=0, ye=0, verbose=0):
-        super().__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye, verbose=verbose)
+    def press():
+        pass
+
+    def search(self, *args, **kwargs):
+        pass
+
+    def correct_button_positon(self, b):
+        b['left'] += self.startx
+        b['top'] += self.starty
+        b['center'] = (b['center'][0] + self.startx,
+                       b['center'][1] + self.starty)
+
+class Coordinates(ButtonParameter):
+    def __init__(self, ts, xs=0, xe=0, ys=0, ye=0):
+        super.__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye)
+
+'''
+Text only now extra surrounding
+'''
+class TextOnly(ButtonParameter):
+    def __init__(self, ts, text, invert=False, xs=0, xe=0, ys=0, ye=0):
+        super().__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye)
+        self.text = text
+        self.invert = invert
+        self.updated = False
+
+    def search(self, text,
+                xs=0, xe=0, ys=0, ye=0,               
+                threshold=0.8,
+                delay=0.01,
+                retries=1, 
+                verbose=0):
+        self.ts.buttons.startx = xs
+        self.ts.buttons.endx   = xe
+        self.ts.buttons.starty = ys
+        self.ts.buttons.endy   = ye
+        return  self.ts.buttons.flat_text_button(text,
+                                          delay=delay,
+                                          action='check',
+                                          retries=retries,
+                                          verbose=verbose)
+        
+
+    def press(self,  *args, **kwargs):
+        self.search(*args, **kwargs)
+
+'''
+Button shape with text
+'''
+class TextButton(ButtonParameter):
+    def __init__(self, ts, text="", invert=False, xs=0, xe=0, ys=0, ye=0):
+        super().__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye)
+        self.text = text
+        self.invert = invert
+        self.updated = False
+
+    def search(self,
+                threshold=0.8,
+                delay=0.01,
+                retries=1, 
+                verbose=0):
+        b = Buttons(self.ts)
+        b.ocr.startx = self.startx
+        b.ocr.endx = self.endx
+        b.ocr.starty = self.starty
+        b.ocr.endy = self.endy
+        if self.invert:
+            return b.dark(
+                self.text,
+                action='check',
+                delay=delay,
+                retries=retries, 
+                verbose=verbose)
+        else:
+            return b.white(
+                self.text,
+                action='check',
+                delay=delay,
+                retries=retries, 
+                verbose=verbose)
+
+        
+
+class IconButton(ButtonParameter):
+    def __init__(self, ts, icons, xs=0, xe=0, ys=0, ye=0):
+        super().__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye)
         self._init_icons(icons)
+        self.pi = PokeImage(ts)
         self.updated = False
         self.detector = IconDetector(self.icons, offset=(self.xs, self.ys))     
 
@@ -97,7 +216,7 @@ class IconButton(PokeClip):
             if self.icons[name] is None:
                 raise FileNotFoundError(f"Icon file not found: {full_path}")
 
-    def press(self, *args, **kwargs):
+    def press(self, verbose=0, *args, **kwargs):
         det = self.search(*args, **kwargs)
         if det:
             if kwargs.get('verbose', 0) > 2:
@@ -106,16 +225,17 @@ class IconButton(PokeClip):
             self.ts.tap_screen(det.center, scale=False)
             return det
         else:
-            self.ts.log.debug("Icon button not found.") 
+            if verbose > 1:
+                self.ts.log.debug("Icon button not found.") 
         
     def search(self, 
                 npa=None,
                 threshold=0.8,
-                action='press', 
                 retries=3,
                 delay=0.01,
                 verbose=0):
-        print("Searching for icon button...")
+        if verbose > 1:
+            print("Searching for icon button...")
         if npa == None:
             npa = self.pi.scan_region(xs=self.startx, 
                                             ys=self.starty, 
@@ -127,7 +247,6 @@ class IconButton(PokeClip):
             self.ts.image.show_image(npa, wait=1000, title='button-area')
         dets = self.detector.detect(npa)
         # highest score and det with highest score
-  
         hs = -1
         hdet = None
         for det in dets:
@@ -135,10 +254,12 @@ class IconButton(PokeClip):
                 if det.score > hs:
                     hs = det.score
                     hdet = det
-                print(f"Found icon button with score {det.score} at {det.center}")
+                if verbose > 1:
+                    print(f"Found icon button with score {det.score} at {det.center}")
         if hs > 0.0:
             return hdet
-        print("Icon button not found.")
+        if verbose > 1:
+            print("Icon button not found.")
         return None
     
     def update_area(self, det):
@@ -151,11 +272,12 @@ class IconButton(PokeClip):
         self.updated = True
 
 
-class Buttons:
-    def __init__(self, ts):
-        self.ts = ts
+class Buttons(ButtonParameter):
+    def __init__(self, ts, xs=0, xe=0, ys=0, ye=0):
+        super().__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye)
         self.ocr = Ocr(ts)
         self.image = ts.image
+        self.text_only = TextOnly(ts, "")
         self.i_pokeball = IconButton(ts, 'pokeball',
                                     xs=int(ts.specs['max_x'] * 0.38),
                                     xe=int(ts.specs['max_x'] * 0.62),
@@ -182,15 +304,68 @@ class Buttons:
                                     ys=int(ts.specs['max_y'] * 0.80),
                                     ye=int(ts.specs['max_y'] * 0.99))
         self.i_change_sort = IconButton(ts, 'change_sort',
-                                    xs=int(ts.specs['max_x'] * 0.70),
+                                    xs=int(ts.specs['max_x'] * 0.60),
                                     xe=int(ts.specs['max_x'] * 0.98),
                                     ys=int(ts.specs['max_y'] * 0.80),
                                     ye=int(ts.specs['max_y'] * 0.99))
         self.i_friends_gift = IconButton(ts, 'friends_gift',
-                                    xs=int(ts.specs['max_x'] * 0.70),
-                                    xe=int(ts.specs['max_x'] * 0.98),
-                                    ys=int(ts.specs['max_y'] * 0.80),
-                                    ye=int(ts.specs['max_y'] * 0.99))
+                                    xs=int(ts.specs['max_x'] * 0.20),
+                                    xe=int(ts.specs['max_x'] * 0.43),
+                                    ys=int(ts.specs['max_y'] * 0.32),
+                                    ye=int(ts.specs['max_y'] * 0.50))
+        self.i_friend_has_gift = IconButton(ts, 'friend_has_gift',
+                                    xs=int(ts.specs['max_x'] * 0.38),
+                                    xe=int(ts.specs['max_x'] * 0.62),
+                                    ys=int(ts.specs['max_y'] * 0.38),
+                                    ye=int(ts.specs['max_y'] * 0.57))
+        self.i_test_button = IconButton(ts, 'test_button',
+                                    xs=int(ts.specs['max_x'] * 0.38),
+                                    xe=int(ts.specs['max_x'] * 0.62),
+                                    ys=int(ts.specs['max_y'] * 0.38),
+                                    ye=int(ts.specs['max_y'] * 0.57))
+        self.i_gym_photo_catdisk = IconButton(ts, 'gym_photo_disk',
+                                    xs=int(ts.specs['max_x'] * 0.8),
+                                    xe=int(ts.specs['max_x']),
+                                    ys=int(ts.specs['max_y'] * 0.85),
+                                    ye=int(ts.specs['max_y']))
+        self.i_gym_defeat = IconButton(ts, 'gym_defeat',
+                                    xs=int(ts.specs['max_x'] * 0.8),
+                                    xe=int(ts.specs['max_x']),
+                                    ys=int(ts.specs['max_y'] * 0.75),
+                                    ye=int(ts.specs['max_y'] * 0.90))
+        tb=0.02
+        self.i_catch_ball = IconButton(ts, 'catch_ball',
+                                    xs=int(ts.specs['max_x'] * (0.45 - tb)),
+                                    xe=int(ts.specs['max_x'] * (0.56 + tb)),
+                                    ys=int(ts.specs['max_y'] * (0.88 - tb)),
+                                    ye=int(ts.specs['max_y'] * (0.96 + tb)))
+        
+        self.i_catch_berry = IconButton(ts, 'catch_berry',
+                                    xs=int(ts.specs['max_x'] * 0.07),
+                                    xe=int(ts.specs['max_x'] * 0.18),
+                                    ys=int(ts.specs['max_y'] * 0.85),
+                                    ye=int(ts.specs['max_y'] * 0.96))
+        
+        self.i_gym_defeat_in_battle = IconButton(ts, 'gym_defeat_in_battle',
+                                    xs=int(ts.specs['max_x'] * 0.8),
+                                    xe=int(ts.specs['max_x']),
+                                    ys=int(ts.specs['max_y'] * 0.85),
+                                    ye=int(ts.specs['max_y'] * 0.95))
+        self.i_button_ok = IconButton(ts, 'buttons',
+                                    xs=int(ts.specs['max_x'] * 0.4),
+                                    xe=int(ts.specs['max_x'] * 0.6),
+                                    ys=int(ts.specs['max_y'] * 0.5),
+                                    ye=int(ts.specs['max_y'] * 0.7))
+        self.b_passanger_fast = TextButton(ts, 'SS', # I M A PASSANGER
+                                    invert=True,
+                                    xs=int(ts.specs['max_x'] * 0.45),
+                                    xe=int(ts.specs['max_x'] * 0.55),
+                                    ys=int(ts.specs['max_y'] * 0.65),
+                                    ye=int(ts.specs['max_y'] * 0.72))
+        self.b_catch_berry = TextButton(ts, 'Berry', # I M A PASSANGER
+                                    invert=True,
+                                    ys=int(ts.specs['max_y'] * 0.50),
+                                    ye=int(ts.specs['max_y'] * 0.72))
 
     def __del__(self):
         pass
@@ -201,7 +376,7 @@ class Buttons:
                                          ys=self.starty, 
                                          xe=self.endx, 
                                          ye=self.endy, 
-                                         channel=self.ocr.color)
+                                         channel=self.color)
         self.npa = npa
     
         boxes = self.image.boxes_get(npa, verbose=verbose)            
@@ -212,7 +387,9 @@ class Buttons:
                                             self.ocr.process,
                                             verbose=verbose)
             if verbose > 5:
-                self.ts.image.show_image(roi, wait=1000, title='button-candidate-preprocessed')
+                self.ts.image.show_image(roi, wait=000, title='button-candidate-preprocessed')
+            if roi is None:
+                continue
             words, _ = self.ocr._tesserocr_from_array(roi)
             # texts = self._concat_tesserocr_results(words)
             for w in words:
@@ -220,32 +397,26 @@ class Buttons:
                     print("Found word: {}".format(w['text']))
                 if re.search(f'{name}', w['text']):
                     # self.ts.sc.show_image(roi, wait=000, title='button-candidate-preprocessed')
-                    w['left'] += box['x'] + w['left'] + self.startx
-                    w['top']  += box['y'] + w['top'] + self.starty
-                    w['center'] = (w['center'][0] + box['x'] + self.startx, \
-                                    w['center'][1] + box['y'] + self.starty )
+                    # w['left'] += box['x'] + w['left'] + self.ocr.startx
+                    w['left'] = box['x'] + w['left']
+                    w['top']  = box['y'] + w['top']
+                    w['center'] = (w['center'][0] + box['x'], \
+                                    w['center'][1] + box['y'])
                     return w, self.npa
 
         return None, self.npa
 
-    def _re_button(self, text, action='press', retries=3, verbose=0):
-        ret = None
-        while retries > 0:
-            button, npa = self.ocr.regex(text, verbose=verbose)
-            if button:
-                if action == 'press':
-                    sleep(delay)
-                    self.ts.tap_screen(button['center'], scale=False)
-                    ret = button
-                    break
-                elif action == 'check':
-                    ret = button
-                    break
+    def flat_text_button(self, text, delay=0.1, action='press', retries=3, verbose=0):
+        button = None
+
+        while button is None and retries > 0:
             retries -= 1
-            if retries > 0:
-                sleep(0.7)
-        self.ocr.reset_parameters()
-        return ret, npa
+            npa = self.ts.image.scan_region(xs=self.startx, xe=self.endx,
+                                            ys=self.starty, ye=self.endy)
+            button, npa = self.ocr.regex(text, npa=npa, verbose=verbose)
+        if button is not None:
+            self.correct_button_positon(button)
+        return button, npa
 
     def _generic_button(self, 
                         method,
@@ -256,7 +427,8 @@ class Buttons:
                         verbose=0):
         ret = None
         while retries > 0:
-            button, npa = method(text, verbose=verbose)
+            button, npa = method(text, 
+                                 verbose=0)
             if button:
                 if action == 'press':
                     if verbose > 2:
@@ -271,11 +443,11 @@ class Buttons:
             retries -= 1
             if retries > 0:
                 sleep(0.7)
-        self.ocr.reset_parameters()
+        self.reset_parameters()
         return ret
 
     def _text_from_screen(self, *args, **kwargs):
-        return self._generic_button(self.ocr.regex, *args, **kwargs)
+        return self._generic_button(self.flat_text_button, *args, **kwargs)
 
     def _boxed_button(self, *args, **kwargs):
         return self._generic_button(self._button, *args, **kwargs)
@@ -311,4 +483,4 @@ class Buttons:
         x = int(0.15 * self.ts.specs['max_x'])
         y = int(0.90 * self.ts.specs['max_y'])
         self.ts.tap_screen(x, y, scale=False)
-    
+

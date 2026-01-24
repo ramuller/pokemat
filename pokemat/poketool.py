@@ -3,6 +3,7 @@ import math
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
+from pokelib.buttons import ButtonParameter
 
 import logging
 
@@ -10,6 +11,7 @@ import json
 import sys
 import re
 from datetime import datetime
+from time import sleep
 
 
 def _int(x, d='y'):
@@ -49,14 +51,17 @@ def _post_process(p_npa):
     if args.show:
         phone.image.show_image(p_npa, wait=10000, title='Read region')
     if args.save:
-        phone.image.save_image(p_npa, args.name)
-        print(f'Saved image to {args.name}')
+        path = f'{phone.config_path}/icons/screen-shots/{args.save}'
+        if not re.match(r'.*\.png$', path):
+            path += '.png'
+        phone.image.save_image(p_npa, path)
+        print(f'Saved image to {path}')
 
 def _schow_screen(ocr):
     
-    _set_paramters_from_args(phone.pocr)
+    _set_paramters_from_args(ocr)
     npa = phone.image.scan_region(xs=ocr.startx, ys=ocr.starty, xe=ocr.endx, ye=ocr.endy, channel="gray")
-    phone.image.show_image(npa, wait=int(args.show_time), title='Screen shoot')
+    return phone.image.show_image(npa, wait=int(args.show_time), title='Screen shoot')
 
 def read():
     _set_paramters_from_args(phone.pocr)
@@ -74,6 +79,28 @@ def read():
         print(t)
     return
 
+def snapshot ():
+
+    print("Press 'q' to not save anything")
+    o= phone.pocr 
+    k = _schow_screen(o)
+    print(f"Got key {str(k)}")
+    if k == 113:
+        return
+    for i in range(int(args.count)):
+        fn = f'{phone.config_path}/icons/screen-shots/{args.name}-{i}.png'
+        print(f'Save {fn }')
+        npa = phone.image.scan_region(xs=o.startx, xe=o.endx, \
+                                      ys=o.starty, ye=o.endy)
+        phone.image.save_image(npa, fn)
+        sleep(float(args.delay))
+
+def ball ():
+
+    print("Check for ball")
+    for i in range(200):
+        print(f'checkball = {phone.buttons.i_catch_ball.search()}')
+        sleep(0.2)
 
 def icon():
     if not  args.name:
@@ -84,9 +111,12 @@ def icon():
     print(f'Search icon in region x:{phone.pocr.startx}-{phone.pocr.endx} y:{phone.pocr.starty}-{phone.pocr.endy}')
     print(f'invert:{phone.pocr.invert} process:{phone.pocr.process} mode:{phone.pocr.mode} text:{args.text} kind:{args.kind} press:{args.press}')
 
+    button()
     icon_button = getattr(phone.buttons, args.name)
 
-    ib = icon_button.search(delay=1)
+    detection = icon_button.search(retries=1)
+
+
     
 def screen():
 
@@ -101,8 +131,6 @@ def screen():
             phone.image.show_image(npa, wait=args.show, title='Screen shoot')
         phone.image.save_image(npa, path)
 
-
-   
 def home():
     print(f'Current screen is "{phone.screen.get_current_screen(verbose=args.verbose)}"')
     print(f'Try to go home screen')
@@ -110,28 +138,29 @@ def home():
     print(f'Current screen is "{phone.screen.get_current_screen(verbose=args.verbose)}"')
     
 '''
-Serach high level button
+Search high level button
 '''
 def button():
     if not  args.name:
         print('Raw button command needs --name argument')
         print('Available buttons not all a really buttons!:')
         for b in dir(phone.buttons):
-            if b.startswith('i_'): # and callable(getattr(phone.buttons, b)):
-                print(f'  {b}')
+            if b.startswith('i_') \
+                or b.startswith('b_'): # and callable(getattr(phone.buttons, b)):
+                print(f'Button name : {b}')
         return
     print(f'Search button function {args.name}')
     method = getattr(phone.buttons, args.name)
-    rep = 3
+    rep = args.count
     for i in range(rep):
-        detection = method.search(action=args.press, 
-                 delay=args.delay, 
+        detection = method.search(
                  retries=1, 
                  verbose=args.verbose)
         if not method.updated and detection:
             print('Update button search area based on result')
             method.update_area(detection)
-    print(f'Button found: {detection}')
+    print(f'Button found:')
+    print(detection)
     _set_paramters_from_args(phone.pocr)
     
     if args.show:
@@ -142,6 +171,7 @@ def button():
 Directly using the button functions
 '''
 def raw_button():
+    print("Command : raw-button")
     if not  args.text:
         print('Raw button command needs --text argument')
         return
@@ -152,11 +182,13 @@ def raw_button():
 
     if args.kind == 'dark':
         b = phone.buttons.dark
-    elif args.kind == 'light':
-        b = phone.buttons.light
-    elif args.kind == 'black_on_white':
+    elif args.kind == 'white':
+        b = phone.buttons.white
+    elif args.kind == 'black_on_white' \
+         or args.kind == 'bw':
         b = phone.buttons.black_on_white
-    elif args.kind == 'white_on_black':
+    elif args.kind == 'white_on_black'\
+         or args.kind == 'wb':
         b = phone.buttons.white_on_black
     else:
         print(f'Unknown button kind {args.kind}')
@@ -178,7 +210,7 @@ def action(port, arg = None):
     startTime = datetime.now()
     if command == 'read':
         ret = read()
-    elif re.match('raw-b.*', command):
+    elif re.match('raw.*', command):
         ret = raw_button()
     elif command == 'screen':
         ret = screen()
@@ -186,8 +218,12 @@ def action(port, arg = None):
         ret = home()
     elif re.match('but.*', command):
         ret = button()
+    elif re.match('snap.*', command):
+        ret = snapshot()
     elif re.match('i.*', command):
         ret = icon()
+    elif re.match('bal.*', command):
+        ret = ball()
     else:
         print(f'Unknown command {command}')
         ret = None
@@ -221,6 +257,8 @@ def main():
                         help='x start.')
     parser.add_argument('--ye', action='store', required=False, default=0, \
                         help='x start.')
+    parser.add_argument('--count', action='store', required=False, default=1, \
+                        help='If something can repeat.')
     parser.add_argument('--invert', action='store_true', default=False, \
                         help='x start.')
     parser.add_argument('--name', action='store', required=False, default=None, \
