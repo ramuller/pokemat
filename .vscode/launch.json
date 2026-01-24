@@ -68,19 +68,18 @@
     },
     {
       "name": "poketool raw_button",
+      "extends": "Base",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/poketool.py",
       "console": "integratedTerminal",
       "args": [
         "raw_button",
-        "--port",
-        "3007",
         "--show",
         "--kind",
         "dark",
         "--text",
-        "RETURNING PLAYER",
+        "OK",
         "--mode",
         "line",
         "--ys",
@@ -131,7 +130,7 @@
       "args": [
         "button",
         "--name",
-        "b_passanger_fast",
+        "text_only",
         "--verbose",
         "6"
       ]

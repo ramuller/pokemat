@@ -156,11 +156,25 @@ class TouchScreen:
                     break
             
         specs["max_y"] = specs["h"] - 1
-        specs["max_x"] = specs["w"] - 1  
+        specs["max_x"] = specs["w"] - 1 
+        specs['ratio'] = specs['h'] / specs['w']
+        print(f'Phone specs : {specs}')
         self.log.debug(f"Phone specs {specs}")
         return specs
         
     
+    def max_x(self):
+        return self.specs['max_x']
+
+    def max_y(self):
+        return self.specs['max_y']
+
+    def rel_y(self, f : float):
+        return int(self.specs['max_y'] * f)
+    
+    def ratio(self):
+        return self.specs['ratio']
+
     def phone_config_path(base_dir: Path | None = None) -> Path:
         """
         Returns ~/.config/pokemat/<phone>.db (or custom base_dir).
