@@ -169,6 +169,9 @@ class TouchScreen:
     def max_y(self):
         return self.specs['max_y']
 
+    def rel_x(self, f : float):
+        return int(self.specs['max_x'] * f)
+    
     def rel_y(self, f : float):
         return int(self.specs['max_y'] * f)
     

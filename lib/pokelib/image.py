@@ -155,7 +155,7 @@ class PokeImage:
                     # x+pad : x+w-pad
                     xcs : xce
                     ],
-                    'x': ycs, 'y': xcs 
+                    'x': xcs, 'y': ycs 
                     })
                 if verbose > 5:
                     self.ts.image.show_image(boxes[-1]['rois'], wait=1000, title='apended box')

@@ -86,7 +86,7 @@ class ButtonNotFoundError(Exception):
 class ButtonParameter:
     def __init__(self, ts, xs=0, xe=0, ys=0, ye=0,
                  confidence=25.0, invert=False, process=False,
-                 color='gray', mode='word'):
+                 color='gray', delay= 0.01, mode='word'):
         self.ts = ts
         if xe == 0:
             xe = ts.specs['max_x']
@@ -101,6 +101,8 @@ class ButtonParameter:
         self.process = process
         self.color = color
         self.mode = mode
+        self.delay = delay
+        self.npa = None
         self.reset_parameters()
 
     def __del__(self):
@@ -117,7 +119,7 @@ class ButtonParameter:
         self.color = 'gray'
         self.mode = 'word'
 
-    def press():
+    def press(self, *args, **kwargs):
         pass
 
     def search(self, *args, **kwargs):
@@ -153,15 +155,23 @@ class TextOnly(ButtonParameter):
         self.ts.buttons.endx   = xe
         self.ts.buttons.starty = ys
         self.ts.buttons.endy   = ye
-        return  self.ts.buttons.flat_text_button(text,
-                                          delay=delay,
+        b, self.npa = self.ts.buttons.flat_text_button(text,
                                           action='check',
                                           retries=retries,
                                           verbose=verbose)
+        return b
         
 
-    def press(self,  *args, **kwargs):
-        self.search(*args, **kwargs)
+    def press(self, *args, **kwargs):
+        b = self.search(*args, **kwargs)
+        if b:
+            if 'delay' in kwargs:
+                sleep(delay)
+            else:
+                sleep(self.delay)
+            # self.ts.tap_screen(b['center'][0], b['center'][1], scale=False)
+            self.ts.tap_screen(b['center'], scale=False)
+        return b
 
 '''
 Button shape with text
@@ -414,6 +424,8 @@ class Buttons(ButtonParameter):
             npa = self.ts.image.scan_region(xs=self.startx, xe=self.endx,
                                             ys=self.starty, ye=self.endy)
             button, npa = self.ocr.regex(text, npa=npa, verbose=verbose)
+
+        self.reset_parameters()
         if button is not None:
             self.correct_button_positon(button)
         return button, npa

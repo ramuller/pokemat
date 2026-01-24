@@ -69,6 +69,7 @@ class Screen:
             # self.color_show(300, 1803)
             # OK on green in the middle
             if self.ts.buttons.i_exits.press(retries=1):
+                sleep(1)
                 continue
             elif self.ts.color_match(357, 1005, 150, 218, 151, debug=False):
                 # Not exit pokemon

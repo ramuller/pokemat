@@ -80,7 +80,7 @@ def do_change_trainer(port, trainer):
         try:
             phone.screen_go_to_home()
             sleep(1)
-            phone.buttons.pokeball()
+            phone.buttons.i_pokeball.press()
             t = phone.buttons.black_on_white('.*SETTINGS.*', verbose=0)
             sleep(1)
             sx = 1
@@ -89,14 +89,15 @@ def do_change_trainer(port, trainer):
                          start_x=sx, start_y=sy, scale=False)
             if t:
                 sleep(0.5)
-                t = phone.buttons.white('.*Sign.*', action='press', retries=3, verbose=0)
+                t = phone.buttons.text_only.press('.*Sign.*', xs=phone.rel_x(0.05), xe=phone.rel_x(0.5), retries=3, verbose=0)
                 sleep(0.5)
                 t = phone.buttons.dark('.*YES.*', action='press', retries=3, verbose=0)
             else:
                 print("Not idea where we are, cannot change trainer")
                 return False
 
-        except:
+        except Exception as e:
+            print(f"Exceptionf {e}")
             pass
         if phone.buttons.dark('.*RETURNING.*', action='check', retries=30) == None:
             return False
