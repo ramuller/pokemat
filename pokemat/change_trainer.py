@@ -71,10 +71,14 @@ def select_trainer(trainer):
     
             
 def do_change_trainer(port, trainer):
+    ret = None
+    gog = None
+    choose = None
 
-    ret = phone.buttons.dark('.*RETURNING.*', action='check', retries=1)
-    gog = phone.buttons.dark('.*Google.*', action='check', retries=1)
-    choose = phone.buttons.white_on_black('.*Choose.*', action='check', retries=1)
+    if phone.screen.get_current_screen() != 'home':
+        ret = phone.buttons.dark('.*RETURNING.*', action='check', retries=1)
+        gog = phone.buttons.dark('.*Google.*', action='check', retries=1)
+        choose = phone.buttons.white_on_black('.*Choose.*', action='check', retries=1)
 
     if ret == None and gog == None and choose == None:
         try:
@@ -111,6 +115,15 @@ def do_change_trainer(port, trainer):
     
     if trainer != "out":
         select_trainer(trainer)
+
+    while phone.screen.get_current_screen != 'home':
+        if phone.buttons.i_pokeball.press():
+            sleep(1)
+            if phone.buttons.text_only.search('.*SETTINGS.*', 
+                                              ye=phone.rel_y(0.25)):
+                phone.screen.go_home()
+                return True
+
         
 def change_trainer(port, trainer, check=False):
     print("Change trainers on port {}", port)

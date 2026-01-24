@@ -333,7 +333,7 @@ class Buttons(ButtonParameter):
                                     xe=int(ts.specs['max_x'] * 0.62),
                                     ys=int(ts.specs['max_y'] * 0.38),
                                     ye=int(ts.specs['max_y'] * 0.57))
-        self.i_gym_photo_catdisk = IconButton(ts, 'gym_photo_disk',
+        self.i_gym_photo_disk = IconButton(ts, 'gym_photo_disk',
                                     xs=int(ts.specs['max_x'] * 0.8),
                                     xe=int(ts.specs['max_x']),
                                     ys=int(ts.specs['max_y'] * 0.85),
