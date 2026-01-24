@@ -79,8 +79,9 @@ def defeat_gym(port, max_round=5):
             # #                  and not phone.button_is_back() \
             fight = True
             l = 0
+            gap = phone.specs['max_x'] // 4
             while not phone.buttons.i_exits.search(retries=1):
-                for x in [250, 500, 750]:
+                for x in [gap, 2*gap, 3*gap]:
                     phone.tap_screen(x, y_press, scale=False)
                     time.sleep(0.1)
 
