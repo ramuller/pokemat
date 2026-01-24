@@ -62,11 +62,11 @@ ICONS_PATH = {
         'friend_gift': 'gym_defeat_in_battle.png',
     },
     'catch_ball': {
-        'red_5': 'screen-shots/red-5.png',
-        'red_6': 'screen-shots/red-6.png',
-        'red_7': 'screen-shots/red-7.png',
-        'red_8': 'screen-shots/red-8.png',
-        'red_9': 'screen-shots/red-9.png',
+        'red_5': 'red-5.png',
+        'red_6': 'red-6.png',
+        'red_7': 'red-7.png',
+        'red_8': 'red-8.png',
+        'red_9': 'red-9.png',
     },
     'catch_berry': {
         'catch_berry': 'catch_berry.png',
