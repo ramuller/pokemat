@@ -111,9 +111,12 @@ def icon():
     print(f'Search icon in region x:{phone.pocr.startx}-{phone.pocr.endx} y:{phone.pocr.starty}-{phone.pocr.endy}')
     print(f'invert:{phone.pocr.invert} process:{phone.pocr.process} mode:{phone.pocr.mode} text:{args.text} kind:{args.kind} press:{args.press}')
 
+    button()
     icon_button = getattr(phone.buttons, args.name)
 
-    ib = icon_button.search(delay=1)
+    detection = icon_button.search(retries=1)
+
+
     
 def screen():
 
@@ -148,7 +151,7 @@ def button():
         return
     print(f'Search button function {args.name}')
     method = getattr(phone.buttons, args.name)
-    rep = 3
+    rep = args.count
     for i in range(rep):
         detection = method.search(
                  retries=1, 
@@ -168,6 +171,7 @@ def button():
 Directly using the button functions
 '''
 def raw_button():
+    print("Command : raw-button")
     if not  args.text:
         print('Raw button command needs --text argument')
         return
@@ -178,11 +182,13 @@ def raw_button():
 
     if args.kind == 'dark':
         b = phone.buttons.dark
-    elif args.kind == 'light':
-        b = phone.buttons.light
-    elif args.kind == 'black_on_white':
+    elif args.kind == 'white':
+        b = phone.buttons.white
+    elif args.kind == 'black_on_white' \
+         or args.kind == 'bw':
         b = phone.buttons.black_on_white
-    elif args.kind == 'white_on_black':
+    elif args.kind == 'white_on_black'\
+         or args.kind == 'wb':
         b = phone.buttons.white_on_black
     else:
         print(f'Unknown button kind {args.kind}')
@@ -204,7 +210,7 @@ def action(port, arg = None):
     startTime = datetime.now()
     if command == 'read':
         ret = read()
-    elif re.match('raw-b.*', command):
+    elif re.match('raw.*', command):
         ret = raw_button()
     elif command == 'screen':
         ret = screen()

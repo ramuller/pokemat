@@ -102,7 +102,7 @@ class Screen:
                 #             self.tap_screen(b_text['center'])
                 #             break
                 count = 0
-            sleep(1)
+            sleep(2)
 
         if count == 0:
             self.ts.log.info("No homescreen found!")
