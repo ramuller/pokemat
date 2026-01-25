@@ -59,7 +59,10 @@ ICONS_PATH = {
         'friend_gift': 'gym-defeat.png',
     },
     'gym_defeat_in_battle': {
-        'friend_gift': 'gym_defeat_in_battle.png',
+        'gym_defeat_in_battle': 'gym_defeat_in_battle.png',
+    },
+    'gym_mine': {
+        'gym_mine': 'gym_mine.png',
     },
     'catch_ball': {
         'red_5': 'red-5.png',
@@ -148,16 +151,18 @@ class TextOnly(ButtonParameter):
     def search(self, text,
                 xs=0, xe=0, ys=0, ye=0,               
                 threshold=0.8,
+                mode='word',
                 delay=0.01,
                 retries=1, 
                 verbose=0):
-        self.ts.buttons.startx = xs
+        self.ts.buttons.ocr.startx = self.ts.buttons.startx = xs
         self.ts.buttons.endx   = xe
-        self.ts.buttons.starty = ys
+        self.ts.buttons.ocr.starty = self.ts.buttons.starty = ys
         self.ts.buttons.endy   = ye
         b, self.npa = self.ts.buttons.flat_text_button(text,
                                           action='check',
                                           retries=retries,
+                                          mode=mode,
                                           verbose=verbose)
         return b
         
@@ -361,6 +366,11 @@ class Buttons(ButtonParameter):
                                     xe=int(ts.specs['max_x']),
                                     ys=int(ts.specs['max_y'] * 0.85),
                                     ye=int(ts.specs['max_y'] * 0.95))
+        self.i_gym_mine = IconButton(ts, 'gym_mine',
+                                    xs=int(ts.specs['max_x'] * 0.8),
+                                    xe=int(ts.specs['max_x']),
+                                    ys=int(ts.specs['max_y'] * 0.70),
+                                    ye=int(ts.specs['max_y'] * 0.90))
         self.i_button_ok = IconButton(ts, 'buttons',
                                     xs=int(ts.specs['max_x'] * 0.4),
                                     xe=int(ts.specs['max_x'] * 0.6),
@@ -416,13 +426,14 @@ class Buttons(ButtonParameter):
 
         return None, self.npa
 
-    def flat_text_button(self, text, delay=0.1, action='press', retries=3, verbose=0):
+    def flat_text_button(self, text, delay=0.1, action='press', retries=1, mode='word', verbose=0):
         button = None
 
         while button is None and retries > 0:
             retries -= 1
             npa = self.ts.image.scan_region(xs=self.startx, xe=self.endx,
                                             ys=self.starty, ye=self.endy)
+            self.ocr.mode = mode
             button, npa = self.ocr.regex(text, npa=npa, verbose=verbose)
 
         self.reset_parameters()

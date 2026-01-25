@@ -33,7 +33,7 @@ def trainer_regex(trainer):
     elif trainer in "higimmi222":
         regex = ".*gimmi222.*"        
     elif trainer in "higimmi1234":
-        regex = ".*gimmi.*123.*"        
+        regex = ".*Gimmi.*123.*"        
     elif trainer in "higimmi33" or trainer in "yellowthatsit":
         regex = ".*higimmi33.*|.*yellow.*"        
     elif trainer in "higimmi444"or trainer in "blue":
@@ -58,7 +58,7 @@ def select_trainer(trainer):
     print(f"RE {regex}")
      
     for i in range(2):
-        if phone.buttons.white_on_black(regex, retries=2, verbose=0):
+        if phone.buttons.text_only.press(regex, xs=phone.rel_x(0.2), mode='line', retries=2, verbose=0):
             return True
         sx = int(phone.specs['width'] // 2 )
         sy = int(phone.specs['max_y'] * 0.9)
@@ -78,7 +78,7 @@ def do_change_trainer(port, trainer):
     if phone.screen.get_current_screen() != 'home':
         ret = phone.buttons.dark('.*RETURNING.*', action='check', retries=1)
         gog = phone.buttons.dark('.*Google.*', action='check', retries=1)
-        choose = phone.buttons.white_on_black('.*Choose.*', action='check', retries=1)
+        choose = phone.buttons.text_only.search('.*Choose.*', xs=phone.rel_x(0.2), retries=1)
 
     if ret == None and gog == None and choose == None:
         try:

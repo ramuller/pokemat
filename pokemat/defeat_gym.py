@@ -35,6 +35,9 @@ def defeat_gym(port, max_round=5):
             retry = 3
             in_defeat = False
             phone.screen.go_gym()
+            if phone.buttons.i_gym_mine.press():
+                print('my gym')
+                return True
             det = phone.buttons.i_exits.search()
             y_press = det.quad[0][1] - int(phone.specs['max_y'] * 0.028)
             phone.buttons.i_gym_defeat.press()
@@ -85,7 +88,7 @@ def defeat_gym(port, max_round=5):
                     phone.tap_screen(x, y_press, scale=False)
                     time.sleep(0.1)
 
-            fight = False
+            fight = False   
             round += 1
             if round > max_round:
                 return "give-up"
@@ -96,8 +99,8 @@ def defeat_gym(port, max_round=5):
             # heal(args.port)
 
         except Exception as e:
-            phone.screen_go_to_home()
             print("Upps something went wrong but who cares?: {}", e)    
+            phone.screen_go_to_home()
     # phone.pokemon_search("cp1500-2000")
     if phone.screen_go_to_gym() == False:
         print("Dont know how to enter defeat mode bye bye")
