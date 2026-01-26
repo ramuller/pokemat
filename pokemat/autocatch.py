@@ -45,14 +45,15 @@ def search_target(phone):
                     print("Pokemon screen")
                     # phone.screen_go_to_home()
                     return "pokemon"
-                elif phone.screen_is_pokestop():
+                elif phone.screen.is_pokestop():
                     print("Found pokestop")
                     return "pokestop"
-                elif phone.screen_gym_need_defeat() and False:
+                elif phone.screen.is_in_gym() and False:
                     print("Found gym to defeat")
                     return "gym-defeat"
                 else:
-                    print("Something else")
+                    print("Something else go home")
+                phone.screen.go_home()
                 rotate(phone)
         rotate(phone)
             
