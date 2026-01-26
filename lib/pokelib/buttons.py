@@ -306,8 +306,8 @@ class Buttons(ButtonParameter):
         self.i_poke_stop_check = IconButton(ts, 'poke_stop_check',
                                     xs=int(ts.specs['max_x'] * 0.38),
                                     xe=int(ts.specs['max_x'] * 0.62),
-                                    ys=int(ts.specs['max_y'] * 0.20),
-                                    ye=int(ts.specs['max_y'] * 0.40))
+                                    ys=int(ts.specs['max_y'] * 0.15),
+                                    ye=int(ts.specs['max_y'] * 0.25))
         self.i_has_gift = IconButton(ts, 'has_gift',
                                     xs=int(ts.specs['max_x'] * 0.70),
                                     xe=int(ts.specs['max_x'] * 0.98),

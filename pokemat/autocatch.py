@@ -31,7 +31,6 @@ def search_target(phone):
         # for y in range(1300, 1049, -50):
             # phone.color_show(500, y)
             
-            phone.egg_handle()
             phone.tap_screen(500, y)
             sleep(0.25)
             if phone.screen.get_current_screen() != 'home':
