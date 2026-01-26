@@ -34,7 +34,7 @@ def search_target(phone):
             phone.egg_handle()
             phone.tap_screen(500, y)
             sleep(0.25)
-            if not phone.is_home():
+            if phone.screen.get_current_screen() != 'home':
                 print("Not home")
                 sleep(3)
                 print("check egg")
@@ -54,7 +54,7 @@ def search_target(phone):
                 else:
                     print("Something else go home")
                 phone.screen.go_home()
-                rotate(phone)
+                # rotate(phone)
         rotate(phone)
             
 
@@ -102,7 +102,7 @@ def auto_catch(phone):
 def auto_hatch(phone):
     print("Hatch mode")
     spins = 2
-    phone.screen_go_to_home()
+    phone.screen.go_home()
     while True:
         target = search_target(phone)
         if target == "egg":
