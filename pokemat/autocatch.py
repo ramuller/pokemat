@@ -54,7 +54,7 @@ def search_target(phone):
                 else:
                     print("Something else go home")
                 phone.screen.go_home()
-                # rotate(phone)
+                rotate(phone)
         rotate(phone)
             
 
