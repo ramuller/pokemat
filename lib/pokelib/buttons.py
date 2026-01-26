@@ -491,15 +491,11 @@ class Buttons(ButtonParameter):
         self.ocr.invert = True
         return self._text_from_screen(*args, **kwargs)
 
-    def t_friends(self, *args, **kwargs):
-        self.ocr.endy = int(0.2 * self.ts.specs['max_y'])
-        return self.black_on_white('.*FRIENDS.*')
-    
     def t_gift(self, *args, **kwargs):
-        self.ocr.startx = int(0.6 * self.ts.specs['max_x'])
-        self.ocr.endx = int(0.8 * self.ts.specs['max_x'])
-        self.ocr.starty = int(0.6 * self.ts.specs['max_y'])
-        self.ocr.endy = int(0.8 * self.ts.specs['max_y'])
+        self.startx = self.ocr.startx = int(0.6 * self.ts.specs['max_x'])
+        self.endx = self.ocr.endx = int(0.8 * self.ts.specs['max_x'])
+        self.starty = self.ocr.starty = int(0.6 * self.ts.specs['max_y'])
+        self.endy = self.ocr.endy = int(0.8 * self.ts.specs['max_y'])
         return self.white_on_black('GIFT.*')
     
     def c_avatar(self):

@@ -39,15 +39,22 @@ class Screen:
             sleep(1)
         return True
 
-    def is_in_gym():
+    def is_in_gym(self):
         if not self.ts.buttons.i_gym_photo_disk.search(retries=1):
             return False
         else:
             return True
 
+    def is_pokestop(self):
+        if not self.ts.buttons.i_poke_stop_check.search(retries=1):
+            return False
+        else:
+            return True
 
     def go_friends(self):
-        if self.ts.buttons.t_friends.search(retries=1):
+        if self.ts.buttons.text_only.press('.*IENDS.*', \
+                                            xs=self.ts.rel_x(0.40), xe=self.ts.rel_x(0.60), \
+                                            ys=self.ts.rel_y(0.05), ye=self.ts.rel_y(0.15), retries=1):
             return True
         self.go_home()
         sleep(1)
@@ -83,10 +90,9 @@ class Screen:
                 else:
                     # return to home
                     self.ts.tap_screen(100, 100, button = 3)
-            else:
-                self.ts.tap_screen(100, 100, button = 3)
             count += 1
             if count > MAX_TRYS:
+                self.ts.tap_screen(100, 100, button = 3)
                 self.ts.log.warn("No homescreen after {MAX_TRYS} atempts")
                 print("Try egg")
                 if self.ts.egg_handle():

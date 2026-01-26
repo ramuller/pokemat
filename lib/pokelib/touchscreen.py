@@ -1807,11 +1807,11 @@ class TouchScreen:
     def sort_receive_gift(self, hasGift = True):
         if not self.buttons.i_has_gift.search():
             self.buttons.i_change_sort.press()
-            self.buttons.t_gift(delay=0.5)
+            self.buttons.t_gift(delay=1, action='press')
         sort = self.buttons.i_sort.search(retries=30, verbose=3)
         if sort.icon_name == 'up':
             self.buttons.i_change_sort.press()
-            self.buttons.t_gift(delay=1)
+            self.buttons.t_gift(delay=1, action='press')
 
     def sort_has_gift(self, noGift = False):
         self.screen.go_friends()
