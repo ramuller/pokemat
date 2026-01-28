@@ -140,7 +140,7 @@ def action(port, arg = None):
     
     
     for y in range(100, 1900,20):
-        text, image = p.pocr_read_line((200, y),(300, 50))
+        text, image = p.ocr_read_line((200, y),(300, 50))
         if text != '':
             print(f"Read at {y} text : {text.lower()}")
     
@@ -150,7 +150,7 @@ def action(port, arg = None):
         sleep(1)        
 
     for y in range(100, 1900,20):
-        text, image = p.pocr_read_line((200, y),(300, 50))
+        text, image = p.ocr_read_line((200, y),(300, 50))
         if text != '':
             print(f"Read at {y} text : {text.lower()}")
     
@@ -186,12 +186,12 @@ def action(port, arg = None):
         if False:
             # text = reader.readtext(pixel_array)
             # text = p.read_text(550, 550, 230, 70)
-            text, image = p.pocr_read(350, 1650, 300, 76)
+            text, image = p.ocr_read(350, 1650, 300, 76)
             for t in text:
                 print("Read with easyocr {}".format(t))
         # print("Read with easyocr {}".format(text))
         if True:
-            text, image = p.pocr_read(350, 1650, 300, 76)
+            text, image = p.ocr_read(350, 1650, 300, 76)
             print("Read with tessertact {}".format(text))
         # _, image = p.read_text(290, 530, 400, 90)
     t2 = datetime.now()

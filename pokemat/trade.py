@@ -117,7 +117,7 @@ def trade(jsonFile):
                 host.color_match_wait_click(371, 1605, 147, 217, 150)
                 guest.color_match_wait_click(371, 1605, 147, 217, 150)
                 # for to in range(0, 10):
-                #     host.pocr_wait_text_center((), (), "CONFIRM", pause=0.5)
+                #     host.ocr_wait_text_center((), (), "CONFIRM", pause=0.5)
                 #     break
                 # Click confirm
                 host.color_match_wait_click(17, 1037, 92, 204, 146, time_out_ms=60000)

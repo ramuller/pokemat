@@ -25,18 +25,18 @@ from datetime import datetime
 def login():
         
     print("Start login")
-    # t, npa = p.pocr.find_regex('.*RETURING.*', verbose=0)
-    t, npa = p.pocr.find_button('RETURNING', verbose=0)
+    # t, npa = p.ocr.find_regex('.*RETURING.*', verbose=0)
+    t, npa = p.ocr.find_button('RETURNING', verbose=0)
     if t:
         p.tap_screen(t['center'], scale=False)
         sleep(2)
-    t, npa = p.pocr.find_button('Google', verbose=0)
+    t, npa = p.ocr.find_button('Google', verbose=0)
     if t:
         p.tap_screen(t['center'], scale=False)
         sleep(2)
     t = None
     while not t:
-        t, npa = p.pocr.find_regex('Plastic.*', verbose=10)
+        t, npa = p.ocr.find_regex('Plastic.*', verbose=10)
         if t:
             p.tap_screen(t['center'], scale=False)
 
@@ -44,11 +44,11 @@ def no_exit():
     p.screen_go_to_home()
 
 def test_regex():   
-    button, npa = p.pocr.regex('.*paused.*', verbose=0)
+    button, npa = p.ocr.regex('.*paused.*', verbose=0)
     if button:
         p.tap_screen(button['center'], scale=False)
         sleep(2)
-    button, npa = p.pocr.regex('.*Nuuksio.*', verbose=10)
+    button, npa = p.ocr.regex('.*Nuuksio.*', verbose=10)
     if button:
         p.tap_screen(button['center'], scale=False)
         sleep(2)
@@ -64,10 +64,10 @@ def test_button():
 
 
 def pure_read():
-    # text, _ = p.pocr.read_rec_lines(start=(0,30), scale=False, verbose=10, mode='symbol')
-    # p.pocr.mode = 'line'
-    # p.pocr.starty = int(p.specs['max_y'] * 0.9)
-    text, _ = p.pocr.read()
+    # text, _ = p.ocr.read_rec_lines(start=(0,30), scale=False, verbose=10, mode='symbol')
+    # p.ocr.mode = 'line'
+    # p.ocr.starty = int(p.specs['max_y'] * 0.9)
+    text, _ = p.ocr.read()
     print("OCR Text:")
     for t in text:
         print("   {}".format(t))

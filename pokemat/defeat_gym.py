@@ -59,8 +59,8 @@ def defeat_gym(port, max_round=5):
             #     print("Panic")
             # phone.tap_screen(829, 1605)
             # print("Start battle")
-            # phone.pocr_wait_text_center((494, 789), (230, 80), "GO BATTLE")
-            # while "GO BATTLE" in phone.pocr_read_line_center((494, 789), (230, 80), "GO BATTLE"):
+            # phone.ocr_wait_text_center((494, 789), (230, 80), "GO BATTLE")
+            # while "GO BATTLE" in phone.ocr_read_line_center((494, 789), (230, 80), "GO BATTLE"):
             #     phone.tap_screen(494, 789)
             #     sleep(1)
             # # phone.color_match_wait_click(345, 777, 134, 217, 153)

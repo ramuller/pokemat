@@ -32,11 +32,11 @@ def action(port, arg = None):
     # startTime = datetime.now()
     #
     # rounds = 1
-    # p.pocr_read((0, 0), (10,10), scale=False)
+    # p.ocr_read((0, 0), (10,10), scale=False)
     #
     # t1 = datetime.now()
     # for i in range(rounds):
-    #     text = p.pocr_read((0, 0), (p.specs['w'], p.specs['h']), scale=False)
+    #     text = p.ocr_read((0, 0), (p.specs['w'], p.specs['h']), scale=False)
     # t2 = datetime.now()
     # print("Elapsed time {}s".format((t2-t1).total_seconds()))
     # print(text)
@@ -45,8 +45,8 @@ def action(port, arg = None):
     
     t1 = datetime.now()
     for i in range(rounds):
-        # text = p.pocr.easyocr_read_center((0, 0), (p.specs['w'], p.specs['h']), scale=False)
-        text, _ = p.pocr.read_rec_lines((0, 0), (p.specs['w'], p.specs['h']), scale=False, verbose=0)
+        # text = p.ocr.easyocr_read_center((0, 0), (p.specs['w'], p.specs['h']), scale=False)
+        text, _ = p.ocr.read_rec_lines((0, 0), (p.specs['w'], p.specs['h']), scale=False, verbose=0)
         pass
     t2 = datetime.now()
     print("Elapsed time {}s".format((t2-t1).total_seconds()))
@@ -54,14 +54,14 @@ def action(port, arg = None):
     '''
     t1 = datetime.now()
     for i in range(rounds):
-        # text = p.pocr.easyocr_read_center((0, 0), (p.specs['w'], p.specs['h']), scale=False)
-        text, _ = p.pocr.read_rec_lines((0, 0), (p.specs['w'], p.specs['h']), scale=False, verbose=-1)
+        # text = p.ocr.easyocr_read_center((0, 0), (p.specs['w'], p.specs['h']), scale=False)
+        text, _ = p.ocr.read_rec_lines((0, 0), (p.specs['w'], p.specs['h']), scale=False, verbose=-1)
     t2 = datetime.now()
     '''
     print("Elapsed time {}s".format((t2-t1).total_seconds()))
         # print(text)
     print('No dict')
-    # text = p.pocr.pocr_read_and_image((0, 0), (p.specs['w'], p.specs['h']), scale=False, output_type='dict')
+    # text = p.ocr.ocr_read_and_image((0, 0), (p.specs['w'], p.specs['h']), scale=False, output_type='dict')
     # print(text)
     for t in text:
         print(t)

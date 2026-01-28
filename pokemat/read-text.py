@@ -27,7 +27,7 @@ def read_text(port, xs, xe, ys, ye):
         p.ocr.startx = xs
 
     p = TouchScreen(port)
-    text,image = p.pocr.read()
+    text,image = p.ocr.read()
     for t in text:
         print(t)
     if args.show:
@@ -42,7 +42,7 @@ def read_text(port, xs, xe, ys, ye):
     for i in range (0,100):
         print(f"{p.get_mouse():}")
         pos = p.get_mouse()
-        text = p.pocr_read_line_center(pos, (tw, th))
+        text = p.ocr_read_line_center(pos, (tw, th))
 
         
 

@@ -80,7 +80,7 @@ def gifting(port):
                 raise Exception('No SEARCH button found')
 
 
-            # friends_raw = phone.pocr.read_area_percent(xs=25 ,xe=45 , ys=30 , ye=90)
+            # friends_raw = phone.ocr.read_area_percent(xs=25 ,xe=45 , ys=30 , ye=90)
 
             # while phone.color_match(52, 1335, 255, 255, 255):
             #     phone.tap_screen(612, 494)
