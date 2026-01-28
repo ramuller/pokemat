@@ -3,13 +3,13 @@
     "league": "master",
     "guest": { 
         "port": "3006",
-        "name": "pokeeizu12",
+        "name": "blond",
 		"filterx": "floette & !3* & !norade & !traded & !favorite",
 		"filter": "xp1 & !norade & !traded & !favorite"
    },
     "host": {
         "port": "3005",
-        "name": "yellow",
+        "name": "pokeeizu",
 		"ffilter": "'karrablast,shelmet",
 		"filter": "xp1 & !norade & !traded & !favorite"
     }

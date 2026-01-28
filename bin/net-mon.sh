@@ -16,6 +16,7 @@ while getopts "o" opt; do
 done
 shift $((OPTIND -1))
 
+SCRIPT_DIR="$(dirname $0)"
 source $SCRIPT_DIR/phone-lib.sh
 
 disable_air()
@@ -38,7 +39,7 @@ enable_air()
 
 while true
 do
-    for s in $(adb devices |grep device$  |cut -f 1) ; do
+    for s in $(adb devices |grep device$  |grep ^ce |cut -f 1) ; do
         echo device $s
         adb -s $s shell dumpsys connectivity |grep --silent wlan0:
         if [ $? -ne 0 ]; then
