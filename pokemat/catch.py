@@ -39,8 +39,8 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
             elif p.buttons.i_catch_ball.search(retries=1) is not None:
                 print("Ball found")
                 break
-            elif p.buttons.text_only.press('BERRIES', ys=p.rel_y(0.5)):
-                tap.tap_screen(3, int(p.specs['max_y'] * 0.5), scale=False)
+            elif p.buttons.text_only.search('BERRIES', ys=p.rel_y(0.6)):
+                p.tap_screen(3, int(p.specs['max_y'] * 0.5), scale=False)
             elif p.buttons.i_exits.press(retries=1):
                 p.screen.go_home()
                 return True
@@ -66,7 +66,7 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
                 bs = 'NANAB'
     
             for i in range(5):
-                b = p.buttons.black_on_white(bs, action='check', verbose=0)
+                b = p.buttons.text_only.search(bs, ys=p.rel_y(0.6))
                 if b:
                     sleep(0.5)
                     print(f'tap on x{b['center'][0]} y{b['top'] - 3 * b['height']}')

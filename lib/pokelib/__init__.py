@@ -14,3 +14,5 @@ from .screen import Screen
 from .poke_logger import PokeLogger
 from .image import PokeImage
 from .phone_db import PhoneDB
+from .structs import ScreenRegion
+

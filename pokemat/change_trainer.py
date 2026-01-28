@@ -85,6 +85,7 @@ def do_change_trainer(port, trainer):
             phone.screen_go_to_home()
             sleep(1)
             phone.buttons.i_pokeball.press()
+            sleep(1)
             t = phone.buttons.black_on_white('.*SETTINGS.*', verbose=0)
             sleep(1)
             sx = 1

@@ -11,6 +11,7 @@ from time import sleep
 import re
 from .ocr import Ocr
 from .image import PokeImage
+from .structs import ScreenRegion
 from pokelib import ExPokeLibFatal
 from hybrid_icon_detector import IconDetector
 import numpy as np
@@ -64,6 +65,12 @@ ICONS_PATH = {
     'gym_mine': {
         'gym_mine': 'gym_mine.png',
     },
+    'route_started': {
+        'route_started': 'route_started.png',
+    },
+    'route_end': {
+        'route_end': 'route_end.png',
+    },
     'catch_ball': {
         'red_5': 'red-5.png',
         'red_6': 'red-6.png',
@@ -91,14 +98,12 @@ class ButtonParameter:
                  confidence=25.0, invert=False, process=False,
                  color='gray', delay= 0.01, mode='word'):
         self.ts = ts
+        self.reg = ScreenRegion(ts, xs=xs, xe=xe, ys=ys, ye=ye)
         if xe == 0:
             xe = ts.specs['max_x']
         if ye == 0:
             ye = ts.specs['max_y']
-        self.xs = xs
-        self.ys = ys
-        self.xe = xe
-        self.ye = ye
+
         self.confidence = confidence
         self.invert = invert
         self.process = process
@@ -106,21 +111,9 @@ class ButtonParameter:
         self.mode = mode
         self.delay = delay
         self.npa = None
-        self.reset_parameters()
-
+ 
     def __del__(self):
         pass
-
-    def reset_parameters(self):
-        self.startx = self.xs
-        self.endx = self.xe
-        self.starty = self.ys
-        self.endy = self.ye
-        self.confidence = 20.0
-        self.invert = False
-        self.process = True
-        self.color = 'gray'
-        self.mode = 'word'
 
     def press(self, *args, **kwargs):
         pass
@@ -128,11 +121,11 @@ class ButtonParameter:
     def search(self, *args, **kwargs):
         pass
 
-    def correct_button_positon(self, b):
-        b['left'] += self.startx
-        b['top'] += self.starty
-        b['center'] = (b['center'][0] + self.startx,
-                       b['center'][1] + self.starty)
+    def correct_button_positon(self, reg, b):
+        b['left'] += reg.xs
+        b['top'] += reg.ys
+        b['center'] = (b['center'][0] + reg.xs,
+                       b['center'][1] + reg.ys)
 
 class Coordinates(ButtonParameter):
     def __init__(self, ts, xs=0, xe=0, ys=0, ye=0):
@@ -153,17 +146,21 @@ class TextOnly(ButtonParameter):
                 threshold=0.8,
                 mode='word',
                 delay=0.01,
-                retries=1, 
+                retries=1,
+                invert=False,
+                process=False,
                 verbose=0):
-        self.ts.buttons.ocr.startx = self.ts.buttons.startx = xs
-        self.ts.buttons.endx   = xe
-        self.ts.buttons.ocr.starty = self.ts.buttons.starty = ys
-        self.ts.buttons.endy   = ye
-        b, self.npa = self.ts.buttons.flat_text_button(text,
-                                          action='check',
-                                          retries=retries,
-                                          mode=mode,
-                                          verbose=verbose)
+        reg = ScreenRegion(self.ts, 
+                           xs=xs, xe=xe, 
+                           ys=ys, ye=ye)
+        reg.mode = mode
+        reg.invert = invert
+        reg.process = process
+        b, _ = self.ts.buttons.flat_text_button(text,
+                                                reg, 
+                                                retries=retries,
+                                                delay=delay,
+                                                verbose=verbose)
         return b
         
 
@@ -185,7 +182,7 @@ class TextButton(ButtonParameter):
     def __init__(self, ts, text="", invert=False, xs=0, xe=0, ys=0, ye=0):
         super().__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye)
         self.text = text
-        self.invert = invert
+        self.reg.invert = invert
         self.updated = False
 
     def search(self,
@@ -194,13 +191,10 @@ class TextButton(ButtonParameter):
                 retries=1, 
                 verbose=0):
         b = Buttons(self.ts)
-        b.ocr.startx = self.startx
-        b.ocr.endx = self.endx
-        b.ocr.starty = self.starty
-        b.ocr.endy = self.endy
         if self.invert:
             return b.dark(
                 self.text,
+                reg=self.reg,
                 action='check',
                 delay=delay,
                 retries=retries, 
@@ -208,6 +202,7 @@ class TextButton(ButtonParameter):
         else:
             return b.white(
                 self.text,
+                reg=self.reg,
                 action='check',
                 delay=delay,
                 retries=retries, 
@@ -221,7 +216,7 @@ class IconButton(ButtonParameter):
         self._init_icons(icons)
         self.pi = PokeImage(ts)
         self.updated = False
-        self.detector = IconDetector(self.icons, offset=(self.xs, self.ys))     
+        self.detector = IconDetector(self.icons, offset=(self.reg.xs, self.reg.ys))     
 
     def _init_icons(self, icons):
         self.icons = {}
@@ -244,23 +239,17 @@ class IconButton(ButtonParameter):
                 self.ts.log.debug("Icon button not found.") 
         
     def search(self, 
-                npa=None,
                 threshold=0.8,
                 retries=3,
                 delay=0.01,
                 verbose=0):
         if verbose > 1:
             print("Searching for icon button...")
-        if npa == None:
-            npa = self.pi.scan_region(xs=self.startx, 
-                                            ys=self.starty, 
-                                            xe=self.endx, 
-                                            ye=self.endy, 
-                                            channel=self.color)
+        self.reg.npa = self.pi.scan_region(self.reg)
 
         if verbose > 5:
-            self.ts.image.show_image(npa, wait=1000, title='button-area')
-        dets = self.detector.detect(npa)
+            self.ts.image.show_image(self.reg.npa, wait=1000, title='button-area')
+        dets = self.detector.detect(self.reg.npa)
         # highest score and det with highest score
         hs = -1
         hdet = None
@@ -278,6 +267,8 @@ class IconButton(ButtonParameter):
         return None
     
     def update_area(self, det):
+        if self.updated:
+            return
         print(det)
         print(det.quad)
         self.startx = int(det.quad[0][0]) - 5
@@ -371,6 +362,16 @@ class Buttons(ButtonParameter):
                                     xe=int(ts.specs['max_x']),
                                     ys=int(ts.specs['max_y'] * 0.70),
                                     ye=int(ts.specs['max_y'] * 0.90))
+        self.i_route_started = IconButton(ts, 'route_started',
+                                    xs=int(ts.specs['max_x'] * 0.8),
+                                    xe=int(ts.specs['max_x']),
+                                    ys=int(ts.specs['max_y'] * 0.70),
+                                    ye=int(ts.specs['max_y'] * 0.90))
+        self.i_route_end = IconButton(ts, 'route_end',
+                                    xs=int(ts.specs['max_x'] * 0.8),
+                                    xe=int(ts.specs['max_x']),
+                                    ys=int(ts.specs['max_y'] * 0.70),
+                                    ye=int(ts.specs['max_y'] * 0.90))
         self.i_button_ok = IconButton(ts, 'buttons',
                                     xs=int(ts.specs['max_x'] * 0.4),
                                     xe=int(ts.specs['max_x'] * 0.6),
@@ -384,33 +385,32 @@ class Buttons(ButtonParameter):
                                     ye=int(ts.specs['max_y'] * 0.72))
         self.b_catch_berry = TextButton(ts, 'Berry', # I M A PASSANGER
                                     invert=True,
-                                    ys=int(ts.specs['max_y'] * 0.50),
+                                    ys=int(ts.specs['max_y'] * 0.40),
                                     ye=int(ts.specs['max_y'] * 0.72))
 
     def __del__(self):
         pass
 
-    def _button(self, name, npa=None, verbose=0):
-        if npa == None:
-            npa = self.ts.image.scan_region(xs=self.startx, 
-                                         ys=self.starty, 
-                                         xe=self.endx, 
-                                         ye=self.endy, 
-                                         channel=self.color)
-        self.npa = npa
+    def _button(self, name, reg : ScreenRegion=None, verbose=0):
+        reg = reg or ScreenRegion(self.ts)
+        if reg.npa is None:
+            reg.npa = self.ts.image.scan_region(reg)
     
-        boxes = self.image.boxes_get(npa, verbose=verbose)            
+        boxes = self.image.boxes_get(reg.npa, verbose=verbose)            
 
         for box in boxes:
-            roi = self.image.process_array(box['rois'], 
+            box_reg = ScreenRegion(self.ts) # , xs=box['x'], ys=box['y'])
+            box_reg.npa = self.image.process_array(box['rois'], 
                                             self.ocr.invert,
                                             self.ocr.process,
                                             verbose=verbose)
+            
             if verbose > 5:
-                self.ts.image.show_image(roi, wait=000, title='button-candidate-preprocessed')
-            if roi is None:
+                self.ts.image.show_image(box_reg.npa, wait=000, title='button-candidate-preprocessed')
+            if box_reg.npa is None:
                 continue
-            words, _ = self.ocr._tesserocr_from_array(roi)
+
+            words = self.ocr._tesserocr_from_array(box_reg)
             # texts = self._concat_tesserocr_results(words)
             for w in words:
                 if verbose > 2:
@@ -418,6 +418,9 @@ class Buttons(ButtonParameter):
                 if re.search(f'{name}', w['text']):
                     # self.ts.sc.show_image(roi, wait=000, title='button-candidate-preprocessed')
                     # w['left'] += box['x'] + w['left'] + self.ocr.startx
+                    # Add region offset to box offset
+                    box['x'] += reg.xs
+                    box['y'] += reg.ys
                     w['left'] = box['x'] + w['left']
                     w['top']  = box['y'] + w['top']
                     w['center'] = (w['center'][0] + box['x'], \
@@ -426,31 +429,33 @@ class Buttons(ButtonParameter):
 
         return None, self.npa
 
-    def flat_text_button(self, text, delay=0.1, action='press', retries=1, mode='word', verbose=0):
+    def flat_text_button(self, text, reg=None, 
+                         delay=0.1, action='press', retries=1, verbose=0):
         button = None
 
         while button is None and retries > 0:
             retries -= 1
-            npa = self.ts.image.scan_region(xs=self.startx, xe=self.endx,
-                                            ys=self.starty, ye=self.endy)
-            self.ocr.mode = mode
-            button, npa = self.ocr.regex(text, npa=npa, verbose=verbose)
+            reg.npa = self.ts.image.scan_region(reg)
+            button, npa = self.ocr.regex(text, reg=reg, verbose=verbose)
 
-        self.reset_parameters()
         if button is not None:
-            self.correct_button_positon(button)
-        return button, npa
+            self.correct_button_positon(self.reg, button)
+        return button, reg
 
     def _generic_button(self, 
                         method,
                         text, 
+                        reg : ScreenRegion=None,
                         action='press', 
                         retries=3,
                         delay=0.01,
                         verbose=0):
+        reg = reg or ScreenRegion(self.ts)
         ret = None
         while retries > 0:
-            button, npa = method(text, 
+            reg.npa = None
+            print(f'Retry - {retries}')
+            button, _ = method(text, reg,
                                  verbose=0)
             if button:
                 if action == 'press':
@@ -458,6 +463,9 @@ class Buttons(ButtonParameter):
                         print(f"Pressing button '{text}' at {button['center']} with delay {delay}s")
                     sleep(delay)
                     self.ts.tap_screen(button['center'], scale=False)
+
+
+
                     ret = button
                     break
                 elif action == 'check':
@@ -466,7 +474,6 @@ class Buttons(ButtonParameter):
             retries -= 1
             if retries > 0:
                 sleep(0.7)
-        self.reset_parameters()
         return ret
 
     def _text_from_screen(self, *args, **kwargs):

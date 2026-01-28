@@ -54,9 +54,7 @@
       "args": [
         "read",
         "--show",
-        "--invert",
-        "--save",
-        "test.png"
+        "--ys", "60%"
       ],
       "comment":[
         "--process",
@@ -130,7 +128,8 @@
       "args": [
         "button",
         "--name",
-        "text_only",
+        "b_catch_berry",
+        "--show",
         "--verbose",
         "6"
       ]
@@ -211,6 +210,7 @@
     }, 
     {
       "name": "Run learning phone",
+      "extends": "Base",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/learn_phone.py",
@@ -223,38 +223,35 @@
     },
     {
       "name": "Run route",
+      "extends": "Base",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/route.py",
       "console": "integratedTerminal",
       "args": [
-        "--port",
-        "3002"
+
       ]
     },  
     {
       "name": "Get Icon",
+      "extends": "Base",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/icons/get_icon.py",
       "cwd": "${workspaceFolder}/icons",      
       "console": "integratedTerminal",
-
       "args": [
-        "--port",
-        "3009"
       ]
     },  
     {
       "name": "Run test-ocr",
+      "extends": "Base",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/testing/test-ocr.py",
       "console": "integratedTerminal",
       "debugOptions": ["DisableGUI"],
       "args": [
-        "--port",
-        "3007"
       ]
     },  
     {

@@ -1,6 +1,7 @@
 import numpy as np
 from PIL import Image
 import cv2
+from .structs import ScreenRegion
 
 class PokeImage:
     p = None
@@ -17,33 +18,29 @@ class PokeImage:
         except Exception as e:
             print(e)       
    
-    def scan_region(self, xs=0, ys=0, xe=0, ye=0, channel="gray"):
-        if xe == 0 or xe > self.s['max_x']:
-            xe = self.s['max_x']
-        if ye == 0 or ye > self.s['max_y']:
-            ye = self.s['max_y']
-        if xs < 0:
-            xs = 0
-        if ys < 0:
-            ys = 0
-        w = xe - xs + 1 
-        h = ye - ys + 1
-        x = xs
-        y = ys
-        if channel == "gray":
-            jbuf = self.ts.write_to_phone(f"snip_gray:{x},{y},{w},{h}").json()
-            pixel_array = np.array(jbuf["gray"], dtype=np.uint8).reshape((jbuf["height"], jbuf["width"]))
-        else:
-            jbuf = self.ts.screen_capture((x, y), (w, h), scale=False)
-            rgb = self.yuv420_dict_to_rgb(jbuf)
-            if channel == "red":
-                pixel_array = np.array(rgb[:, :, 0], dtype=np.uint8).reshape(h, w)
-            elif channel == "green":
-                pixel_array = np.array(rgb[:, :, 1], dtype=np.uint8).reshape(h, w)
-            elif channel == "blue":
-                pixel_array = np.array(rgb[:, :, 2], dtype=np.uint8).reshape(h, w)
-        return pixel_array
-        return Image.fromarray(pixel_array, mode='L')
+    def scan_region(self, reg : ScreenRegion):
+        w = reg.xe - reg.xs + 1 
+        h = reg.ye - reg.ys + 1
+        x = reg.xs
+        y = reg.ys
+        try:
+            if reg.color == "gray":
+                jbuf = self.ts.write_to_phone(f"snip_gray:{x},{y},{w},{h}").json()
+                pixel_array = np.array(jbuf["gray"], dtype=np.uint8).reshape((jbuf["height"], jbuf["width"]))
+            else:
+                jbuf = self.ts.screen_capture((x, y), (w, h), scale=False)
+                rgb = self.yuv420_dict_to_rgb(jbuf)
+                if reg.color == "red":
+                    pixel_array = np.array(rgb[:, :, 0], dtype=np.uint8).reshape(h, w)
+                elif reg.color == "green":
+                    pixel_array = np.array(rgb[:, :, 1], dtype=np.uint8).reshape(h, w)
+                elif reg.color == "blue":
+                    pixel_array = np.array(rgb[:, :, 2], dtype=np.uint8).reshape(h, w)
+            return pixel_array
+        except Exception as e:
+            print('Exception')
+    
+    
    
     def save_image(self, img, filename):
         im = Image.fromarray(img)

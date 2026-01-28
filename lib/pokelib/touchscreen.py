@@ -148,7 +148,7 @@ class TouchScreen:
                         break
         if nav_bar:
             c = self.get_rgb(specs["width"] // 3, specs["height"] -1, scale=False)
-            for y in range(specs["height"] - 1, int(specs["height"]/2), -1):
+            for y in range(specs["height"] - 1, specs["height"] // 10, -1):
                 c2 = self.get_rgb(specs["width"] // 3, y, scale=False)
                 if c != c2:
                     print(f"nav_bar hight {specs['h'] - y}")

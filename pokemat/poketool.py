@@ -4,7 +4,7 @@ from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
 from pokelib.buttons import ButtonParameter
-
+from pokelib import ScreenRegion
 import logging
 
 import json
@@ -19,7 +19,7 @@ def _int(x, d='y'):
         max = phone.specs['max_x'] 
     else:
         max = phone.specs['max_y'] 
-
+    print(f'Value to convert {x}')
     if re.match(r'^\d+%$', x):
         return math.floor((int(x[:-1]) * max) / 100)
     elif re.match(r'^\d+$', x):
@@ -28,71 +28,71 @@ def _int(x, d='y'):
         print(f'Unknown format {x} only abs and % supported')
         sys.exit(1)
 
-def _set_paramters_from_args(ocr):
-        
-    if args.xs != 0:
-        ocr.startx = _int(args.xs, d='x')
-    if args.ys != 0:
-        ocr.starty = _int(args.ys)
-    if args.xe == 0:
-        ocr.endx = phone.specs['max_x']
-    else:    
-        ocr.endx = _int(args.xe, d='x')
-    if args.ye == 0:
-        ocr.endy = phone.specs['max_y']
-    else:    
-        ocr.endy = _int(args.ye)
-    ocr.invert = args.invert
-    ocr.process = args.process
-    ocr.mode = args.mode
-    print(ocr.invert)
+def _set_paramters_from_args():
+    reg = ScreenRegion(phone)
 
-def _post_process(p_npa):
+    if args.xs != 0:
+        reg.xs = _int(args.xs, d='x')
+    if args.xe == 0:
+        reg.xe = phone.specs['max_x']
+    else:    
+        reg.xe = _int(args.xe)
+
+    if args.ys != 0:
+        reg.ys = _int(args.ys, d='y')
+    if args.ye == 0:
+        reg.ye = phone.specs['max_y']
+    else:    
+        reg.ye = _int(args.ye)
+
+    reg.invert = args.invert
+    reg.process = args.process
+    reg.mode = args.mode
+    return reg
+
+def _post_process(reg):
     if args.show:
-        phone.image.show_image(p_npa, wait=10000, title='Read region')
+        phone.image.show_image(reg.nwa, wait=10000, title='Read region')
     if args.save:
         path = f'{phone.config_path}/icons/screen-shots/{args.save}'
         if not re.match(r'.*\.png$', path):
             path += '.png'
-        phone.image.save_image(p_npa, path)
+        phone.image.save_image(reg.nwa, path)
         print(f'Saved image to {path}')
 
-def _schow_screen(ocr):
-    
-    _set_paramters_from_args(ocr)
-    npa = phone.image.scan_region(xs=ocr.startx, ys=ocr.starty, xe=ocr.endx, ye=ocr.endy, channel="gray")
-    return phone.image.show_image(npa, wait=int(args.show_time), title='Screen shoot')
+def _schow_screen(reg):
+    reg.npa = phone.image.scan_region(reg)
+    return phone.image.show_image(reg.npa, wait=int(args.show_time), title='Screen shoot')
 
 def read():
-    _set_paramters_from_args(phone.pocr)
+    reg = _set_paramters_from_args()
 
-    print(f'Reading region x:{phone.pocr.startx}-{phone.pocr.endx} y:{phone.pocr.starty}-{phone.pocr.endy}')
-    print(f'invert:{phone.pocr.invert} process:{phone.pocr.process} mode:{phone.pocr.mode}') 
+    print(f'Reading region x:{reg.xs}-{reg.xe} y:{reg.ys}-{reg.ye}')
+    print(f'reg.invert:{phone.pocr.invert} reg.process:{phone.pocr.process} reg.mode:{phone.pocr.mode}') 
 
     startTime = datetime.now()
-    text, npa, p_npa = phone.pocr.read_and_npa()
+    text, reg = phone.pocr.read_and_npa(reg)
     endTime = datetime.now()
     print(f'Time to find button: {(endTime - startTime).total_seconds()}')
 
-    _post_process(p_npa)
+    _post_process(reg)
     for t in text:
         print(t)
     return
 
 def snapshot ():
 
+    reg = ScreenRegion(phone)
     print("Press 'q' to not save anything")
-    o= phone.pocr 
-    k = _schow_screen(o)
+    k = _schow_screen(reg)
     print(f"Got key {str(k)}")
     if k == 113:
         return
     for i in range(int(args.count)):
         fn = f'{phone.config_path}/icons/screen-shots/{args.name}-{i}.png'
         print(f'Save {fn }')
-        npa = phone.image.scan_region(xs=o.startx, xe=o.endx, \
-                                      ys=o.starty, ye=o.endy)
-        phone.image.save_image(npa, fn)
+        reg.npa = phone.image.scan_region(reg)
+        phone.image.save_image(reg.npa, fn)
         sleep(float(args.delay))
 
 def ball ():
@@ -158,13 +158,20 @@ def button():
                  verbose=args.verbose)
         if not method.updated and detection:
             print('Update button search area based on result')
-            method.update_area(detection)
+            try:
+                method.update_area(detection)
+            except:
+                pass
     print(f'Button found:')
     print(detection)
-    _set_paramters_from_args(phone.pocr)
+
+    reg = ScreenRegion(phone,
+                             xs=method.reg.xs, xe=method.reg.xe,
+                             ys=method.reg.ys, ye=method.reg.ye,
+                             )
     
     if args.show:
-        _schow_screen(phone.pocr)
+        _schow_screen(reg)
     return
 
 '''
