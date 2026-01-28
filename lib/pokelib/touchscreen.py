@@ -109,10 +109,10 @@ class TouchScreen:
         self.vector_left_right = PixelVector(self, 850, 850 + 201, 1850, 1850, 3, "left_right")
         self.vector_top_down = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
         self.vector = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
-        # self.pocr = None
+        # self.ocr = None
 
         self.image = PokeImage(self)
-        self.pocr = Ocr(self)
+        self.ocr = Ocr(self)
         self.buttons = Buttons(self)
         self.screen = Screen(self)
 
@@ -478,7 +478,7 @@ class TouchScreen:
         return "stop_no"
     
     def screen_is_egg(self):
-        t, _ = self.pocr.regex('.*Oh.*')
+        t, _ = self.ocr.regex('.*Oh.*')
                                  
         if not t:
             return False
@@ -524,15 +524,15 @@ class TouchScreen:
         
     def pocr_read_line_center(self, start, size, scale=True):
         cs = (start[0] - size[0]/2, start[1] - size[1]/2,)
-        t = self.pocr_read(cs, size, scale=scale)
+        t = self.ocr_read(cs, size, scale=scale)
         return "".join(t)        
 
     def pocr_read_and_image_center(self, start, size, scale=True):
         cs = (start[0] - size[0]/2, start[1] - size[1]/2,)
-        return self.pocr_read_and_image(cs, size, scale=scale)
+        return self.ocr_read_and_image(cs, size, scale=scale)
 
     def pocr_read_line(self, start, size, scale=True):
-        t = self.pocr_read(start, size, scale=scale)
+        t = self.ocr_read(start, size, scale=scale)
         # self.log.debug(f"pocr_read_line {"".join(t)}")
         return "".join(t)
 
@@ -547,20 +547,20 @@ class TouchScreen:
 
         try:
             # if check_boundaries(start, size):
-            #    return self.pocr.pocr_read(start, size)
-            return self.pocr.read_rec_lines(start, size, scale)
+            #    return self.ocr.ocr_read(start, size)
+            return self.ocr.read_rec_lines(start, size, scale)
         except:
             print("No good")
             sleep(1)
             return [""]
 
     def pocr_read_and_image(self, start, size, scale=True):
-        if not self.pocr:
-            self.pocr = Ocr(self)
+        if not self.ocr:
+            self.ocr = Ocr(self)
         try:
             # if check_boundaries(start, size):
-            #    return self.pocr.pocr_read(start, size)
-            return self.pocr.pocr_read_and_image(start, size, scale=scale)
+            #    return self.ocr.ocr_read(start, size)
+            return self.ocr.ocr_read_and_image(start, size, scale=scale)
         except:
             print("No good")
             sleep(1)
@@ -568,7 +568,7 @@ class TouchScreen:
     
     @poke_timeout()
     def pocr_wait_text(self, start, size, text, pause=0,  to_ms=0, debug=False, scale=True):
-        t = self.pocr.read_line(start, size, scale=scale)
+        t = self.ocr.read_line(start, size, scale=scale)
         self.log.debug("read {}".format(t))
         if text in t:
             return t
@@ -586,7 +586,7 @@ class TouchScreen:
         if fs == None:
             if lr == None:
                 lr = (self.specs ['w'], self.specs['h'])
-            fs = self.pocr.easyocr_read_center(ul, lr, scale=False)
+            fs = self.ocr.easyocr_read_center(ul, lr, scale=False)
         for s in fs:
             if re.search(regex, s['text']):
                 return s, fs
@@ -595,7 +595,7 @@ class TouchScreen:
     def pocr_wait_text_center(self, start, size, text, pause=0.99,  to_s=6, debug=False, scale=True):
         cs = (start[0] - size[0]/2, start[1] - size[1]/2,)
         while to_s > 0:
-            if self.pocr_wait_text(cs, size, text, pause, to_s, debug, scale=scale) != False:
+            if self.ocr_wait_text(cs, size, text, pause, to_s, debug, scale=scale) != False:
                 return True
             sleep(pause)
             to_s -= pause
@@ -627,7 +627,7 @@ class TouchScreen:
         # self.color_match_wait_click(406, 1654, 137, 218, 154)
         to = 50
         while to > 0:
-            text = self.pocr_read((400, 1620), (200, 76))
+            text = self.ocr_read((400, 1620), (200, 76))
             print(text)
             if "OPEN" in ''.join(text):
                 break
@@ -675,7 +675,7 @@ class TouchScreen:
         self.tap_add_friend()
         sleep(2)
         for i in range(5):
-            mn = self.pocr_read_line_center((500, 575),(420, 70))
+            mn = self.ocr_read_line_center((500, 575),(420, 70))
             for i in range(2, len(mn)):
                 print(mn[:i])
                 ret = db_p().get_trainer(mn[:i])
@@ -773,7 +773,7 @@ class TouchScreen:
                     found = True
                     break
         if found == False:
-            text, image = self.pocr_read((350, 1650), (300, 76))
+            text, image = self.ocr_read((350, 1650), (300, 76))
             self.tap_screen(100, 100, button = 3)
             time.sleep(1)
             if "POWER" in ''.join(text):
@@ -866,7 +866,7 @@ class TouchScreen:
     
     def screen_is_friend(self):
         
-        # text, image = self.pocr_read_line((400, 125), (200, 70))
+        # text, image = self.ocr_read_line((400, 125), (200, 70))
         # if "FRIENDS" in text:
         #    return True
         # return False
@@ -915,11 +915,11 @@ class TouchScreen:
                 self.tap_screen(57, 365)
             elif self.color_match(357, 1005, 150, 218, 151, debug=False):
                 # Not exit pokemon
-                # t,_ = self.pocr.find_regex('.*exit Pok.mon GO.*', verbose=0)
-                mode = self.pocr.mode
-                self.pocr.mode = "line"
-                t,_ = self.pocr.regex('.*Do you want to exit Pok.*', verbose=0)
-                self.pocr.mode = mode
+                # t,_ = self.ocr.find_regex('.*exit Pok.mon GO.*', verbose=0)
+                mode = self.ocr.mode
+                self.ocr.mode = "line"
+                t,_ = self.ocr.regex('.*Do you want to exit Pok.*', verbose=0)
+                self.ocr.mode = mode
                 if not t:
                     self.tap_confirm()
                 else:
@@ -938,7 +938,7 @@ class TouchScreen:
                 # for y in range(100, self.maxY - 100, 25):
                 #     if self.color_match(500, y, 116, 214, 156):
                 #         print(f"Something green at {y}")
-                #         b_text = self.pocr_read_line_center((500, y + 50), (100, 100))
+                #         b_text = self.ocr_read_line_center((500, y + 50), (100, 100))
                 #         print(f"Button text {b_text}")
                 #         if re.match(b_text, ".*CANCEL.*"):
                 #             print("Found OK")
@@ -1028,7 +1028,7 @@ class TouchScreen:
         self.screen_go_to_home()
         self.tapAvatar()
         sleep(3)
-        self.pocr.endy = int(0.15 * self.specs['max_y'])
+        self.ocr.endy = int(0.15 * self.specs['max_y'])
         self.buttons.ocr.endy = int(0.2 * self.specs['max_y'])
         self.buttons.black_on_white('.*FRIENDS.*')
         self.color_match_wait(878, 1562, 255, 255, 255, time_out_ms=30000)
@@ -1149,8 +1149,8 @@ class TouchScreen:
         for i in range(0, 21, 5):
             self.tap_screen(920+i, 320+1)
             sleep(0.2)
-        while not "MEDICINE" in self.pocr_read_line_center((496, 341), (300, 50)):
-            print(f"READ{self.pocr_read_line_center((496, 341), (300, 50))}")
+        while not "MEDICINE" in self.ocr_read_line_center((496, 341), (300, 50)):
+            print(f"READ{self.ocr_read_line_center((496, 341), (300, 50))}")
             self.scroll(0, -37, start_x=900, start_y=1900)
         revived = False
         for y in [960, 550]:
@@ -1644,12 +1644,12 @@ class TouchScreen:
         # Open 4th heart under friend name
         self.tap_screen(270, 360)
         sleep(1.5)
-        friend_level = self.pocr_read_line((360, 650), (280, 50)) # Tap the last heart for details
+        friend_level = self.ocr_read_line((360, 650), (280, 50)) # Tap the last heart for details
         self.tap_screen(750, 880)
         sleep(1)
-        name = self.pocr_read_line((290, 530), (400, 90)) # Best friends do not open so bit care
+        name = self.ocr_read_line((290, 530), (400, 90)) # Best friends do not open so bit care
         try:
-            text = self.pocr_read_line_center((400, 1100), (100, 60))
+            text = self.ocr_read_line_center((400, 1100), (100, 60))
             tl = re.findall(r'\d+\.?\d*', text)
             days_to_go = int(tl[0])
         except:
@@ -1665,7 +1665,7 @@ class TouchScreen:
     def friend_set_nickname(self, nick):
         self.scroll(0, -1800, start_x=50, start_y=1900)
         sleep(1)
-        text = self.pocr_read_line_center((515, 1404), (300, 70))
+        text = self.ocr_read_line_center((515, 1404), (300, 70))
         if "NICKNAME" in text:
             self.tap_screen(515, 1404)
             sleep(1)
@@ -1695,7 +1695,7 @@ class TouchScreen:
         while not "SET" in text:
             self.scroll(0, -1700, start_x = 50, start_y = 1750, tap_time = 0.3, stop_to = 0.5)
             sleep(1)
-            text, _ = self.pocr_read_line((400, 1355), (300, 70))
+            text, _ = self.ocr_read_line((400, 1355), (300, 70))
             if retries > 30:
                 return False
         # Tap set nickname

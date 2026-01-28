@@ -71,6 +71,9 @@ ICONS_PATH = {
     'route_end': {
         'route_end': 'route_end.png',
     },
+    'route_pause': {
+        'route_pause': 'route_pause.png',
+    },
     'catch_ball': {
         'red_5': 'red-5.png',
         'red_6': 'red-6.png',
@@ -368,6 +371,11 @@ class Buttons(ButtonParameter):
                                     ys=int(ts.specs['max_y'] * 0.70),
                                     ye=int(ts.specs['max_y'] * 0.90))
         self.i_route_end = IconButton(ts, 'route_end',
+                                    xs=int(ts.specs['max_x'] * 0.8),
+                                    xe=int(ts.specs['max_x']),
+                                    ys=int(ts.specs['max_y'] * 0.70),
+                                    ye=int(ts.specs['max_y'] * 0.90))
+        self.i_route_pause = IconButton(ts, 'route_pause',
                                     xs=int(ts.specs['max_x'] * 0.8),
                                     xe=int(ts.specs['max_x']),
                                     ys=int(ts.specs['max_y'] * 0.70),

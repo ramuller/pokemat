@@ -26,12 +26,12 @@ def delete_red_balls(p):
     p.tap_screen(500, 1802)
     p.color_match_wait_click(729, 1574, 240, 254, 238)
     sleep(1.4)
-    text = p.pocr_read_line_center((171, 1700), (200, 160))
+    text = p.ocr_read_line_center((171, 1700), (200, 160))
     print(f"Read {text}")
     if not "Poké Ball" in text\
        and not "Poke Ball" in text:
         p.scroll(0, -700, start_x=900, start_y=1900)
-    text = p.pocr_read_line_center((171, 1700), (200, 160))
+    text = p.ocr_read_line_center((171, 1700), (200, 160))
     if "Poké Ball" in text\
        or "Poke Ball" in text:
         # p.scroll(0, -700, start_x=900, start_y=1900)

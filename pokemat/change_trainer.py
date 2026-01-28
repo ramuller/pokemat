@@ -136,7 +136,7 @@ def change_trainer(port, trainer, check=False):
     if not check:
         do_change_trainer(port, trainer)
     else:
-        while phone.pocr_wait_text((280, 1100), (440, 75), "RETURNING", pause=2, to_ms=1) \
+        while phone.ocr_wait_text((280, 1100), (440, 75), "RETURNING", pause=2, to_ms=1) \
               or not trainer.lower() in TouchScreen(port).get_my_name().lower():
             print("Start change")
             do_change_trainer(port, trainer)

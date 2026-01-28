@@ -61,9 +61,9 @@ class Screen:
         self.ts.buttons.c_avatar()
         startTime = datetime.now()
         while (datetime.now() - startTime).total_seconds() < 30:
-            self.ts.pocr.starty = int(self.ts.specs['max_y'] * 0.4)
-            self.ts.pocr.starty = int(self.ts.specs['max_y'] * 0.7)
-            t = self.ts.pocr.read()
+            self.ts.ocr.starty = int(self.ts.specs['max_y'] * 0.4)
+            self.ts.ocr.starty = int(self.ts.specs['max_y'] * 0.7)
+            t = self.ts.ocr.read()
             if len(t) > 5:
                 sleep(1)
                 return
@@ -80,11 +80,11 @@ class Screen:
                 continue
             elif self.ts.color_match(357, 1005, 150, 218, 151, debug=False):
                 # Not exit pokemon
-                # t,_ = self.ts.pocr.find_regex('.*exit Pok.mon GO.*', verbose=0)
-                mode = self.ts.pocr.mode
-                self.ts.pocr.mode = "line"
-                t,_ = self.ts.pocr.regex('.*Do you want to exit Pok.*', verbose=0)
-                self.ts.pocr.mode = mode
+                # t,_ = self.ts.ocr.find_regex('.*exit Pok.mon GO.*', verbose=0)
+                mode = self.ts.ocr.mode
+                self.ts.ocr.mode = "line"
+                t,_ = self.ts.ocr.regex('.*Do you want to exit Pok.*', verbose=0)
+                self.ts.ocr.mode = mode
                 if not t:
                     self.ts.tap_confirm()
                 else:
@@ -102,7 +102,7 @@ class Screen:
                 # for y in range(100, self.ts.maxY - 100, 25):
                 #     if self.ts.color_match(500, y, 116, 214, 156):
                 #         print(f"Something green at {y}")
-                #         b_text = self.pocr_read_line_center((500, y + 50), (100, 100))
+                #         b_text = self.ocr_read_line_center((500, y + 50), (100, 100))
                 #         print(f"Button text {b_text}")
                 #         if re.match(b_text, ".*CANCEL.*"):
                 #             print("Found OK")

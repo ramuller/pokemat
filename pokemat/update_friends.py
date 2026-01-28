@@ -58,17 +58,17 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
         p.tap_screen(270, 360)
         sleep(1.5)
         # Friend level
-        friend_level, _ = p.pocr_read_line((360, 650), (280, 50))
+        friend_level, _ = p.ocr_read_line((360, 650), (280, 50))
         print("Friend level '{}'".format(friend_level))               
         p.tap_screen(750, 880)
         sleep(1.5)
         # jbuf = p.screen_capture_bw(290, 530, 400, 90)
         # Name
-        name,_ = p.pocr_read_line((290, 530), (400, 90))
+        name,_ = p.ocr_read_line((290, 530), (400, 90))
         print("Name '{}'".format(name))               
         # days to play
         try:
-            text,_ = p.pocr_read_line((400, 1080), (50, 50))
+            text,_ = p.ocr_read_line((400, 1080), (50, 50))
             tl = re.findall(r'\d+\.?\d*', text)
             days_to_go = int(tl[0])
         except:

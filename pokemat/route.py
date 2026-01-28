@@ -42,7 +42,7 @@ def _end_route(phone):
     return True
 
 def screen_go_overview(phone):
-    t, _ = phone.pocr.regex('.*RSVP.*')
+    t, _ = phone.ocr.regex('.*RSVP.*')
     if t:
         return 0
     phone.screen_go_to_home()
@@ -82,6 +82,10 @@ def _in_route(phone):
             return 'in'
         else:
             return 'end'
+    b = phone.buttons.i_route_pause.search(verbose=0)
+    if b:
+        return 'pause'
+    
     return 'no_route'
 
 def route(port):
@@ -96,11 +100,11 @@ def route(port):
     _in_route(phone)
     while True:
         try:
-            while _in_route(phone) != 'end' \
+            while _in_route(phone) not in ['end', 'pause' ] \
                     and timeout > 0 and follow:
                 timeout -= 1
                 print("Following route, time left: {}s".format(timeout))
-                screen = phone.pocr.read(verbose=0)
+                screen = phone.ocr.read(verbose=0)
                 quit = any(
                     any(word in text.get("text", "") for word in \
                         ["PAUSED", "DISTANCE", "DIRECTION", "paused"])
@@ -119,7 +123,7 @@ def route(port):
             state = _in_route(phone)
             if state == 'end':
                     _end_route(phone)
-            elif state == 'in':
+            elif state == 'in' or state == 'pause':
                     _quit_route(phone)
                     follow = False
             follow = False

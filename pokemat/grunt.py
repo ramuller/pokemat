@@ -129,7 +129,7 @@ def scan_sky(phone, print, no_grunt):
             if is_grunt_in_gym(phone) \
                     or phone.color_match(868, 197, 241, 247, 240) \
                     or phone.color_match(506, 849, 206, 92, 51):
-                if "BATTLE" in phone.pocr_read_line_center((444, 1464), (300, 120)):
+                if "BATTLE" in phone.ocr_read_line_center((444, 1464), (300, 120)):
                     print("Max battle or so")
                     continue
                 no_grunt = False
@@ -144,7 +144,7 @@ def scan_sky(phone, print, no_grunt):
 def select_team(phone):    
     start = None
     for i in range(15):
-        start, _ = phone.pocr_find_regex('USE THIS.*')
+        start, _ = phone.ocr_find_regex('USE THIS.*')
         print(f"Start {start}")
         if start:
             watch_dog.reset()
@@ -273,9 +273,9 @@ def grunt(port):
     while i > 0:
         try:
             print("Wait for battle")
-            battle, fs = phone.pocr_find_regex('BATTLE')
+            battle, fs = phone.ocr_find_regex('BATTLE')
             if battle:
-                g, fs = phone.pocr_find_regex('Grunt')
+                g, fs = phone.ocr_find_regex('Grunt')
                 if g:
                     print("Set start grunt to True")
                     start_grunt = True

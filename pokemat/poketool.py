@@ -68,10 +68,10 @@ def read():
     reg = _set_paramters_from_args()
 
     print(f'Reading region x:{reg.xs}-{reg.xe} y:{reg.ys}-{reg.ye}')
-    print(f'reg.invert:{phone.pocr.invert} reg.process:{phone.pocr.process} reg.mode:{phone.pocr.mode}') 
+    print(f'reg.invert:{phone.ocr.invert} reg.process:{phone.ocr.process} reg.mode:{phone.ocr.mode}') 
 
     startTime = datetime.now()
-    text, reg = phone.pocr.read_and_npa(reg)
+    text, reg = phone.ocr.read_and_npa(reg)
     endTime = datetime.now()
     print(f'Time to find button: {(endTime - startTime).total_seconds()}')
 
@@ -108,8 +108,8 @@ def icon():
         return
     _set_paramters_from_args(phone.buttons.ocr)
     
-    print(f'Search icon in region x:{phone.pocr.startx}-{phone.pocr.endx} y:{phone.pocr.starty}-{phone.pocr.endy}')
-    print(f'invert:{phone.pocr.invert} process:{phone.pocr.process} mode:{phone.pocr.mode} text:{args.text} kind:{args.kind} press:{args.press}')
+    print(f'Search icon in region x:{phone.ocr.startx}-{phone.ocr.endx} y:{phone.ocr.starty}-{phone.ocr.endy}')
+    print(f'invert:{phone.ocr.invert} process:{phone.ocr.process} mode:{phone.ocr.mode} text:{args.text} kind:{args.kind} press:{args.press}')
 
     button()
     icon_button = getattr(phone.buttons, args.name)
@@ -184,8 +184,8 @@ def raw_button():
         return
     _set_paramters_from_args(phone.buttons.ocr)
     
-    print(f'Search button in region x:{phone.pocr.startx}-{phone.pocr.endx} y:{phone.pocr.starty}-{phone.pocr.endy}')
-    print(f'invert:{phone.pocr.invert} process:{phone.pocr.process} mode:{phone.pocr.mode} text:{args.text} kind:{args.kind} press:{args.press}')
+    print(f'Search button in region x:{phone.ocr.startx}-{phone.ocr.endx} y:{phone.ocr.starty}-{phone.ocr.endy}')
+    print(f'invert:{phone.ocr.invert} process:{phone.ocr.process} mode:{phone.ocr.mode} text:{args.text} kind:{args.kind} press:{args.press}')
 
     if args.kind == 'dark':
         b = phone.buttons.dark

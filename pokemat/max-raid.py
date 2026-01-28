@@ -18,11 +18,11 @@ def raid(port, phone):
     # Tap ready
     phone.tap_screen(650,1500)
     time.sleep(2)
-    while not "Remaining" in phone.pocr_read_line_center((860, 228), (200, 80)):
+    while not "Remaining" in phone.ocr_read_line_center((860, 228), (200, 80)):
         sleep(1)
     print("Raid starts")
     # self.color_match(500, 144, 70, 207, 181)
-    while not "SKIP" in phone.pocr_read_line_center((503, 1792), (100, 60)):
+    while not "SKIP" in phone.ocr_read_line_center((503, 1792), (100, 60)):
         try:
             for x in range(200,700,150):
                 phone.tap_screen(x, 1770)
