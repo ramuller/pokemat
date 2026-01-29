@@ -1,10 +1,14 @@
 #!/bin/env python
 import math
+import keyboard
+
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
 from pokelib.buttons import ButtonParameter
 from pokelib import ScreenRegion
+from pokelib import TextOnly, Coordinates,ButtonParameter 
+from pokelib import IconButton, TextButton
 import logging
 
 import json
@@ -106,8 +110,9 @@ def icon():
     if not  args.name:
         print('Button command needs --name argument')
         return
-    _set_paramters_from_args(phone.buttons.ocr)
+    reg = _set_paramters_from_args()
     
+    print(f'Reading region x:{reg.xs}-{reg.xe} y:{reg.ys}-{reg.ye}')
     print(f'Search icon in region x:{phone.ocr.startx}-{phone.ocr.endx} y:{phone.ocr.starty}-{phone.ocr.endy}')
     print(f'invert:{phone.ocr.invert} process:{phone.ocr.process} mode:{phone.ocr.mode} text:{args.text} kind:{args.kind} press:{args.press}')
 
@@ -182,9 +187,9 @@ def raw_button():
     if not  args.text:
         print('Raw button command needs --text argument')
         return
-    _set_paramters_from_args(phone.buttons.ocr)
+    reg = _set_paramters_from_args()
     
-    print(f'Search button in region x:{phone.ocr.startx}-{phone.ocr.endx} y:{phone.ocr.starty}-{phone.ocr.endy}')
+    print(f'Reading region x:{reg.xs}-{reg.xe} y:{reg.ys}-{reg.ye}')
     print(f'invert:{phone.ocr.invert} process:{phone.ocr.process} mode:{phone.ocr.mode} text:{args.text} kind:{args.kind} press:{args.press}')
 
     if args.kind == 'dark':
@@ -209,6 +214,45 @@ def raw_button():
     print(f'Button found: {res}')
     return
 
+'''
+
+'''
+def test_button_callback():
+    print('test button callback')
+'''
+Free test for what ever new feature
+'''
+def my_callback(ts, det):
+    print("Mycall back")
+    x = (det.quad[0][0] + det.quad[1][0]) // 2
+    y = det.quad[3][1]
+    print(f'button color at x{x} y{y}  {ts.get_rgb(x ,y , scale=False)}')
+    if ts.color_match(x, y , 254, 254, 254, threashold=1, scale=False):
+        print('Return det')
+        return det
+    print("Not home")
+    return None
+
+def my_test():
+    phone.screen.go_home()
+    test_button_callback()
+    b = IconButton(phone, 'pokeball',
+                    xs=phone.rel_x(0.38),
+                    xe=phone.rel_x(0.62),
+                    ys=phone.rel_y(0.85),
+                    ye=phone.rel_y(0.97),
+                    search_callback=my_callback)
+
+    while True:
+        d = b.search()
+        if d:
+            state = 'home'
+        else:
+            state = 'somewhere'
+        print(f"Icon state {state}")
+        print(d)
+        sleep(2)
+
 def action(port, arg = None):
     global phone
     print('Start testing port {}',port)
@@ -231,6 +275,8 @@ def action(port, arg = None):
         ret = icon()
     elif re.match('bal.*', command):
         ret = ball()
+    elif re.match('test*', command):
+        ret = my_test()
     else:
         print(f'Unknown command {command}')
         ret = None

@@ -92,16 +92,32 @@ ICONS_PATH = {
     },
 }
 
+'''
+Some buttons need an special test in a call back
+'''
+def _cb_pokeball(ts, det):
+    print('Call back for pokeball')
+    x = (det.quad[0][0] + det.quad[1][0]) // 2
+    y = det.quad[3][1]
+    if ts.color_match(x, y , 254, 254, 254, threashold=1, scale=False):
+        # print('Return det')
+        return det
+    # print("Not home")
+    return None
+   
 
 class ButtonNotFoundError(Exception):
     pass
 
 class ButtonParameter:
     def __init__(self, ts, xs=0, xe=0, ys=0, ye=0,
-                 confidence=25.0, invert=False, process=False,
-                 color='gray', delay= 0.01, mode='word'):
+                 confidence=25.0, invert=False, process=False, \
+                 color='gray', delay= 0.01, mode='word', \
+                 search_callback=None, press_callback=None):
         self.ts = ts
         self.reg = ScreenRegion(ts, xs=xs, xe=xe, ys=ys, ye=ye)
+        self.search_callback = search_callback
+        self.press_callback = press_callback
         if xe == 0:
             xe = ts.specs['max_x']
         if ye == 0:
@@ -114,6 +130,7 @@ class ButtonParameter:
         self.mode = mode
         self.delay = delay
         self.npa = None
+
  
     def __del__(self):
         pass
@@ -164,6 +181,8 @@ class TextOnly(ButtonParameter):
                                                 retries=retries,
                                                 delay=delay,
                                                 verbose=verbose)
+        if self.search_callback:
+            self.search_callback(self.ts, b)
         return b
         
 
@@ -214,8 +233,8 @@ class TextButton(ButtonParameter):
         
 
 class IconButton(ButtonParameter):
-    def __init__(self, ts, icons, xs=0, xe=0, ys=0, ye=0):
-        super().__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye)
+    def __init__(self, ts, icons, **kwargs):
+        super().__init__(ts, **kwargs)
         self._init_icons(icons)
         self.pi = PokeImage(ts)
         self.updated = False
@@ -264,6 +283,8 @@ class IconButton(ButtonParameter):
                 if verbose > 1:
                     print(f"Found icon button with score {det.score} at {det.center}")
         if hs > 0.0:
+            if self.search_callback:
+                hdet = self.search_callback(self.ts, hdet)
             return hdet
         if verbose > 1:
             print("Icon button not found.")
@@ -291,7 +312,8 @@ class Buttons(ButtonParameter):
                                     xs=int(ts.specs['max_x'] * 0.38),
                                     xe=int(ts.specs['max_x'] * 0.62),
                                     ys=int(ts.specs['max_y'] * 0.85),
-                                    ye=int(ts.specs['max_y'] * 0.97))
+                                    ye=int(ts.specs['max_y'] * 0.97),
+                                    search_callback=_cb_pokeball)
         self.i_exits = IconButton(ts, 'exits',
                                     xs=int(ts.specs['max_x'] * 0.38),
                                     xe=int(ts.specs['max_x'] * 0.62),
