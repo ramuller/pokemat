@@ -104,6 +104,7 @@ def route(port):
     # end_route(phone)
     # select route
     # phone.screen_go_to_home()
+    pause = 3
     timeout = 3
     follow = False
     _in_route(phone)
@@ -111,7 +112,7 @@ def route(port):
         try:
             while _in_route(phone) not in ['end', 'pause' ] \
                     and timeout > 0 and follow:
-                timeout -= 1
+                timeout -= pause
                 print("Following route, time left: {}s".format(timeout))
                 screen = phone.ocr.read(verbose=0)
                 quit = any(
