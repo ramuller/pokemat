@@ -52,6 +52,10 @@ def screen_go_overview(phone):
 
 
 def follow_route(phone):
+    if phone.buttons.i_route_pause.search(verbose=0):
+        _quit_route(phone)
+        phone.screen.go_home()
+        sleep(1)
     screen_go_overview(phone)
     button = phone.buttons.black_on_white('.*ROUTE.*')
     button = phone.buttons.dark('.*NEARBY.*', retries=30, verbose=10)
@@ -66,6 +70,10 @@ def follow_route(phone):
         print("Failed to find FOLLOW button")
         return False
     sleep(1)
+    button = phone.buttons.dark('.*FOLLOW.*', action='check', verbose=2) # , ys=phone.rel_y(0.5))
+    if button:
+        print(f'Seems we are still in a route {button['text']}')
+        return(False)
     # Tap to remove info banner
     phone.tap_screen(15, 100)
     sleep(1)    
@@ -75,6 +83,10 @@ def follow_route(phone):
     return True
 
 def _in_route(phone):
+
+    b = phone.buttons.i_route_pause.search(verbose=0)
+    if b:
+        return 'pause'
     b = phone.buttons.i_route_started.search(verbose=0)
     if b:
         phone.buttons.i_route_started.update_area(b)
@@ -82,9 +94,6 @@ def _in_route(phone):
             return 'in'
         else:
             return 'end'
-    b = phone.buttons.i_route_pause.search(verbose=0)
-    if b:
-        return 'pause'
     
     return 'no_route'
 
@@ -131,7 +140,9 @@ def route(port):
             if follow_route(phone):
                 follow = True
                 timeout = 600
-                
+            else:
+                phone.screen_go_to_home()
+                _quit_route(phone)
             
         except Exception as e:
             print(e, traceback.format_exc())

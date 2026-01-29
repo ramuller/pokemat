@@ -7,7 +7,8 @@ from .poke_wd import WatchDog
 from .touchscreen import TouchScreen
 from .poke_args import PokeArgs 
 from .ocr import Ocr
-from .buttons import Buttons, Coordinates
+from .buttons import Buttons, Coordinates, TextOnly, IconButton, TextButton
+from .buttons import *
 from .pixelvector import PixelVector
 from .database import Database
 from .screen import Screen

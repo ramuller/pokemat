@@ -11,6 +11,23 @@
 
     },
     {
+      "name": "poketool test",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "test",
+        "--xs", "0",
+        "--xe", "0",
+        "--ys", "50%",
+        "--ye", "0",
+        "--count", "5",
+        "--name", "test"
+      ],
+    },
+    {
       "name": "poketool snapshot",
       "extends": "Base",
       "type": "python",
