@@ -83,5 +83,5 @@ elif [ "$1" == "u" ];then
     ./run x $EXTRA --window-title=3010 $STD_ARGS --window-x=0 --window-y=0 --rest-api-port=3010
 else
     echo unknow phone using port 3099 title $SN
-    ./run x $EXTRA --window-title="$SN" -s $SN $STD_ARGS --rest-api-port=3099
+    ./run x $EXTRA --window-title="3099-SN" -s $SN $STD_ARGS --disable-screensaver --rest-api-port=3099
 fi

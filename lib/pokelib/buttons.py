@@ -87,6 +87,18 @@ ICONS_PATH = {
     'buttons': {
         'ok': 'button-ok.png',
     },
+    'fake_3dot': {
+        'fake_3dot': 'fake_3dot.png',
+    },
+    'fake_app': {
+        'fake_map': 'fake_app.png',
+    },
+    'fake_map': {
+        'fake_map': 'fake_map.png',
+    },
+    'fake_search': {
+        'fake_search': 'fake_search.png',
+    },
     'test_button': {
         'test_button': 'screen-shots/test_button.png',
     },
@@ -407,6 +419,13 @@ class Buttons(ButtonParameter):
                                     xe=int(ts.specs['max_x'] * 0.6),
                                     ys=int(ts.specs['max_y'] * 0.5),
                                     ye=int(ts.specs['max_y'] * 0.7))
+        self.i_fake_app = IconButton(ts, 'fake_app')
+        self.i_fake_3dot = IconButton(ts, 'fake_3dot',
+                                    ye=int(ts.specs['max_y'] * 0.2))
+        self.i_fake_map = IconButton(ts, 'fake_map',
+                                    ye=int(ts.specs['max_y'] * 0.2))
+        self.i_fake_search = IconButton(ts, 'fake_search',
+                                    ye=int(ts.specs['max_y'] * 0.2))
         self.b_passanger_fast = TextButton(ts, 'SS', # I M A PASSANGER
                                     invert=True,
                                     xs=int(ts.specs['max_x'] * 0.45),

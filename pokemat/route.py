@@ -124,6 +124,9 @@ def route(port):
                     follow = False
                 if _in_route(phone) == 'in':
                     print('Still in route')
+                elif state == 'in' or state == 'pause':
+                    _quit_route(phone)
+                    follow = False            
                 startTime = datetime.now()  
                 phone.egg_handle()
                 endTime = datetime.now()

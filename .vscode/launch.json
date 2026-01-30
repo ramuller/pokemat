@@ -339,6 +339,16 @@
         "3007",
         "schlumpiz"
       ]
+    },
+    {
+      "name": "test",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/start-gps.py",
+      "console": "integratedTerminal",
+      "args": [
+      ]
     }
 
   ]
