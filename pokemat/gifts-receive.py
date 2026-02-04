@@ -73,7 +73,7 @@ def gifting(port):
             phone.sort_has_gift()
             # phone.screen.go_friends()
 
-            if phone.buttons.white_on_black('x', retries=1):
+            if phone.buttons.i_x_clear_text.press(retries=1):
                sleep(0.5)
 
             if not phone.buttons.black_on_white('SEARCH'):

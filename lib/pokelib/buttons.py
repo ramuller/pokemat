@@ -106,6 +106,9 @@ ICONS_PATH = {
     'test_button': {
         'test_button': 'screen-shots/test_button.png',
     },
+    'x_clear_text': {
+        'x_clear_button': 'x_clear_text.png',
+    }
 }
 
 '''
@@ -439,6 +442,11 @@ class Buttons(ButtonParameter):
                                     xe=int(ts.specs['max_x'] * 0.6),
                                     ys=int(ts.specs['max_y'] * 0.5),
                                     ye=int(ts.specs['max_y'] * 0.7))
+        self.i_x_clear_text = IconButton(ts, 'x_clear_text',
+                                        xs=ts.rel_x(0.75),
+                                        xe=ts.rel_x(0.99),
+                                        ys=ts.rel_y(0.20),
+                                        ye=ts.rel_y(0.50))
         self.i_fake_app = IconButton(ts, 'fake_app')
         self.i_fake_3dot = IconButton(ts, 'fake_3dot',
                                     ye=int(ts.specs['max_y'] * 0.2))

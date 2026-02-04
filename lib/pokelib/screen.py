@@ -59,7 +59,7 @@ class Screen:
             sleep(1)
             self.ts.buttons.c_avatar()
         reg = ScreenRegion(self.ts, xs=self.ts.rel_x(0.75))
-        self.ts.buttons.black_on_white('x', reg, retries=1)
+        self.ts.buttons.i_x_clear_text.press(retries=1)
         if self.ts.buttons.t_friends.press(retries=10):
             startTime = datetime.now()
             while (datetime.now() - startTime).total_seconds() < 30:
