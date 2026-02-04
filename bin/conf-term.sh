@@ -50,7 +50,7 @@ do
 	xdotool key Return
 	xdotool type "export PHONE_PORT=$(( 3001 + $i))"
 	xdotool key Return
-	xdotool type "export PS1='$(hostname -s)-$(echo $PHONE_PORT) $' "
+	xdotool type "'export PS1='[$PHONE_PORT] \u@\h:\W\$ '' "
 	xdotool key Return
     split_term "left"
 	sleep 0.03

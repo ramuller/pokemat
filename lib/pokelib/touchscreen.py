@@ -21,7 +21,7 @@ from .ocr import Ocr
 from .database import Database as db_p
 from .image import PokeImage
 from .ocr import Ocr
-from .buttons import Buttons
+from .buttons import Buttons, ScreenRegion
 from .screen import Screen
 from .phone_db import PhoneDB
 
@@ -1710,33 +1710,6 @@ class TouchScreen:
         # nail it down
         sleep(0.5)
         self.tap_screen(286, 1105)
-
-    def gift_open(self):
-        opened = True
-        self.log.info("tap gift")
-        if not self.buttons.i_friend_has_gift.press():
-            opened = False
-            return opened
-        self.log.info("gift_open")
-        self.buttons.ocr.starty = 600
-        self.buttons.dark('.*OPEN.*', retries=10, delay=0.5)
-        self.buttons.exits.press()
-        
-        # while sself.buttons.dark('.*OPEN.*', action='check' ,retries=10, delay=0.5):
-        #     # if ping_limit:
-        #     #     return False
-        #     if self.color_match(376, 1630, 144, 217, 149):
-        #         print("Daily limit reached")
-        #         self.tap_screen(500, 1850)
-        #         opened = False
-        #     else:
-        #         self.tap_screen(85, 1960)
-        #         time.sleep(0.5)
-        # name, days_to_go, level = self.friend_get_info()
-        # self.friend_update_db(name, days_to_go, level, opened=opened)
-        # if days_to_go <= 2 or days_to_go == 62 or days_to_go == 61:
-        #     self.friend_set_nickname("ff pokemat")
-        return opened
     
     def gift_send(self, has_gift = False):
         print("Send gift")
@@ -1810,12 +1783,21 @@ class TouchScreen:
     
     def sort_receive_gift(self, hasGift = True):
         if not self.buttons.i_has_gift.search():
-            self.buttons.i_change_sort.press()
-            self.buttons.t_gift(delay=1, action='press')
+            b = self.buttons.i_change_sort.press()
+            sleep(0.5)
+            b = self.buttons.i_sort_has_gift.press(retries=10)
         sort = self.buttons.i_sort.search(retries=30, verbose=3)
-        if sort.icon_name == 'up':
-            self.buttons.i_change_sort.press()
-            self.buttons.t_gift(delay=1, action='press')
+        try:
+            if sort.icon_name == 'up':
+                self.buttons.i_change_sort.press()
+                self.buttons.t_gift(delay=1, action='press')
+        except:
+            print('No up or down found. Wrong place?')
+            return False
+        if self.buttons.i_sort.search(retries=30, verbose=3):
+            return True
+        return False
+        
 
     def sort_has_gift(self, noGift = False):
         self.screen.go_friends()

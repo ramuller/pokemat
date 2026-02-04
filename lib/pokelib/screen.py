@@ -5,6 +5,7 @@
 from time import sleep
 import logging
 from datetime import datetime
+from .structs import ScreenRegion
 
 
 class Screen:
@@ -52,21 +53,22 @@ class Screen:
             return True
 
     def go_friends(self):
-        if self.ts.buttons.text_only.press('.*IENDS.*', \
-                                            xs=self.ts.rel_x(0.40), xe=self.ts.rel_x(0.60), \
-                                            ys=self.ts.rel_y(0.05), ye=self.ts.rel_y(0.15), retries=1):
-            return True
+        b = self.ts.buttons.t_friends.press(retries=1)
+        if not b:
+            self.go_home()
+            sleep(1)
+            self.ts.buttons.c_avatar()
+        reg = ScreenRegion(self.ts, xs=self.ts.rel_x(0.75))
+        self.ts.buttons.black_on_white('x', reg, retries=1)
+        if self.ts.buttons.t_friends.press(retries=10):
+            startTime = datetime.now()
+            while (datetime.now() - startTime).total_seconds() < 30:
+                reg = ScreenRegion(self, xs=self.ts.rel_x(0.25), xe=self.ts.rel_x(0.5), ys=self.ts.rel_y(0.3)) 
+                if len(self.ts.ocr.regex('.*.....*', reg, retries=30)) > 0:
+                    return True
+                t = self.ts.ocr.regex('.*.....*', reg, retries=30)
+                print(t)
         self.go_home()
-        sleep(1)
-        self.ts.buttons.c_avatar()
-        startTime = datetime.now()
-        while (datetime.now() - startTime).total_seconds() < 30:
-            self.ts.ocr.starty = int(self.ts.specs['max_y'] * 0.4)
-            self.ts.ocr.starty = int(self.ts.specs['max_y'] * 0.7)
-            t = self.ts.ocr.read()
-            if len(t) > 5:
-                sleep(1)
-                return
         raise Exception('Trainer screen timeout!')
 
     def go_home(self):

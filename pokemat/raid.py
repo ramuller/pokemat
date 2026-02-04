@@ -15,7 +15,17 @@ from datetime import datetime
 def raid(port):
     print("Start evolutions on port {}", port)
     phone = TouchScreen(port)
-    phone.tap_screen(650,1500)
+    b = phone.buttons.dark('BATTLE', retries=1)
+    if not b:
+        b = phone.buttons.i_exits.press()
+        if b:
+            sleep(1)
+    b = phone.buttons.dark('BATTLE')
+    sleep(1.5)
+    for y in range(phone.rel_y(0.5), phone.rel_y(0.8), phone.rel_y(0.05)):
+        print(y)
+        sleep(0.1)
+        phone.tap_screen(phone.rel_x(0.5), y, scale=False)
     time.sleep(2)
     phone.tap_screen(650,1500)
     time.sleep(8)

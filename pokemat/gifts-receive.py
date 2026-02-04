@@ -16,6 +16,7 @@ import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
+from pokelib import ScreenRegion
 
 import string
 import random
@@ -60,7 +61,7 @@ def gifting(port):
         name = phone.get_my_name()
         print(f"My name {name}")
     phone.screen.go_friends()
-    phone.sort_has_gift()
+
 
     giftsSent = 0
     giftsReceived = 0
@@ -69,10 +70,11 @@ def gifting(port):
     while receive_gifts or True:  # and len(shuffled_letters) > 0:
         try:
             # Wait for trainer screen
-            phone.screen.go_friends()
+            phone.sort_has_gift()
+            # phone.screen.go_friends()
 
-            if phone.buttons.white_on_black('x'):
-                sleep(0,5)
+            if phone.buttons.white_on_black('x', retries=1):
+               sleep(0.5)
 
             if not phone.buttons.black_on_white('SEARCH'):
                 print('No SEARCH button found')
@@ -103,18 +105,31 @@ def gifting(port):
 
             phone.buttons.ocr.startx = int(phone.specs['max_x'] * 0.8)
             phone.buttons.black_on_white('OK')
-            g = phone.buttons.i_friends_gift.search()
+            sleep(0.5)
+            g = phone.buttons.i_friends_gift.press()
 
             if not g and shuffled_letters[0] != " ":
                 shuffled_letters.pop(0)
                 print("No gift. Letters to go {}".format(len(shuffled_letters)))
             else:
                 print("Friend has gift")
+                b = phone.buttons.dark('OPEN', retries=20)
                 phone.tap_screen(g.center, scale=False)
-                receive_gifts = phone.gift_open()
+
+                if b is not None:
+                    receive_gifts = True
+                else:
+                    receive_gifts = True
+                sleep(2)
+                reg = ScreenRegion(phone, ys=phone.rel_y(0.8))
+                while len(phone.ocr.regex('SEND', reg)) < 1:
+                    phone.tap_screen(phone.rel_x(0.05), phone.rel_y(0.05), scale=False)
+                    sleep(0.3)
                 # Back to trainer screen
-                phone.tap_screen(500,1850)
-                   
+                # phone.tap_screen(500,1850)
+                sleep(1)
+            b = phone.buttons.i_exits.press(retries=50)
+            phone.buttons.t_friends.search(retries=10,pause=1)
                 
             # self.color_match(161, 808, 246, 246, 246, match=False)
         except ExPokeLibFatal as e:

@@ -47,6 +47,9 @@ ICONS_PATH = {
     'has_gift': {
         'has_gift': 'has_gift.png',
     },
+    'sort_has_gift': {
+        'sort_has_gift': 'has_gift.png',
+    },
     'friends_gift': {
         'friends_gift': 'friends_gift.png',
     },
@@ -91,7 +94,8 @@ ICONS_PATH = {
         'fake_3dot': 'fake_3dot.png',
     },
     'fake_app': {
-        'fake_map': 'fake_app.png',
+        'fake_app': 'fake_app.png',
+        'fake_app_2': 'fake_app_2.png',
     },
     'fake_map': {
         'fake_map': 'fake_map.png',
@@ -173,13 +177,14 @@ class TextOnly(ButtonParameter):
         self.invert = invert
         self.updated = False
 
-    def search(self, text,
+    def search(self,
                 xs=0, xe=0, ys=0, ye=0,               
                 threshold=0.8,
                 mode='word',
                 delay=0.01,
                 retries=1,
                 invert=False,
+                pause=1,
                 process=False,
                 verbose=0):
         reg = ScreenRegion(self.ts, 
@@ -188,10 +193,11 @@ class TextOnly(ButtonParameter):
         reg.mode = mode
         reg.invert = invert
         reg.process = process
-        b, _ = self.ts.buttons.flat_text_button(text,
+        b, _ = self.ts.buttons.flat_text_button(self.text,
                                                 reg, 
                                                 retries=retries,
                                                 delay=delay,
+                                                pause=pause,
                                                 verbose=verbose)
         if self.search_callback:
             self.search_callback(self.ts, b)
@@ -275,33 +281,42 @@ class IconButton(ButtonParameter):
     def search(self, 
                 threshold=0.8,
                 retries=3,
+                pause=1,
                 delay=0.01,
                 verbose=0):
         if verbose > 1:
             print("Searching for icon button...")
-        self.reg.npa = self.pi.scan_region(self.reg)
+        
+        tries = 0
+        while True:
+            tries += 1
+            self.reg.npa = self.pi.scan_region(self.reg)
 
-        if verbose > 5:
-            self.ts.image.show_image(self.reg.npa, wait=1000, title='button-area')
-        dets = self.detector.detect(self.reg.npa)
-        # highest score and det with highest score
-        hs = -1
-        hdet = None
-        for det in dets:
-            if det.score >= threshold:
-                if det.score > hs:
-                    hs = det.score
-                    hdet = det
-                if verbose > 1:
-                    print(f"Found icon button with score {det.score} at {det.center}")
-        if hs > 0.0:
-            if self.search_callback:
-                hdet = self.search_callback(self.ts, hdet)
-            return hdet
-        if verbose > 1:
-            print("Icon button not found.")
+            if verbose > 5:
+                self.ts.image.show_image(self.reg.npa, wait=1000, title='button-area')
+            dets = self.detector.detect(self.reg.npa)
+            # highest score and det with highest score
+            hs = -1
+            hdet = None
+            for det in dets:
+                if det.score >= threshold:
+                    if det.score > hs:
+                        hs = det.score
+                        hdet = det
+                    if verbose > 1:
+                        print(f"Found icon button with score {det.score} at {det.center}")
+            if hs > 0.0:
+                if self.search_callback:
+                    hdet = self.search_callback(self.ts, hdet)
+                return hdet
+            if verbose > 1:
+                print(f'Icon button not found. retry({tries})')
+            if tries >= retries:
+                return None
+            sleep(pause)
         return None
-    
+            
+        
     def update_area(self, det):
         if self.updated:
             return
@@ -341,6 +356,11 @@ class Buttons(ButtonParameter):
                                     xe=int(ts.specs['max_x'] * 0.98),
                                     ys=int(ts.specs['max_y'] * 0.84),
                                     ye=int(ts.specs['max_y'] * 0.99))
+        self.i_sort_has_gift = IconButton(ts, 'has_gift',
+                                    xs=int(ts.specs['max_x'] * 0.75),
+                                    xe=int(ts.specs['max_x'] * 0.98),
+                                    ys=int(ts.specs['max_y'] * 0.60),
+                                    ye=int(ts.specs['max_y'] * 0.85))
         self.i_sort = IconButton(ts, 'sort',
                                     xs=int(ts.specs['max_x'] * 0.70),
                                     xe=int(ts.specs['max_x'] * 0.98),
@@ -436,6 +456,11 @@ class Buttons(ButtonParameter):
                                     invert=True,
                                     ys=int(ts.specs['max_y'] * 0.40),
                                     ye=int(ts.specs['max_y'] * 0.72))
+        self.t_friends = TextOnly(ts, 'FRIENDS',
+                                    xs=ts.rel_x(0.4),
+                                    xe=ts.rel_x(0.6),
+                                    ys=ts.rel_y(0.05),
+                                    ye=ts.rel_y(0.15))
 
     def __del__(self):
         pass
@@ -479,15 +504,14 @@ class Buttons(ButtonParameter):
         return None, self.npa
 
     def flat_text_button(self, text, reg=None, 
-                         delay=0.1, action='press', retries=1, verbose=0):
-        button = None
-
-        while button is None and retries > 0:
-            retries -= 1
-            reg.npa = self.ts.image.scan_region(reg)
-            button, npa = self.ocr.regex(text, reg=reg, verbose=verbose)
-
-        if button is not None:
+                         delay=0.1, pause=1, retries=1, verbose=0):
+        button = self.ocr.regex(text, 
+                                reg=reg, 
+                                retries=retries,
+                                pause=pause,
+                                verbose=verbose)
+ 
+        if button is not None and len(button) > 0:
             self.correct_button_positon(self.reg, button)
         return button, reg
 

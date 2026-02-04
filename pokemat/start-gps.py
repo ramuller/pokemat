@@ -22,10 +22,11 @@ def action(port, arg = None):
     l = int(args.range.split('-')[1])
     for i in range(f, l):
         try:
-            p = TouchScreen(3000 + i)
+            port = 3000 + i
+            p = TouchScreen(port)
             phones.append(p)
         except:
-            print(f'No phone {p} exit!')
+            print(f'No phone on port {port} found!')
 
     print('Start App')
     for p in phones:
@@ -34,7 +35,7 @@ def action(port, arg = None):
     sleep(1)
     print('Press 3dot')
     for p in phones:
-        p.buttons.i_fake_3dot.press()
+        p.buttons.i_fake_3dot.press(verbose=2)
 
     sleep(1)
 

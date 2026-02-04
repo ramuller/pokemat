@@ -345,7 +345,8 @@
       "type": "python",
       "extends": "Base",
       "request": "launch",
-      "program": "${workspaceFolder}/pokemat/start-gps.py",
+      "programm": "${workspaceFolder}/pokemat/start-gps.py",
+      "program": "${workspaceFolder}/pokemat/raid.py",
       "console": "integratedTerminal",
       "args": [
       ]

@@ -1,3 +1,4 @@
+from time import sleep
 import re
 import numpy as np
 from PIL import Image
@@ -135,12 +136,17 @@ class Ocr:
         self.process = process
         return self.read(reg, verbose=verbose)
 
-    def regex(self, regex, reg : ScreenRegion=None, verbose=0):
-        lines, reg = self.read_and_npa(reg, verbose=verbose)
-        self.reset_parameters()
-        for l in lines:
-            if re.search(regex, l['text']):
-                return l, reg
-
-        return None, reg
-    
+    def regex(self, regex, reg : ScreenRegion=None, retries=1, pause=1, verbose=0):
+        for tries in range(retries, 0, -1):
+            reg.npa = None
+            lines, reg = self.read_and_npa(reg, verbose=verbose)
+            self.reset_parameters()
+            print(f'Tries {tries}')
+            for l in lines:
+                if re.search(regex, l['text']):
+                    return l
+            if tries <= 1:
+                return []
+            sleep(pause)
+        return []
+        

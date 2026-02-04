@@ -155,12 +155,15 @@ def button():
                 print(f'Button name : {b}')
         return
     print(f'Search button function {args.name}')
+    reg = _set_paramters_from_args()
+    method = getattr(phone.buttons, args.name)
+    method.reg = reg
     method = getattr(phone.buttons, args.name)
     rep = args.count
     for i in range(rep):
         detection = method.search(
-                 retries=1, 
-                 verbose=args.verbose)
+                                retries=1, 
+                                verbose=args.verbose)
         if not method.updated and detection:
             print('Update button search area based on result')
             try:
