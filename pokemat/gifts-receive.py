@@ -128,7 +128,7 @@ def gifting(port):
                 # Back to trainer screen
                 # phone.tap_screen(500,1850)
                 sleep(1)
-            b = phone.buttons.i_exits.press(retries=50)
+                b = phone.buttons.i_exits.press(retries=50)
             phone.buttons.t_friends.search(retries=10,pause=1)
                 
             # self.color_match(161, 808, 246, 246, 246, match=False)

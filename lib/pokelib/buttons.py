@@ -132,7 +132,8 @@ class ButtonParameter:
     def __init__(self, ts, xs=0, xe=0, ys=0, ye=0,
                  confidence=25.0, invert=False, process=False, \
                  color='gray', delay= 0.01, mode='word', \
-                 search_callback=None, press_callback=None):
+                 search_callback=None, press_callback=None,
+                 verbose=0):
         self.ts = ts
         self.reg = ScreenRegion(ts, xs=xs, xe=xe, ys=ys, ye=ye)
         self.search_callback = search_callback
@@ -141,24 +142,35 @@ class ButtonParameter:
             xe = ts.specs['max_x']
         if ye == 0:
             ye = ts.specs['max_y']
-
+        self.xs = xs
+        self.xe = xe
+        self.ys = ys
+        self.ye = ye
         self.confidence = confidence
         self.invert = invert
         self.process = process
         self.color = color
         self.mode = mode
         self.delay = delay
-        self.npa = None
+        self.verbose = verbose
 
  
     def __del__(self):
         pass
 
     def press(self, *args, **kwargs):
-        pass
-
+        b = self.search(*args, **kwargs)
+        if b:
+            if 'delay' in kwargs:
+                sleep(delay)
+            else:
+                sleep(self.delay)
+            # self.ts.tap_screen(b['center'][0], b['center'][1], scale=False)
+            self.ts.tap_screen(b['center'], scale=False)
+        return b
+    
     def search(self, *args, **kwargs):
-        pass
+        return None
 
     def correct_button_positon(self, reg, b):
         b['left'] += reg.xs
@@ -174,13 +186,12 @@ class Coordinates(ButtonParameter):
 Text only now extra surrounding
 '''
 class TextOnly(ButtonParameter):
-    def __init__(self, ts, text, invert=False, xs=0, xe=0, ys=0, ye=0):
+    def __init__(self, ts, invert=False, xs=0, xe=0, ys=0, ye=0):
         super().__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye)
-        self.text = text
         self.invert = invert
         self.updated = False
 
-    def search(self,
+    def search(self, text,
                 xs=0, xe=0, ys=0, ye=0,               
                 threshold=0.8,
                 mode='word',
@@ -196,7 +207,7 @@ class TextOnly(ButtonParameter):
         reg.mode = mode
         reg.invert = invert
         reg.process = process
-        b, _ = self.ts.buttons.flat_text_button(self.text,
+        b, _ = self.ts.buttons.flat_text_button(text,
                                                 reg, 
                                                 retries=retries,
                                                 delay=delay,
@@ -217,6 +228,27 @@ class TextOnly(ButtonParameter):
             # self.ts.tap_screen(b['center'][0], b['center'][1], scale=False)
             self.ts.tap_screen(b['center'], scale=False)
         return b
+
+'''
+Text only now extra surrounding
+'''
+class TextFlat(ButtonParameter):
+    def __init__(self, ts, text="" , **kwargs):
+        super().__init__(ts, **kwargs)
+        self.reg = ScreenRegion(ts, self.xs, self.xe, self.ys, self.ye)
+        self.ocr = Ocr(ts)
+        self.text = text
+        self.updated = False
+
+    def search(self, retries=1, pause=1): 
+        b = self.ocr.regex(self.text,
+                            self.reg, 
+                            retries=retries,
+                            invert=self.invert,
+                            process=self.process,
+                            pause=pause,
+                            verbose=self.verbose)   
+        return b 
 
 '''
 Button shape with text
@@ -464,7 +496,7 @@ class Buttons(ButtonParameter):
                                     invert=True,
                                     ys=int(ts.specs['max_y'] * 0.40),
                                     ye=int(ts.specs['max_y'] * 0.72))
-        self.t_friends = TextOnly(ts, 'FRIENDS',
+        self.t_friends = TextFlat(ts, 'FRIENDS',
                                     xs=ts.rel_x(0.4),
                                     xe=ts.rel_x(0.6),
                                     ys=ts.rel_y(0.05),
@@ -507,20 +539,22 @@ class Buttons(ButtonParameter):
                     w['top']  = box['y'] + w['top']
                     w['center'] = (w['center'][0] + box['x'], \
                                     w['center'][1] + box['y'])
-                    return w, self.npa
+                    return w, reg
 
-        return None, self.npa
+        return None, reg
 
     def flat_text_button(self, text, reg=None, 
-                         delay=0.1, pause=1, retries=1, verbose=0):
+                         delay=0.1, pause=1, retries=1, 
+                         invert=False, process=False, verbose=0):
         button = self.ocr.regex(text, 
                                 reg=reg, 
                                 retries=retries,
+                                invert=invert, process=process,
                                 pause=pause,
                                 verbose=verbose)
  
-        if button is not None and len(button) > 0:
-            self.correct_button_positon(self.reg, button)
+        # if button is not None and len(button) > 0:
+        #     self.correct_button_positon(self.reg, button)
         return button, reg
 
     def _generic_button(self, 

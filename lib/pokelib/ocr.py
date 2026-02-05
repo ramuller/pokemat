@@ -31,7 +31,6 @@ class Ocr:
         self.process = True
         self.color = 'gray'
         self.mode = 'word'
-        self.npa = None
 
     def set_mode(self, mode):
         self.mode = mode
@@ -136,7 +135,9 @@ class Ocr:
         self.process = process
         return self.read(reg, verbose=verbose)
 
-    def regex(self, regex, reg : ScreenRegion=None, retries=1, pause=1, verbose=0):
+    def regex(self, regex, reg : ScreenRegion=None, retries=1, invert=False, 
+              process=False,
+              pause=1, verbose=0):
         for tries in range(retries, 0, -1):
             reg.npa = None
             lines, reg = self.read_and_npa(reg, verbose=verbose)
