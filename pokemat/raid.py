@@ -7,6 +7,7 @@ import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
+from pokelib import ScreenRegion
 
 import json
 import sys
@@ -21,18 +22,22 @@ def raid(port):
         if b:
             sleep(1)
     b = phone.buttons.dark('BATTLE')
-    sleep(1.5)
+    sleep(2.5)
     for y in range(phone.rel_y(0.5), phone.rel_y(0.8), phone.rel_y(0.05)):
         print(y)
         sleep(0.1)
         phone.tap_screen(phone.rel_x(0.5), y, scale=False)
-    time.sleep(2)
-    phone.tap_screen(650,1500)
+    phone.reg
     time.sleep(8)
     while phone.color_match(368, 203, 16, 146, 175):
         print("Wait for start")
         time.sleep(3)
+    
+    reg = ScreenRegion(phone, ye=phone.rel_y(0.15))
+    lines = phone.orc.read(reg)
+    
     print("Raid starts")
+    reg
     # self.color_match(500, 144, 70, 207, 181)
     while True:
         try:

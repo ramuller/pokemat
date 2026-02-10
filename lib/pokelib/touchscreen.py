@@ -482,7 +482,8 @@ class TouchScreen:
         return "stop_no"
     
     def screen_is_egg(self):
-        t, _ = self.ocr.regex('.*Oh.*')
+        reg = ScreenRegion(self, ye=self.rel_y(0.5))
+        t = self.ocr.regex('.*Oh.*', reg)
                                  
         if not t:
             return False

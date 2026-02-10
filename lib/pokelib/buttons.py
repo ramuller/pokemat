@@ -83,6 +83,9 @@ ICONS_PATH = {
         'red_7': 'red-7.png',
         'red_8': 'red-8.png',
         'red_9': 'red-9.png',
+        'white_1': 'white-1.png',
+        'white_2': 'white-2.png',
+        'white_3': 'white-3.png',
     },
     'catch_berry': {
         'catch_berry': 'catch_berry.png',

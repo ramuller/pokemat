@@ -44,6 +44,8 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
             elif p.buttons.i_exits.press(retries=1):
                 p.screen.go_home()
                 return True
+            else:
+                p.tap_screen(p.rel_x(0.5), p.rel_y(0.5))
             sleep(0.3)
         print("Ball ready")
 
