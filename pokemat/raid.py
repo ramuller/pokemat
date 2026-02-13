@@ -13,31 +13,42 @@ import json
 import sys
 from datetime import datetime
 
+def wait_raid_start(p, start=True):
+    startTime = datetime.now()
+    while  (datetime.now() - startTime).total_seconds() < 120:
+        reg = ScreenRegion(p, ye=p.rel_y(0.15))
+        lines = p.ocr.read(reg)
+        print(lines)
+        for l in lines:
+            if start:
+                if not l['text'] in ['QUIT','ITEMS', 'GROUP','CODE']:
+                    return True
+            else:
+                if l['text'] in ['QUIT','ITEMS', 'GROUP','CODE']:
+                    return True
+        sleep(3)
+
 def raid(port):
-    print("Start evolutions on port {}", port)
+    print("Start raid on port {}", port)
     phone = TouchScreen(port)
-    b = phone.buttons.dark('BATTLE', retries=1)
+    b = phone.buttons.dark('.*BATTLE.*', retries=10)
     if not b:
         b = phone.buttons.i_exits.press()
         if b:
             sleep(1)
-    b = phone.buttons.dark('BATTLE')
+    # b = phone.buttons.dark('BATTLE')
     sleep(2.5)
-    for y in range(phone.rel_y(0.5), phone.rel_y(0.8), phone.rel_y(0.05)):
-        print(y)
-        sleep(0.1)
-        phone.tap_screen(phone.rel_x(0.5), y, scale=False)
-    phone.reg
-    time.sleep(8)
-    while phone.color_match(368, 203, 16, 146, 175):
-        print("Wait for start")
-        time.sleep(3)
+    # for y in range(phone.rel_y(0.5), phone.rel_y(0.8), phone.rel_y(0.05)):
+    #    print(y)
+    #     sleep(0.1)
+    #    phone.tap_screen(phone.rel_x(0.5), y, scale=False)
+    # while phone.color_match(368, 203, 16, 146, 175):
+    #     print("Wait for start")
     
-    reg = ScreenRegion(phone, ye=phone.rel_y(0.15))
-    lines = phone.orc.read(reg)
-    
+    wait_raid_start(phone, start=False)
+    wait_raid_start(phone)
     print("Raid starts")
-    reg
+
     # self.color_match(500, 144, 70, 207, 181)
     while True:
         try:

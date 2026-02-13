@@ -138,6 +138,8 @@ class Ocr:
     def regex(self, regex, reg : ScreenRegion=None, retries=1, invert=False, 
               process=False,
               pause=1, verbose=0):
+        if reg is None:
+            reg = ScreenRegion(self.ts)
         for tries in range(retries, 0, -1):
             reg.npa = None
             lines, reg = self.read_and_npa(reg, verbose=verbose)
