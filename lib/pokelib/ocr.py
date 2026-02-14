@@ -109,11 +109,15 @@ class Ocr:
                 concatenated[-1]['text'] += ' ' + w['text']
         return concatenated
     
-    def read_and_npa(self, reg : ScreenRegion=None,verbose=0):
+    def read_and_npa(self, reg : ScreenRegion=None,
+                     mode='word',
+                     verbose=0):
         reg = reg or ScreenRegion(self.ts)
         if reg.npa is None:
             reg.npa = self.image.scan_region(reg)
-        reg.nwa= self.image.process_array(reg.npa, self.invert, self.process, verbose=verbose)
+        reg.nwa= self.image.process_array(reg.npa, 
+                                          self.invert, 
+                                          self.process, verbose=verbose)
         t = self._tesserocr_from_array(reg, verbose=verbose)
         return t, reg
 
@@ -135,8 +139,10 @@ class Ocr:
         self.process = process
         return self.read(reg, verbose=verbose)
 
-    def regex(self, regex, reg : ScreenRegion=None, retries=1, invert=False, 
+    def regex(self, regex, reg : ScreenRegion=None, retries=1, 
+              invert=False, 
               process=False,
+              mode='word',
               pause=1, verbose=0):
         if reg is None:
             reg = ScreenRegion(self.ts)

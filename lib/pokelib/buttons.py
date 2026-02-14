@@ -436,10 +436,10 @@ class Buttons(ButtonParameter):
                                     ye=int(ts.specs['max_y'] * 0.90))
         tb=0.02
         self.i_catch_ball = IconButton(ts, 'catch_ball',
-                                    xs=int(ts.specs['max_x'] * (0.45 - tb)),
-                                    xe=int(ts.specs['max_x'] * (0.56 + tb)),
-                                    ys=int(ts.specs['max_y'] * (0.88 - tb)),
-                                    ye=int(ts.specs['max_y'] * (0.96 + tb)))
+                                    xs=int(ts.specs['max_x'] * (0.43 - tb)),
+                                    xe=int(ts.specs['max_x'] * (0.58 + tb)),
+                                    ys=int(ts.specs['max_y'] * (0.85 - tb)),
+                                    ye=int(ts.specs['max_y'] * (0.98 + tb)))
         
         self.i_catch_berry = IconButton(ts, 'catch_berry',
                                     xs=int(ts.specs['max_x'] * 0.07),

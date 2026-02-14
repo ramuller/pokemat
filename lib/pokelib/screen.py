@@ -27,8 +27,8 @@ class Screen:
     # battle - battle screen
     # gym - gym battle screen
     # menu -
-    def get_current_screen(self, verbose=0):
-        if self.ts.buttons.i_pokeball.search(verbose=verbose):
+    def get_current_screen(self, verbose=0, retries=1):
+        if self.ts.buttons.i_pokeball.search(verbose=verbose, retries=retries):
             return 'home'
         else:
             return 'unknown'
@@ -46,6 +46,15 @@ class Screen:
         else:
             return True
 
+    def is_in_lobby(self):
+        reg = ScreenRegion(self.ts, ye=self.ts.rel_y(0.15))
+        lines = self.ts.ocr.read(reg)
+        for l in lines:
+            if l['text'] in ['QUIT','ITEMS', 'GROUP','CODE']:
+                return True
+        return False
+
+       
     def is_pokestop(self):
         if not self.ts.buttons.i_poke_stop_check.search(retries=1):
             return False

@@ -36,7 +36,7 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
             if p.screen.get_current_screen() == 'home':
                 print('On homescreen')
                 return False
-            elif p.buttons.i_catch_ball.search(retries=1) is not None:
+            elif p.buttons.i_catch_ball.search(retries=1, verbose=0) is not None:
                 print("Ball found")
                 break
             elif p.buttons.text_only.search('BERRIES', ys=p.rel_y(0.6)):
@@ -90,6 +90,7 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
             d = distance + randrange(-span,span)
         else:
             d = distance
+        p.tap_screen(3, int(p.specs['max_y'] * 0.5), scale=False)
         print("distance {}".format(d))
         for i in range(20):
             if p.buttons.i_catch_ball.search(retries=1) is not None:
