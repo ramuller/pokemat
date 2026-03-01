@@ -11,7 +11,7 @@ from pokelib import PokeArgs
 import json
 import sys
 from datetime import datetime
-from delete_balls import delete_red_balls
+# from delete_balls import delete_red_balls
 
 def deleteRedBalls(phone):
     phone.screen_go_to_home()
