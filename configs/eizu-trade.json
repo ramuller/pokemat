@@ -3,7 +3,7 @@
     "league": "master",
     "host": { 
         "port": "3005",
-        "name": "pokeeizu",
+        "name": "gimmi222",
 		"filterx": "floette & !3* & !norade & !traded & !favorite",
 		"filter": "xp1 & !norade & !traded & !favorite"
    },
