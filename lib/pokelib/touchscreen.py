@@ -1546,27 +1546,17 @@ class TouchScreen:
                             break
                 
                 return in_battle
-            
-            # while not self.color_match(79, 357, 212, 227, 217) \
-            #     and not self.color_match(76, 360, 240, 240, 240):
-            #     time.sleep(0.1)
-            def balls_visible():
-                if not self.color_match(164, 222, 246, 14, 29) \
-                    and not self.color_match(161, 218, 240, 38, 20):
-                    return False
-                return True
 
-            
             if not in_battle:
-                print("Wait for trainer")
+                print("Wait battle start")
                 time_out_s = 90
                 start_time = datetime.now()
-                while not balls_visible():
+                while not self.buttons.i_go_out_bright.search(retries=1):
                     # print("Wait for trainer")
                     if ((datetime.now() - start_time).total_seconds()) > time_out_s:
                         print("Battle did not start in time")                        
                         return
-                    sleep(0.001)
+                    sleep(1)
 
             time_out_s = 5 * 60
 
@@ -1574,7 +1564,7 @@ class TouchScreen:
             
             print("Start battle")
             
-            while still_in_battle():
+            while self.buttons.i_go_out_bright.search(retries=1):
                 if ((datetime.now() - start_time).total_seconds()) > time_out_s:
                     print("Battle timed out after {}s".format(time_out_s))                        
                     return

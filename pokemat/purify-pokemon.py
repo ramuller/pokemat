@@ -16,45 +16,50 @@ import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
+from pokelib import ScreenRegion
 
 import json
 import sys
 from datetime import datetime
 from _operator import truediv
-from skimage.filters.rank.generic import threshold
 
 global log
 
-def delete_pokemon(port, phone):
+def delete_pokemon(port):
     
     can_get_gifts = True
     can_send_gifts = True
     # with open("phone-spec.json", 'r') as file:
     #     phones = json.load(file)
         
-    print("Delete difts phone \"{}\" on port {}", phone, port)
-    phone = TouchScreen(port, phone)
+    print("Purify on port {}", port)
+    phone = TouchScreen(port)
     while True:
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
-            phone.tap_screen(189, 792)
+            ys = phone.rel_y(0.30)
+            while not phone.buttons.text_only.press('...*', ys=ys):
+                sleep(1)
+
+            # phone.tap_screen(189, 792)
             sleep(1)
-            print("Click menu")
-            phone.scroll(0, -100)
-
-            for y in range(1700, 1998, 2):
-                if phone.color_match(144, y, 231, 128, 183):
-                    print("Tap purify")
-                    phone.tap_screen(144, y)
-                    sleep(1)
-                    break
-
-            phone.color_match_wait_click(376, 1148, 145, 218, 152)
+            sx = int(phone.specs['width'] // 2 )
+            sy = int(phone.specs['max_y'] * 0.5)           
+            phone.scroll(0, int(phone.specs['max_y'] * -0.6), 
+                     start_x=sx, start_y=sy, scale=False)
+            phone.buttons.dark('PURIFY')
+            sleep(1)
+            phone.buttons.dark('YES')
             sleep(10)
-            print("Ready")
-            phone.color_match_wait_click(505, 1880, 28, 135, 149)
-            sleep(3)
-            # sys.exit(0)
+            for i in range(30):
+                r = phone.ocr.regex('.*kg',ScreenRegion(phone, ys=phone.rel_y(0.5)))
+                if r:
+                    break
+                sleep(1)
+            phone.buttons.i_exits.press()
+            sleep(1.6)
+            print("Click menu")
+
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
             sys.exit(1)
@@ -72,7 +77,7 @@ def main():
     log = logging.getLogger("gifting")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    delete_pokemon(args.port, args.phone)
+    delete_pokemon(args.port)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

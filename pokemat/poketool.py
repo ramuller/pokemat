@@ -9,6 +9,9 @@ from pokelib.buttons import ButtonParameter
 from pokelib import ScreenRegion
 from pokelib import TextOnly, Coordinates,ButtonParameter 
 from pokelib import IconButton, TextButton
+
+from hybrid_icon_detector import IconDetector
+
 import logging
 
 import json
@@ -16,6 +19,8 @@ import sys
 import re
 from datetime import datetime
 from time import sleep
+
+import numpy as np
 
 
 def _int(x, d='y'):
@@ -40,7 +45,7 @@ def _set_paramters_from_args():
     if args.xe == 0:
         reg.xe = phone.specs['max_x']
     else:    
-        reg.xe = _int(args.xe)
+        reg.xe = _int(args.xe, d='x')
 
     if args.ys != 0:
         reg.ys = _int(args.ys, d='y')
@@ -49,6 +54,9 @@ def _set_paramters_from_args():
     else:    
         reg.ye = _int(args.ye)
 
+    reg.tl = args.tl
+    reg.th = args.th
+    reg.color = args.color
     reg.invert = args.invert
     reg.process = args.process
     reg.mode = args.mode
@@ -64,8 +72,29 @@ def _post_process(reg):
         phone.image.save_image(reg.nwa, path)
         print(f'Saved image to {path}')
 
+def find_rgb():
+    reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.5))
+    bw_reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.5))
+    reg.npa = phone.image.scan_region(reg)
+    for r in range(250, 100, -20):
+        g = r * 87 // 180
+        b = r * 73 // 180
+        vf  = f'r{r}-g{g}-b{b}'
+        print(vf)
+        bw_reg.npa = phone.image.find_rgb(reg, r, g, b, wait=1, verbose=10)
+        det = phone.buttons.i_grunt_r.search(cust_reg=bw_reg, retries=1)
+        print(det)
+        if args.name:
+            fn = f'{phone.config_path}/icons/screen-shots/{args.name}-{vf}.png'
+            print(f'Save {fn }')
+            phone.image.save_image(bw_reg.npa, fn)
+    lines, reg = phone.ocr.read_and_npa(reg, mode='line')
+    print(lines)    
+
+
 def _schow_screen(reg):
     reg.npa = phone.image.scan_region(reg)
+    phone.image.show_image(reg.npa, wait=int(args.show_time), title='Screen shoot')
     return phone.image.show_image(reg.npa, wait=int(args.show_time), title='Screen shoot')
 
 def read():
@@ -86,7 +115,7 @@ def read():
 
 def snapshot ():
 
-    reg = ScreenRegion(phone)
+    reg = ScreenRegion(phone, color=args.color)
     print("Press 'q' to not save anything")
     k = _schow_screen(reg)
     print(f"Got key {str(k)}")
@@ -208,7 +237,8 @@ def raw_button():
     else:
         print(f'Unknown button kind {args.kind}')
         return
-    res = b(args.text, 
+    res = b(args.text,
+            reg=reg,
             action=args.press, 
             delay=args.delay, 
             retries=1, 
@@ -238,6 +268,7 @@ def my_callback(ts, det):
 
 def my_test():
     phone.screen.go_home()
+    return True
     test_button_callback()
     b = IconButton(phone, 'pokeball',
                     xs=phone.rel_x(0.38),
@@ -256,14 +287,24 @@ def my_test():
         print(d)
         sleep(2)
 
+def yuv():
+    reg = _set_paramters_from_args()
+    reg.color = 'rgb'
+    reg.npa = phone.image.scan_region(reg)
+    phone.image.show_image(reg.npa[0], 'bw component')
+    phone.image.show_image(reg.npa[1], 'u component')
+    phone.image.show_image(reg.npa[2], 'v component')
+
 def action(port, arg = None):
-    global phone
     print('Start testing port {}',port)
     global phone
     phone = TouchScreen(port)
     startTime = datetime.now()
+  
     if command == 'read':
         ret = read()
+    elif re.match('yu.*', command):
+        ret = yuv()
     elif re.match('raw.*', command):
         ret = raw_button()
     elif command == 'screen':
@@ -278,6 +319,8 @@ def action(port, arg = None):
         ret = icon()
     elif re.match('bal.*', command):
         ret = ball()
+    elif re.match('find.*', command):
+        ret = find_rgb()
     elif re.match('test*', command):
         ret = my_test()
     else:
@@ -313,14 +356,20 @@ def main():
                         help='x start.')
     parser.add_argument('--ye', action='store', required=False, default=0, \
                         help='x start.')
+    parser.add_argument('--tl', action='store', required=False, default=0, \
+                        help='threshold low.', type=int)
+    parser.add_argument('--th', action='store', required=False, default=255, \
+                        help='threshold high.', type=int)
     parser.add_argument('--count', action='store', required=False, default=1, \
-                        help='If something can repeat.')
+                        help='If something can repeat.', type=int)
     parser.add_argument('--invert', action='store_true', default=False, \
                         help='x start.')
     parser.add_argument('--name', action='store', required=False, default=None, \
                         help='If defined store picture with this name.')
     parser.add_argument('--save', action='store', required=False, default=None, \
                         help='Store picture with this name.')
+    parser.add_argument('-c', '--color', action='store', required=False, default='gray', \
+                        help='Color mode.')
     parser.add_argument('--text', action='store', required=False, default=None, \
                         help='Where ever text is needed, e.g. button text or input text.')
     parser.add_argument('--kind', action='store', required=False, default='dark', \

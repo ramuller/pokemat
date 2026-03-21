@@ -115,9 +115,8 @@ class Ocr:
         reg = reg or ScreenRegion(self.ts)
         if reg.npa is None:
             reg.npa = self.image.scan_region(reg)
-        reg.nwa= self.image.process_array(reg.npa, 
-                                          self.invert, 
-                                          self.process, verbose=verbose)
+        reg.nwa= self.image.process_array(reg, verbose=verbose)
+        self.mode = mode
         t = self._tesserocr_from_array(reg, verbose=verbose)
         return t, reg
 

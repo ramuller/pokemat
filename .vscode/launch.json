@@ -11,20 +11,25 @@
 
     },
     {
-      "name": "poketool test",
+      "name": "poketool my_test",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "test"
+      ]
+    },
+    {
+      "name": "poketool YUV",
       "extends": "Base",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/poketool.py",
       "console": "integratedTerminal",
       "args": [
-        "test",
-        "--xs", "0",
-        "--xe", "0",
-        "--ys", "50%",
-        "--ye", "0",
-        "--count", "5",
-        "--name", "test"
+        "yuv",
       ],
     },
     {
@@ -40,8 +45,9 @@
         "--xe", "0",
         "--ys", "50%",
         "--ye", "0",
-        "--count", "5",
-        "--name", "test"
+        "--count", "1",
+        "--name", "test",
+        "--color", "rgb"
       ],
     },
     {
@@ -91,16 +97,15 @@
       "args": [
         "raw_button",
         "--show",
-        "--kind",
-        "dark",
-        "--text",
-        "OK",
-        "--mode",
-        "line",
-        "--ys",
-        "20%",
+        "--color", "blue",
+        "--kind","dark",
+        "--text","PLAY",
+        "--mode", "line",
+        "--ys", "0%",
+        "--tl", "0",
+        "--th", "240",
         "--verbose",
-        "0"],
+        "10"],
       "comment":[
         "--invert",
         "--name",
@@ -346,8 +351,10 @@
       "extends": "Base",
       "request": "launch",
       "programm": "${workspaceFolder}/pokemat/start-gps.py",
-      "program": "${workspaceFolder}/pokemat/raid.py",
+      "programc": "${workspaceFolder}/pokemat/raid.py",
       "programb": "${workspaceFolder}/pokemat/autocatch.py",
+      "programz": "${workspaceFolder}/pokemat/purify-pokemon.py",
+      "program": "${workspaceFolder}/pokemat/grunt.py",
       "console": "integratedTerminal",
       "args": [
       ]

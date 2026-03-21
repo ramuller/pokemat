@@ -29,19 +29,56 @@ class PokeImage:
                 pixel_array = np.array(jbuf["gray"], dtype=np.uint8).reshape((jbuf["height"], jbuf["width"]))
             else:
                 jbuf = self.ts.screen_capture((x, y), (w, h), scale=False)
-                rgb = self.yuv420_dict_to_rgb(jbuf)
-                if reg.color == "red":
-                    pixel_array = np.array(rgb[:, :, 0], dtype=np.uint8).reshape(h, w)
-                elif reg.color == "green":
-                    pixel_array = np.array(rgb[:, :, 1], dtype=np.uint8).reshape(h, w)
-                elif reg.color == "blue":
-                    pixel_array = np.array(rgb[:, :, 2], dtype=np.uint8).reshape(h, w)
+                if reg.color == "yuv":
+                    g = np.array(jbuf["gray"], dtype=np.uint8).reshape(h, w)
+                    u = np.array(jbuf["u"], dtype=np.uint8).reshape(h//2, w//2)
+                    v = np.array(jbuf["v"], dtype=np.uint8).reshape(h//2, w//2)
+                    pixel_array = (g, u ,v)
+                else:
+                    rgb = self.yuv420_dict_to_rgb(jbuf)
+                    if reg.color == "red":
+                        pixel_array = np.array(rgb[:, :, 0], dtype=np.uint8).reshape(h, w)
+                    elif reg.color == "green":
+                        pixel_array = np.array(rgb[:, :, 1], dtype=np.uint8).reshape(h, w)
+                    elif reg.color == "blue":
+                        pixel_array = np.array(rgb[:, :, 2], dtype=np.uint8).reshape(h, w)
+                    elif reg.color == "rgb":
+                        pixel_array = np.array(rgb, dtype=np.uint8).reshape(h, w, 3)
             return pixel_array
         except Exception as e:
-            print('Exception')
+            print(f'Exception {e}')
     
     
-   
+    def find_rgb(self, reg, r, g, b, t = 20, verbose=0, wait=5):
+
+        work_reg = reg
+        data = work_reg.npa
+        rl = r -t
+        ru = r + t
+        gl = g - t
+        gu = g + t
+        bl = b - t
+        bu = b + t
+    
+        # Create masks for each channel
+        red_mask = (data[..., 2] >= rl) & (data[..., 2] <= ru)
+        green_mask = (data[..., 1] >= gl) & (data[..., 1] <= gu)
+        blue_mask = (data[..., 0] >= bl) & (data[..., 0] <= bu)
+
+        # Combine masks to find triplets satisfying all conditions
+        combined_mask = red_mask & green_mask & blue_mask
+
+        # Get the triplets (R, G, B) that fall within the specified ranges
+        triplets_in_range = work_reg.npa[combined_mask]
+        print(f'len {len(triplets_in_range)}')
+        ra = ~combined_mask
+        int_mask = ~combined_mask.astype(np.uint8) * 255
+        int_mask = ra.astype(np.uint8) * 255
+        if verbose >= 5:
+            self.show_image(int_mask, wait=wait*1000, title='Filter')
+
+        return int_mask
+  
     def save_image(self, img, filename):
         im = Image.fromarray(img)
         im.save(filename)
@@ -80,20 +117,24 @@ class PokeImage:
         B = np.clip(B, 0, 255).astype(np.uint8)
     
         # Make RGB image (H, W, 3)
-        rgb = np.stack([R, G, B], axis=-1)
+        # rgb = np.stack([R, G, B], axis=-1)
+        rgb = np.stack([B, G, R], axis=-1)
         return rgb
 
-    def boxes_get(self, npa, verbose=0, pad=10):
+    def boxes_get(self, reg, verbose=0, pad=10):
         # self.ts.sc.show_image(img, wait=1000, title='unprocessed')
-        npa = cv2.normalize(npa, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+        reg.npa = cv2.normalize(reg.npa, None, 
+                                alpha=reg.tl, beta=reg.th, 
+                                norm_type=cv2.NORM_MINMAX)
+        
         candidates = []
-        H, W = npa.shape
+        H, W = reg.npa.shape
         if verbose > 2:
                 print(f'boxes NPA : H{H},W{W}')
 
-        edges = cv2.Canny(npa, 50, 150)
+        edges = cv2.Canny(reg.npa, 50, 150)
         if verbose > 9:
-            cv2.imshow('boxes full area', npa)
+            cv2.imshow('boxes full area', reg.npa)
             cv2.waitKey(1000)
             cv2.destroyAllWindows()
         contours, _ = cv2.findContours(
@@ -142,31 +183,42 @@ class PokeImage:
             for d in unique:
                 x, y, w, h = d
                 # clip area
-                ycs = y + pad
-                yce = y + h - pad
                 xcs = x + pad
                 xce = x + w - pad
-                boxes.append({'rois': npa[
-                    # y+pad : y+h-pad,
-                    ycs : yce,
-                    # x+pad : x+w-pad
-                    xcs : xce
-                    ],
-                    'x': xcs, 'y': ycs 
-                    })
+                ycs = y + pad
+                yce = y + h - pad
+                br = ScreenRegion(reg.ts,
+                                invert = reg.invert, 
+                                process =reg.process,
+                                xs=xcs, ys=ycs,
+                                xe=xce, ye=yce)
+                br.npa = reg.npa[ycs : yce, xcs : xce]
+
+                boxes.append(br)
+                # boxess.append({'rois': reg.npa[
+                #     # y+pad : y+h-pad,
+                #     ycs : yce,
+                #     # x+pad : x+w-pad
+                #     xcs : xce
+                #     ],
+                #     'x': xcs, 'y': ycs 
+                #     })
                 if verbose > 5:
-                    self.ts.image.show_image(boxes[-1]['rois'], wait=1000, title='apended box')
+                    self.ts.image.show_image(boxes[-1].npa, wait=1000, title='apended box')
         return boxes
     
-    def process_array(self, npa, invert, process, verbose=0):
+    def process_array(self, reg, verbose=0):
         try:
-            if invert:
+            if reg.invert:
                 npa = cv2.bitwise_not(npa)
             if not process:
                 return npa
-            npa = cv2.normalize(npa, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+            npa = cv2.normalize(reg.npa, 
+                                None, 
+                                alpha=reg.tl, beta=reg.lh, 
+                                norm_type=cv2.NORM_MINMAX)
             npa = cv2.adaptiveThreshold(
-                npa,
+                reg.npa,
                 255,
                 cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                 cv2.THRESH_BINARY,
@@ -175,4 +227,4 @@ class PokeImage:
             )
         except Exception as e:
             print('e')
-        return npa
+        return reg

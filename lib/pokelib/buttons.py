@@ -77,6 +77,9 @@ ICONS_PATH = {
     'route_pause': {
         'route_pause': 'route_pause.png',
     },
+    'go_out_bright': {
+        'go_out_bright': 'go_out_bright.png'
+    },
     'catch_ball': {
         'red_5': 'red-5.png',
         'red_6': 'red-6.png',
@@ -108,6 +111,12 @@ ICONS_PATH = {
     },
     'test_button': {
         'test_button': 'screen-shots/test_button.png',
+    },
+    'grunt_r': {
+        'grunt_r_1': 'grunt-r-1.png',
+        'grunt_r_2': 'grunt-r-2.png',
+        'grunt_r_3': 'grunt-r-3.png',
+        'grunt_r_4': 'grunt-r-4.png',
     },
     'x_clear_text': {
         'x_clear_button': 'x_clear_text.png',
@@ -316,7 +325,8 @@ class IconButton(ButtonParameter):
             if verbose > 1:
                 self.ts.log.debug("Icon button not found.") 
         
-    def search(self, 
+    def search(self,
+               cust_reg=None,
                 threshold=0.8,
                 retries=3,
                 pause=1,
@@ -328,11 +338,15 @@ class IconButton(ButtonParameter):
         tries = 0
         while True:
             tries += 1
-            self.reg.npa = self.pi.scan_region(self.reg)
+            if cust_reg:
+                work_reg=cust_reg
+            else:
+                self.reg.npa = self.pi.scan_region(self.reg)
+                work_reg = self.reg
 
             if verbose > 5:
-                self.ts.image.show_image(self.reg.npa, wait=1000, title='button-area')
-            dets = self.detector.detect(self.reg.npa)
+                self.ts.image.show_image(work_reg.npa, wait=1000, title='button-area')
+            dets = self.detector.detect(work_reg.npa)
             # highest score and det with highest score
             hs = -1
             hdet = None
@@ -477,12 +491,18 @@ class Buttons(ButtonParameter):
                                     xe=int(ts.specs['max_x'] * 0.6),
                                     ys=int(ts.specs['max_y'] * 0.5),
                                     ye=int(ts.specs['max_y'] * 0.7))
+        self.i_go_out_bright = IconButton(ts, 'go_out_bright',
+                                    xs=int(ts.specs['max_x'] * 0.02),
+                                    xe=int(ts.specs['max_x'] * 0.16),
+                                    ys=int(ts.specs['max_y'] * 0.12),
+                                    ye=int(ts.specs['max_y'] * 0.25))
         self.i_x_clear_text = IconButton(ts, 'x_clear_text',
                                         xs=ts.rel_x(0.75),
                                         xe=ts.rel_x(0.99),
                                         ys=ts.rel_y(0.20),
                                         ye=ts.rel_y(0.50))
         self.i_fake_app = IconButton(ts, 'fake_app')
+        self.i_grunt_r = IconButton(ts, 'grunt_r')
         self.i_fake_3dot = IconButton(ts, 'fake_3dot',
                                     ye=int(ts.specs['max_y'] * 0.2))
         self.i_fake_map = IconButton(ts, 'fake_map',
@@ -513,21 +533,17 @@ class Buttons(ButtonParameter):
         if reg.npa is None:
             reg.npa = self.ts.image.scan_region(reg)
     
-        boxes = self.image.boxes_get(reg.npa, verbose=verbose)            
+        boxes = self.image.boxes_get(reg, verbose=verbose)            
 
         for box in boxes:
-            box_reg = ScreenRegion(self.ts) # , xs=box['x'], ys=box['y'])
-            box_reg.npa = self.image.process_array(box['rois'], 
-                                            self.ocr.invert,
-                                            self.ocr.process,
-                                            verbose=verbose)
+            box = self.image.process_array(box, verbose=verbose)
             
             if verbose > 5:
-                self.ts.image.show_image(box_reg.npa, wait=000, title='button-candidate-preprocessed')
-            if box_reg.npa is None:
+                self.ts.image.show_image(box.npa, wait=000, title='button-candidate-preprocessed')
+            if box.npa is None:
                 continue
 
-            words = self.ocr._tesserocr_from_array(box_reg)
+            words = self.ocr._tesserocr_from_array(box)
             # texts = self._concat_tesserocr_results(words)
             for w in words:
                 if verbose > 2:
@@ -536,12 +552,10 @@ class Buttons(ButtonParameter):
                     # self.ts.sc.show_image(roi, wait=000, title='button-candidate-preprocessed')
                     # w['left'] += box['x'] + w['left'] + self.ocr.startx
                     # Add region offset to box offset
-                    box['x'] += reg.xs
-                    box['y'] += reg.ys
-                    w['left'] = box['x'] + w['left']
-                    w['top']  = box['y'] + w['top']
-                    w['center'] = (w['center'][0] + box['x'], \
-                                    w['center'][1] + box['y'])
+                    w['left'] = reg.xs + box.xs + w['left']
+                    w['top']  = reg.ys + box.xs + w['top']
+                    w['center'] = (w['center'][0] + w['left'], \
+                                   w['center'][1] + w['top']) 
                     return w, reg
 
         return None, reg
@@ -567,6 +581,7 @@ class Buttons(ButtonParameter):
                         action='press', 
                         retries=3,
                         delay=0.01,
+                        call_back=None,
                         verbose=0):
         reg = reg or ScreenRegion(self.ts)
         ret = None
@@ -574,23 +589,24 @@ class Buttons(ButtonParameter):
             reg.npa = None
             print(f'Retry - {retries}')
             button, _ = method(text, reg,
-                                 verbose=0)
+                                 verbose=verbose)
             if button:
                 if action == 'press':
                     if verbose > 2:
                         print(f"Pressing button '{text}' at {button['center']} with delay {delay}s")
                     sleep(delay)
                     self.ts.tap_screen(button['center'], scale=False)
-
-
-
                     ret = button
                     break
-                elif action == 'check':
+                elif action == 'check' or action == 'search':
                     ret = button
                     break
             retries -= 1
             if retries > 0:
+                if call_back:
+                    r = call_back()
+                    if r:
+                        return r
                 sleep(0.7)
         return ret
 

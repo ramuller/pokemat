@@ -11,6 +11,7 @@ from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import WatchDog
 from pokelib import PokeArgs
+from pokelib import ScreenRegion
 
 from catch import catch
 from reconnect import connect
@@ -160,27 +161,18 @@ def select_team(phone):
         print("Wait go battle")
     return start
 
-def prepare_battle(phone):
-    if not select_team(phone):
-        return False
-
-    # try:
-    #     phone.color_match_wait_click(338, 1779, 162, 220, 148, threashold=20, time_out_ms = 15500)
-    # except:
-    #     pass
-    # watch_dog.reset()
-
+def start_battle(phone):
     startTime = datetime.now()
-    while not phone.black_screen():
-        if ((datetime.now() - startTime).total_seconds() * 1000) > 10000:
-            break
-        print("Wait black screen")
-        time.sleep(0.05)
-    while phone.black_screen():
-        if ((datetime.now() - startTime).total_seconds() * 1000) > 3000:
-            break
-        print("Wait black screen")
-        time.sleep(0.05)
+    # while not phone.black_screen():
+    #     if ((datetime.now() - startTime).total_seconds() * 1000) > 10000:
+    #         break
+    #     print("Wait black screen")
+    #     time.sleep(0.05)
+    # while phone.black_screen():
+    #     if ((datetime.now() - startTime).total_seconds() * 1000) > 3000:
+    #         break
+    #     print("Wait black screen")
+    #     time.sleep(0.05)
     print("do battle")
     phone.doBattle()
 
@@ -203,9 +195,30 @@ def prepare_battle(phone):
     # action(port, phone, berry = "g")
     print("Try to action")
     
+def find_grunt(phone):
+    reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.5))
+    bw_reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.5))
+    reg.npa = phone.image.scan_region(reg)
+    for r in range(250, 100, -15):
+        g = r * 87 // 180
+        b = r * 73 // 180
+        vf  = f'r{r}-g{g}-b{b}'
+        print(vf)
+        bw_reg.npa = phone.image.find_rgb(reg, r, g, b, wait=1, verbose=10)
+        det = phone.buttons.i_grunt_r.search(cust_reg=bw_reg, retries=1)
+        print(f'Detextion {det}')
+        if det:
+            x = det.center[0]
+            y = det.center[1]
+            y += det.quad[3][1] - det.quad[0][1]
+            phone.tap_screen(x, y, scale=False)
+            return det
+    return None
+
 def grunt(port):
     print("Looking for grunt \"{}\" on port {}", port)
     phone = TouchScreen(port)
+    phone.screen.go_home()
     try:
         phone.screen_go_to_home()
     except:
@@ -213,14 +226,14 @@ def grunt(port):
     # phone.dno_gruntoBattle()
     if args.autoconnect:
         connect(phone, del_balls=args.delete_balls)    
-    no_grunt = False
-    no_grunt = True
-    while no_grunt:
+    grunt = None
+    while not grunt:
         # rotate(phone)
         # if is_red_in_the_sky(phone):
         #     no_grunt = False
-        no_grunt = scan_sky(phone, print, no_grunt)
-        if not no_grunt:
+        # no_grunt = scan_sky(phone, print, no_grunt)
+        grunt = find_grunt(phone)
+        if grunt:
             time.sleep(1)
             if is_grunt_in_gym(phone):
                 no_grunt = False
@@ -235,68 +248,36 @@ def grunt(port):
     time.sleep(1)
     oponent = False
     try:
-        i = 4
-        no_grunt = True
-        go_out = 2
-        while i > 0:
-            i = i -1
-            print("Wait opponent and spin{}".format(i))
+        print("Wait opponent and spin{}")
+        phone.spin_disk()
+        ps = phone.buttons.i_poke_stop_check.search()
+        ps = phone.buttons.i_exits.press()
+        reg = ScreenRegion(phone, ys=phone.rel_y(0.55))
 
-            phone.spin_disk()
-            phone.tap_screen(498, 1824)
-            sleep(3)
-            print("after sleep")
-            if phone.color_match(506, 849, 206, 92, 51, threashold = 20) or \
-                   phone.color_match(506, 880, 206, 92, 51, threashold = 20) or \
-                   phone.color_match(611, 880, 206, 92, 51, threashold = 20) or \
-                   phone.color_match(620, 880, 206, 92, 51, threashold = 20):
-                phone.tap_screen(506, 849)
-                oponent = True
-                print("Opponent found")
-                i = 0
-                break
-            if phone.color_match(498, 1824, 235, 242, 242):
-                phone.tap_screen(498, 1824)
-            if phone.is_home():
-                print("Is home")
-                i = 0
-        print("oponent {}".format(oponent))
-        if not oponent:
-            print("No opponent found")
-    except Exception as e:
-        print(e)
-        pass
-    print("Wait battle")
+        def cb():
+            if phone.ocr.regex('.*Team|Grunt|seeing|many|been.*', reg=reg) \
+                or phone.buttons.dark('BATTLE', action='check'):
+                phone.tap_screen(phone.rel_x(.5), phone.rel_y(.5))
+            return False
+        if not phone.buttons.dark('BATTLE', call_back=cb, action='press', retries=30):
+            return
 
-    i = 10
-    start_grunt = False
-    while i > 0:
-        try:
-            print("Wait for battle")
-            battle, fs = phone.ocr_find_regex('BATTLE')
-            if battle:
-                g, fs = phone.ocr_find_regex('Grunt')
-                if g:
-                    print("Set start grunt to True")
-                    start_grunt = True
-                    i = 0
-                    break
-            phone.tap_screen(348, 1000)
-            sleep(0.5)
-            i -= 1
-            
-            # phone.color_match_wait_click(348, 1554, 151, 217, 149, threashold=20, time_out_ms = 1000)
-        except:
-            i = i -1
-    if start_grunt:
-        phone.tap_screen(battle['center'], scale=False)
-        sleep(0.5)
-        phone.tap_screen(battle['center'], scale=False)
-        prepare_battle(phone)
+        if not phone.buttons.dark('PARTY', call_back=None, action='search', retries=30):
+            return
+        phone.tap_screen(phone.rel_x(.98), phone.rel_y(.75), scale=False)
+        sleep(1)
+        if not phone.buttons.dark('PARTY', call_back=None, action='press', retries=30):
+            return
 
-        phone.screen_go_to_home()
-        phone.screen_go_to_home()
-        phone.heal_all()
+    except:
+        return
+
+    sleep(0.5)
+    start_battle(phone)
+
+    phone.screen_go_to_home()
+    phone.screen_go_to_home()
+    phone.heal_all()
 
 def wd_callback():
     print("Watchdog timeout strike just exit {}".format(threading.main_thread().native_id))
@@ -322,7 +303,7 @@ def main():
         try:
             grunt(args.port)
         except Exception as e:
-            print("Upps something went wrong but who cares?: {}", e)    # ts.click(200,200)
+            print(f'Upps something went wrong but who cares?: {e}')    # ts.click(200,200)
     print("end")
     watch_dog.kill()
     # ts.click(200,y)
