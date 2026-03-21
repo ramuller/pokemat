@@ -141,28 +141,14 @@ class ButtonNotFoundError(Exception):
     pass
 
 class ButtonParameter:
-    def __init__(self, ts, xs=0, xe=0, ys=0, ye=0,
-                 confidence=25.0, invert=False, process=False, \
-                 color='gray', delay= 0.01, mode='word', \
-                 search_callback=None, press_callback=None,
+    def __init__(self, reg: ScreenRegion, \
+                 confidence=25.0, delay= 0.01, \
+                 search_callback=None, press_callback=None, \
                  verbose=0):
-        self.ts = ts
-        self.reg = ScreenRegion(ts, xs=xs, xe=xe, ys=ys, ye=ye)
+        self.reg = reg
+        self.ts = reg.ts
         self.search_callback = search_callback
         self.press_callback = press_callback
-        if xe == 0:
-            xe = ts.specs['max_x']
-        if ye == 0:
-            ye = ts.specs['max_y']
-        self.xs = xs
-        self.xe = xe
-        self.ys = ys
-        self.ye = ye
-        self.confidence = confidence
-        self.invert = invert
-        self.process = process
-        self.color = color
-        self.mode = mode
         self.delay = delay
         self.verbose = verbose
 
@@ -191,17 +177,16 @@ class ButtonParameter:
                        b['center'][1] + reg.ys)
 
 class Coordinates(ButtonParameter):
-    def __init__(self, ts, xs=0, xe=0, ys=0, ye=0):
-        super.__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye)
+    def __init__(self, reg):
+        super.__init__(reg)
 
 '''
 Text only now extra surrounding
 '''
 class TextOnly(ButtonParameter):
-    def __init__(self, ts, invert=False, xs=0, xe=0, ys=0, ye=0):
-        super().__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye)
-        self.invert = invert
-        self.updated = False
+    def __init__(self, reg):
+        super().__init__(reg)
+
 
     def search(self, text,
                 xs=0, xe=0, ys=0, ye=0,               
@@ -245,10 +230,10 @@ class TextOnly(ButtonParameter):
 Text only now extra surrounding
 '''
 class TextFlat(ButtonParameter):
-    def __init__(self, ts, text="" , **kwargs):
-        super().__init__(ts, **kwargs)
-        self.reg = ScreenRegion(ts, self.xs, self.xe, self.ys, self.ye)
-        self.ocr = Ocr(ts)
+    def __init__(self, reg, text="" , **kwargs):
+        super().__init__(reg, **kwargs)
+        self.reg = reg
+        self.ocr = Ocr(reg.ts)
         self.text = text
         self.updated = False
 
@@ -266,10 +251,9 @@ class TextFlat(ButtonParameter):
 Button shape with text
 '''
 class TextButton(ButtonParameter):
-    def __init__(self, ts, text="", invert=False, xs=0, xe=0, ys=0, ye=0):
-        super().__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye)
+    def __init__(self, reg, text):
+        super().__init__(reg)
         self.text = text
-        self.reg.invert = invert
         self.updated = False
 
     def search(self,
@@ -298,8 +282,10 @@ class TextButton(ButtonParameter):
         
 
 class IconButton(ButtonParameter):
-    def __init__(self, ts, icons, **kwargs):
-        super().__init__(ts, **kwargs)
+    def __init__(self, reg, icons, **kwargs):
+        ts = reg.ts
+        # kwargs['reg'] = reg
+        super().__init__(reg, **kwargs)
         self._init_icons(icons)
         self.pi = PokeImage(ts)
         self.updated = False
@@ -382,148 +368,169 @@ class IconButton(ButtonParameter):
 
 
 class Buttons(ButtonParameter):
-    def __init__(self, ts, xs=0, xe=0, ys=0, ye=0):
-        super().__init__(ts, xs=xs, xe=xe, ys=ys, ye=ye)
-        self.ocr = Ocr(ts)
-        self.image = ts.image
-        self.text_only = TextOnly(ts, "")
-        self.i_pokeball = IconButton(ts, 'pokeball',
-                                    xs=int(ts.specs['max_x'] * 0.38),
-                                    xe=int(ts.specs['max_x'] * 0.62),
-                                    ys=int(ts.specs['max_y'] * 0.85),
-                                    ye=int(ts.specs['max_y'] * 0.97),
+    def __init__(self, reg):
+        super().__init__(reg)
+        self.ocr = Ocr(reg.ts)
+        self.image = reg.ts.image
+        self.text_only = TextOnly(reg)
+        ts = reg.ts
+        self.i_pokeball = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.38),
+                                        xe=int(ts.specs['max_x'] * 0.62),
+                                        ys=int(ts.specs['max_y'] * 0.85),
+                                        ye=int(ts.specs['max_y'] * 0.97)),
+                                    'pokeball',
                                     search_callback=_cb_pokeball)
-        self.i_exits = IconButton(ts, 'exits',
-                                    xs=int(ts.specs['max_x'] * 0.38),
-                                    xe=int(ts.specs['max_x'] * 0.62),
-                                    ys=int(ts.specs['max_y'] * 0.85),
-                                    ye=int(ts.specs['max_y'] * 0.97))
-        self.i_poke_stop_check = IconButton(ts, 'poke_stop_check',
-                                    xs=int(ts.specs['max_x'] * 0.38),
-                                    xe=int(ts.specs['max_x'] * 0.62),
-                                    ys=int(ts.specs['max_y'] * 0.15),
-                                    ye=int(ts.specs['max_y'] * 0.25))
-        self.i_has_gift = IconButton(ts, 'has_gift',
-                                    xs=int(ts.specs['max_x'] * 0.70),
-                                    xe=int(ts.specs['max_x'] * 0.98),
-                                    ys=int(ts.specs['max_y'] * 0.84),
-                                    ye=int(ts.specs['max_y'] * 0.99))
-        self.i_sort_has_gift = IconButton(ts, 'has_gift',
-                                    xs=int(ts.specs['max_x'] * 0.75),
-                                    xe=int(ts.specs['max_x'] * 0.98),
-                                    ys=int(ts.specs['max_y'] * 0.60),
-                                    ye=int(ts.specs['max_y'] * 0.85))
-        self.i_sort = IconButton(ts, 'sort',
-                                    xs=int(ts.specs['max_x'] * 0.70),
-                                    xe=int(ts.specs['max_x'] * 0.98),
-                                    ys=int(ts.specs['max_y'] * 0.80),
-                                    ye=int(ts.specs['max_y'] * 0.99))
-        self.i_change_sort = IconButton(ts, 'change_sort',
-                                    xs=int(ts.specs['max_x'] * 0.60),
-                                    xe=int(ts.specs['max_x'] * 0.98),
-                                    ys=int(ts.specs['max_y'] * 0.80),
-                                    ye=int(ts.specs['max_y'] * 0.99))
-        self.i_friends_gift = IconButton(ts, 'friends_gift',
-                                    xs=int(ts.specs['max_x'] * 0.20),
-                                    xe=int(ts.specs['max_x'] * 0.43),
-                                    ys=int(ts.specs['max_y'] * 0.32),
-                                    ye=int(ts.specs['max_y'] * 0.50))
-        self.i_friend_has_gift = IconButton(ts, 'friend_has_gift',
-                                    xs=int(ts.specs['max_x'] * 0.38),
-                                    xe=int(ts.specs['max_x'] * 0.62),
-                                    ys=int(ts.specs['max_y'] * 0.38),
-                                    ye=int(ts.specs['max_y'] * 0.57))
-        self.i_test_button = IconButton(ts, 'test_button',
-                                    xs=int(ts.specs['max_x'] * 0.38),
-                                    xe=int(ts.specs['max_x'] * 0.62),
-                                    ys=int(ts.specs['max_y'] * 0.38),
-                                    ye=int(ts.specs['max_y'] * 0.57))
-        self.i_gym_photo_disk = IconButton(ts, 'gym_photo_disk',
-                                    xs=int(ts.specs['max_x'] * 0.8),
-                                    xe=int(ts.specs['max_x']),
-                                    ys=int(ts.specs['max_y'] * 0.85),
-                                    ye=int(ts.specs['max_y']))
-        self.i_gym_defeat = IconButton(ts, 'gym_defeat',
-                                    xs=int(ts.specs['max_x'] * 0.8),
-                                    xe=int(ts.specs['max_x']),
-                                    ys=int(ts.specs['max_y'] * 0.75),
-                                    ye=int(ts.specs['max_y'] * 0.90))
+        self.i_exits = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.38),
+                                        xe=int(ts.specs['max_x'] * 0.62),
+                                        ys=int(ts.specs['max_y'] * 0.85),
+                                        ye=int(ts.specs['max_y'] * 0.97)),
+                                    'exits')
+        self.i_poke_stop_check = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.38),
+                                        xe=int(ts.specs['max_x'] * 0.62),
+                                        ys=int(ts.specs['max_y'] * 0.15),
+                                        ye=int(ts.specs['max_y'] * 0.25)),
+                                    'poke_stop_check')
+        self.i_has_gift = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.70),
+                                        xe=int(ts.specs['max_x'] * 0.98),
+                                        ys=int(ts.specs['max_y'] * 0.84),
+                                        ye=int(ts.specs['max_y'] * 0.99)),
+                                    'has_gift')
+        self.i_sort_has_gift = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.75),
+                                        xe=int(ts.specs['max_x'] * 0.98),
+                                        ys=int(ts.specs['max_y'] * 0.60),
+                                        ye=int(ts.specs['max_y'] * 0.85)),
+                                    'has_gift')
+        self.i_sort = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.70),
+                                        xe=int(ts.specs['max_x'] * 0.98),
+                                        ys=int(ts.specs['max_y'] * 0.80),
+                                        ye=int(ts.specs['max_y'] * 0.99)),
+                                    'sort')
+        self.i_change_sort = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.60),
+                                        xe=int(ts.specs['max_x'] * 0.98),
+                                        ys=int(ts.specs['max_y'] * 0.80),
+                                        ye=int(ts.specs['max_y'] * 0.99)),
+                                    'change_sort')
+        self.i_friends_gift = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.20),
+                                        xe=int(ts.specs['max_x'] * 0.43),
+                                        ys=int(ts.specs['max_y'] * 0.32),
+                                        ye=int(ts.specs['max_y'] * 0.50)),
+                                    'friends_gift')
+        self.i_friend_has_gift = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.38),
+                                        xe=int(ts.specs['max_x'] * 0.62),
+                                        ys=int(ts.specs['max_y'] * 0.38),
+                                        ye=int(ts.specs['max_y'] * 0.57)),
+                                    'friend_has_gift')
+        self.i_test_button = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.38),
+                                        xe=int(ts.specs['max_x'] * 0.62),
+                                        ys=int(ts.specs['max_y'] * 0.38),
+                                        ye=int(ts.specs['max_y'] * 0.57)),
+                                    'test_button')
+        self.i_gym_photo_disk = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.8),
+                                        xe=int(ts.specs['max_x']),
+                                        ys=int(ts.specs['max_y'] * 0.85),
+                                        ye=int(ts.specs['max_y'])),
+                                    'gym_photo_disk')
+        self.i_gym_defeat = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.8),
+                                        xe=int(ts.specs['max_x']),
+                                        ys=int(ts.specs['max_y'] * 0.75),
+                                        ye=int(ts.specs['max_y'] * 0.90)),
+                                    'gym_defeat')
         tb=0.02
-        self.i_catch_ball = IconButton(ts, 'catch_ball',
-                                    xs=int(ts.specs['max_x'] * (0.43 - tb)),
-                                    xe=int(ts.specs['max_x'] * (0.58 + tb)),
-                                    ys=int(ts.specs['max_y'] * (0.85 - tb)),
-                                    ye=int(ts.specs['max_y'] * (0.98 + tb)))
+        self.i_catch_ball = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * (0.43 - tb)),
+                                        xe=int(ts.specs['max_x'] * (0.58 + tb)),
+                                        ys=int(ts.specs['max_y'] * (0.85 - tb)),
+                                        ye=int(ts.specs['max_y'] * (0.98 + tb))),
+                                    'catch_ball')
         
-        self.i_catch_berry = IconButton(ts, 'catch_berry',
-                                    xs=int(ts.specs['max_x'] * 0.07),
-                                    xe=int(ts.specs['max_x'] * 0.18),
-                                    ys=int(ts.specs['max_y'] * 0.85),
-                                    ye=int(ts.specs['max_y'] * 0.96))
+        self.i_catch_berry = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.07),
+                                        xe=int(ts.specs['max_x'] * 0.18),
+                                        ys=int(ts.specs['max_y'] * 0.85),
+                                        ye=int(ts.specs['max_y'] * 0.96)),
+                                    'catch_berry')
         
-        self.i_gym_defeat_in_battle = IconButton(ts, 'gym_defeat_in_battle',
-                                    xs=int(ts.specs['max_x'] * 0.8),
-                                    xe=int(ts.specs['max_x']),
-                                    ys=int(ts.specs['max_y'] * 0.85),
-                                    ye=int(ts.specs['max_y'] * 0.95))
-        self.i_gym_mine = IconButton(ts, 'gym_mine',
-                                    xs=int(ts.specs['max_x'] * 0.8),
-                                    xe=int(ts.specs['max_x']),
-                                    ys=int(ts.specs['max_y'] * 0.70),
-                                    ye=int(ts.specs['max_y'] * 0.90))
-        self.i_route_started = IconButton(ts, 'route_started',
-                                    xs=int(ts.specs['max_x'] * 0.8),
-                                    xe=int(ts.specs['max_x']),
-                                    ys=int(ts.specs['max_y'] * 0.70),
-                                    ye=int(ts.specs['max_y'] * 0.90))
-        self.i_route_end = IconButton(ts, 'route_end',
-                                    xs=int(ts.specs['max_x'] * 0.8),
-                                    xe=int(ts.specs['max_x']),
-                                    ys=int(ts.specs['max_y'] * 0.70),
-                                    ye=int(ts.specs['max_y'] * 0.90))
-        self.i_route_pause = IconButton(ts, 'route_pause',
-                                    xs=int(ts.specs['max_x'] * 0.8),
-                                    xe=int(ts.specs['max_x']),
-                                    ys=int(ts.specs['max_y'] * 0.70),
-                                    ye=int(ts.specs['max_y'] * 0.90))
-        self.i_button_ok = IconButton(ts, 'buttons',
-                                    xs=int(ts.specs['max_x'] * 0.4),
-                                    xe=int(ts.specs['max_x'] * 0.6),
-                                    ys=int(ts.specs['max_y'] * 0.5),
-                                    ye=int(ts.specs['max_y'] * 0.7))
-        self.i_go_out_bright = IconButton(ts, 'go_out_bright',
-                                    xs=int(ts.specs['max_x'] * 0.02),
-                                    xe=int(ts.specs['max_x'] * 0.16),
-                                    ys=int(ts.specs['max_y'] * 0.12),
-                                    ye=int(ts.specs['max_y'] * 0.25))
-        self.i_x_clear_text = IconButton(ts, 'x_clear_text',
-                                        xs=ts.rel_x(0.75),
-                                        xe=ts.rel_x(0.99),
-                                        ys=ts.rel_y(0.20),
-                                        ye=ts.rel_y(0.50))
-        self.i_fake_app = IconButton(ts, 'fake_app')
-        self.i_grunt_r = IconButton(ts, 'grunt_r')
-        self.i_fake_3dot = IconButton(ts, 'fake_3dot',
-                                    ye=int(ts.specs['max_y'] * 0.2))
-        self.i_fake_map = IconButton(ts, 'fake_map',
-                                    ye=int(ts.specs['max_y'] * 0.2))
-        self.i_fake_search = IconButton(ts, 'fake_search',
-                                    ye=int(ts.specs['max_y'] * 0.2))
-        self.b_passanger_fast = TextButton(ts, 'SS', # I M A PASSANGER
+        self.i_gym_defeat_in_battle = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.8),
+                                        xe=int(ts.specs['max_x']),
+                                        ys=int(ts.specs['max_y'] * 0.85),
+                                        ye=int(ts.specs['max_y'] * 0.95)),
+                                    'gym_defeat_in_battle')
+        self.i_gym_mine = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.8),
+                                        xe=int(ts.specs['max_x']),
+                                        ys=int(ts.specs['max_y'] * 0.70),
+                                        ye=int(ts.specs['max_y'] * 0.90)),
+                                    'gym_mine')
+        self.i_route_started = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.8),
+                                        xe=int(ts.specs['max_x']),
+                                        ys=int(ts.specs['max_y'] * 0.70),
+                                        ye=int(ts.specs['max_y'] * 0.90)),
+                                    'route_started')
+        self.i_route_end = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.8),
+                                        xe=int(ts.specs['max_x']),
+                                        ys=int(ts.specs['max_y'] * 0.70),
+                                        ye=int(ts.specs['max_y'] * 0.90)),
+                                    'route_end')
+        self.i_route_pause = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.8),
+                                        xe=int(ts.specs['max_x']),
+                                        ys=int(ts.specs['max_y'] * 0.70),
+                                        ye=int(ts.specs['max_y'] * 0.90)),
+                                    'route_pause')
+        self.i_button_ok = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.4),
+                                        xe=int(ts.specs['max_x'] * 0.6),
+                                        ys=int(ts.specs['max_y'] * 0.5),
+                                        ye=int(ts.specs['max_y'] * 0.7)),
+                                    'buttons')
+        self.i_go_out_bright = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.02),
+                                        xe=int(ts.specs['max_x'] * 0.16),
+                                        ys=int(ts.specs['max_y'] * 0.12),
+                                        ye=int(ts.specs['max_y'] * 0.25)),
+                                    'go_out_bright')
+        self.i_x_clear_text = IconButton(ScreenRegion(ts,
+                                            xs=ts.rel_x(0.75),
+                                            xe=ts.rel_x(0.99),
+                                            ys=ts.rel_y(0.20),
+                                            ye=ts.rel_y(0.50)),
+                                        'x_clear_text')
+        self.i_fake_app = IconButton(ScreenRegion(ts), 'fake_app')
+        self.i_grunt_r = IconButton(ScreenRegion(ts), 'grunt_r')
+        self.i_fake_3dot = IconButton(ScreenRegion(ts, ye=int(ts.specs['max_y'] * 0.2)), 'fake_3dot')
+        self.i_fake_map = IconButton(ScreenRegion(ts, ye=int(ts.specs['max_y'] * 0.2)), 'fake_map')
+        self.i_fake_search = IconButton(ScreenRegion(ts, ye=int(ts.specs['max_y'] * 0.2)), 'fake_search')
+        self.b_passanger_fast = TextButton(ScreenRegion(ts,
                                     invert=True,
                                     xs=int(ts.specs['max_x'] * 0.45),
                                     xe=int(ts.specs['max_x'] * 0.55),
                                     ys=int(ts.specs['max_y'] * 0.65),
-                                    ye=int(ts.specs['max_y'] * 0.72))
-        self.b_catch_berry = TextButton(ts, 'Berry', # I M A PASSANGER
+                                    ye=int(ts.specs['max_y'] * 0.72)),
+                                    'SS')    # IN PASSANGER
+        self.b_catch_berry = TextButton(ScreenRegion(ts,
                                     invert=True,
                                     ys=int(ts.specs['max_y'] * 0.40),
-                                    ye=int(ts.specs['max_y'] * 0.72))
-        self.t_friends = TextFlat(ts, 'FRIENDS',
+                                    ye=int(ts.specs['max_y'] * 0.72)), 'Berry')
+        self.t_friends = TextFlat(ScreenRegion(ts,
                                     xs=ts.rel_x(0.4),
                                     xe=ts.rel_x(0.6),
                                     ys=ts.rel_y(0.05),
-                                    ye=ts.rel_y(0.15))
+                                    ye=ts.rel_y(0.15)),  'FRIENDS')
 
     def __del__(self):
         pass

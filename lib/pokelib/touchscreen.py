@@ -117,7 +117,7 @@ class TouchScreen:
 
         self.image = PokeImage(self)
         self.ocr = Ocr(self)
-        self.buttons = Buttons(self)
+        self.buttons = Buttons(ScreenRegion(self))
         self.screen = Screen(self)
 
     def __del__(self):
