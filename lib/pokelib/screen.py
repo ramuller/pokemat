@@ -71,12 +71,21 @@ class Screen:
         self.ts.buttons.i_x_clear_text.press(retries=1)
         if self.ts.buttons.t_friends.press(retries=10, verbose=0):
             startTime = datetime.now()
+            reg = ScreenRegion(self, xs=self.ts.rel_x(0.25), xe=self.ts.rel_x(0.5), ys=self.ts.rel_y(0.3)) 
+            reg_center = ScreenRegion(self.ts,
+                        xs=self.ts.specs['max_x'] * 0.5,
+                        xe=(self.ts.specs['max_x'] * 0.5),
+                        ys=self.ts.specs['max_y'] * 0.37,
+                        ye=self.ts.specs['max_y'] * 0.60)
             while (datetime.now() - startTime).total_seconds() < 30:
-                reg = ScreenRegion(self, xs=self.ts.rel_x(0.25), xe=self.ts.rel_x(0.5), ys=self.ts.rel_y(0.3)) 
-                if len(self.ts.ocr.regex('.*.....*', reg, retries=30)) > 0:
+                if len(self.ts.ocr.regex('.*.....*', reg, retries=1)) > 0:
                     return True
-                t = self.ts.ocr.regex('.*.....*', reg, retries=30)
-                print(t)
+                npa = self.ts.image.scan_region(reg)
+                if npa.min() == npa.max():
+                    print('Empty screen')
+                    return True
+                print(f'Time elapsed {(datetime.now() - startTime).total_seconds()}')
+                sleep(1)
         self.go_home()
         raise Exception('Trainer screen timeout!')
 
