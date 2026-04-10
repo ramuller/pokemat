@@ -548,7 +548,7 @@ class Buttons(ButtonParameter):
                                     'IENDS')
         self.t_friends_search = TextFlat(ScreenRegion(ts,
                                     xs=ts.rel_x(0.5),
-                                    xe=ts.rel_x(0.9),
+                                    xe=ts.rel_x(0.75),
                                     ys=ts.rel_y(0.2),
                                     ye=ts.rel_y(0.4)),
                                     'SEARCH')
