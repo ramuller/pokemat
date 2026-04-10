@@ -124,7 +124,7 @@ class PokeImage:
     def boxes_get(self, reg, verbose=0, pad=10):
         # self.ts.sc.show_image(img, wait=1000, title='unprocessed')
         reg.npa = cv2.normalize(reg.npa, None, 
-                                alpha=reg.tl, beta=reg.th, 
+                                alpha=0, beta=255, 
                                 norm_type=cv2.NORM_MINMAX)
         
         candidates = []
@@ -210,21 +210,28 @@ class PokeImage:
     def process_array(self, reg, verbose=0):
         try:
             if reg.invert:
-                npa = cv2.bitwise_not(npa)
-            if not process:
-                return npa
-            npa = cv2.normalize(reg.npa, 
+                reg.npa = cv2.bitwise_not(reg.npa)
+            # if not reg.process:
+            #     return reg
+            reg.npa = cv2.normalize(reg.npa, 
                                 None, 
-                                alpha=reg.tl, beta=reg.lh, 
+                                alpha=0, beta=255, 
                                 norm_type=cv2.NORM_MINMAX)
-            npa = cv2.adaptiveThreshold(
-                reg.npa,
-                255,
-                cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                cv2.THRESH_BINARY,
-                31,
-                5
-            )
+            if reg.threshold > 0:
+                _, reg.npa = cv2.threshold(reg.npa, 
+                    reg.threshold,
+                    255, 
+                    cv2.THRESH_BINARY
+                    )
+            else:
+                reg.npa = cv2.adaptiveThreshold(
+                    reg.npa,
+                    255,
+                    cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                    cv2.THRESH_BINARY,
+                    31,
+                    5
+                )
         except Exception as e:
-            print('e')
+            print(f'Exception in process_array {e}')
         return reg

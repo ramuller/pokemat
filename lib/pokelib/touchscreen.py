@@ -1781,9 +1781,9 @@ class TouchScreen:
         try:
             if sort.icon_name == 'up':
                 self.buttons.i_change_sort.press()
-                self.buttons.t_gift(delay=1, action='press')
-        except:
-            print('No up or down found. Wrong place?')
+                self.buttons.i_sort_has_gift.press(delay=1)
+        except Exception as e:
+            print(f'No up or down found. Wrong place?{e}')
             return False
         if self.buttons.i_sort.search(retries=30, verbose=3):
             return True

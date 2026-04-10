@@ -237,14 +237,12 @@ class TextFlat(ButtonParameter):
         self.text = text
         self.updated = False
 
-    def search(self, retries=1, pause=1): 
+    def search(self, retries=1, pause=1, verbose=0):
         b = self.ocr.regex(self.text,
                             self.reg, 
                             retries=retries,
-                            invert=self.invert,
-                            process=self.process,
                             pause=pause,
-                            verbose=self.verbose)   
+                            verbose=verbose)   
         return b 
 
 '''
@@ -253,17 +251,19 @@ Button shape with text
 class TextButton(ButtonParameter):
     def __init__(self, reg, text):
         super().__init__(reg)
+        self.reg = reg
         self.text = text
         self.updated = False
+        self.b = StdButtons(self.reg)
 
     def search(self,
                 threshold=0.8,
                 delay=0.01,
                 retries=1, 
                 verbose=0):
-        b = Buttons(self.ts)
-        if self.invert:
-            return b.dark(
+
+        if self.reg.invert:
+            return self.b.dark(
                 self.text,
                 reg=self.reg,
                 action='check',
@@ -272,7 +272,7 @@ class TextButton(ButtonParameter):
                 verbose=verbose)
         else:
             return b.white(
-                self.text,
+                self.self.text,
                 reg=self.reg,
                 action='check',
                 delay=delay,
@@ -370,7 +370,6 @@ class IconButton(ButtonParameter):
 class Buttons(ButtonParameter):
     def __init__(self, reg):
         super().__init__(reg)
-        self.ocr = Ocr(reg.ts)
         self.image = reg.ts.image
         self.text_only = TextOnly(reg)
         ts = reg.ts
@@ -525,28 +524,75 @@ class Buttons(ButtonParameter):
         self.b_catch_berry = TextButton(ScreenRegion(ts,
                                     invert=True,
                                     ys=int(ts.specs['max_y'] * 0.40),
-                                    ye=int(ts.specs['max_y'] * 0.72)), 'Berry')
+                                    ye=int(ts.specs['max_y'] * 0.72)), 
+                                    'Berry')
+        self.b_open = TextButton(ScreenRegion(ts,
+                                    invert=True,
+                                    xs=int(ts.specs['max_x'] * 0.20),
+                                    xe=int(ts.specs['max_x'] * 0.80),
+                                    ys=int(ts.specs['max_y'] * 0.70),
+                                    ye=int(ts.specs['max_y'] * 0.95)), 
+                                    'OPEN')
+        self.b_limit = TextButton(ScreenRegion(ts,
+                                    invert=True,
+                                    xs=int(ts.specs['max_x'] * 0.10),
+                                    xe=int(ts.specs['max_x'] * 0.45),
+                                    ys=int(ts.specs['max_y'] * 0.35),
+                                    ye=int(ts.specs['max_y'] * 0.65)), 
+                                    'limit')
         self.t_friends = TextFlat(ScreenRegion(ts,
                                     xs=ts.rel_x(0.4),
                                     xe=ts.rel_x(0.6),
                                     ys=ts.rel_y(0.05),
-                                    ye=ts.rel_y(0.15)),  'FRIENDS')
+                                    ye=ts.rel_y(0.15)),
+                                    'IENDS')
+        self.t_friends_search = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.5),
+                                    xe=ts.rel_x(0.9),
+                                    ys=ts.rel_y(0.2),
+                                    ye=ts.rel_y(0.4)),
+                                    'SEARCH')
+        self.t_input_ok = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.8),
+                                    xe=ts.rel_x(0.95),
+                                    ys=ts.rel_y(0.0),
+                                    ye=ts.rel_y(0.65),
+                                    invert=True),
+                                    'OK')
+
+    def t_gift(self, *args, **kwargs):
+        self.startx = self.ocr.startx = int(0.6 * self.ts.specs['max_x'])
+        self.endx = self.ocr.endx = int(0.8 * self.ts.specs['max_x'])
+        self.starty = self.ocr.starty = int(0.6 * self.ts.specs['max_y'])
+        self.endy = self.ocr.endy = int(0.8 * self.ts.specs['max_y'])
+        return self.white_on_black('GIFT.*')
+    
+    def c_avatar(self):
+        x = int(0.15 * self.ts.specs['max_x'])
+        y = int(0.90 * self.ts.specs['max_y'])
+        self.ts.tap_screen(x, y, scale=False)
+
 
     def __del__(self):
         pass
+
+class StdButtons(ButtonParameter):
+    def __init__(self, reg):
+        super().__init__(reg)
+        self.ocr = Ocr(reg.ts)
 
     def _button(self, name, reg : ScreenRegion=None, verbose=0):
         reg = reg or ScreenRegion(self.ts)
         if reg.npa is None:
             reg.npa = self.ts.image.scan_region(reg)
     
-        boxes = self.image.boxes_get(reg, verbose=verbose)            
+        boxes = self.ts.image.boxes_get(reg, verbose=verbose)            
 
         for box in boxes:
-            box = self.image.process_array(box, verbose=verbose)
+            box = self.ts.image.process_array(box, verbose=verbose)
             
             if verbose > 5:
-                self.ts.image.show_image(box.npa, wait=000, title='button-candidate-preprocessed')
+                self.ts.image.show_image(box.npa, wait=1500, title='button-candidate-preprocessed')
             if box.npa is None:
                 continue
 
@@ -559,10 +605,10 @@ class Buttons(ButtonParameter):
                     # self.ts.sc.show_image(roi, wait=000, title='button-candidate-preprocessed')
                     # w['left'] += box['x'] + w['left'] + self.ocr.startx
                     # Add region offset to box offset
-                    w['left'] = reg.xs + box.xs + w['left']
-                    w['top']  = reg.ys + box.xs + w['top']
-                    w['center'] = (w['center'][0] + w['left'], \
-                                   w['center'][1] + w['top']) 
+                    w['left'] = reg.xs + w['left']
+                    w['top']  = reg.ys + w['top']
+                    w['center'] = (reg.xs + w['center'][0], \
+                                   reg.ys + w['center'][1]) 
                     return w, reg
 
         return None, reg
@@ -631,23 +677,22 @@ class Buttons(ButtonParameter):
         return self._boxed_button(*args, **kwargs)
     
     def black_on_white(self, *args, **kwargs):
-        self.ocr.invert = False
-        self.ocr.process = False
+        reg = ScreenRegion(self.ts, 
+                           invert=False,
+                           process=True)
+        args_list = list(args)
+        args_list.insert(1, reg)
+        args = tuple(args_list)
         return self._text_from_screen(*args, **kwargs)
 
     def white_on_black(self, *args, **kwargs):
-        self.ocr.invert = True
+        reg = ScreenRegion(self.ts, 
+                           invert=True,
+                           process=True)
+        args_list = list(args)
+        args_list.insert(1, reg)
+        args = tuple(args_list)
+        
         return self._text_from_screen(*args, **kwargs)
 
-    def t_gift(self, *args, **kwargs):
-        self.startx = self.ocr.startx = int(0.6 * self.ts.specs['max_x'])
-        self.endx = self.ocr.endx = int(0.8 * self.ts.specs['max_x'])
-        self.starty = self.ocr.starty = int(0.6 * self.ts.specs['max_y'])
-        self.endy = self.ocr.endy = int(0.8 * self.ts.specs['max_y'])
-        return self.white_on_black('GIFT.*')
-    
-    def c_avatar(self):
-        x = int(0.15 * self.ts.specs['max_x'])
-        y = int(0.90 * self.ts.specs['max_y'])
-        self.ts.tap_screen(x, y, scale=False)
 

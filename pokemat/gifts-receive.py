@@ -62,7 +62,6 @@ def gifting(port):
         print(f"My name {name}")
     phone.screen.go_friends()
 
-
     giftsSent = 0
     giftsReceived = 0
     receive_gifts = True
@@ -76,7 +75,7 @@ def gifting(port):
             if phone.buttons.i_x_clear_text.press(retries=1):
                sleep(0.5)
 
-            if not phone.buttons.black_on_white('SEARCH'):
+            if not phone.buttons.t_friends_search.press():
                 print('No SEARCH button found')
                 phone.screen.go_home()
                 raise Exception('No SEARCH button found')
@@ -102,9 +101,9 @@ def gifting(port):
                 # phone.text_line_ok("!ff & !lucky & interactable")
                 phone.text_line_ok("!ff & !lucky")
             time.sleep(0.5)
+            phone.text_line_ok('\\n')
 
-            phone.buttons.ocr.startx = int(phone.specs['max_x'] * 0.8)
-            phone.buttons.black_on_white('OK')
+            # phone.buttons.t_input_ok.press(verbose=0)
             sleep(0.5)
             g = phone.buttons.i_friends_gift.press()
 
@@ -113,14 +112,17 @@ def gifting(port):
                 print("No gift. Letters to go {}".format(len(shuffled_letters)))
             else:
                 print("Friend has gift")
-                b = phone.buttons.dark('OPEN', retries=20)
-                phone.tap_screen(g.center, scale=False)
-
+                b = phone.buttons.b_open.press(retries=10)
+ 
                 if b is not None:
                     receive_gifts = True
                 else:
-                    receive_gifts = True
+                    receive_gifts = False
+
+                b = phone.buttons.b_limit.search(retries=10)
+
                 sleep(2)
+
                 reg = ScreenRegion(phone, ys=phone.rel_y(0.8))
                 while len(phone.ocr.regex('SEND', reg)) < 1:
                     phone.tap_screen(phone.rel_x(0.05), phone.rel_y(0.05), scale=False)

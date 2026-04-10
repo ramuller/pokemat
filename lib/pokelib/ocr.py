@@ -115,7 +115,7 @@ class Ocr:
         reg = reg or ScreenRegion(self.ts)
         if reg.npa is None:
             reg.npa = self.image.scan_region(reg)
-        reg.nwa= self.image.process_array(reg, verbose=verbose)
+        reg = self.image.process_array(reg, verbose=verbose)
         self.mode = mode
         t = self._tesserocr_from_array(reg, verbose=verbose)
         return t, reg
@@ -138,10 +138,7 @@ class Ocr:
         self.process = process
         return self.read(reg, verbose=verbose)
 
-    def regex(self, regex, reg : ScreenRegion=None, retries=1, 
-              invert=False, 
-              process=False,
-              mode='word',
+    def regex(self, regex, reg : ScreenRegion=None, retries=1,
               pause=1, verbose=0):
         if reg is None:
             reg = ScreenRegion(self.ts)
@@ -151,6 +148,7 @@ class Ocr:
             self.reset_parameters()
             print(f'Tries {tries}')
             for l in lines:
+                print(f'Line {l["text"]}')
                 if re.search(regex, l['text']):
                     return l
             if tries <= 1:

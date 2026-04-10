@@ -8,7 +8,7 @@ from pokelib import PokeArgs
 from pokelib.buttons import ButtonParameter
 from pokelib import ScreenRegion
 from pokelib import TextOnly, Coordinates,ButtonParameter 
-from pokelib import IconButton, TextButton
+from pokelib import IconButton, TextButton, StdButtons
 
 from hybrid_icon_detector import IconDetector
 
@@ -55,7 +55,7 @@ def _set_paramters_from_args():
         reg.ye = _int(args.ye)
 
     reg.tl = args.tl
-    reg.th = args.th
+    reg.threshold = args.threshold
     reg.color = args.color
     reg.invert = args.invert
     reg.process = args.process
@@ -64,12 +64,12 @@ def _set_paramters_from_args():
 
 def _post_process(reg):
     if args.show:
-        phone.image.show_image(reg.nwa, wait=10000, title='Read region')
+        phone.image.show_image(reg.npa, wait=10000, title='Read region')
     if args.save:
         path = f'{phone.config_path}/icons/screen-shots/{args.save}'
         if not re.match(r'.*\.png$', path):
             path += '.png'
-        phone.image.save_image(reg.nwa, path)
+        phone.image.save_image(reg.npa, path)
         print(f'Saved image to {path}')
 
 def find_rgb():
@@ -222,10 +222,12 @@ def raw_button():
     reg = _set_paramters_from_args()
     
     print(f'Reading region x:{reg.xs}-{reg.xe} y:{reg.ys}-{reg.ye}')
-    print(f'invert:{phone.ocr.invert} process:{phone.ocr.process} mode:{phone.ocr.mode} text:{args.text} kind:{args.kind} press:{args.press}')
+    print(f'invert:{reg.invert} process:{reg.process} mode:{reg.mode} text:{args.text} kind:{args.kind} press:{args.press}')
 
+    sb = StdButtons(reg)
     if args.kind == 'dark':
-        b = phone.buttons.dark
+        # b = phone.buttons.dark
+        b = sb.dark
     elif args.kind == 'white':
         b = phone.buttons.white
     elif args.kind == 'black_on_white' \
@@ -241,7 +243,7 @@ def raw_button():
             reg=reg,
             action=args.press, 
             delay=args.delay, 
-            retries=1, 
+            retries=1,
             verbose=args.verbose)
 
     print(f'Button found: {res}')
@@ -267,8 +269,17 @@ def my_callback(ts, det):
     return None
 
 def my_test():
-    phone.screen.go_home()
-    return True
+    # phone.screen.go_home()
+    # return True
+    reg = ScreenRegion(phone,
+                            xs=phone.specs['max_x'] * 0.5,
+                            xe=(phone.specs['max_x'] * 0.5),
+                            ys=phone.specs['max_y'] * 0.37,
+                            ye=phone.specs['max_y'] * 0.60)
+    reg.npa = phone.image.scan_region(reg)
+
+    print(f'min {reg.npa.min()}, max {reg.npa.max()}')
+
     test_button_callback()
     b = IconButton(phone, 'pokeball',
                     xs=phone.rel_x(0.38),
@@ -358,7 +369,7 @@ def main():
                         help='x start.')
     parser.add_argument('--tl', action='store', required=False, default=0, \
                         help='threshold low.', type=int)
-    parser.add_argument('--th', action='store', required=False, default=255, \
+    parser.add_argument('-t', '--threshold', action='store', required=False, default=0, \
                         help='threshold high.', type=int)
     parser.add_argument('--count', action='store', required=False, default=1, \
                         help='If something can repeat.', type=int)
