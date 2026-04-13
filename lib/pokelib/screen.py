@@ -80,7 +80,7 @@ class Screen:
             while (datetime.now() - startTime).total_seconds() < 30:
                 if len(self.ts.ocr.regex('.*.....*', reg, retries=1)) > 0:
                     return True
-                npa = self.ts.image.scan_region(reg)
+                npa = self.ts.image.scan_region(reg_center)
                 if npa.min() == npa.max():
                     print('Empty screen')
                     return True
@@ -91,7 +91,7 @@ class Screen:
 
     def go_home(self):
         count = 1
-        MAX_TRYS = 10
+        MAX_TRYS = 5
         while self.get_current_screen() != 'home':
             # self.color_show(300, 1803)
             # OK on green in the middle
@@ -119,7 +119,7 @@ class Screen:
                 print("Try egg")
                 if self.ts.egg_handle():
                     break
-                self.ts.buttons.dark('.*CANCEL.*', retries=1)
+                self.ts.buttons.t_cancel.press(retries=1)
 
                 # for y in range(100, self.ts.maxY - 100, 25):
                 #     if self.ts.color_match(500, y, 116, 214, 156):
@@ -131,9 +131,8 @@ class Screen:
                 #             self.tap_screen(b_text['center'])
                 #             break
                 count = 0
-            if self.ts.buttons.dark('.*PASSENGER.*', retries=1):
+            if self.ts.buttons.t_passanger.press(retries=1):
                 continue
-            print('Passanger')
             sleep(0.5)
 
         if count == 0:

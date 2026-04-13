@@ -39,68 +39,65 @@ def battle(host, guest):
                 return True
             time.sleep(0.2)
     
-def gifting(port, phone):
+def gifting(port):
     
     can_get_gifts = True
     can_send_gifts = True
     switch_order = False
     daily_limit = False
-    with open("phone-spec.json", 'r') as file:
-        phones = json.load(file)
 
     # create a list of all random letters
     l_and_d =  string.ascii_lowercase + string.digits
     shuffled_letters = random.sample(l_and_d, len(l_and_d))
 
         
-    print("Start gifting using phone \"{}\" on port {}", phone, port)
-    phone = TouchScreen(port, phone)
+    print("Start gifting using port {}", port)
+    phone = TouchScreen(port)
     name = None
-    while name == None:
-        name = phone.get_my_name()
-        print(f"My name {name}")    
+    # while name == None:
+    #     name = phone.get_my_name()
+    #     print(f"My name {name}")    
 
-    phone.friendSortCanReceive()
     # phone.tapSearch()
     # phone.tap_screen(440, 837)
     # phone.tap_screen(440, 1150)
     giftsSent = 0
     giftsReceived = 0
+    phone.screen.go_friends()
     while can_send_gifts:
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
             # Wait for trainer screen
-            for timeout in reversed(range(0,100)):
-                # if phone.color_match(444, 494, 255, 255, 255) and \
-                if phone.color_match(444, 601, 255, 255, 255) and \
-                   phone.color_match(812, 1851, 28, 135, 149):
-                    break
-                time.sleep(0.1)
-            if timeout == 0:
-                print("Wait for trainer screen : Timeout exit")
-                return True
-            print("trainer screen")
-            while phone.color_match(52, 1335, 255, 255, 255):
-                phone.tap_screen(612, 494)
-                time.sleep(0.3)
-            time.sleep(1)
+            phone.sort_send_gift()
+            # phone.screen.go_friends()
+
+            if phone.buttons.i_x_clear_text.press(retries=1):
+               sleep(0.5)
+
+            if not phone.buttons.t_friends_search.press():
+                print('No SEARCH button found')
+                phone.screen.go_home()
+                raise Exception('No SEARCH button found')
+
+            # friends_raw = phone.ocr.read_area_percent(xs=25 ,xe=45 , ys=30 , ye=90)
+
+            # while phone.color_match(52, 1335, 255, 255, 255):
+            #     phone.tap_screen(612, 494)
+            #     time.sleep(0.3)
+            # time.sleep(0.5)
             phone.selectAll()
             phone.text_line_ok("\b")
             phone.text_line_ok("!ff & !lucky & interactable")
-            # phone.text_line_ok(" ")
-            time.sleep(1)
-            phone.tapTextOK()      
-            time.sleep(0.3)
-            # time.sleep(2)
-            
-            if phone.color_match(359, 884, 250,250,250):
-                # can_send_gifts = phone.gift_send(has_gift = False)
-                has_gift = False
-            else:
-                has_gift = True
-                # can_send_gifts = phone.gift_send(has_gift = True)
-                
-            phone.friend_select_first()
+            time.sleep(0.5)
+            phone.text_line_ok('\\n')
+
+            # phone.screen.go_friends()
+
+            if phone.buttons.i_x_clear_text.press(retries=1):
+               sleep(0.5)
+
+            has_gift = phone.buttons.i_friends_gift.press()
+
             can_send_gifts = phone.gift_send(has_gift = has_gift)
             sleep(1.5)
             phone.tap_back()
@@ -111,6 +108,8 @@ def gifting(port, phone):
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
             sys.exit(1)
+        except Exception as e:
+            print(f'ERROR : sendgift {e}')
         
         # except Exception as e:
         #    print("Upps something went wrong but who cares?: {}", e)
@@ -130,7 +129,7 @@ def main():
     go_on = True
     while go_on:
         try:
-            go_on = gifting(args.port, args.phone)
+            go_on = gifting(args.port)
         except:
             print("Something went wrong")
             go_on = False

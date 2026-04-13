@@ -257,7 +257,7 @@ class TouchScreen:
                 # Open egg
                 self.tap_screen(500, 1000)
                 # exit pokemon screen
-                self.color_match_wait_click(493, 1826, 28, 135, 149, time_out_ms=20000)
+                self.buttons.i_exits.press(retries=5)
                 sleep(5)
                 # Select egg
                 self.tap_screen(190, 544)
@@ -1702,49 +1702,42 @@ class TouchScreen:
         sleep(0.5)
         self.tap_screen(286, 1105)
     
+    def wait_gift_ready(self):
+        startTime = datetime.now()
+        while (datetime.now() - startTime).total_seconds() < 20:
+            reg = ScreenRegion(phone,
+                                xs=self.rel_x(0.15),
+                                xe=self.rel_x(0.30),
+                                ys=self.rel_y(0.80),
+                                ye=self.rel_y(1),             
+                                color='green')
+            reg.npa = self.image.scan_region(reg)
+            if reg.npa.min() < 50:
+                return True
+        return False
+   
     def gift_send(self, has_gift = False):
         print("Send gift")
         # if self.hasGift():
         #    self.tap_screen(500, 1850)
         time.sleep(2)
         if has_gift:
-            self.tap_screen(500, 1850)
+            self.buttons.t_open_gift(retries=5)
         # if self.color_match(175, 1919, 243, 243, 243, threashold=13):
         # if self.color_match(237, 1900, 172, 172, 172):
         #     print("Friend has a gift")
         #     return False
-        timeout = 50
+        # timeout = 50
         # while self.color_match(800, 857, 255, 255, 255,threashold=1) == False:
         # Check for post card
-        name, days_to_go, level = self.friend_get_info()
+        # name, days_to_go, level = self.friend_get_info()
         # self.friend_update_db(name, days_to_go, level)
-        if days_to_go <= 2 or days_to_go == 62 or days_to_go == 61:
-            self.friend_set_nickname("ff pokemat")
-            sleep(1)
-        while self.color_match(700, 857, 255, 255, 255,threashold=1) == False \
-                and self.color_match(750, 1110, 255, 255, 255,threashold=1) == False:
-            
-            time.sleep(0.2)
-            self.tap_screen(170, 1919)
-            timeout = timeout - 1
-            # Timout or send already
-            if timeout == 0 or \
-                self.color_match(95, 1000, 232, 128, 181):
-                return False
-        time.sleep(1)
-        self.tap_screen(750, 857)
-        try:
-            self.color_match_wait_click(407, 1638, 140, 216, 152)
-        except:
-            print("Gift not sent !?!?")
-        sleep(2.5)
-        if self.color_match(105, 1000, 232, 128, 181):
-            print("No gifts")
-            
-                        
-        self.tap_back()
-        
         # self.color_match_wait_click(503, 1820, 30, 134, 149)
+
+        sleep(0.5)
+        if self.wait_gift_ready():
+            self.buttons.t_send_gift.press(retries=5)
+
         return True
     
     def gift_send2(self):
@@ -1793,6 +1786,27 @@ class TouchScreen:
     def sort_has_gift(self, noGift = False):
         self.screen.go_friends()
         self.sort_receive_gift()
+            
+    def sort_send_gift(self, hasGift = True):
+        if not self.buttons.i_can_receive_gift.search():
+            b = self.buttons.i_change_sort.press()
+            sleep(0.5)
+            b = self.buttons.i_sort_can_receive_gift.press(retries=10)
+        sort = self.buttons.i_sort.search(retries=30, verbose=3)
+        try:
+            if sort.icon_name == 'up':
+                self.buttons.i_change_sort.press()
+                self.buttons.i_sort_can_receive_gift.press(delay=1)
+        except Exception as e:
+            print(f'No up or down found. Wrong place?{e}')
+            return False
+        if self.buttons.i_sort.search(retries=30, verbose=3):
+            return True
+        return False
+        
+    def sort_can_send(self, noGift = False):
+        self.screen.go_friends()
+        self.sort_send_gift()
             
     def friendSortCanReceive(self, noGift = False):
         self.screen_friend()

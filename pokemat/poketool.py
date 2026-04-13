@@ -272,10 +272,12 @@ def my_test():
     # phone.screen.go_home()
     # return True
     reg = ScreenRegion(phone,
-                            xs=phone.specs['max_x'] * 0.5,
-                            xe=(phone.specs['max_x'] * 0.5),
-                            ys=phone.specs['max_y'] * 0.37,
-                            ye=phone.specs['max_y'] * 0.60)
+                            xs=int(phone.specs['max_x'] * 0.15),
+                            xe=int(phone.specs['max_x'] * 0.30),
+                            ys=int(phone.specs['max_y'] * 0.80),
+                            ye=int(phone.specs['max_y'] * 0.95),
+                            color='green')
+    
     reg.npa = phone.image.scan_region(reg)
 
     print(f'min {reg.npa.min()}, max {reg.npa.max()}')

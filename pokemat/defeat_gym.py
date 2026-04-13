@@ -38,12 +38,14 @@ def defeat_gym(port, max_round=5):
             if phone.buttons.i_gym_mine.press():
                 print('my gym')
                 return True
+            # Calculate where to press for attack
             det = phone.buttons.i_exits.search()
             y_press = det.quad[0][1] - int(phone.specs['max_y'] * 0.028)
             phone.buttons.i_gym_defeat.press()
+            phone.buttons.i_gym_defeat.press()
             sleep(1)
-            phone.buttons.endy=phone.specs['max_y']
-            phone.buttons.dark('BATTLE', action='press')
+            phone.buttons.t_go_battle_gym.press(retries=5, verbose=1)
+            phone.buttons.t_go_battle_gym.press(retries=1)
 
             # if phone.screen_go_to_gym() == False:
             #     print("Dont know how to enter defeat mode bye bye")
@@ -65,8 +67,9 @@ def defeat_gym(port, max_round=5):
             #     sleep(1)
             # # phone.color_match_wait_click(345, 777, 134, 217, 153)
 
-            while not phone.buttons.i_gym_defeat_in_battle.search():
-                sleep(0.5)
+            # while not phone.buttons.i_gym_defeat_in_battle.search():
+            #     sleep(0.5)
+            sleep(5)
             # print("Wait for initial white screen")
             # while not whiteScreen():
             #     time.sleep(0.2)

@@ -50,6 +50,12 @@ ICONS_PATH = {
     'sort_has_gift': {
         'sort_has_gift': 'has_gift.png',
     },
+    'can_receive_gift': {
+        'has_gift': 'can_receive_gift.png',
+    },
+    'sort_can_receive_gift': {
+        'has_gift': 'can_receive_gift.png',
+    },
     'friends_gift': {
         'friends_gift': 'friends_gift.png',
     },
@@ -404,6 +410,18 @@ class Buttons(ButtonParameter):
                                         ys=int(ts.specs['max_y'] * 0.60),
                                         ye=int(ts.specs['max_y'] * 0.85)),
                                     'has_gift')
+        self.i_can_receive_gift = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.70),
+                                        xe=int(ts.specs['max_x'] * 0.98),
+                                        ys=int(ts.specs['max_y'] * 0.84),
+                                        ye=int(ts.specs['max_y'] * 0.99)),
+                                    'can_receive_gift')
+        self.i_sort_can_receive_gift = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.75),
+                                        xe=int(ts.specs['max_x'] * 0.98),
+                                        ys=int(ts.specs['max_y'] * 0.70),
+                                        ye=int(ts.specs['max_y'] * 0.95)),
+                                    'can_receive_gift')
         self.i_sort = IconButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.70),
                                         xe=int(ts.specs['max_x'] * 0.98),
@@ -546,6 +564,18 @@ class Buttons(ButtonParameter):
                                     ys=ts.rel_y(0.05),
                                     ye=ts.rel_y(0.15)),
                                     'IENDS')
+        self.t_passanger = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.4),
+                                    xe=ts.rel_x(0.6),
+                                    ys=ts.rel_y(0.05),
+                                    ye=ts.rel_y(0.15)),
+                                    'PASSANGER')
+        self.t_cancel = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.4),
+                                    xe=ts.rel_x(0.6),
+                                    ys=ts.rel_y(0.05),
+                                    ye=ts.rel_y(0.15)),
+                                    'CANCEL')
         self.t_friends_search = TextFlat(ScreenRegion(ts,
                                     xs=ts.rel_x(0.5),
                                     xe=ts.rel_x(0.75),
@@ -559,6 +589,26 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(0.65),
                                     invert=True),
                                     'OK')
+        self.t_open_gift = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.25),
+                                    xe=ts.rel_x(0.75),
+                                    ys=ts.rel_y(0.75),
+                                    ye=ts.rel_y(0.9),
+                                    invert=True),
+                                    'OPEN')
+        self.t_go_battle_gym = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.2),
+                                    xe=ts.rel_x(0.8),
+                                    ys=ts.rel_y(0.20),
+                                    ye=ts.rel_y(0.50),
+                                    invert=True),
+                                    'BATTLE')
+        self.t_send_gift = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.05),
+                                    xe=ts.rel_x(0.30),
+                                    ys=ts.rel_y(0.75),
+                                    ye=ts.rel_y(1)),  
+                                    'SEND')
 
     def t_gift(self, *args, **kwargs):
         self.startx = self.ocr.startx = int(0.6 * self.ts.specs['max_x'])
