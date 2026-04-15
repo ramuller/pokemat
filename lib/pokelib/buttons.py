@@ -305,8 +305,9 @@ class IconButton(ButtonParameter):
             if self.icons[name] is None:
                 raise FileNotFoundError(f"Icon file not found: {full_path}")
 
+    # def press(self, verbose=0, *args, **kwargs):
     def press(self, verbose=0, *args, **kwargs):
-        det = self.search(*args, **kwargs)
+        det = self.search(verbose, *args, **kwargs)
         if det:
             if kwargs.get('verbose', 0) > 2:
                 print(f"Pressing icon button '{det.icon_name}' at {det.center}")
@@ -318,7 +319,7 @@ class IconButton(ButtonParameter):
                 self.ts.log.debug("Icon button not found.") 
         
     def search(self,
-               cust_reg=None,
+                # cust_reg=None,
                 threshold=0.8,
                 retries=3,
                 pause=1,
@@ -330,15 +331,11 @@ class IconButton(ButtonParameter):
         tries = 0
         while True:
             tries += 1
-            if cust_reg:
-                work_reg=cust_reg
-            else:
-                self.reg.npa = self.pi.scan_region(self.reg)
-                work_reg = self.reg
+            self.reg.npa = self.pi.scan_region(self.reg)
 
             if verbose > 5:
-                self.ts.image.show_image(work_reg.npa, wait=1000, title='button-area')
-            dets = self.detector.detect(work_reg.npa)
+                self.ts.image.show_image(self.reg.npa, wait=1000, title='button-area')
+            dets = self.detector.detect(self.reg.npa)
             # highest score and det with highest score
             hs = -1
             hdet = None
@@ -544,13 +541,20 @@ class Buttons(ButtonParameter):
                                     ys=int(ts.specs['max_y'] * 0.40),
                                     ye=int(ts.specs['max_y'] * 0.72)), 
                                     'Berry')
-        self.b_open = TextButton(ScreenRegion(ts,
+        self.b_open_gift = TextButton(ScreenRegion(ts,
                                     invert=True,
                                     xs=int(ts.specs['max_x'] * 0.20),
                                     xe=int(ts.specs['max_x'] * 0.80),
                                     ys=int(ts.specs['max_y'] * 0.70),
                                     ye=int(ts.specs['max_y'] * 0.95)), 
                                     'OPEN')
+        self.b_send_gift = TextButton(ScreenRegion(ts,
+                                    invert=True,
+                                    xs=int(ts.specs['max_x'] * 0.20),
+                                    xe=int(ts.specs['max_x'] * 0.80),
+                                    ys=int(ts.specs['max_y'] * 0.70),
+                                    ye=int(ts.specs['max_y'] * 0.95)), 
+                                    'SEND')
         self.b_limit = TextButton(ScreenRegion(ts,
                                     invert=True,
                                     xs=int(ts.specs['max_x'] * 0.10),
@@ -589,13 +593,6 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(0.65),
                                     invert=True),
                                     'OK')
-        self.t_open_gift = TextFlat(ScreenRegion(ts,
-                                    xs=ts.rel_x(0.25),
-                                    xe=ts.rel_x(0.75),
-                                    ys=ts.rel_y(0.75),
-                                    ye=ts.rel_y(0.9),
-                                    invert=True),
-                                    'OPEN')
         self.t_go_battle_gym = TextFlat(ScreenRegion(ts,
                                     xs=ts.rel_x(0.2),
                                     xe=ts.rel_x(0.8),
@@ -607,8 +604,27 @@ class Buttons(ButtonParameter):
                                     xs=ts.rel_x(0.05),
                                     xe=ts.rel_x(0.30),
                                     ys=ts.rel_y(0.75),
-                                    ye=ts.rel_y(1)),  
+                                    ye=ts.rel_y(1),
+                                    color='blue'),
                                     'SEND')
+        self.t_returning_player = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.05),
+                                    xe=ts.rel_x(0.9),
+                                    ys=ts.rel_y(0.1),
+                                    ye=ts.rel_y(1)),  
+                                    'RETURNING')
+        self.t_login_google = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.05),
+                                    xe=ts.rel_x(0.9),
+                                    ys=ts.rel_y(0.1),
+                                    ye=ts.rel_y(1)),  
+                                    'Google')
+        self.t_login_choose = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.2),
+                                    xe=ts.rel_x(0.9),
+                                    ys=ts.rel_y(0.1),
+                                    ye=ts.rel_y(1)),  
+                                    'Choose')
 
     def t_gift(self, *args, **kwargs):
         self.startx = self.ocr.startx = int(0.6 * self.ts.specs['max_x'])

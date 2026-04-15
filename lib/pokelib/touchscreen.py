@@ -1704,25 +1704,50 @@ class TouchScreen:
     
     def wait_gift_ready(self):
         startTime = datetime.now()
-        while (datetime.now() - startTime).total_seconds() < 20:
-            reg = ScreenRegion(phone,
-                                xs=self.rel_x(0.15),
-                                xe=self.rel_x(0.30),
-                                ys=self.rel_y(0.80),
-                                ye=self.rel_y(1),             
-                                color='green')
-            reg.npa = self.image.scan_region(reg)
-            if reg.npa.min() < 50:
-                return True
-        return False
-   
+        reg = ScreenRegion(self,
+                            xs=self.rel_x(0.15),
+                            xe=self.rel_x(0.30),
+                            ys=self.rel_y(0.80),
+                            ye=self.rel_y(1),             
+                            color='green')
+        try:
+            while (datetime.now() - startTime).total_seconds() < 20:
+                reg.npa = self.image.scan_region(reg)
+                if reg.npa.min() < 50:
+                    return True
+            return False
+        except Exception as e:
+            print(f'ERROR : wait_gift_ready {e}')   
+        
+    def select_gift(self):
+        reg = ScreenRegion(self,
+                            xs=self.rel_x(0.02),
+                            xe=self.rel_x(0.70),
+                            ys=self.rel_y(0.30),
+                            ye=self.rel_y(0.7),             
+                            color='green')
+        startTime = datetime.now()
+        try:
+            while (datetime.now() - startTime).total_seconds() < 20:
+                txt = self.ocr.regex('.*...*', reg)
+                if txt is not None:
+                    self.tap_screen(txt['center'], scale=False)
+                    sleep(0.5)
+                    return
+        except Exception as e:
+            print(f'ERROR :  select_gift {e}')
+
     def gift_send(self, has_gift = False):
-        print("Send gift")
+        print(f'Send gift with has_gift {has_gift}')
         # if self.hasGift():
         #    self.tap_screen(500, 1850)
-        time.sleep(2)
         if has_gift:
-            self.buttons.t_open_gift(retries=5)
+            print('press exit')
+            time.sleep(2)
+            # self.buttons.b_open_gift.press(retries=5)
+            self.buttons.i_exits.press(retries=10)
+
+
         # if self.color_match(175, 1919, 243, 243, 243, threashold=13):
         # if self.color_match(237, 1900, 172, 172, 172):
         #     print("Friend has a gift")
@@ -1734,10 +1759,15 @@ class TouchScreen:
         # self.friend_update_db(name, days_to_go, level)
         # self.color_match_wait_click(503, 1820, 30, 134, 149)
 
-        sleep(0.5)
+        sleep(1)
+        self.buttons.t_send_gift.search(retries=10)
         if self.wait_gift_ready():
             self.buttons.t_send_gift.press(retries=5)
+        sleep(1)
 
+        self.select_gift()
+
+        self.buttons.b_send_gift.press(retries=5)
         return True
     
     def gift_send2(self):

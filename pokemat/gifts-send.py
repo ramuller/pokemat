@@ -12,6 +12,7 @@ import time
 from time import sleep
 import os
 import logging
+import traceback
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
@@ -95,21 +96,34 @@ def gifting(port):
 
             if phone.buttons.i_x_clear_text.press(retries=1):
                sleep(0.5)
-
+            sleep(2)
             has_gift = phone.buttons.i_friends_gift.press()
+            if not has_gift:
+                ra = phone.ratio()
+                y = phone.rel_y(0.7 / phone.ratio())
+                phone.tap_screen(phone.rel_x(0.5), y, scale=False)
 
             can_send_gifts = phone.gift_send(has_gift = has_gift)
-            sleep(1.5)
-            phone.tap_back()
+            max_tries = 0
+            b = phone.buttons.t_friends.search(retries=1)
+            while not b:
+                phone.buttons.i_exits.press(retries=10)
+                sleep(1)
+                b = phone.buttons.t_friends.search(retries=1)
+                max_tries += 1
+                if max_tries > 10:
+                    phone.screen.go_friends()
+                    break
+            pass
+            # phone.screen.go_friends()
 
-                    
-                
-            # self.color_match_wait(161, 808, 246, 246, 246, match=False)
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
             sys.exit(1)
         except Exception as e:
+            traceback.print_exc()
             print(f'ERROR : sendgift {e}')
+            phone.screen.go_friends()
         
         # except Exception as e:
         #    print("Upps something went wrong but who cares?: {}", e)

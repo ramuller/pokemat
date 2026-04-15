@@ -76,9 +76,9 @@ def do_change_trainer(port, trainer):
     choose = None
 
     if phone.screen.get_current_screen() != 'home':
-        ret = phone.buttons.dark('.*RETURNING.*', action='check', retries=1)
-        gog = phone.buttons.dark('.*Google.*', action='check', retries=1)
-        choose = phone.buttons.text_only.search('.*Choose.*', xs=phone.rel_x(0.2), retries=1)
+        ret = phone.buttons.t_returning_player.search(retries=1)
+        gog = phone.buttons.t_login_google.search(retries=1)
+        choose = phone.buttons.t_login_choose.search(retries=1)
 
     if ret == None and gog == None and choose == None:
         try:
@@ -104,15 +104,15 @@ def do_change_trainer(port, trainer):
         except Exception as e:
             print(f"Exceptionf {e}")
             pass
-        if phone.buttons.dark('.*RETURNING.*', action='check', retries=30) == None:
+        if phone.buttons.t_returning_player.check(retries=30) == None:
             return False
         ret = True
 
     if ret:
-        phone.buttons.dark('.*RETURNING.*', delay=2, action='press')
+        phone.buttons.t_returning_player.pressretries=3()
         gog = True
     if gog:
-        gog = phone.buttons.dark('.*Google.*', delay=2, action='press')
+        gog = phone.buttons.t_login_google.press(retries=3, delay=2)
     
     if trainer != "out":
         select_trainer(trainer)
