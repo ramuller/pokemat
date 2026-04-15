@@ -1726,10 +1726,18 @@ class TouchScreen:
                             ys=self.rel_y(0.30),
                             ye=self.rel_y(0.7),             
                             color='green')
+        reg2 = ScreenRegion(self,
+                            xs=self.rel_x(0.12),
+                            xe=self.rel_x(0.70),
+                            ys=self.rel_y(0.40),
+                            ye=self.rel_y(0.7),             
+                            color='green')
         startTime = datetime.now()
         try:
             while (datetime.now() - startTime).total_seconds() < 20:
                 txt = self.ocr.regex('.*...*', reg)
+                if txt is None:
+                    txt = self.ocr.regex('.*...*', reg2)
                 if txt is not None:
                     self.tap_screen(txt['center'], scale=False)
                     sleep(0.5)
