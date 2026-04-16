@@ -111,7 +111,7 @@ def gifting(port):
                 print("No gift. Letters to go {}".format(len(shuffled_letters)))
             else:
                 print("Friend has gift")
-                b = phone.buttons.b_open.press(retries=10)
+                b = phone.buttons.b_open_gift.press(retries=10)
  
                 if b is not None:
                     receive_gifts = True
