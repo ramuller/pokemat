@@ -33,7 +33,7 @@ def raid(port):
     reg = ScreenRegion(phone, ys=phone.rel_y(0.5))
 
     for i in range(10):
-        b = phone.buttons.dark('.*BATTLE.*', retries=1)
+        b = phone.buttons.t_raid_battle.press(retries=1)
         reg.npa = None
         if b or phone.ocr.regex('RAID', reg):
             sleep(1)
@@ -60,7 +60,7 @@ def raid(port):
 
     # self.color_match(500, 144, 70, 207, 181)
     reg = ScreenRegion(phone, ys=phone.rel_y(0.75))
-    while not phone.buttons.dark('.*SUMMARY.*', reg=reg,
+    while not phone.buttons.t_raid_summary('.*SUMMARY.*', reg=reg,
                                  action='check', retries=1):
         reg.npa = None
         try:

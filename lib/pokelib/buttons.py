@@ -655,7 +655,20 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(0.2),
                                     invert=False),  
                                     'SETTINGS')
-
+        self.t_raid_battle = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.2),
+                                    xe=ts.rel_x(0.7),
+                                    ys=ts.rel_y(0.5),
+                                    ye=ts.rel_y(0.9),
+                                    invert=True),  
+                                    'BATTLE')
+        self.t_raid_battle = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.2),
+                                    xe=ts.rel_x(0.7),
+                                    ys=ts.rel_y(0.3),
+                                    ye=ts.rel_y(0.9),
+                                    invert=True),  
+                                    'SUMMARY')
     def t_gift(self, *args, **kwargs):
         self.startx = self.ocr.startx = int(0.6 * self.ts.specs['max_x'])
         self.endx = self.ocr.endx = int(0.8 * self.ts.specs['max_x'])

@@ -315,6 +315,15 @@
       "args": [
         "-s"
       ]
+    },  
+    {
+      "name": "raid",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/raid.py",
+      "console": "integratedTerminal",
+      "args": []
     },    
     {
       "name": "Change trainer",
