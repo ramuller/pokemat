@@ -75,7 +75,7 @@ def gifting(port):
             if phone.buttons.i_x_clear_text.press(retries=1):
                sleep(0.5)
 
-            if not phone.buttons.b_friends_search.press():
+            if not phone.buttons.i_friends_search.press():
                 print('No SEARCH button found')
                 phone.screen.go_home()
                 raise Exception('No SEARCH button found')
@@ -85,7 +85,7 @@ def gifting(port):
             # while phone.color_match(52, 1335, 255, 255, 255):
             #     phone.tap_screen(612, 494)
             #     time.sleep(0.3)
-            # time.sleep(0.5)
+            time.sleep(1.5)
             phone.selectAll()
             phone.text_line_ok("\b")
             phone.text_line_ok("!ff & !lucky & interactable")

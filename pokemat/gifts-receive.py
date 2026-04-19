@@ -87,7 +87,7 @@ def gifting(port):
             # while phone.color_match(52, 1335, 255, 255, 255):
             #     phone.tap_screen(612, 494)
             #     time.sleep(0.3)
-            # time.sleep(0.5)
+            time.sleep(1.5)
             phone.selectAll()
             phone.text_line_ok("\b")
             if args.all:
@@ -117,7 +117,7 @@ def gifting(port):
 
             # Back to friends
             max_tries = 0
-            b = phone.buttons.t_friends.search(retries=1)
+            b = phone.buttons.i_friends.search(retries=1)
             while not b:
                 phone.buttons.i_exits.press(retries=1)
                 sleep(2)
