@@ -104,7 +104,7 @@ def do_change_trainer(port, trainer):
         except Exception as e:
             print(f"Exceptionf {e}")
             pass
-        if phone.buttons.t_returning_player.check(retries=30) == None:
+        if phone.buttons.t_returning_player.search(retries=30) == None:
             return False
         ret = True
 

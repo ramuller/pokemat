@@ -75,10 +75,12 @@ def gifting(port):
             if phone.buttons.i_x_clear_text.press(retries=1):
                sleep(0.5)
 
-            if not phone.buttons.t_friends_search.press():
+            # bt = phone.buttons.i_friends_search.search(retries=1)
+            # sleep(0.5)
+            if not phone.buttons.i_friends_search.press():
                 print('No SEARCH button found')
-                phone.screen.go_home()
-                raise Exception('No SEARCH button found')
+                # phone.screen.go_home()
+                # raise Exception('No SEARCH button found')
 
             # friends_raw = phone.ocr.read_area_percent(xs=25 ,xe=45 , ys=30 , ye=90)
 
@@ -112,25 +114,21 @@ def gifting(port):
             else:
                 print("Friend has gift")
                 b = phone.buttons.b_open_gift.press(retries=10)
- 
-                if b is not None:
-                    receive_gifts = True
-                else:
-                    receive_gifts = False
 
-                b = phone.buttons.b_limit.search(retries=10)
-
+            # Back to friends
+            max_tries = 0
+            b = phone.buttons.t_friends.search(retries=1)
+            while not b:
+                phone.buttons.i_exits.press(retries=1)
                 sleep(2)
-
-                reg = ScreenRegion(phone, ys=phone.rel_y(0.8))
-                while len(phone.ocr.regex('SEND', reg)) < 1:
-                    phone.tap_screen(phone.rel_x(0.05), phone.rel_y(0.05), scale=False)
-                    sleep(0.3)
-                # Back to trainer screen
-                # phone.tap_screen(500,1850)
-                sleep(1)
-                b = phone.buttons.i_exits.press(retries=50)
-            phone.buttons.t_friends.search(retries=10,pause=1)
+                b = phone.buttons.t_friends.search(retries=1)
+                phone.buttons.t_passenger.search(retries=1)
+                max_tries += 1
+                if max_tries > 30:
+                    phone.screen.go_friends()
+                    break
+            pass
+ 
                 
             # self.color_match(161, 808, 246, 246, 246, match=False)
         except ExPokeLibFatal as e:

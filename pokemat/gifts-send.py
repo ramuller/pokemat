@@ -75,7 +75,7 @@ def gifting(port):
             if phone.buttons.i_x_clear_text.press(retries=1):
                sleep(0.5)
 
-            if not phone.buttons.t_friends_search.press():
+            if not phone.buttons.b_friends_search.press():
                 print('No SEARCH button found')
                 phone.screen.go_home()
                 raise Exception('No SEARCH button found')

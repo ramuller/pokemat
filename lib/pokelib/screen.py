@@ -18,7 +18,7 @@ class Screen:
     check if for those buttons
     '''
     def _button_over_home(self):
-        if self.ts.buttons.b_passanger_fast.search():
+        if self.ts.buttons.b_passenger_fast.search():
             print('Passanger')
 
 
@@ -131,7 +131,7 @@ class Screen:
                 #             self.tap_screen(b_text['center'])
                 #             break
                 count = 0
-            if self.ts.buttons.t_passanger.press(retries=1):
+            if self.ts.buttons.t_passenger.press(retries=1):
                 continue
             sleep(0.5)
 

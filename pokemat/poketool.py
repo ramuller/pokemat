@@ -180,14 +180,13 @@ def button():
         print('Available buttons not all a really buttons!:')
         for b in dir(phone.buttons):
             if b.startswith('i_') \
+                or b.startswith('t_') \
                 or b.startswith('b_'): # and callable(getattr(phone.buttons, b)):
                 print(f'Button name : {b}')
         return
     print(f'Search button function {args.name}')
+    method = getattr(phone.buttons, args.name)
     reg = _set_paramters_from_args()
-    method = getattr(phone.buttons, args.name)
-    method.reg = reg
-    method = getattr(phone.buttons, args.name)
     rep = args.count
     for i in range(rep):
         detection = method.search(

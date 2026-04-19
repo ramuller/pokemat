@@ -151,7 +151,7 @@
       "args": [
         "button",
         "--name",
-        "b_catch_berry",
+        "t_passenger",
         "--show",
         "--verbose",
         "6"
@@ -325,7 +325,7 @@
       "console": "integratedTerminal",
       "debugOptions": ["DisableGUI"],
       "args": [
-        "higimmi123"
+        "higimmi222"
       ]
     },    
     {

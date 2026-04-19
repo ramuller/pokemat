@@ -74,6 +74,9 @@ ICONS_PATH = {
     'gym_mine': {
         'gym_mine': 'gym_mine.png',
     },
+    'friends_search': {
+        'friends_search': 'friends_search.png',
+    },
     'route_started': {
         'route_started': 'route_started.png',
     },
@@ -192,6 +195,7 @@ Text only now extra surrounding
 class TextOnly(ButtonParameter):
     def __init__(self, reg):
         super().__init__(reg)
+        sb = StdButtons
 
 
     def search(self, text,
@@ -206,16 +210,14 @@ class TextOnly(ButtonParameter):
                 verbose=0):
         reg = ScreenRegion(self.ts, 
                            xs=xs, xe=xe, 
-                           ys=ys, ye=ye)
-        reg.mode = mode
-        reg.invert = invert
-        reg.process = process
-        b, _ = self.ts.buttons.flat_text_button(text,
-                                                reg, 
-                                                retries=retries,
-                                                delay=delay,
-                                                pause=pause,
-                                                verbose=verbose)
+                           ys=ys, ye=ye,
+                           invert=invert,
+                           process=process,
+                           mode=mode)
+
+        b = self.ts.ocr.regex(text,
+                                reg, 
+                                verbose=verbose)
         if self.search_callback:
             self.search_callback(self.ts, b)
         return b
@@ -244,6 +246,8 @@ class TextFlat(ButtonParameter):
         self.updated = False
 
     def search(self, retries=1, pause=1, verbose=0):
+        if verbose > 1:
+            print(f'SEARCH {self.text}')
         b = self.ocr.regex(self.text,
                             self.reg, 
                             retries=retries,
@@ -488,6 +492,12 @@ class Buttons(ButtonParameter):
                                         ys=int(ts.specs['max_y'] * 0.70),
                                         ye=int(ts.specs['max_y'] * 0.90)),
                                     'gym_mine')
+        self.i_friends_search = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.5),
+                                        xe=int(ts.specs['max_x'] * 0.8),
+                                        ys=int(ts.specs['max_y'] * 0.10),
+                                        ye=int(ts.specs['max_y'] * 0.40)),
+                                        'friends_search')
         self.i_route_started = IconButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.8),
                                         xe=int(ts.specs['max_x']),
@@ -568,12 +578,14 @@ class Buttons(ButtonParameter):
                                     ys=ts.rel_y(0.05),
                                     ye=ts.rel_y(0.15)),
                                     'IENDS')
-        self.t_passanger = TextFlat(ScreenRegion(ts,
-                                    xs=ts.rel_x(0.4),
-                                    xe=ts.rel_x(0.6),
-                                    ys=ts.rel_y(0.05),
-                                    ye=ts.rel_y(0.15)),
-                                    'PASSANGER')
+        self.t_passenger = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.25),
+                                    xe=ts.rel_x(0.75),
+                                    ys=ts.rel_y(0.50),
+                                    ye=ts.rel_y(0.75),
+                                    invert=True,
+                                    process=False),
+                                    'PASSENGER')
         self.t_cancel = TextFlat(ScreenRegion(ts,
                                     xs=ts.rel_x(0.4),
                                     xe=ts.rel_x(0.6),
