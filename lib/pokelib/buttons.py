@@ -169,7 +169,7 @@ class ButtonParameter:
         b = self.search(*args, **kwargs)
         if b:
             if 'delay' in kwargs:
-                sleep(delay)
+                sleep(kwargs['delay'])
             else:
                 sleep(self.delay)
             # self.ts.tap_screen(b['center'][0], b['center'][1], scale=False)
@@ -281,8 +281,8 @@ class TextButton(ButtonParameter):
                 retries=retries, 
                 verbose=verbose)
         else:
-            return b.white(
-                self.self.text,
+            return self.b.white(
+                self.text,
                 reg=self.reg,
                 action='check',
                 delay=delay,
@@ -558,6 +558,13 @@ class Buttons(ButtonParameter):
                                     ys=int(ts.specs['max_y'] * 0.70),
                                     ye=int(ts.specs['max_y'] * 0.95)), 
                                     'OPEN')
+        self.b_yes = TextButton(ScreenRegion(ts,
+                                    invert=True,
+                                    xs=int(ts.specs['max_x'] * 0.20),
+                                    xe=int(ts.specs['max_x'] * 0.80),
+                                    ys=int(ts.specs['max_y'] * 0.30),
+                                    ye=int(ts.specs['max_y'] * 0.70)), 
+                                    'YES')
         self.b_send_gift = TextButton(ScreenRegion(ts,
                                     invert=True,
                                     xs=int(ts.specs['max_x'] * 0.20),
@@ -619,24 +626,35 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(1),
                                     color='blue'),
                                     'SEND')
-        self.t_returning_player = TextFlat(ScreenRegion(ts,
+        self.t_returning_player = TextButton(ScreenRegion(ts,
                                     xs=ts.rel_x(0.05),
                                     xe=ts.rel_x(0.9),
                                     ys=ts.rel_y(0.1),
-                                    ye=ts.rel_y(1)),  
+                                    ye=ts.rel_y(0.5),
+                                    invert=True,
+                                    color='blue'),  
+
                                     'RETURNING')
-        self.t_login_google = TextFlat(ScreenRegion(ts,
+        self.t_login_google = TextButton(ScreenRegion(ts,
                                     xs=ts.rel_x(0.05),
                                     xe=ts.rel_x(0.9),
-                                    ys=ts.rel_y(0.1),
-                                    ye=ts.rel_y(1)),  
+                                    ys=ts.rel_y(0.3),
+                                    ye=ts.rel_y(0.6)),  
                                     'Google')
         self.t_login_choose = TextFlat(ScreenRegion(ts,
                                     xs=ts.rel_x(0.2),
                                     xe=ts.rel_x(0.9),
                                     ys=ts.rel_y(0.1),
-                                    ye=ts.rel_y(1)),  
+                                    ye=ts.rel_y(1),
+                                    invert=True),  
                                     'Choose')
+        self.t_setting = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.5),
+                                    xe=ts.rel_x(0.9),
+                                    ys=ts.rel_y(0.1),
+                                    ye=ts.rel_y(0.2),
+                                    invert=False),  
+                                    'SETTINGS')
 
     def t_gift(self, *args, **kwargs):
         self.startx = self.ocr.startx = int(0.6 * self.ts.specs['max_x'])

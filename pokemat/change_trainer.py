@@ -80,13 +80,15 @@ def do_change_trainer(port, trainer):
         gog = phone.buttons.t_login_google.search(retries=1)
         choose = phone.buttons.t_login_choose.search(retries=1)
 
-    if ret == None and gog == None and choose == None:
+    if ret == None \
+        and gog == None \
+        and choose == []:
         try:
             phone.screen_go_to_home()
             sleep(1)
             phone.buttons.i_pokeball.press()
             sleep(1)
-            t = phone.buttons.black_on_white('.*SETTINGS.*', verbose=0)
+            t = phone.buttons.t_setting.press(verbose=0)
             sleep(1)
             sx = 1
             sy = int(phone.specs['max_y'] * 0.9)
@@ -96,7 +98,7 @@ def do_change_trainer(port, trainer):
                 sleep(0.5)
                 t = phone.buttons.text_only.press('.*Sign.*', xs=phone.rel_x(0.05), xe=phone.rel_x(0.5), retries=3, verbose=0)
                 sleep(0.5)
-                t = phone.buttons.dark('.*YES.*', action='press', retries=3, verbose=0)
+                t = phone.buttons.b_yes.press(retries=3, verbose=0)
             else:
                 print("Not idea where we are, cannot change trainer")
                 return False
@@ -109,7 +111,7 @@ def do_change_trainer(port, trainer):
         ret = True
 
     if ret:
-        phone.buttons.t_returning_player.pressretries=3()
+        phone.buttons.t_returning_player.press(retries=3)
         gog = True
     if gog:
         gog = phone.buttons.t_login_google.press(retries=3, delay=2)

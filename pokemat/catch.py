@@ -54,12 +54,12 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
             p.buttons.i_catch_berry.press()
             sleep(0.5)
             if berry == "a":
-                bs = 'PINAP'
+                bs = 'PINAP BERRY'
             elif berry == "g":
                 bs = 'GOLDEN'
                 b = p.buttons.black_on_white('GOLDEN', action='check')
             elif berry == "s":
-                bs = 'SILVER'
+                bs = 'SILVER PINAP'
                 b = p.buttons.black_on_white('SILVER', action='check')
             elif berry == "r":
                 bs = 'RAZZ'
@@ -68,7 +68,9 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
                 bs = 'NANAB'
     
             for i in range(5):
-                b = p.buttons.text_only.search(bs, ys=p.rel_y(0.6))
+                b = p.buttons.text_only.search(bs,
+                                               ys=p.rel_y(0.6),
+                                               mode='line')
                 if b:
                     sleep(0.5)
                     print(f'tap on x{b['center'][0]} y{b['top'] - 3 * b['height']}')

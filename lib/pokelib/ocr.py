@@ -59,9 +59,9 @@ class Ocr:
         # with suppress_stderr():
         t = self.api.GetUTF8Text()
         ri = self.api.GetIterator()
-        if self.mode == 'line':
+        if reg.mode == 'line':
             level = RIL.TEXTLINE
-        elif self.mode == 'symbol':
+        elif reg.mode == 'symbol':
             self.level = RIL.SYMBOL
         else:
             level = RIL.WORD
@@ -110,13 +110,11 @@ class Ocr:
         return concatenated
     
     def read_and_npa(self, reg : ScreenRegion=None,
-                     mode='word',
                      verbose=0):
         reg = reg or ScreenRegion(self.ts)
         if reg.npa is None:
             reg.npa = self.image.scan_region(reg)
         reg = self.image.process_array(reg, verbose=verbose)
-        self.mode = mode
         t = self._tesserocr_from_array(reg, verbose=verbose)
         return t, reg
 
