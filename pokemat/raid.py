@@ -33,7 +33,7 @@ def raid(port):
     reg = ScreenRegion(phone, ys=phone.rel_y(0.5))
 
     for i in range(10):
-        b = phone.buttons.t_raid_battle.press(retries=1)
+        b = phone.buttons.i_raid_battle.press(retries=1)
         reg.npa = None
         if b or phone.ocr.regex('RAID', reg):
             sleep(1)

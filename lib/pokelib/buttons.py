@@ -89,6 +89,9 @@ ICONS_PATH = {
     'go_out_bright': {
         'go_out_bright': 'go_out_bright.png'
     },
+    'raid_battle': {
+        'go_out_bright': 'raid_battle.png'
+    },
     'catch_ball': {
         'red_5': 'red-5.png',
         'red_6': 'red-6.png',
@@ -539,6 +542,12 @@ class Buttons(ButtonParameter):
         self.i_fake_3dot = IconButton(ScreenRegion(ts, ye=int(ts.specs['max_y'] * 0.2)), 'fake_3dot')
         self.i_fake_map = IconButton(ScreenRegion(ts, ye=int(ts.specs['max_y'] * 0.2)), 'fake_map')
         self.i_fake_search = IconButton(ScreenRegion(ts, ye=int(ts.specs['max_y'] * 0.2)), 'fake_search')
+        self.i_raid_battle = IconButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.2),
+                                    xe=ts.rel_x(0.8),
+                                    ys=ts.rel_y(0.5),
+                                    ye=ts.rel_y(0.8)),
+                                    'raid_battle')
         self.b_passanger_fast = TextButton(ScreenRegion(ts,
                                     invert=True,
                                     xs=int(ts.specs['max_x'] * 0.45),
@@ -655,14 +664,7 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(0.2),
                                     invert=False),  
                                     'SETTINGS')
-        self.t_raid_battle = TextFlat(ScreenRegion(ts,
-                                    xs=ts.rel_x(0.2),
-                                    xe=ts.rel_x(0.7),
-                                    ys=ts.rel_y(0.5),
-                                    ye=ts.rel_y(0.9),
-                                    invert=True),  
-                                    'BATTLE')
-        self.t_raid_battle = TextFlat(ScreenRegion(ts,
+        self.t_raid_summary = TextButton(ScreenRegion(ts,
                                     xs=ts.rel_x(0.2),
                                     xe=ts.rel_x(0.7),
                                     ys=ts.rel_y(0.3),
