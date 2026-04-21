@@ -88,7 +88,7 @@ def do_change_trainer(port, trainer):
             sleep(1)
             phone.buttons.i_pokeball.press()
             sleep(1)
-            t = phone.buttons.t_setting.press(verbose=0)
+            t = phone.buttons.t_setting.press(retries=5, verbose=0)
             sleep(1)
             sx = 1
             sy = int(phone.specs['max_y'] * 0.9)

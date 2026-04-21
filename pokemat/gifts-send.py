@@ -96,15 +96,16 @@ def gifting(port):
 
             if phone.buttons.i_x_clear_text.press(retries=1):
                sleep(0.5)
-            sleep(2)
+            sleep(1)
             has_gift = phone.buttons.i_friends_gift.press()
             if not has_gift:
                 ra = phone.ratio()
                 y = phone.rel_y(0.7 / phone.ratio())
                 phone.tap_screen(phone.rel_x(0.5), y, scale=False)
-
+                
             can_send_gifts = phone.gift_send(has_gift = has_gift)
             max_tries = 0
+            sleep(1)
             b = phone.buttons.t_friends.search(retries=1)
             while not b:
                 phone.buttons.i_exits.press(retries=10)
