@@ -270,6 +270,8 @@ def my_callback(ts, det):
 def my_test():
     # phone.screen.go_home()
     # return True
+    phone.screen.is_in_lobby()
+    
     reg = ScreenRegion(phone,
                             xs=int(phone.specs['max_x'] * 0.15),
                             xe=int(phone.specs['max_x'] * 0.30),

@@ -59,9 +59,7 @@ def raid(port):
     print("Raid starts")
 
     # self.color_match(500, 144, 70, 207, 181)
-    reg = ScreenRegion(phone, ys=phone.rel_y(0.75))
-    while not phone.buttons.t_raid_summary('.*SUMMARY.*', reg=reg,
-                                 action='check', retries=1):
+    while not phone.buttons.t_raid_summary.search(retries=1):
         reg.npa = None
         try:
             for x in range(200,700,150):

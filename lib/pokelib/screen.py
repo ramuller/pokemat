@@ -47,7 +47,9 @@ class Screen:
             return True
 
     def is_in_lobby(self):
-        reg = ScreenRegion(self.ts, ye=self.ts.rel_y(0.15))
+        reg = ScreenRegion(self.ts, ys=self.ts.rel_y(0.03), \
+                           ye=self.ts.rel_y(0.20), \
+                           invert=True)
         lines = self.ts.ocr.read(reg)
         for l in lines:
             if l['text'] in ['QUIT','ITEMS', 'GROUP','CODE']:
