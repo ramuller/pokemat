@@ -73,7 +73,7 @@ def select_trainer(trainer):
 def do_change_trainer(port, trainer):
     ret = None
     gog = None
-    choose = None
+    choose = []
 
     if phone.screen.get_current_screen() != 'home':
         ret = phone.buttons.t_returning_player.search(retries=1)
@@ -89,6 +89,10 @@ def do_change_trainer(port, trainer):
             phone.buttons.i_pokeball.press()
             sleep(1)
             t = phone.buttons.t_setting.press(retries=5, verbose=0)
+
+            t = phone.buttons.text_only.search('SETTINGS', \
+                                               ye=phone.rel_y(0.3), \
+                                               retries=5)
             sleep(1)
             sx = 1
             sy = int(phone.specs['max_y'] * 0.9)
@@ -96,7 +100,9 @@ def do_change_trainer(port, trainer):
                          start_x=sx, start_y=sy, scale=False)
             if t:
                 sleep(0.5)
-                t = phone.buttons.text_only.press('.*Sign.*', xs=phone.rel_x(0.05), xe=phone.rel_x(0.5), retries=3, verbose=0)
+                t = phone.buttons.text_only.press('.*Sign.*', \
+                                                  xs=phone.rel_x(0.05), xe=phone.rel_x(0.5), \
+                                                  retries=3, verbose=0)
                 sleep(0.5)
                 t = phone.buttons.b_yes.press(retries=3, verbose=0)
             else:

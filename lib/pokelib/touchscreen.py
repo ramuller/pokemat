@@ -1770,7 +1770,10 @@ class TouchScreen:
         sleep(1)
         self.buttons.t_send_gift.search(retries=10)
         if self.wait_gift_ready():
+            sleep(0.5)
             self.buttons.t_send_gift.press(retries=5)
+        else:
+            return False
         sleep(1)
 
         self.select_gift()

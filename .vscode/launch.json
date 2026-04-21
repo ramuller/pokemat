@@ -206,7 +206,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/gifts-receive.py",
       "console": "integratedTerminal",
-      "args": [ ]
+      "args": [ "-a" ]
     },   
      {
       "name": "gifts send",

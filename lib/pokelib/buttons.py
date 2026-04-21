@@ -560,6 +560,12 @@ class Buttons(ButtonParameter):
                                     ys=int(ts.specs['max_y'] * 0.40),
                                     ye=int(ts.specs['max_y'] * 0.72)), 
                                     'Berry')
+        self.b_catched_OK = TextButton(ScreenRegion(ts,
+                                    invert=True,
+                                    process=True,
+                                    ys=int(ts.specs['max_y'] * 0.40),
+                                    ye=int(ts.specs['max_y'] * 0.80)), 
+                                    'OK')
         self.b_open_gift = TextButton(ScreenRegion(ts,
                                     invert=True,
                                     xs=int(ts.specs['max_x'] * 0.20),
