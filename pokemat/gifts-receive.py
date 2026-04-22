@@ -71,13 +71,13 @@ def gifting(port):
             # Wait for trainer screen
             phone.sort_has_gift()
             # phone.screen.go_friends()
-
+            sleep(1)
             if phone.buttons.i_x_clear_text.press(retries=1):
                sleep(0.5)
 
             bt = phone.buttons.i_friends_search.search(retries=1)
             # sleep(0.5)
-            if not phone.buttons.t_friends_search.press():
+            if not phone.buttons.i_friends_search.press():
                 print('No SEARCH button found')
                 # phone.screen.go_home()
                 # raise Exception('No SEARCH button found')
@@ -117,6 +117,7 @@ def gifting(port):
 
             # Back to friends
             max_tries = 0
+            sleep(3)
             b = phone.buttons.t_friends.search(retries=1)
             while not b:
                 phone.buttons.i_exits.press(retries=1)

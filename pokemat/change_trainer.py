@@ -93,7 +93,7 @@ def do_change_trainer(port, trainer):
             t = phone.buttons.text_only.search('SETTINGS', \
                                                ye=phone.rel_y(0.3), \
                                                retries=5)
-            sleep(1)
+            sleep(2)
             sx = 1
             sy = int(phone.specs['max_y'] * 0.9)
             phone.scroll(0, int(phone.specs['max_y'] * -0.8), 
