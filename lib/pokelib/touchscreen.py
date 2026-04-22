@@ -1724,13 +1724,13 @@ class TouchScreen:
                             xs=self.rel_x(0.02),
                             xe=self.rel_x(0.70),
                             ys=self.rel_y(0.30),
-                            ye=self.rel_y(0.7),             
+                            ye=self.rel_y(0.65),             
                             color='green')
         reg2 = ScreenRegion(self,
                             xs=self.rel_x(0.12),
                             xe=self.rel_x(0.70),
                             ys=self.rel_y(0.40),
-                            ye=self.rel_y(0.7),             
+                            ye=self.rel_y(0.65),             
                             color='green')
         startTime = datetime.now()
         try:

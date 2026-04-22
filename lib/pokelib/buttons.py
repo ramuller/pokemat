@@ -639,7 +639,7 @@ class Buttons(ButtonParameter):
                                     xe=ts.rel_x(0.30),
                                     ys=ts.rel_y(0.75),
                                     ye=ts.rel_y(1),
-                                    color='blue'),
+                                    color='gray'),
                                     'SEND')
         self.t_returning_player = TextButton(ScreenRegion(ts,
                                     xs=ts.rel_x(0.05),
