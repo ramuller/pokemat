@@ -30,7 +30,6 @@ from pokelib import ExPokeLibError, ExPokeNoHomeError, ExPokeLibFatal
 import signal
 import functools
 from pprint import pprint
-import inspect
 
 
 '''
@@ -128,7 +127,9 @@ class TouchScreen:
         specs["h"] = specs["height"]
         specs["w"] = specs["width"]
         # Check if we have a buttonbar
-        if self.color_match(specs["width"] // 3, \
+        if specs['model'] in ['SM-G930F']:
+            nav_bar = False
+        elif self.color_match(specs["width"] // 3, \
                             specs["height"] - 1, \
                             32, 109, 224 , \
                             threashold=15, scale=False, \
@@ -1715,6 +1716,8 @@ class TouchScreen:
                 reg.npa = self.image.scan_region(reg)
                 if reg.npa.min() < 50:
                     return True
+                if self.buttons.b_open_gift.search():
+                    self.buttons.i_exits.press(retries=1)
             return False
         except Exception as e:
             print(f'ERROR : wait_gift_ready {e}')   
@@ -1723,25 +1726,44 @@ class TouchScreen:
         reg = ScreenRegion(self,
                             xs=self.rel_x(0.02),
                             xe=self.rel_x(0.70),
-                            ys=self.rel_y(0.30),
-                            ye=self.rel_y(0.65),             
-                            color='green')
-        reg2 = ScreenRegion(self,
-                            xs=self.rel_x(0.12),
-                            xe=self.rel_x(0.70),
-                            ys=self.rel_y(0.40),
-                            ye=self.rel_y(0.65),             
                             color='green')
         startTime = datetime.now()
         try:
             while (datetime.now() - startTime).total_seconds() < 20:
-                txt = self.ocr.regex('.*...*', reg)
-                if txt is None:
-                    txt = self.ocr.regex('.*...*', reg2)
-                if txt is not None:
-                    self.tap_screen(txt['center'], scale=False)
-                    sleep(0.5)
-                    return
+                for y in range(self.rel_y(0.30), self.rel_y(0.51), self.rel_y(0.05)):
+                    reg.ys = y
+                    reg.ye = y + self.rel_y(0.20)
+                    txt = self.ocr.regex('.*...*', reg, verbose=0)
+                    if txt != []:
+                        self.tap_screen(txt['center'], scale=False)
+                        sleep(0.5)
+                        return
+                sleep(0.5)
+
+            return   
+
+        # reg = ScreenRegion(self,
+        #                     xs=self.rel_x(0.02),
+        #                     xe=self.rel_x(0.70),
+        #                     ys=self.rel_y(0.30),
+        #                     ye=self.rel_y(0.65),             
+        #                     color='green')
+        # reg2 = ScreenRegion(self,
+        #                     xs=self.rel_x(0.12),
+        #                     xe=self.rel_x(0.70),
+        #                     ys=self.rel_y(0.40),
+        #                     ye=self.rel_y(0.65),             
+        #                     color='green')
+        # startTime = datetime.now()
+        # try:
+        #     while (datetime.now() - startTime).total_seconds() < 20:
+        #         txt = self.ocr.regex('.*...*', reg)
+        #         if txt is None:
+        #             txt = self.ocr.regex('.*...*', reg2)
+        #         if txt is not None:
+        #             self.tap_screen(txt['center'], scale=False)
+        #             sleep(0.5)
+        #             return
         except Exception as e:
             print(f'ERROR :  select_gift {e}')
 

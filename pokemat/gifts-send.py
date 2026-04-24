@@ -112,7 +112,8 @@ def gifting(port):
                 sleep(1)
                 b = phone.buttons.t_friends.search(retries=1)
                 max_tries += 1
-                if max_tries > 10:
+                if max_tries > 10 \
+                    or phone.screen.get_current_screen() == 'home':
                     phone.screen.go_friends()
                     break
             pass
