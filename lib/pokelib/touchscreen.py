@@ -1730,10 +1730,10 @@ class TouchScreen:
         startTime = datetime.now()
         try:
             while (datetime.now() - startTime).total_seconds() < 20:
-                for y in range(self.rel_y(0.30), self.rel_y(0.51), self.rel_y(0.05)):
+                for y in range(self.rel_y(0.40), self.rel_y(0.61), self.rel_y(0.05)):
                     reg.ys = y
                     reg.ye = y + self.rel_y(0.20)
-                    txt = self.ocr.regex('.*...*', reg, verbose=0)
+                    txt = self.ocr.regex('.*....*', reg, verbose=0)
                     if txt != []:
                         self.tap_screen(txt['center'], scale=False)
                         sleep(0.5)

@@ -58,13 +58,17 @@ def select_trainer(trainer):
     print(f"RE {regex}")
      
     for i in range(2):
-        if phone.buttons.text_only.press(regex, xs=phone.rel_x(0.2), mode='line', retries=2, verbose=0):
+        if phone.buttons.text_only.press(regex, 
+                                         xs=phone.rel_x(0.2),
+                                         mode='line',
+                                         invert=True,
+                                         retries=2, verbose=0):
             return True
         sx = int(phone.specs['width'] // 2 )
         sy = int(phone.specs['max_y'] * 0.9)
         phone.scroll(0, int(phone.specs['max_y'] * -0.8), 
                      start_x=sx, start_y=sy, scale=False)
-        sleep(5)
+        sleep(3)
          
         
     return False
@@ -96,15 +100,17 @@ def do_change_trainer(port, trainer):
             sleep(2)
             sx = 1
             sy = int(phone.specs['max_y'] * 0.9)
-            phone.scroll(0, int(phone.specs['max_y'] * -0.8), 
-                         start_x=sx, start_y=sy, scale=False)
-            if t:
+            for t in range(3):
+                phone.scroll(0, int(phone.specs['max_y'] * -0.8), 
+                             start_x=sx, start_y=sy, scale=False)
                 sleep(0.5)
                 t = phone.buttons.text_only.press('.*Sign.*', \
                                                   xs=phone.rel_x(0.05), xe=phone.rel_x(0.5), \
                                                   retries=3, verbose=0)
                 sleep(0.5)
-                t = phone.buttons.b_yes.press(retries=3, verbose=0)
+                if t:
+                    t = phone.buttons.b_yes.press(retries=3, verbose=0)
+                    break
             else:
                 print("Not idea where we are, cannot change trainer")
                 return False
@@ -112,7 +118,7 @@ def do_change_trainer(port, trainer):
         except Exception as e:
             print(f"Exceptionf {e}")
             pass
-        if phone.buttons.t_returning_player.search(retries=30) == None:
+        if phone.buttons.t_returning_player.search(retries=60) == None:
             return False
         ret = True
 
