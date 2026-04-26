@@ -371,7 +371,8 @@
       "programc": "${workspaceFolder}/pokemat/raid.py",
       "programb": "${workspaceFolder}/pokemat/autocatch.py",
       "programz": "${workspaceFolder}/pokemat/purify-pokemon.py",
-      "program": "${workspaceFolder}/pokemat/grunt.py",
+      "programy": "${workspaceFolder}/pokemat/grunt.py",
+      "program": "${workspaceFolder}/pokemat/purify-pokemon.py",
       "console": "integratedTerminal",
       "args": [
       ]

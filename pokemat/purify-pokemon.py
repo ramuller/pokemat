@@ -45,11 +45,12 @@ def delete_pokemon(port):
             sleep(1)
             sx = int(phone.specs['width'] // 2 )
             sy = int(phone.specs['max_y'] * 0.5)           
-            phone.scroll(0, int(phone.specs['max_y'] * -0.6), 
+            phone.scroll(0, int(phone.specs['max_y'] * -0.2), 
                      start_x=sx, start_y=sy, scale=False)
-            phone.buttons.dark('PURIFY')
             sleep(1)
-            phone.buttons.dark('YES')
+            phone.buttons.b_pomon_purify.press()
+            sleep(1)
+            phone.buttons.b_yes.press()
             sleep(10)
             for i in range(30):
                 r = phone.ocr.regex('.*kg',ScreenRegion(phone, ys=phone.rel_y(0.5)))

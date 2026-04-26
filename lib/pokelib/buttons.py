@@ -58,6 +58,7 @@ ICONS_PATH = {
     },
     'friends_gift': {
         'friends_gift': 'friends_gift.png',
+        'friends_gift': 'friends_gift_2.png',
     },
     'friend_has_gift': {
         'friend_gift': 'friend_has_gift.png',
@@ -719,6 +720,13 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(0.8),
                                     invert=False),  
                                     'KNOWN')
+        self.b_pomon_purify = TextButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0),
+                                    xe=ts.rel_x(1),
+                                    ys=ts.rel_y(0.3),
+                                    ye=ts.rel_y(1),
+                                    invert=True),  
+                                    'PURIFY')
         
     def t_gift(self, *args, **kwargs):
         self.startx = self.ocr.startx = int(0.6 * self.ts.specs['max_x'])
