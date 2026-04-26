@@ -1,4 +1,5 @@
 from time import sleep
+import traceback
 import re
 import numpy as np
 from PIL import Image
@@ -47,8 +48,13 @@ class Ocr:
         # trigger recognition (GetUTF8Text returns full text, iterator used below)
         # Only tesserocr after here
         # self.api.SetPageSegMode(PSM.SINGLE_WORD)
-
-        h, w = reg.npa.shape
+        try:
+            h, w = reg.npa.shape
+        except Exception as e:
+            print("Call stack:")
+            traceback.print_stack()   # prints current stack to stdout
+            print(f'ERROR : ocr npa {e}')
+            return []
         self.api.SetImageBytes(
                 reg.npa.tobytes(),
                 w, h,
@@ -143,7 +149,7 @@ class Ocr:
         for tries in range(retries, 0, -1):
             reg.npa = None
             lines, reg = self.read_and_npa(reg, verbose=verbose)
-            self.reset_parameters()
+            # self.reset_parameters()
             print(f'Tries {tries}')
             for l in lines:
                 # print(f'Line {l["text"]}')

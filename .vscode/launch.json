@@ -259,7 +259,7 @@
       "program": "${workspaceFolder}/pokemat/route.py",
       "console": "integratedTerminal",
       "args": [
-
+        "--route", "vuorelle"
       ]
     },  
     {

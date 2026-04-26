@@ -504,7 +504,7 @@ class Buttons(ButtonParameter):
         self.i_route_started = IconButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.8),
                                         xe=int(ts.specs['max_x']),
-                                        ys=int(ts.specs['max_y'] * 0.70),
+                                        ys=int(ts.specs['max_y'] * 0.60),
                                         ye=int(ts.specs['max_y'] * 0.90)),
                                     'route_started')
         self.i_route_end = IconButton(ScreenRegion(ts,
@@ -677,6 +677,49 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(0.9),
                                     invert=True),  
                                     'SUMMARY')
+        self.t_overview_route = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.70),
+                                    xe=ts.rel_x(1),
+                                    ys=ts.rel_y(0.1),
+                                    ye=ts.rel_y(0.2),
+                                    invert=False),  
+                                    'ROUTE')
+        self.b_route_nearby = TextButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0),
+                                    xe=ts.rel_x(1),
+                                    ys=ts.rel_y(0.4),
+                                    ye=ts.rel_y(0.8),
+                                    invert=False),  
+                                    'NEARBY')
+        self.b_route_follow = TextButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0),
+                                    xe=ts.rel_x(1),
+                                    ys=ts.rel_y(0.4),
+                                    ye=ts.rel_y(0.8),
+                                    invert=True),  
+                                    'FOLLOW')
+        self.b_route_complete = TextButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0),
+                                    xe=ts.rel_x(1),
+                                    ys=ts.rel_y(0.5),
+                                    ye=ts.rel_y(0.9),
+                                    invert=True),  
+                                    'COMPLETE')
+        self.b_route_quit = TextButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0),
+                                    xe=ts.rel_x(1),
+                                    ys=ts.rel_y(0.4),
+                                    ye=ts.rel_y(0.8),
+                                    invert=False),  
+                                    'QUIT')
+        self.t_route_known = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0),
+                                    xe=ts.rel_x(1),
+                                    ys=ts.rel_y(0.4),
+                                    ye=ts.rel_y(0.8),
+                                    invert=False),  
+                                    'KNOWN')
+        
     def t_gift(self, *args, **kwargs):
         self.startx = self.ocr.startx = int(0.6 * self.ts.specs['max_x'])
         self.endx = self.ocr.endx = int(0.8 * self.ts.specs['max_x'])

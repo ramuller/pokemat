@@ -25,7 +25,8 @@ source $SCRIPT_DIR/phone-lib.sh
 # [ -n "$EXTRA" ] || EXTRA="-S --disable-screensaver"
 [ -n "$EXTRA" ] || EXTRA="--disable-screensaver"
 
-STD_ARGS="-m 1024 --max-fps=8 --no-audio-playback --raw-key-events --no-resize"
+STD_ARGS="-m 1024 --max-fps=8 --no-audio-playback --raw-key-events --no-resize --audio-codec=aac"
+STD_ARGS="-m 1024 --max-fps=8 --no-audio-playback --raw-key-events --audio-codec=aac"
 
 cd $ZAPPER_DIR
 

@@ -17,37 +17,42 @@ from datetime import datetime
 def _quit_route(phone):
     print("Quit route!!!")
     phone.screen_go_to_home()
-    phone.tap_screen(916, 1552)
+    button = phone.buttons.i_route_started.press(retries=3)
     sleep(0.75)
-    for i in range(3):
-        phone.scroll(0, -1800, start_x=900, start_y=1900)
+    for i in range(5):
+        phone.scroll(0, int(phone.specs['max_y'] * -0.8), 
+                     start_x=phone.rel_x(0.1), 
+                     start_y=phone.rel_y(0.9), 
+                     scale=False)
+        # phone.scroll(0, -1800, start_x=900, start_y=1900)
         sleep(0.5)
-    phone.buttons.black_on_white('.*QUIT.*', action='press')
+        if phone.buttons.b_route_quit.press():
+            break
     sleep(1)
-    phone.buttons.black_on_white('.*QUIT.*', action='press')
+    phone.buttons.b_route_quit.press()
     sleep(1)
 
 def _end_route(phone):
     print("End route!!!")
-    phone.tap_screen(920, 1552)
-    sleep(1)
-    phone.tap_screen(920, 1552)    
-    sleep(1)
-    button = phone.buttons.dark('.*COMPLETE.*')
-    button = phone.buttons.dark('.*YES.*')
-    sleep(4)    
+    sleep(.5)
+    button = phone.buttons.i_route_started.press()
+    sleep(.5)
+    button = phone.buttons.i_route_started.press()
+    button = phone.buttons.b_route_complete.press(retries=5)
+    button = phone.buttons.b_yes.press(retries=5)
+    sleep(1)    
     for i in range(10):
         phone.tap_screen(15, 100)
         sleep(0.5)
     return True
 
 def screen_go_overview(phone):
-    t, _ = phone.ocr.regex('.*RSVP.*')
-    if t:
+    t = phone.ocr.regex('.*RSVP.*')
+    if t != []:
         return 0
     phone.screen_go_to_home()
     sleep(0.75)
-    phone.tap_screen(900, 1850)
+    phone.tap_screen(phone.rel_x(0.9), 940, scale=False)
     sleep(0.75)
 
 
@@ -57,20 +62,30 @@ def follow_route(phone):
         phone.screen.go_home()
         sleep(1)
     screen_go_overview(phone)
-    button = phone.buttons.black_on_white('.*ROUTE.*')
-    button = phone.buttons.dark('.*NEARBY.*', retries=30, verbose=10)
+    phone.buttons.t_overview_route.press()
+    button = phone.buttons.b_route_nearby.press(retries=15)
     if not button:
         print("Failed to find NEARBY button")
         # return False
     sleep(1)
-    button = phone.buttons.black_on_white('.*KNOWN.*')
-    button = phone.buttons.black_on_white('.*cross.*')
-    button = phone.buttons.dark('.*FOLLOW.*', verbose=2) # , ys=phone.rel_y(0.5))
+    button = phone.buttons.t_route_known.press(retries=5)
+    sleep(1.5)
+    for i in range(3):
+        button = phone.buttons.text_only.press(f'.*{args.route}.*', 
+                                        xs=phone.rel_x(0.15),
+                                        xe=phone.rel_x(0.75),
+                                        ys=phone.rel_y(0.20) + phone.rel_y(0.5 * i),
+                                        ye=phone.rel_y(0.97),
+                                        process=True
+                                        )
+        if button:
+            break
+    button = phone.buttons.b_route_follow.press(retries=3)
     if not button:
         print("Failed to find FOLLOW button")
         return False
     sleep(1)
-    button = phone.buttons.dark('.*FOLLOW.*', action='check', verbose=2) # , ys=phone.rel_y(0.5))
+    button = phone.buttons.b_route_follow.search(retries=3)
     if button:
         print(f'Seems we are still in a route {button['text']}')
         return(False)
@@ -82,12 +97,12 @@ def follow_route(phone):
     print("Following route")
     return True
 
-def _in_route(phone):
+def _in_route(phone, retries=1):
 
-    b = phone.buttons.i_route_pause.search(verbose=0)
+    b = phone.buttons.i_route_pause.search(verbose=0, retries=retries)
     if b:
         return 'pause'
-    b = phone.buttons.i_route_started.search(verbose=0)
+    b = phone.buttons.i_route_started.search(verbose=0, retries=retries)
     if b:
         phone.buttons.i_route_started.update_area(b)
         if phone.color_match(b.center[0], b.center[1], 250,250, 250, scale=False):
@@ -107,7 +122,9 @@ def route(port):
     pause = 3
     timeout = 3
     follow = False
-    _in_route(phone)
+    # _end_route(phone)
+    _quit_route(phone)
+    _in_route(phone, retries=1)
     while True:
         try:
             while _in_route(phone) not in ['end', 'pause' ] \
@@ -160,10 +177,12 @@ def route(port):
 def main():
 
     parser = PokeArgs()
+    parser.add_argument("-r", "--route", action='store', 
+                        help="Name of the route at least part",
+                        default='cross')    
     global args
     args = parser.parse_args()
 
-    args = parser.parse_args()
     global log 
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
