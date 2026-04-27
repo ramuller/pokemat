@@ -270,7 +270,11 @@ def my_callback(ts, det):
 def my_test():
     # phone.screen.go_home()
     # return True
-    phone.screen.is_in_lobby()
+    r = phone.screen.is_in_gym()
+
+    print(f'Is in lobby {r}')
+
+    phone.egg_handle(force=True)
     
     reg = ScreenRegion(phone,
                             xs=int(phone.specs['max_x'] * 0.15),

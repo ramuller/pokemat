@@ -131,6 +131,15 @@ ICONS_PATH = {
         'grunt_r_3': 'grunt-r-3.png',
         'grunt_r_4': 'grunt-r-4.png',
     },
+    'egg_select': {
+        'egg_2km': 'egg_2km.png',
+        'egg_5km': 'egg_5km.png',
+        'egg_7km': 'egg_7km.png',
+        'egg_10km': 'egg_10km.png',
+    },
+    'egg_incubator_8': {
+        'egg_incubator_8': 'egg_incubator_8.png',
+    },
     'x_clear_text': {
         'x_clear_button': 'x_clear_text.png',
     }
@@ -400,8 +409,8 @@ class Buttons(ButtonParameter):
         self.i_poke_stop_check = IconButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.38),
                                         xe=int(ts.specs['max_x'] * 0.62),
-                                        ys=int(ts.specs['max_y'] * 0.15),
-                                        ye=int(ts.specs['max_y'] * 0.25)),
+                                        ys=int(ts.specs['max_y'] * 0.17),
+                                        ye=int(ts.specs['max_y'] * 0.35)),
                                     'poke_stop_check')
         self.i_has_gift = IconButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.70),
@@ -524,7 +533,7 @@ class Buttons(ButtonParameter):
                                         xs=int(ts.specs['max_x'] * 0.4),
                                         xe=int(ts.specs['max_x'] * 0.6),
                                         ys=int(ts.specs['max_y'] * 0.5),
-                                        ye=int(ts.specs['max_y'] * 0.7)),
+                                        ye=int(ts.specs['max_y'] * 0.8)),
                                     'buttons')
         self.i_go_out_bright = IconButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.02),
@@ -713,6 +722,23 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(0.8),
                                     invert=False),  
                                     'QUIT')
+        self.b_egg_incubate = TextButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0),
+                                    xe=ts.rel_x(1),
+                                    ys=ts.rel_y(0.4),
+                                    ye=ts.rel_y(0.8),
+                                    invert=True),  
+                                    'INCUBATE')
+        self.i_egg_select = IconButton(ScreenRegion(ts,
+                                            ys=ts.rel_y(0.10),
+                                            ye=ts.rel_y(0.80)
+                                            ),
+                                        'egg_select')
+        self.i_egg_incubator_8 = IconButton(ScreenRegion(ts,
+                                            ys=ts.rel_y(0.40),
+                                            ye=ts.rel_y(0.90)
+                                            ),
+                                        'egg_incubator_8')
         self.t_route_known = TextFlat(ScreenRegion(ts,
                                     xs=ts.rel_x(0),
                                     xe=ts.rel_x(1),

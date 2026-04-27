@@ -97,7 +97,8 @@ class Screen:
         while self.get_current_screen() != 'home':
             # self.color_show(300, 1803)
             # OK on green in the middle
-            if self.ts.buttons.i_exits.press(retries=1,verbose=10):
+            if self.ts.buttons.i_exits.press(retries=1,verbose=10) or \
+                        self.ts.buttons.i_button_ok.press():
                 sleep(1)
                 continue
             elif self.ts.ocr.regex('exit'):

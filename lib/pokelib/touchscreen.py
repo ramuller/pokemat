@@ -250,29 +250,34 @@ class TouchScreen:
         self.log.debug("Response : {}".format(response))
         # time.sleep(0.1)
     
-    def egg_handle(self):
+    def egg_handle(self, force=False):
 
-        if self.screen_is_egg():
+        if self.screen_is_egg() or force:
             print("Egg detected")
             try:
+
                 # Open egg
-                self.tap_screen(500, 1000)
+                self.tap_screen(self.rel_x(0.5),
+                                self.rel_y(0.5),
+                                scale=False)
                 # exit pokemon screen
+                sleep(5)
                 self.buttons.i_exits.press(retries=5)
                 sleep(5)
-                # Select egg
-                self.tap_screen(190, 544)
+                # Select egg 
                 # Tap incubate
                 sleep(2)
-                self.mode = 'word'
-                b = self.buttons.dark('INCUBATE', verbose=2)
-                sleep(2)
-                # Select incubator
-                self.tap_screen(140, 1470)
+                b = self.buttons.i_egg_select.press(retries=3)
                 sleep(1)
-                self.tap_screen(100, 100, button = 3)
+                b = self.buttons.b_egg_incubate.press(retries=3, delay=1)
+                # Select incubator
+                sleep(1)
+                b = self.buttons.i_egg_incubator_8.press(retries=3)
+                sleep(1)
+                b = self.buttons.i_exits.press()
                 return True
-            except:
+            except Exception as e:
+                print(f'ERROR egghandling {e}')
                 self.screen_go_to_home()
                 return False
         else:
