@@ -271,10 +271,24 @@ def my_test():
     # phone.screen.go_home()
     # return True
     r = phone.screen.is_in_gym()
+    phone.tap_down(phone.rel_x(0.5), phone.rel_y(0.5))
+    phone.egg_handle(force=False)
+
+    while True:
+        sx = phone.rel_x(0.1)
+        sy =  phone.rel_y(0.9)
+        phone.scroll(0, int(phone.specs['max_y'] * -0.8), 
+                         start_x=sx, start_y=sy, scale=False)
+        sleep(1)
+
+        sx = phone.rel_x(0.1)
+        sy= phone.rel_y(0.2)
+        phone.scroll(0, int(phone.specs['max_y'] * 0.8), 
+                         start_x=sx, start_y=sy, scale=False)
+        sleep(1)
 
     print(f'Is in lobby {r}')
 
-    phone.egg_handle(force=True)
     
     reg = ScreenRegion(phone,
                             xs=int(phone.specs['max_x'] * 0.15),

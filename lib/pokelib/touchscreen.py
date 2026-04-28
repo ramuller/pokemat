@@ -261,8 +261,7 @@ class TouchScreen:
                                 self.rel_y(0.5),
                                 scale=False)
                 # exit pokemon screen
-                sleep(5)
-                self.buttons.i_exits.press(retries=5)
+                self.buttons.i_exits.press(retries=25)
                 sleep(5)
                 # Select egg 
                 # Tap incubate
@@ -613,21 +612,21 @@ class TouchScreen:
         return False
 
 
-    def scroll(self, dx, dy, start_x = 100, start_y = 1000, tap_time = 0.1, stop_to = 0.6, scale=True):
+    def scroll(self, dx, dy, start_x = 100, start_y = 1000, tap_time = 0.02, stop_to = 0.6, scale=True):
         # self.log.info("Scroll")
         # x = maxX / 2
         x = float(start_x)
         y = float(start_y)
         sx = float(dx / 20.0)
         sy = float(dy / 20.0)
-        self.tap_down(int(x), int(y), tap_time, scale=scale)
+        self.tap_down(int(x), int(y), scale=scale)
         for s in range(0,20):
             x = x + sx
             y = y + sy
             self.moveCursor(int(x), int(y), int(sx), int(sy), scale=scale)
             # print("sy={}".format(int(sy)))
             # self.moveCursor(int(sx), int(sy))
-            time.sleep(0.02)
+            time.sleep(tap_time)
             # self.tap_down(int(x), int(y), int(sx), int(sy))
         time.sleep(stop_to)
         self.tap_up(int(x + dx), int(y + dy), scale=scale)
