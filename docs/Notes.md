@@ -1,5 +1,10 @@
 
 
+# Start app on all phones, e.g. gpsdrain
+
+phone-start-app.sh net.ramuller.gpsdrain
+
+
 ## Filter out all free evelove after trade
 'evolve&!pumpka&!phant&!graveler&!shelmet&!karrablast&!haunter&!kadabra&!gurdurr&!boldore&!machoke&!charjabug&!item&!defender&!noevolve&!novolve&!roggen&!caterpie&!wurmple&!primeape&!inkay&!sliggoo'
 

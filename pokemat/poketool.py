@@ -115,7 +115,8 @@ def read():
 
 def snapshot ():
 
-    reg = ScreenRegion(phone, color=args.color)
+    # reg = ScreenRegion(phone, color=args.color)
+    reg = _set_paramters_from_args()
     print("Press 'q' to not save anything")
     k = _schow_screen(reg)
     print(f"Got key {str(k)}")
