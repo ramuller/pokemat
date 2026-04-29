@@ -97,7 +97,11 @@ class IconDetector:
                 if des_s is None:
                     continue
                 matches = self.bf.knnMatch(rec["des"], des_s, k=2)
-                good = [m for m, n in matches if m.distance < ratio * n.distance] if matches else []
+                try:
+                    good = [m for m, n in matches if m.distance < ratio * n.distance] if matches else []
+                except ValueError as ve:
+                    print(f'Value error in detect {e}')
+                    break
                 if len(good) < min_inliers:
                     continue
                 src = np.float32([rec["kps"][m.queryIdx].pt for m in good]).reshape(-1,1,2)
