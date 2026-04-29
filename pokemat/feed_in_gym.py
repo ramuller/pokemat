@@ -1,5 +1,6 @@
 #!/bin/env python
 import time
+import random
 from time import sleep
 import os
 from pokelib import TouchScreen
@@ -18,8 +19,19 @@ def heal(port):
     global phone
     phone = TouchScreen(port)
     while True:
-        phone.tap_screen(500,1680)
-        sleep(2)
+        f = random.uniform(0.01, 0.99)
+        x = phone.rel_x(f)
+        print(f'Select pomon X:{x}  f{f}')
+        phone.tap_screen(x, 
+                        phone.rel_y(0.62),
+                        scale=False)
+        sleep(1)
+        phone.tap_screen(phone.rel_x(0.5), 
+                      phone.rel_y(0.8),
+                      scale=False)
+        if not phone.buttons.i_gym_photo_disk.search(retries=1):
+            phone.buttons.i_exits.press()
+        sleep(1)
     # time.sleep(1)
     # phone.heal_all()
    
