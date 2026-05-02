@@ -271,6 +271,7 @@ def my_callback(ts, det):
 def my_test():
     # phone.screen.go_home()
     # return True
+    phone.screen.go_home()
     r = phone.screen.is_in_gym()
     phone.tap_down(phone.rel_x(0.5), phone.rel_y(0.5))
     phone.egg_handle(force=False)

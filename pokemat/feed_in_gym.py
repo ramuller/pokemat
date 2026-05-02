@@ -19,19 +19,19 @@ def heal(port):
     global phone
     phone = TouchScreen(port)
     while True:
-        f = random.uniform(0.01, 0.99)
-        x = phone.rel_x(f)
-        print(f'Select pomon X:{x}  f{f}')
-        phone.tap_screen(x, 
-                        phone.rel_y(0.62),
-                        scale=False)
+        fx = random.uniform(0.01, 0.99)
+        x = phone.rel_x(fx)
+        fy = random.uniform(0.58, 0.65)
+        y = phone.rel_y(fy)
+        print(f'Select pomon P:{x},{y}  fx{fx},fy{fy}')
+        phone.tap_screen(x, y, scale=False)
         sleep(1)
         phone.tap_screen(phone.rel_x(0.5), 
                       phone.rel_y(0.8),
                       scale=False)
         if not phone.buttons.i_gym_photo_disk.search(retries=1):
             phone.buttons.i_exits.press()
-        sleep(1)
+        sleep(5)
     # time.sleep(1)
     # phone.heal_all()
    
