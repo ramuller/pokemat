@@ -285,7 +285,8 @@ class TextOnly(ButtonParameter):
                            mode=mode)
 
         b = self.ts.ocr.regex(text,
-                                reg, 
+                                reg,
+                                retries=retries,
                                 verbose=verbose)
         if self.search_callback:
             self.search_callback(self.ts, b)
@@ -314,7 +315,7 @@ class TextFlat(ButtonParameter):
         self.text = text
         self.updated = False
 
-    def search(self, retries=1, pause=1, verbose=0):
+    def search(self, retries=1, pause=1, delay=0.1, verbose=0):
         if verbose > 1:
             print(f'SEARCH {self.text}')
         b = self.ocr.regex(self.text,
@@ -339,6 +340,7 @@ class TextButton(ButtonParameter):
                 threshold=0.8,
                 delay=0.01,
                 retries=1, 
+                call_back=None,
                 verbose=0):
 
         if self.reg.invert:
@@ -380,7 +382,7 @@ class IconButton(ButtonParameter):
 
     # def press(self, verbose=0, *args, **kwargs):
     def press(self, verbose=0, *args, **kwargs):
-        det = self.search(verbose, *args, **kwargs)
+        det = self.search(verbose=verbose, *args, **kwargs)
         if det:
             if kwargs.get('verbose', 0) > 2:
                 print(f"Pressing icon button '{det.icon_name}' at {det.center}")
@@ -397,6 +399,8 @@ class IconButton(ButtonParameter):
                 retries=3,
                 pause=1,
                 delay=0.01,
+                no_scan=False,
+                call_back=None,
                 verbose=0):
         if verbose > 1:
             print("Searching for icon button...")
@@ -404,7 +408,8 @@ class IconButton(ButtonParameter):
         tries = 0
         while True:
             tries += 1
-            self.reg.npa = self.pi.scan_region(self.reg)
+            if not no_scan:
+                self.reg.npa = self.pi.scan_region(self.reg)
 
             if verbose > 5:
                 self.ts.image.show_image(self.reg.npa, wait=1000, title='button-area')
@@ -555,12 +560,28 @@ class Buttons(ButtonParameter):
                                         ys=int(ts.specs['max_y'] * 0.85),
                                         ye=int(ts.specs['max_y'] * 0.95)),
                                     'gym_defeat_in_battle')
+        self.t_pokestop_battle = TextButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.2),
+                                        xe=int(ts.specs['max_x'] * 0.8),
+                                        ys=int(ts.specs['max_y'] * 0.50),
+                                        ye=int(ts.specs['max_y'] * 0.90),
+                                        invert=True,
+                                        process=False),                                       
+                                        'BATTLE')
+        self.t_grunt_party = TextButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.2),
+                                        xe=int(ts.specs['max_x'] * 0.8),
+                                        ys=int(ts.specs['max_y'] * 0.60),
+                                        ye=int(ts.specs['max_y'] * 0.97),
+                                        invert=True,
+                                        process=False),                                       
+                                        'PARTY')
         self.i_gym_mine = IconButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.8),
                                         xe=int(ts.specs['max_x']),
                                         ys=int(ts.specs['max_y'] * 0.70),
                                         ye=int(ts.specs['max_y'] * 0.90)),
-                                    'gym_mine')
+                                        'gym_mine')
         self.i_friends_search = IconButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.5),
                                         xe=int(ts.specs['max_x'] * 0.8),

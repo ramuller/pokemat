@@ -232,15 +232,14 @@ def raw_button():
         b = phone.buttons.white
     elif args.kind == 'black_on_white' \
          or args.kind == 'bw':
-        b = phone.buttons.black_on_white
+        b = sb.black_on_white
     elif args.kind == 'white_on_black'\
          or args.kind == 'wb':
-        b = phone.buttons.white_on_black
+        b = sb.white_on_black
     else:
         print(f'Unknown button kind {args.kind}')
         return
     res = b(args.text,
-            reg=reg,
             action=args.press, 
             delay=args.delay, 
             retries=1,

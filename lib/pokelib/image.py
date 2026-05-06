@@ -49,17 +49,17 @@ class PokeImage:
             print(f'Exception {e}')
     
     
-    def find_rgb(self, reg, r, g, b, t = 20, verbose=0, wait=5):
+    def find_rgb(self, reg, r, g, b, tolerance = 20, verbose=0, wait=5):
 
         work_reg = reg
         data = work_reg.npa
-        rl = r -t
-        ru = r + t
-        gl = g - t
-        gu = g + t
-        bl = b - t
-        bu = b + t
-    
+        rl = r -tolerance
+        ru = r + tolerance
+        gl = g - tolerance
+        gu = g + tolerance
+        bl = b - tolerance
+        bu = b + tolerance
+  
         # Create masks for each channel
         red_mask = (data[..., 2] >= rl) & (data[..., 2] <= ru)
         green_mask = (data[..., 1] >= gl) & (data[..., 1] <= gu)
@@ -67,15 +67,22 @@ class PokeImage:
 
         # Combine masks to find triplets satisfying all conditions
         combined_mask = red_mask & green_mask & blue_mask
-
+        #  combined_mask = green_mask
         # Get the triplets (R, G, B) that fall within the specified ranges
         triplets_in_range = work_reg.npa[combined_mask]
         print(f'len {len(triplets_in_range)}')
         ra = ~combined_mask
-        int_mask = ~combined_mask.astype(np.uint8) * 255
+        # int_mask = ~combined_mask.astype(np.uint8) * 255
         int_mask = ra.astype(np.uint8) * 255
+
         if verbose >= 5:
-            self.show_image(int_mask, wait=wait*1000, title='Filter')
+            rm = red_mask.astype(np.uint8) * 255
+            gm = green_mask.astype(np.uint8) * 255
+            bm = blue_mask.astype(np.uint8) * 255
+            rgb = np.hstack((rm, gm, bm))
+            cv2.imshow('red', rgb)
+            k = cv2.waitKey(20000)
+            cv2.destroyAllWindows()       
 
         return int_mask
   
@@ -85,6 +92,27 @@ class PokeImage:
         return
         
     def yuv420_dict_to_rgb(self, jbuf):
+        W = jbuf["width"]
+        H = jbuf["height"]  # use your real key here
+
+        # Convert lists to arrays
+        Y = np.array(jbuf["gray"], dtype=np.uint8).reshape(H, W)
+        U = np.array(jbuf["u"], dtype=np.uint8).reshape(H // 2, W // 2)
+        V = np.array(jbuf["v"], dtype=np.uint8).reshape(H // 2, W // 2)
+        
+        # Upsample U and V to full resolution
+        U_up = cv2.resize(U, (W, H), interpolation=cv2.INTER_NEAREST)
+        V_up = cv2.resize(V, (W, H), interpolation=cv2.INTER_NEAREST)
+
+        # Merge into YUV image
+        YUV = cv2.merge([Y, U_up, V_up])
+
+        # Convert to BGR for display
+        return cv2.cvtColor(YUV, cv2.COLOR_YUV2BGR)
+
+
+
+    def yuv420_dict_to_rgb_old(self, jbuf):
         w = jbuf["width"]
         h = jbuf["height"]  # use your real key here
     

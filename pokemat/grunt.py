@@ -12,6 +12,7 @@ from pokelib import ExPokeLibFatal
 from pokelib import WatchDog
 from pokelib import PokeArgs
 from pokelib import ScreenRegion
+from pokelib import IconButton, StdButtons
 
 from catch import catch
 from reconnect import connect
@@ -199,13 +200,16 @@ def find_grunt(phone):
     reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.5))
     bw_reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.5))
     reg.npa = phone.image.scan_region(reg)
-    for r in range(250, 100, -15):
-        g = r * 87 // 180
-        b = r * 73 // 180
+    for r in range(250, 100, -10):
+        g = r * 120 // 200
+        b = r * 100 // 200
+        # g = b = r
         vf  = f'r{r}-g{g}-b{b}'
         print(vf)
-        bw_reg.npa = phone.image.find_rgb(reg, r, g, b, wait=1, verbose=10)
-        det = phone.buttons.i_grunt_r.search(cust_reg=bw_reg, retries=1)
+        bw_reg.npa = phone.image.find_rgb(reg, r, g, b, wait=1, verbose=0, tolerance=15)
+        b = IconButton(bw_reg, 'grunt_r')
+
+        det = b.search(retries=1, no_scan=True, verbose=0)
         print(f'Detextion {det}')
         if det:
             x = det.center[0]
@@ -213,6 +217,7 @@ def find_grunt(phone):
             y += det.quad[3][1] - det.quad[0][1]
             phone.tap_screen(x, y, scale=False)
             return det
+        
     return None
 
 def grunt(port):
@@ -235,49 +240,50 @@ def grunt(port):
         grunt = find_grunt(phone)
         if grunt:
             time.sleep(1)
-            if is_grunt_in_gym(phone):
-                no_grunt = False
+            phone.spin_disk()
+            for i in range(30):
+                if phone.buttons.t_pokestop_battle.press(retries=1):
+                    break
+                phone.buttons.i_exits.press()
+                phone.tap_screen(phone.rel_x(0.3), phone.rel_y(0.9), scale=False)
+                sleep(1.5)
+
+            print('time to battle')
+
+
+            reg = ScreenRegion(phone, ys=phone.rel_y(0.55))
+            sb = StdButtons(reg)
+
+            # def cb():
+            #     if phone.ocr.regex('.*Team|Grunt|seeing|many|been.*', reg=reg) \
+            #         or phone.buttons.dark('BATTLE', action='check'):
+            #         phone.tap_screen(phone.rel_x(.5), phone.rel_y(.5))
+            #     return False
+            # if not sb.dark('BATTLE', call_back=cb, action='press', retries=30):
+            #     return
+
+            if not phone.buttons.t_grunt_party.search(retries=20):
+                phone.screen_go_to_home()
+                phone.screen_go_to_home()
+                break
+            phone.tap_screen(phone.rel_x(.98), phone.rel_y(.75), scale=False)
+            sleep(1)
+            if not phone.buttons.t_grunt_party.press(retries=20):
+                phone.screen_go_to_home()
+                phone.screen_go_to_home()
+                break
+            sleep(0.5)
+            start_battle(phone)
+
+            phone.screen_go_to_home()
+            phone.screen_go_to_home()
+            phone.heal_all()
+
         else:
             phone.screen_go_to_home()
             rotate(phone)
 
-    try:
-        phone.color_match_wait_click(463, 855, 203, 79, 41, time_out_ms = 1500)
-    except:
-        pass
-    time.sleep(1)
-    oponent = False
-    try:
-        print("Wait opponent and spin{}")
-        phone.spin_disk()
-        ps = phone.buttons.i_poke_stop_check.search()
-        ps = phone.buttons.i_exits.press()
-        reg = ScreenRegion(phone, ys=phone.rel_y(0.55))
 
-        def cb():
-            if phone.ocr.regex('.*Team|Grunt|seeing|many|been.*', reg=reg) \
-                or phone.buttons.dark('BATTLE', action='check'):
-                phone.tap_screen(phone.rel_x(.5), phone.rel_y(.5))
-            return False
-        if not phone.buttons.dark('BATTLE', call_back=cb, action='press', retries=30):
-            return
-
-        if not phone.buttons.dark('PARTY', call_back=None, action='search', retries=30):
-            return
-        phone.tap_screen(phone.rel_x(.98), phone.rel_y(.75), scale=False)
-        sleep(1)
-        if not phone.buttons.dark('PARTY', call_back=None, action='press', retries=30):
-            return
-
-    except:
-        return
-
-    sleep(0.5)
-    start_battle(phone)
-
-    phone.screen_go_to_home()
-    phone.screen_go_to_home()
-    phone.heal_all()
 
 def wd_callback():
     print("Watchdog timeout strike just exit {}".format(threading.main_thread().native_id))
