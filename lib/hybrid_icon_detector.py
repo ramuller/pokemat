@@ -99,7 +99,7 @@ class IconDetector:
                 matches = self.bf.knnMatch(rec["des"], des_s, k=2)
                 try:
                     good = [m for m, n in matches if m.distance < ratio * n.distance] if matches else []
-                except ValueError as ve:
+                except ValueError as e:
                     print(f'Value error in detect {e}')
                     break
                 if len(good) < min_inliers:

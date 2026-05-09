@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ZAPPER_DIR=$HOME/git/scrcpyzapper
+# ZAPPER_DIR=$HOME/git/scrcpyzapper
 ZAPPER_DIR=$HOME/git/merge/scrcpyzapper
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

@@ -51,11 +51,25 @@ def trainer_regex(trainer):
     return regex
 
 def select_trainer(trainer):
+
     trainer = trainer.lower()
     print("Select new trainer {}".format(trainer))
 
     regex = trainer_regex(trainer)
     print(f"RE {regex}")
+    but = phone.buttons.text_only.search('.*Choose an account.*',
+                                        xs=phone.rel_x(0.2),xe=phone.rel_x(0.8),
+                                        ye=phone.rel_x(0.4),
+                                        verbose=0,
+                                        mode='line',
+                                        process=True,
+                                        invert=True,
+                                        retries=60)
+    if but == []:
+        print('No choose trainer bye bye')
+        return False
+    sleep(2)
+
      
     for i in range(2):
         if phone.buttons.text_only.press(regex, 
@@ -129,15 +143,9 @@ def do_change_trainer(port, trainer):
         gog = phone.buttons.t_login_google.press(retries=3, delay=2)
     
     if trainer != "out":
-        select_trainer(trainer)
-
-    while phone.screen.get_current_screen != 'home':
-        if phone.buttons.i_pokeball.press():
-            sleep(1)
-            if phone.buttons.text_only.search('.*SETTINGS.*', 
-                                              ye=phone.rel_y(0.25)):
+        if select_trainer(trainer):
+            while phone.screen.get_current_screen != 'home':
                 phone.screen.go_home()
-                return True
 
         
 def change_trainer(port, trainer, check=False):

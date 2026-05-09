@@ -62,8 +62,8 @@ def follow_route(phone):
         phone.screen.go_home()
         sleep(1)
     screen_go_overview(phone)
-    phone.buttons.t_overview_route.press()
-    button = phone.buttons.b_route_nearby.press(retries=15)
+    phone.buttons.t_overview_route.press(retries=3, delay=1)
+    button = phone.buttons.b_route_nearby.press(retries=15, delay=1)
     if not button:
         print("Failed to find NEARBY button")
         # return False
@@ -80,7 +80,7 @@ def follow_route(phone):
                                         )
         if button:
             break
-    button = phone.buttons.b_route_follow.press(retries=3)
+    button = phone.buttons.b_route_follow.press(retries=3, delay=1)
     if not button:
         print("Failed to find FOLLOW button")
         return False

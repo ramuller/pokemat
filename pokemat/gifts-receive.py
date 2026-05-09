@@ -91,7 +91,7 @@ def gifting(port):
             phone.selectAll()
             phone.text_line_ok("\b")
             if args.all:
-                phone.text_line_ok("!ff & interactable")
+                phone.text_line_ok("!fff & interactable")
             elif len(shuffled_letters) > 0:
                 phone.text_line_ok("!ff & interactable & {}".format(shuffled_letters[0]))
             else:

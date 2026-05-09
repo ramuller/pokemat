@@ -42,9 +42,9 @@
       "args": [
         "snapshot",
         "--xs", "0",
-        "--xe", "0",
-        "--ys", "50%",
-        "--ye", "0",
+        "--xe", "100%",
+        "--ys", "0%",
+        "--ye", "100%",
         "--count", "1",
         "--name", "test",
         "--color", "rgb"
@@ -100,8 +100,8 @@
         "raw_button",
         "--show",
         "--color", "blue",
-        "--kind","dark",
-        "--text","PLAY",
+        "--kind","white_on_black",
+        "--text","BATTLE",
         "--mode", "line",
         "--ys", "0%",
         "--threshold", "0",        "--th", "57",
@@ -380,8 +380,9 @@
       "programc": "${workspaceFolder}/pokemat/raid.py",
       "programb": "${workspaceFolder}/pokemat/autocatch.py",
       "programz": "${workspaceFolder}/pokemat/purify-pokemon.py",
-      "programy": "${workspaceFolder}/pokemat/grunt.py",
-      "program": "${workspaceFolder}/pokemat/purify-pokemon.py",
+      "program": "${workspaceFolder}/pokemat/grunt.py",
+      "programa": "${workspaceFolder}/pokemat/purify-pokemon.py",
+      "programf": "${workspaceFolder}/pokemat/feed_in_gym.py",
       "console": "integratedTerminal",
       "args": [
       ]
