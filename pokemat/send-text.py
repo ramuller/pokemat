@@ -13,10 +13,10 @@ import json
 import sys
 from datetime import datetime
 
-def action(port, phone, text):
+def action(port, text):
       
-    print("Start sending text on  \"{}\" on port {} '{}'".format(port, phone, text))
-    p = TouchScreen(port, phone)
+    print("Start sending text {} on port {} ".format(port, text))
+    p = TouchScreen(port)
     if args.select:
         p.tap_screen(510, 375)
     sleep(1)
@@ -41,7 +41,7 @@ def main():
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
     print("TEXT {}".format(args.text))
-    action(phone_port, args.phone, args.text)
+    action(phone_port, args.text)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

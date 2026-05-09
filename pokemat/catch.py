@@ -32,18 +32,21 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
         max_tries -= 1
         print("wait ball")
         for to in range(20, 0, -1):
-            p.tap_screen(3, int(p.specs['max_y'] * 0.5), scale=False)
+            # p.tap_screen(3, int(p.specs['max_y'] * 0.5), scale=False)
             if p.screen.get_current_screen() == 'home':
                 print('On homescreen')
                 return False
-            elif p.buttons.i_catch_ball.search(retries=1) is not None:
+            elif p.buttons.i_catch_ball.search(retries=1, verbose=0) is not None:
                 print("Ball found")
                 break
-            elif p.buttons.text_only.press('BERRIES', ys=p.rel_y(0.5)):
-                tap.tap_screen(3, int(p.specs['max_y'] * 0.5), scale=False)
-            elif p.buttons.i_exits.press(retries=1):
+            elif p.buttons.text_only.search('BERRIES', ys=p.rel_y(0.6)):
+                p.tap_screen(3, int(p.specs['max_y'] * 0.5), scale=False)
+            elif p.buttons.i_exits.press(retries=1) \
+                or p.buttons.b_catched_OK.press(retries=1):
                 p.screen.go_home()
                 return True
+            else:
+                p.tap_screen(p.rel_x(0.5), p.rel_y(0.5))
             sleep(0.3)
         print("Ball ready")
 
@@ -52,26 +55,34 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
             p.buttons.i_catch_berry.press()
             sleep(0.5)
             if berry == "a":
-                bs = 'PINAP'
+                bs = 'PINAP BERRY'
+                pos = 'width'
+                # bs = 'PINAP'
             elif berry == "g":
                 bs = 'GOLDEN'
+                pos = 'left'
                 b = p.buttons.black_on_white('GOLDEN', action='check')
             elif berry == "s":
-                bs = 'SILVER'
+                bs = 'SILVER PINAP'
+                pos = 'width'
                 b = p.buttons.black_on_white('SILVER', action='check')
             elif berry == "r":
-                bs = 'RAZZ'
+                bs = 'RAZZ BERRY'
+                pos = 'left'
                 b = p.buttons.black_on_white('RAZZ', action='check')
             elif berry == "b":
                 bs = 'NANAB'
+                pos = 'center'
     
             for i in range(5):
-                b = p.buttons.black_on_white(bs, action='check', verbose=0)
+                b = p.buttons.text_only.search(bs,
+                                               ys=p.rel_y(0.6),
+                                               mode='line')
                 if b:
                     sleep(0.5)
                     print(f'tap on x{b['center'][0]} y{b['top'] - 3 * b['height']}')
-                    p.tap_screen(b['center'][0], b['top'] - 3 * b['height'], scale=False)
-                    p.tap_screen(b['center'][0], b['top'] - 3 * b['height'], scale=False)
+                    p.tap_screen(b[pos], b['top'] - 3 * b['height'], scale=False)
+                    p.tap_screen(b[pos], b['top'] - 3 * b['height'], scale=False)
                     sleep(1)
                     if p.buttons.b_catch_berry.search():
                         p.tap_screen(3, int(p.specs['max_y'] * 0.5), scale=False)
@@ -82,12 +93,13 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
                         p.tap_screen(int(p.specs['max_x'] * 0.5), 
                                  int(p.specs['max_y'] * 0.85),
                                  scale=False)
-                break
+                    break
 
         if span != 0:
             d = distance + randrange(-span,span)
         else:
             d = distance
+        p.tap_screen(3, int(p.specs['max_y'] * 0.5), scale=False)
         print("distance {}".format(d))
         for i in range(20):
             if p.buttons.i_catch_ball.search(retries=1) is not None:

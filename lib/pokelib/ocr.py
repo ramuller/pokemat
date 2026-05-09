@@ -1,3 +1,5 @@
+from time import sleep
+import traceback
 import re
 import numpy as np
 from PIL import Image
@@ -9,6 +11,8 @@ from tesserocr import PyTessBaseAPI, RIL, iterate_level, PSM
 import pandas as pd
 import re
 from .image import PokeImage
+from .structs import ScreenRegion
+
 
 TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
 
@@ -17,28 +21,22 @@ class Ocr:
         self.ts = ts
         self.api = PyTessBaseAPI(path=TESSDATA_PATH, lang='eng')
         self.image = PokeImage(ts)
-        # self.reader = easyocr.Reader(['en'])
         self.reset_parameters()
 
     def __del__(self):
         pass
 
     def reset_parameters(self):
-        self.startx = 0
-        self.starty = 0
-        self.endx = self.ts.specs['max_x']
-        self.endy = self.ts.specs['max_y']
         self.confidence = 20.0
         self.invert = False
         self.process = True
         self.color = 'gray'
         self.mode = 'word'
-        self.npa = None
 
     def set_mode(self, mode):
         self.mode = mode
  
-    def _tesserocr_from_array(self, array, verbose=0):
+    def _tesserocr_from_array(self, reg : ScreenRegion, verbose=0):
         """Run tesserocr on a numpy array and return extracted words plus the PIL image.
 
         Returns (ocr_data, image)
@@ -46,14 +44,19 @@ class Ocr:
 
 
         if verbose > 5:
-            self.ts.image.show_image(array, wait=4000, title='button-candidate-preprocessed')
+            self.ts.image.show_image(reg.npa, wait=4000, title='button-candidate-preprocessed')
         # trigger recognition (GetUTF8Text returns full text, iterator used below)
         # Only tesserocr after here
         # self.api.SetPageSegMode(PSM.SINGLE_WORD)
-
-        h, w = array.shape
+        try:
+            h, w = reg.npa.shape
+        except Exception as e:
+            print("Call stack:")
+            traceback.print_stack()   # prints current stack to stdout
+            print(f'ERROR : ocr npa {e}')
+            return []
         self.api.SetImageBytes(
-                array.tobytes(),
+                reg.npa.tobytes(),
                 w, h,
                 1,      # bytes per pixel (grayscale)
                 w       # bytes per line
@@ -62,9 +65,9 @@ class Ocr:
         # with suppress_stderr():
         t = self.api.GetUTF8Text()
         ri = self.api.GetIterator()
-        if self.mode == 'line':
+        if reg.mode == 'line':
             level = RIL.TEXTLINE
-        elif self.mode == 'symbol':
+        elif reg.mode == 'symbol':
             self.level = RIL.SYMBOL
         else:
             level = RIL.WORD
@@ -87,20 +90,20 @@ class Ocr:
                 ocr_data.append({
                     'text': text,
                     'conf': conf,
-                    'left': left + self.startx,
-                    'top': top + self.starty,
+                    'left': left + reg.xs,
+                    'top': top + reg.ys,
                     'width': width,
                     'height': height,
                     'word': wi,
-                    'center': ((left + width//2 + self.startx), \
-                               (top + height//2 + self.starty))
+                    'center': ((left + width//2 + reg.xs), \
+                               (top + height//2 + reg.ys))
                 })
                 if len(text) > 1:
                     wi += 1
                 else:
                     wi = 1
         # print(f"Total OCR words: {ocr_data}")
-        return ocr_data, array
+        return ocr_data
     
     def _concat_tesserocr_results(self, words):
         """Concatenate tesserocr results based on word index."""
@@ -112,37 +115,48 @@ class Ocr:
                 concatenated[-1]['text'] += ' ' + w['text']
         return concatenated
     
-    def read_and_npa(self, npa=None,verbose=0):
-        if npa is None:
-            npa = self.image.scan_region(xs=self.startx, ys=self.starty, xe=self.endx, ye=self.endy, channel=self.color)
-        self.npa = npa
-        self.p_npa = self.image.process_array(npa, self.invert, self.process, verbose=verbose)
-        t, _ = self._tesserocr_from_array(self.p_npa, verbose=verbose)
-        return t, self.npa, self.p_npa
+    def read_and_npa(self, reg : ScreenRegion=None,
+                     verbose=0):
+        reg = reg or ScreenRegion(self.ts)
+        if reg.npa is None:
+            reg.npa = self.image.scan_region(reg)
+        reg = self.image.process_array(reg, verbose=verbose)
+        t = self._tesserocr_from_array(reg, verbose=verbose)
+        return t, reg
 
     def read(self, *args, **kwargs):
-        text, self.npa, processed_npa = self.read_and_npa(*args, **kwargs)
+        text, _ = self.read_and_npa(*args, **kwargs)
         return text
 
     '''
 
     '''
-    def read_area_percent(self, xs=0, xe=0, ys=0, ye=0, 
+    def read_area_percent(self, reg : ScreenRegion=None,
                           invert=False, process=False, verbose=0):
-        self.startx = int(self.ts.specs['max_x'] * xs/100.0)
-        self.endx = int(self.ts.specs['max_x'] * xe/100.0)
-        self.starty = int(self.ts.specs['max_y'] * ys/100.0)
-        self.endy = int(self.ts.specs['max_y'] * ye/100.0)
+        reg = reg or ScreenRegion(self.ts)
+        reg.xs = int(self.ts.specs['max_x'] * xs/100.0)
+        reg.xe = int(self.ts.specs['max_x'] * xe/100.0)
+        reg.ys = int(self.ts.specs['max_y'] * ys/100.0)
+        reg.ye = int(self.ts.specs['max_y'] * ye/100.0)
         self.invert = invert
         self.process = process
-        return self.read(verbose=verbose)
+        return self.read(reg, verbose=verbose)
 
-    def regex(self, regex, npa=None, verbose=0):
-        lines, self.npa, self.p_npa = self.read_and_npa(npa, verbose=verbose)
-        self.reset_parameters()
-        for l in lines:
-            if re.search(regex, l['text']):
-                return l, self.npa
-
-        return None, self.npa
-    
+    def regex(self, regex, reg : ScreenRegion=None, retries=1,
+              pause=1, verbose=0):
+        if reg is None:
+            reg = ScreenRegion(self.ts)
+        for tries in range(retries, 0, -1):
+            reg.npa = None
+            lines, reg = self.read_and_npa(reg, verbose=verbose)
+            # self.reset_parameters()
+            print(f'Tries {tries}')
+            for l in lines:
+                # print(f'Line {l["text"]}')
+                if re.search(regex, l['text']):
+                    return l
+            if tries <= 1:
+                return []
+            sleep(pause)
+        return []
+        

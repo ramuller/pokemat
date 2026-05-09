@@ -16,6 +16,7 @@ import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
+from pokelib import ScreenRegion
 
 import string
 import random
@@ -60,7 +61,6 @@ def gifting(port):
         name = phone.get_my_name()
         print(f"My name {name}")
     phone.screen.go_friends()
-    phone.sort_has_gift()
 
     giftsSent = 0
     giftsReceived = 0
@@ -69,52 +69,67 @@ def gifting(port):
     while receive_gifts or True:  # and len(shuffled_letters) > 0:
         try:
             # Wait for trainer screen
-            phone.screen.go_friends()
+            phone.sort_has_gift()
+            # phone.screen.go_friends()
+            sleep(1)
+            if phone.buttons.i_x_clear_text.press(retries=1):
+               sleep(0.5)
 
-            if phone.buttons.white_on_black('x'):
-                sleep(0,5)
-
-            if not phone.buttons.black_on_white('SEARCH'):
+            bt = phone.buttons.i_friends_search.search(retries=1)
+            # sleep(0.5)
+            if not phone.buttons.i_friends_search.press():
                 print('No SEARCH button found')
-                phone.screen.go_home()
-                raise Exception('No SEARCH button found')
+                # phone.screen.go_home()
+                # raise Exception('No SEARCH button found')
 
-
-            # friends_raw = phone.pocr.read_area_percent(xs=25 ,xe=45 , ys=30 , ye=90)
+            # friends_raw = phone.ocr.read_area_percent(xs=25 ,xe=45 , ys=30 , ye=90)
 
             # while phone.color_match(52, 1335, 255, 255, 255):
             #     phone.tap_screen(612, 494)
             #     time.sleep(0.3)
-            # time.sleep(0.5)
+            time.sleep(2.5)
             phone.selectAll()
             phone.text_line_ok("\b")
             if args.all:
-                phone.text_line_ok("!ff & !lucky & interactable")
+                phone.text_line_ok("!ff & interactable")
             elif len(shuffled_letters) > 0:
-                phone.text_line_ok("!ff & !lucky & {}".format(shuffled_letters[0]))
+                phone.text_line_ok("!ff & interactable & {}".format(shuffled_letters[0]))
             else:
                 last_tries -= 1
                 if last_tries <= 0:
                     phone.screen_go_to_home()
                     sys.exit(0)
-                # phone.text_line_ok("!ff & !lucky & interactable")
-                phone.text_line_ok("!ff & !lucky")
+                # phone.text_line_ok("!ff  & interactable")
+                phone.text_line_ok("!ff & hama")
             time.sleep(0.5)
+            phone.text_line_ok('\\n')
 
-            phone.buttons.ocr.startx = int(phone.specs['max_x'] * 0.8)
-            phone.buttons.black_on_white('OK')
-            g = phone.buttons.i_friends_gift.search()
+            # phone.buttons.t_input_ok.press(verbose=0)
+            sleep(0.5)
+            g = phone.buttons.i_friends_gift.press()
 
             if not g and shuffled_letters[0] != " ":
                 shuffled_letters.pop(0)
                 print("No gift. Letters to go {}".format(len(shuffled_letters)))
             else:
                 print("Friend has gift")
-                phone.tap_screen(g.center, scale=False)
-                receive_gifts = phone.gift_open()
-                # Back to trainer screen
-                phone.tap_screen(500,1850)
-                   
+                b = phone.buttons.b_open_gift.press(retries=10)
+
+            # Back to friends
+            max_tries = 0
+            sleep(3)
+            b = phone.buttons.t_friends.search(retries=1)
+            while not b:
+                phone.buttons.i_exits.press(retries=1)
+                sleep(2)
+                b = phone.buttons.t_friends.search(retries=1)
+                phone.buttons.t_passenger.search(retries=1)
+                max_tries += 1
+                if max_tries > 30:
+                    phone.screen.go_friends()
+                    break
+            pass
+ 
                 
             # self.color_match(161, 808, 246, 246, 246, match=False)
         except ExPokeLibFatal as e:
