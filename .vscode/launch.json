@@ -343,7 +343,7 @@
       "console": "integratedTerminal",
       "debugOptions": ["DisableGUI"],
       "args": [
-        "aphex"
+        "schlumpiz"
       ]
     },    
     {
@@ -356,19 +356,6 @@
       "debugOptions": ["DisableGUI"],
       "args": [
         "${workspaceFolder}/configs/battle.json"
-      ]
-    },
-    {
-      "name": "Change trainer",
-      "type": "python",
-      "extends": "Base",
-      "request": "launch",
-      "program": "${workspaceFolder}/pokemat/change_trainer.py",
-      "console": "integratedTerminal",
-      "args": [
-        "--port",
-        "3007",
-        "schlumpiz"
       ]
     },
     {

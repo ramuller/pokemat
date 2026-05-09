@@ -271,7 +271,7 @@ class TouchScreen:
                 b = self.buttons.b_egg_incubate.press(retries=3, delay=1)
                 # Select incubator
                 sleep(1)
-                b = self.buttons.i_egg_incubator_8.press(retries=3)
+                b = self.buttons.i_egg_incubator_8.press(retries=10)
                 sleep(1)
                 b = self.buttons.i_exits.press()
                 return True
