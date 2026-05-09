@@ -11,7 +11,7 @@ from pokelib import TextOnly, Coordinates,ButtonParameter
 from pokelib import IconButton, TextButton, StdButtons
 
 from hybrid_icon_detector import IconDetector
-
+from catch import select_berry
 import logging
 
 import json
@@ -270,6 +270,7 @@ def my_callback(ts, det):
 def my_test():
     # phone.screen.go_home()
     # return True
+    select_berry(phone, 's')
     phone.screen.go_home()
     r = phone.screen.is_in_gym()
     phone.tap_down(phone.rel_x(0.5), phone.rel_y(0.5))

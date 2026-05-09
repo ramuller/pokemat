@@ -647,6 +647,11 @@ class Buttons(ButtonParameter):
                                     ys=int(ts.specs['max_y'] * 0.40),
                                     ye=int(ts.specs['max_y'] * 0.72)), 
                                     'Berry')
+        self.t_catch_caught = TextFlat(ScreenRegion(ts,
+                                    xe=ts.rel_x(0.50),
+                                    ys=int(ts.specs['max_y'] * 0.25),
+                                    ye=int(ts.specs['max_y'] * 0.50)), 
+                                    'CAUGHT')
         self.b_catched_OK = TextButton(ScreenRegion(ts,
                                     invert=True,
                                     process=True,

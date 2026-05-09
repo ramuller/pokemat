@@ -144,6 +144,11 @@ def do_change_trainer(port, trainer):
     
     if trainer != "out":
         if select_trainer(trainer):
+            sleep(8)
+            while phone.buttons.i_exits.search():
+                print('Still see exit')
+                sleep(1)
+            sleep(5)
             while phone.screen.get_current_screen != 'home':
                 phone.screen.go_home()
 

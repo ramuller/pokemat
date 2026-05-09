@@ -80,7 +80,7 @@ def follow_route(phone):
                                         )
         if button:
             break
-    button = phone.buttons.b_route_follow.press(retries=3, delay=1)
+    button = phone.buttons.b_route_follow.press(retries=6, delay=1)
     if not button:
         print("Failed to find FOLLOW button")
         return False
