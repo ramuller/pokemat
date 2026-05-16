@@ -102,9 +102,9 @@ def is_red_in_the_sky(p):
         sys.exit(0)
 
 def rotate(phone):
-    phone.scroll(0, 800, start_y=200, start_x = 980, stop_to=0.1)
-    phone.scroll(0, 800, start_y=200, start_x = 980, stop_to=0.1)
-    # phone.scroll(0, 800, start_y=200, start_x = 980, stop_to=0.1)
+    phone.scroll(0, 800, sy=200, sx = 980, stop_to=0.1)
+    phone.scroll(0, 800, sy=200, sx = 980, stop_to=0.1)
+    # phone.scroll(0, 800, sy=200, sx = 980, stop_to=0.1)
 
 
 def scan_sky(phone, print, no_grunt):

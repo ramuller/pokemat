@@ -21,10 +21,10 @@ def _quit_route(phone):
     sleep(0.75)
     for i in range(5):
         phone.scroll(0, int(phone.specs['max_y'] * -0.8), 
-                     start_x=phone.rel_x(0.1), 
-                     start_y=phone.rel_y(0.9), 
+                     sx=phone.rel_x(0.1), 
+                     sy=phone.rel_y(0.9), 
                      scale=False)
-        # phone.scroll(0, -1800, start_x=900, start_y=1900)
+        # phone.scroll(0, -1800, sx=900, sy=1900)
         sleep(0.5)
         if phone.buttons.b_route_quit.press():
             break

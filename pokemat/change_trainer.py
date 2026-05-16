@@ -81,7 +81,7 @@ def select_trainer(trainer):
         sx = int(phone.specs['width'] // 2 )
         sy = int(phone.specs['max_y'] * 0.9)
         phone.scroll(0, int(phone.specs['max_y'] * -0.8), 
-                     start_x=sx, start_y=sy, scale=False)
+                     sx=sx, sy=sy, scale=False)
         sleep(3)
          
         
@@ -116,7 +116,7 @@ def do_change_trainer(port, trainer):
             sy = int(phone.specs['max_y'] * 0.9)
             for t in range(3):
                 phone.scroll(0, int(phone.specs['max_y'] * -0.8), 
-                             start_x=sx, start_y=sy, scale=False)
+                             sx=sx, sy=sy, scale=False)
                 sleep(0.5)
                 t = phone.buttons.text_only.press('.*Sign.*', \
                                                   xs=phone.rel_x(0.05), xe=phone.rel_x(0.5), \

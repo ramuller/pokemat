@@ -146,7 +146,7 @@ def action(port, arg = None):
     
     for i in range(0,2):
         print("Scroll up")
-        p.scroll(0, -1800, start_x=900, start_y=1900)
+        p.scroll(0, -1800, sx=900, sy=1900)
         sleep(1)        
 
     for y in range(100, 1900,20):
@@ -156,7 +156,7 @@ def action(port, arg = None):
     
     for i in range(0,2):
         print("Scroll up")
-        p.scroll(0, 1800, start_x=900, start_y=100)
+        p.scroll(0, 1800, sx=900, sy=100)
         sleep(1)        
     sys.exit(0)
     

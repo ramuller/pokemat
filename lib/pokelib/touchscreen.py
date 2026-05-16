@@ -21,7 +21,7 @@ from .ocr import Ocr
 from .database import Database as db_p
 from .image import PokeImage
 from .ocr import Ocr
-from .buttons import Buttons, ScreenRegion
+from .buttons import Buttons, ScreenRegion, StdButtons
 from .screen import Screen
 from .phone_db import PhoneDB
 
@@ -249,6 +249,36 @@ class TouchScreen:
         response = self.write_to_phone("move:{},{},{},{}".format(x,y,dx,dy))
         self.log.debug("Response : {}".format(response))
         # time.sleep(0.1)
+
+
+    def egg_incubate(self, incubator="8"):
+        b = self.buttons.i_egg_select.press(retries=10)
+        if not b:
+            print("Egg select not found")
+            return False
+        b = self.buttons.b_egg_incubate.press(retries=5, delay=1)
+        # Select incubator
+        sleep(1)
+
+        if incubator == "8":
+            b = self.buttons.i_egg_incubator_8.press(retries=10)
+            return
+        if incubator == "1":
+            re = '.*1.*USE.*'
+        elif incubator == "2":
+            re = '.*2.*USE.*'
+        elif incubator == "3":
+            re = '.*3.*USE.*'
+        else:
+            print('Unknown incubator {}'.format(incubator))
+            return False
+        b = self.buttons.text_only.press(re,
+                                         process=True,
+                                         ys=self.rel_y(0.5))
+
+        sleep(1)
+        b = self.buttons.i_exits.press()
+        return True
     
     def egg_handle(self, force=False):
 
@@ -262,19 +292,7 @@ class TouchScreen:
                                 scale=False)
                 # exit pokemon screen
                 self.buttons.i_exits.press(retries=25)
-                sleep(5)
-                # Select egg 
-                # Tap incubate
-                sleep(2)
-                b = self.buttons.i_egg_select.press(retries=3)
-                sleep(1)
-                b = self.buttons.b_egg_incubate.press(retries=3, delay=1)
-                # Select incubator
-                sleep(1)
-                b = self.buttons.i_egg_incubator_8.press(retries=10)
-                sleep(1)
-                b = self.buttons.i_exits.press()
-                return True
+                self.egg_incubate()
             except Exception as e:
                 print(f'ERROR egghandling {e}')
                 self.screen_go_to_home()
@@ -612,11 +630,18 @@ class TouchScreen:
         return False
 
 
-    def scroll(self, dx, dy, start_x = 100, start_y = 1000, tap_time = 0.02, stop_to = 0.6, scale=True):
+    def scroll(self, dx, dy, 
+               sx = None,
+               sy = None,
+               tap_time = 0.02, stop_to = 0.6, scale=False):
         # self.log.info("Scroll")
         # x = maxX / 2
-        x = float(start_x)
-        y = float(start_y)
+        if sx == None:
+            sx = self.rel_x(0.5)
+        if sy == None:
+            sy = self.rel_y(0.5)
+        x = float(sx)
+        y = float(sy)
         sx = float(dx / 20.0)
         sy = float(dy / 20.0)
         self.tap_down(int(x), int(y), scale=scale)
@@ -761,7 +786,7 @@ class TouchScreen:
         # self.scroll(0, 200)
         # sys.exit(0)
         print("Scroll up")
-        self.scroll(0,-350, start_y = 1500, tap_time = 0.3, stop_to = 0.5)
+        self.scroll(0,-350, sy = 1500, tap_time = 0.3, stop_to = 0.5)
         # self.scroll(0,-330)
         # Search and tap evolve
         for y in range(self.maxY - 2, self.maxY - 600, -10):
@@ -897,7 +922,7 @@ class TouchScreen:
             # if not self.screen_is_pokestop():
                 return True
             print("Spin disk {}".format(to))
-            self.scroll(600, 0, start_x = 150, start_y = 1000)
+            self.scroll(600, 0, sx = 150, sy = 1000)
             sleep(1)
             to -= 1
         return False
@@ -1161,7 +1186,7 @@ class TouchScreen:
             sleep(0.2)
         while not "MEDICINE" in self.ocr_read_line_center((496, 341), (300, 50)):
             print(f"READ{self.ocr_read_line_center((496, 341), (300, 50))}")
-            self.scroll(0, -37, start_x=900, start_y=1900)
+            self.scroll(0, -37, sx=900, sy=1900)
         revived = False
         for y in [960, 550]:
             # for x in [750, 455, 150]           
@@ -1267,7 +1292,7 @@ class TouchScreen:
     def battleTrainer(self, trainer, league):
         for i in range(0,6):
             print("Scroll step {}".format(i))
-            self.scroll(0,-1000, start_y = 1500, tap_time = 0.3, stop_to = 0.3)
+            self.scroll(0,-1000, sy = 1500, tap_time = 0.3, stop_to = 0.3)
             sleep(0.5)
             
         time.sleep(1)
@@ -1424,7 +1449,7 @@ class TouchScreen:
                     sleep(1)
                     no_berry = False
             elif berry == "g":
-                self.scroll(600,0, start_y = 1750, tap_time = 1)
+                self.scroll(600,0, sy = 1750, tap_time = 1)
                 time.sleep(0.5)
                 if self.color_match(454, 1732, 255, 143, 9):
                     self.tap_screen(454, 1718)
@@ -1663,7 +1688,7 @@ class TouchScreen:
     must be on the friends screen!!
     '''
     def friend_set_nickname(self, nick):
-        self.scroll(0, -1800, start_x=50, start_y=1900)
+        self.scroll(0, -1800, sx=50, sy=1900)
         sleep(1)
         text = self.ocr_read_line_center((515, 1404), (300, 70))
         if "NICKNAME" in text:
@@ -1687,13 +1712,13 @@ class TouchScreen:
     def friend_change_nick(self, nick):
         print(f"Change nick to {nick}")
         sleep(1)
-        self.scroll(0, -1700, start_x = 50, start_y = 1750, tap_time = 0.3, stop_to = 0.5)
+        self.scroll(0, -1700, sx = 50, sy = 1750, tap_time = 0.3, stop_to = 0.5)
         print("Sroll up to nickname and wait")
         sleep(1)
         retries = 0
         text = ""
         while not "SET" in text:
-            self.scroll(0, -1700, start_x = 50, start_y = 1750, tap_time = 0.3, stop_to = 0.5)
+            self.scroll(0, -1700, sx = 50, sy = 1750, tap_time = 0.3, stop_to = 0.5)
             sleep(1)
             text, _ = self.ocr_read_line((400, 1355), (300, 70))
             if retries > 30:

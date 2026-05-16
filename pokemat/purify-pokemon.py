@@ -46,7 +46,7 @@ def delete_pokemon(port):
             sx = int(phone.specs['width'] // 2 )
             sy = int(phone.specs['max_y'] * 0.5)           
             phone.scroll(0, int(phone.specs['max_y'] * -0.2), 
-                     start_x=sx, start_y=sy, scale=False)
+                     sx=sx, sy=sy, scale=False)
             sleep(1)
             phone.buttons.b_pomon_purify.press()
             sleep(1)

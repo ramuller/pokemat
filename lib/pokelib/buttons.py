@@ -811,6 +811,14 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(0.8),
                                     invert=True),  
                                     'INCUBATE')
+        self.b_me_egg = TextButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.25),
+                                    xe=ts.rel_x(0.75),
+                                    ys=ts.rel_y(0),
+                                    ye=ts.rel_y(1),
+                                    invert=True,
+                                    process=True),  
+                                    'EGGS')
         self.i_egg_select = IconButton(ScreenRegion(ts,
                                             ys=ts.rel_y(0.10),
                                             ye=ts.rel_y(0.80)

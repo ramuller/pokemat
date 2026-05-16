@@ -270,8 +270,9 @@ def my_callback(ts, det):
 def my_test():
     # phone.screen.go_home()
     # return True
-    select_berry(phone, 's')
-    phone.screen.go_home()
+    phone.screen.go_eggs()
+    phone.egg_incubate(incubator='3')
+
     r = phone.screen.is_in_gym()
     phone.tap_down(phone.rel_x(0.5), phone.rel_y(0.5))
     phone.egg_handle(force=False)
@@ -280,13 +281,13 @@ def my_test():
         sx = phone.rel_x(0.1)
         sy =  phone.rel_y(0.9)
         phone.scroll(0, int(phone.specs['max_y'] * -0.8), 
-                         start_x=sx, start_y=sy, scale=False)
+                         sx=sx, sy=sy, scale=False)
         sleep(1)
 
         sx = phone.rel_x(0.1)
         sy= phone.rel_y(0.2)
         phone.scroll(0, int(phone.specs['max_y'] * 0.8), 
-                         start_x=sx, start_y=sy, scale=False)
+                         sx=sx, sy=sy, scale=False)
         sleep(1)
 
     print(f'Is in lobby {r}')

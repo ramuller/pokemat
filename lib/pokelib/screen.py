@@ -2,10 +2,12 @@
 # This class handle all screen navigations
 #
 
+import re
 from time import sleep
 import logging
 from datetime import datetime
 from .structs import ScreenRegion
+from .timeout_with_default import timeout_with_default
 
 
 class Screen:
@@ -90,6 +92,26 @@ class Screen:
                 sleep(1)
         self.go_home()
         raise Exception('Trainer screen timeout!')
+
+    @timeout_with_default(30, default=False, raise_on_timeout=False)    
+    def go_eggs(self):
+        b = self.ts.buttons.i_egg_select.search(retries=1)
+        if b:
+            return True
+        else:
+            self.go_home()
+            sleep(1)
+            self.ts.buttons.c_avatar()
+
+        self.ts.buttons.i_exits.search(retries=10)
+        while self.ts.buttons.b_me_egg.press(retries=1) is None:
+            print("Not in egg screen")
+            self.ts.scroll(0, 
+                           self.ts.rel_y(-0.8),
+                           sx=self.ts.rel_x(0.05),
+                           sy=self.ts.rel_y(0.9))
+            sleep(2)
+        return True
 
     def go_home(self):
         count = 1
