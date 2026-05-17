@@ -37,7 +37,7 @@ class ScreenRegion(Region):
             or xe > ts.specs['max_x'] \
             or ys < 0 \
             or ye > ts.specs['max_y']:
-            raise ExRegion('Region parameter out of bounce xe{xe} xs{xs} ys{ys} ye{ye}')
+            raise ExRegion(f'Region parameter out of bounce xe{xe} xs{xs} ys{ys} ye{ye}')
         
         if xe == 0:
             xe = ts.specs['max_x']

@@ -1626,7 +1626,11 @@ class TouchScreen:
                 # print("Wait for battle to stop")
                 for x in attack_x:
                     self.tap_screen(x, attack_y, scale=False)
-                    time.sleep(0.05)  
+                    time.sleep(0.05)
+                while not self.buttons.i_exits.search(retries=1) \
+                    and not self.buttons.i_exit_man.search(retries=1):
+                    print('Charged attack')
+                    sleep(1)
 
             return
 

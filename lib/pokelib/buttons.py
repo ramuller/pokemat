@@ -929,7 +929,7 @@ class Buttons(ButtonParameter):
                                     xs=ts.rel_x(0.5),
                                     xe=ts.rel_x(.95),
                                     ys=ts.rel_y(0.3),
-                                    ye=ts.rel_y(0.6),
+                                    ye=ts.rel_y(0.65),
                                     ),  
                                     'menu_battle')
         
