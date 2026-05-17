@@ -35,13 +35,6 @@ class Screen:
         else:
             return 'unknown'
         
-    def go_gym(self):
-        while not self.ts.buttons.i_gym_photo_disk.search(retries=1):
-            print("Not in gym")
-            self.ts.tap_screen(281, 339, scale=False)
-            sleep(1)
-        return True
-
     def is_in_gym(self):
         if not self.ts.buttons.i_gym_photo_disk.search(retries=1):
             return False
@@ -93,6 +86,21 @@ class Screen:
         self.go_home()
         raise Exception('Trainer screen timeout!')
 
+    def go_gym(self):
+        while not self.ts.buttons.i_gym_photo_disk.search(retries=1):
+            print("Not in gym")
+            self.ts.tap_screen(281, 339, scale=False)
+            sleep(1)
+        return True
+
+    def go_battle(self):
+        if self.ts.buttons.i_menu_battle.search(retries=1) is None:
+            self.go_home()
+            sleep(1)
+            self.ts.buttons.i_pokeball.press(retries=3)
+        b = self.ts.buttons.i_menu_battle.press(retries=5)
+        return b
+
     @timeout_with_default(30, default=False, raise_on_timeout=False)    
     def go_eggs(self):
         b = self.ts.buttons.i_egg_select.search(retries=1)
@@ -140,11 +148,13 @@ class Screen:
             count += 1
             if count > MAX_TRYS:
                 self.ts.tap_screen(100, 100, button = 3)
+                sleep(1)
                 self.ts.log.warn("No homescreen after {MAX_TRYS} atempts")
                 print("Try egg")
                 if self.ts.egg_handle():
                     break
                 self.ts.buttons.t_cancel.press(retries=1)
+                self.ts.buttons.b_yes.press(retries=1)
 
                 # for y in range(100, self.ts.maxY - 100, 25):
                 #     if self.ts.color_match(500, y, 116, 214, 156):

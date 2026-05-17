@@ -270,6 +270,16 @@ def my_callback(ts, det):
 def my_test():
     # phone.screen.go_home()
     # return True
+    phone.buttons.scan_vertical.search('Blanche',
+                                        start_rel=1.0,
+                                        end_rel=0.6,
+                                        mode='word', 
+                                        verbose=10)
+    phone.buttons.scan_vertical.search('Blanche',
+                                        start_rel=0.6,
+                                        mode='word', 
+                                        verbose=10)
+
     phone.screen.go_eggs()
     phone.egg_incubate(incubator='3')
 

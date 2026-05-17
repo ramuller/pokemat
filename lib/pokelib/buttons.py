@@ -1,4 +1,5 @@
 import re
+from turtle import st
 # import numpy as np
 # from PIL import Image
 # import easyocr
@@ -9,6 +10,8 @@ import cv2
 # import pandas as pd
 from time import sleep
 import re
+
+from torch import _functionalize_are_all_mutations_under_no_grad_or_inference_mode
 from .ocr import Ocr
 from .image import PokeImage
 from .structs import ScreenRegion
@@ -23,10 +26,16 @@ from dataclasses import dataclass
 TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
 
 ICONS_PATH = {
+    'menu_battle': {
+        'menu_battle': 'menu_battle.png',
+    },
     'exits': {
         'exit_bright': 'exit_bright.png',
         'exit_dark': 'exit_dark.png',
         'exit_check_dark': 'exit_check_dark.png',
+    },
+    'exit_man': {
+        'exit_man': 'exit_man.png',
     },
     'pokeball': {
         'home_pokeball': 'home_pokeball.png'
@@ -259,7 +268,32 @@ class Coordinates(ButtonParameter):
         super.__init__(reg)
 
 '''
-Text only now extra surrounding
+class ScanText()
+Hovers of the region with a step and search for the text
+Paramters are relative
+.0,.0 upper left corner
+1.0.10 lower right corner
+'''
+class ScanText(ButtonParameter):
+    def __init__(self, reg):
+        super.__init__(reg)
+
+    def search(self, reg, text, **kw):
+        p = self.ts
+        # Calculate steps and windows based on region info
+        if reg.scan_dir == 'vertical':
+            start = reg
+            end = reg.ye
+        else:
+            start = reg.xs
+            end = reg.xe
+        # The last scan start one step before end
+        offset = (end - start) // reg.scan_step
+        scan_reg = ScreenRegion(p, 
+                                xs=reg.xs, xe=reg.xe, ys=reg.ys, ye=reg.ye, invert=reg.invert, process=reg.process)
+
+'''
+Text only
 '''
 class TextOnly(ButtonParameter):
     def __init__(self, reg):
@@ -297,12 +331,53 @@ class TextOnly(ButtonParameter):
         b = self.search(*args, **kwargs)
         if b:
             if 'delay' in kwargs:
-                sleep(delay)
+                sleep(kwargs['delay'])
             else:
                 sleep(self.delay)
             # self.ts.tap_screen(b['center'][0], b['center'][1], scale=False)
             self.ts.tap_screen(b['center'], scale=False)
         return b
+
+'''
+hover the area with a step and search for the text
+'''
+class TextScan(ButtonParameter):
+    def __init__(self, reg, dir='v'):
+        super().__init__(reg)
+        self.dir = dir
+
+    def search(self,
+               text, 
+               dir=None,
+               start_rel=0.0, end_rel=1.0, steps=20,
+               window_factor=2,**kwargs):
+        if dir is None:
+            dir = self.dir
+        if dir == 'v':
+            start = self.ts.rel_y(start_rel)
+            end = self.ts.rel_y(end_rel)
+            full_range = self.ts.rel_y(1)
+        elif dir == 'h':
+            start = self.ts.rel_x(start_rel)
+            end = self.ts.rel_x(end_rel)
+            full_range = self.ts.rel_x(1)
+        else:
+            raise ValueError("dir must be 'v' or 'h'")
+        step = max(1, full_range // steps)
+         # correct direction
+        end = end - step - 3 if start < end else end
+        step = -step if start > end else step
+
+        for coord in range(start, end, step):
+            s = coord if start <= end else coord + window_factor * step
+            e = coord + window_factor * step if start <= end else coord
+            if dir == 'v':
+                b = self.ts.buttons.text_only.search(text, ys=s, ye=e, **kwargs)
+            else:
+                b = self.ts.buttons.text_only.search(text, xs=s, xe=e, **kwargs)
+            if b:
+                return b
+        return None
 
 '''
 Text only now extra surrounding
@@ -453,6 +528,8 @@ class Buttons(ButtonParameter):
         super().__init__(reg)
         self.image = reg.ts.image
         self.text_only = TextOnly(reg)
+        self.scan_vertical = TextScan(reg, dir='v')
+        self.scan_horizontal = TextScan(reg, dir='h')
         ts = reg.ts
         self.i_pokeball = IconButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.38),
@@ -467,6 +544,12 @@ class Buttons(ButtonParameter):
                                         ys=int(ts.specs['max_y'] * 0.85),
                                         ye=int(ts.specs['max_y'] * 0.97)),
                                     'exits')
+        self.i_exit_man = IconButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.01),
+                                        xe=int(ts.specs['max_x'] * 0.2),
+                                        ys=int(ts.specs['max_y'] * 0.1),
+                                        ye=int(ts.specs['max_y'] * 0.97)),
+                                    'exit_man')
         self.i_poke_stop_check = IconButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.38),
                                         xe=int(ts.specs['max_x'] * 0.62),
@@ -820,9 +903,9 @@ class Buttons(ButtonParameter):
                                     process=True),  
                                     'EGGS')
         self.i_egg_select = IconButton(ScreenRegion(ts,
-                                            ys=ts.rel_y(0.10),
-                                            ye=ts.rel_y(0.80)
-                                            ),
+                                        ys=ts.rel_y(0.10),
+                                        ye=ts.rel_y(0.80)
+                                        ),
                                         'egg_select')
         self.i_egg_incubator_8 = IconButton(ScreenRegion(ts,
                                             ys=ts.rel_y(0.40),
@@ -843,6 +926,13 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(1),
                                     invert=True),  
                                     'PURIFY')
+        self.i_menu_battle = IconButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.5),
+                                    xe=ts.rel_x(.95),
+                                    ys=ts.rel_y(0.3),
+                                    ye=ts.rel_y(0.6),
+                                    ),  
+                                    'menu_battle')
         
     def t_gift(self, *args, **kwargs):
         self.startx = self.ocr.startx = int(0.6 * self.ts.specs['max_x'])

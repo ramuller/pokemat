@@ -22,7 +22,11 @@ class Region:
     invert: bool = False
     process: bool = False
     threshold: int = 0
-
+    scan: bool = False
+    scan_dir: str = 'vertical'
+    scan_step: int = 4
+    # Factor to over smaple the scan area to avoid missing small buttons, in pixels
+    scan_overlap: int = 2
 class ScreenRegion(Region):
     def __init__(self, ts, xs=0, xe=0, ys=0, ye=0, 
                  tl=0, th=255, color='gray', mode='word', 

@@ -159,4 +159,26 @@ class Ocr:
                 return []
             sleep(pause)
         return []
+    
+    def scan_vertical(self, bs, start_rel=1.0, end_rel=0.6, steps=20, window_factor=2, **kw):
+        start = self.ts.rel_y(start_rel)
+        end = self.ts.rel_y(end_rel)
+
+        # step based on full height
+        full_height = self.ts.rel_y(1)
+        step = max(1, full_height // steps)
+
+        # correct direction
+        step = -step if start > end else step
+
+        for y in range(start, end, step):
+            ys = y + window_factor * step
+            ye = y
+
+            b = self.ts.buttons.text_only.search(bs, ys=ys, ye=ye, **kw)
+            # print(f'Line : {b}')
+            if b:
+                return b
+
+        return None
         

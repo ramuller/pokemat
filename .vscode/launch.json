@@ -359,6 +359,18 @@
       ]
     },
     {
+      "name": "battle trainer 2",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/battle.py",
+      "console": "integratedTerminal",
+      "debugOptions": ["DisableGUI"],
+      "args": [
+        "--type", "trainer2"
+      ]
+    },
+    {
       "name": "test",
       "type": "python",
       "extends": "Base",

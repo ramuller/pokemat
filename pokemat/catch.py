@@ -84,28 +84,6 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
     return True
 
 
-def scan_vertical(p, bs, start_rel=1.0, end_rel=0.6, steps=40, window_factor=2, **kw):
-    start = p.rel_y(start_rel)
-    end = p.rel_y(end_rel)
-
-    # step based on full height
-    full_height = p.rel_y(1)
-    step = max(1, full_height // steps)
-
-    # correct direction
-    step = -step if start > end else step
-
-    for y in range(start, end, step):
-        ys = y + window_factor * step
-        ye = y
-
-        b = p.buttons.text_only.search(bs, ys=ys, ye=ye, **kw)
-        # print(f'Line : {b}')
-        if b:
-            return b
-
-    return None
-
 def select_berry(p, berry):
     if berry in 'rbags':
         p.buttons.i_catch_berry.press()
@@ -122,7 +100,10 @@ def select_berry(p, berry):
             bs = '.*NANAB BERRY.*'
         sleep(1)
         for i in range(5):
-            b = scan_vertical(p, bs, mode='line', verbose=0)
+            b = p.buttons.scan_vertical.search(bs, 
+                                               start_rel=0.8, 
+                                               mode='line', 
+                                               verbose=0)
             if not b:
                 sleep(0.5)
                 continue

@@ -1290,30 +1290,48 @@ class TouchScreen:
             self.color_match_wait_click(468, 1281, 123, 215, 154)  
         
     def battleTrainer(self, trainer, league):
-        for i in range(0,6):
-            print("Scroll step {}".format(i))
-            self.scroll(0,-1000, sy = 1500, tap_time = 0.3, stop_to = 0.3)
-            sleep(0.5)
-            
-        time.sleep(1)
-        
+        sx = self.rel_x(0.05)
+        sy = self.rel_y(0.9)
+        sleep(3)
+        for i in range(0,5):
+            self.scroll(0, self.rel_y(-0.8), 
+                     sx=sx, 
+                     sy=sy, 
+                     scale=False)
+            sleep(1)
+            b = self.buttons.scan_vertical.search(
+                trainer,
+                start_rel=0.7,
+                mode='word', 
+                verbose=0)
+            if b:
+                break
+        if not b:
+            self.log.error(f"Trainer {trainer} not found")
+            return False
+        # Tap a bit over the text
+        trainer_x = b['center'][0]
+        trainer_y = b['top'] - b['height']
         cont = True
         while cont:
-            self.tap_screen(250 + ((trainer - 1) * 250), 1634)
-            # Press battle
-            self.color_match_wait_click(362, 1552, 149, 217, 148)
+            sleep(1)
+            # Select trainer
+            self.tap_screen(trainer_x, trainer_y, scale=False)
+            sleep(1)
+            b = self.buttons.t_pokestop_battle.press(retries=2, delay=1)
+            b = self.buttons.t_pokestop_battle.press(retries=2, delay=1)
             if league == "great":
-                self.color_match_wait_click(338, 850, 255, 255, 255)
+                self.buttons.text_only.press('.*Great.*', retries=5, delay=1)
             elif league == "ultra":
-                self.color_match_wait_click(333, 1300, 255, 255, 255)
+                self.buttons.text_only.press('.*Ultra.*', retries=5, delay=1)
             elif league == "master":
-                self.color_match_wait(345, 1640, 255, 255, 255)
+                self.buttons.text_only.press('.*Master.*', retries=5, delay=1)
             else:
                 self.log.error("Unknow trainer league {}".format(league))
-                
-            self.color_match_wait_click(501, 1742, 113, 213, 157)
+
+            self.buttons.t_grunt_party.press(retries=5, delay=1)            
             self.doBattle()
-            self.color_match_wait_click(500, 1826, 28, 135, 149)
+            self.buttons.i_exits.press(retries=25, delay=1)
             time.sleep(0.5)
         
     def attack(self, time_out_ms = 12000):
@@ -1559,6 +1577,12 @@ class TouchScreen:
     # in_battle - If true is in battle already dont's wait
     def doBattle(self, in_battle = False, opponent = None):
             def still_in_battle():
+                if self.buttons.i_exits.search(retries=1):
+                    print('Found exit button')
+                    return False
+                else:
+                    print('still in battle')
+                    return True
                 in_battle = False
                 if not self.color_match(100, 100, 10, 10, 10) and \
                         not self.color_match(500, 1826, 28, 135, 149):
@@ -1574,14 +1598,13 @@ class TouchScreen:
                             self.log.debug("no white screen")
                             in_battle = True
                             break
-                
                 return in_battle
 
             if not in_battle:
                 print("Wait battle start")
                 time_out_s = 90
                 start_time = datetime.now()
-                while not self.buttons.i_go_out_bright.search(retries=1):
+                while self.buttons.i_exits.search(retries=1):
                     # print("Wait for trainer")
                     if ((datetime.now() - start_time).total_seconds()) > time_out_s:
                         print("Battle did not start in time")                        
@@ -1594,7 +1617,20 @@ class TouchScreen:
             
             print("Start battle")
             
-            while self.buttons.i_go_out_bright.search(retries=1):
+            attack_y = self.rel_y(0.84)
+            attack_x =[self.rel_x(0.27), self.rel_x(0.5), self.rel_x(0.73)]
+            while not self.buttons.i_exits.search(retries=1):
+                if ((datetime.now() - start_time).total_seconds()) > time_out_s:
+                    print("Battle timed out after {}s".format(time_out_s))                        
+                    return
+                # print("Wait for battle to stop")
+                for x in attack_x:
+                    self.tap_screen(x, attack_y, scale=False)
+                    time.sleep(0.05)  
+
+            return
+
+            while not self.buttons.i_exits.search(retries=1):
                 if ((datetime.now() - start_time).total_seconds()) > time_out_s:
                     print("Battle timed out after {}s".format(time_out_s))                        
                     return

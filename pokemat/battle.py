@@ -46,20 +46,20 @@ def battle(port, type, league):
     while cont:
         # cont = False
         try:
-            phone.screen_go_to_home()
-            sleep(2)
+            phone.screen.go_home()
+            # sleep(2)
             phone.egg_handle()
             connection_retry = 0
             log.info("Time : battle {}".format(phone.getTimeNow()))
-            phone.screen_battle()
+            phone.screen.go_battle()
             if type == "league" or type == "l":
                 phone.battle_league()
-            elif type == "trainer1":
-                phone.battleTrainer(1, league)
-            elif type == "trainer2":
-                phone.battleTrainer(2, league)
-            elif type == "trainer3":
-                phone.battleTrainer(3, league)
+            elif type == "trainer1" or type.lower() in 'blanche':
+                phone.battleTrainer('Blanche', league)
+            elif type == "trainer2" or type.lower() in 'candela':
+                phone.battleTrainer('Candela', league)
+            elif type == "trainer3" or type.lower() in 'spark':
+                phone.battleTrainer('Spark', league)
             
         except ExPokeLibFatal as e:
             sleep(1)
@@ -77,7 +77,7 @@ def main():
     parser = PokeArgs()
     global args
     parser.add_argument("-t", "--type", action="store", required=False, default="league", \
-                        help="Battle type firstleague.")
+                        help="Battle type firstleague. league, trainer1, trainer2, trainer3")
     parser.add_argument("-L", "--league", action="store", required=False, default="great", \
                         help="Battle type firstleague.")
     args = parser.parse_args()
