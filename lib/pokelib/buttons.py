@@ -11,7 +11,6 @@ import cv2
 from time import sleep
 import re
 
-from torch import _functionalize_are_all_mutations_under_no_grad_or_inference_mode
 from .ocr import Ocr
 from .image import PokeImage
 from .structs import ScreenRegion
