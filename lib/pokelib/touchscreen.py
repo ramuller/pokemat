@@ -1576,29 +1576,32 @@ class TouchScreen:
     # Parameter:
     # in_battle - If true is in battle already dont's wait
     def doBattle(self, in_battle = False, opponent = None):
-            def still_in_battle():
-                if self.buttons.i_exits.search(retries=1):
-                    print('Found exit button')
-                    return False
-                else:
-                    print('still in battle')
-                    return True
-                in_battle = False
-                if not self.color_match(100, 100, 10, 10, 10) and \
-                        not self.color_match(500, 1826, 28, 135, 149):
-                    print("Found trainer screen")
-                    # return False
-                # Check black screen    
-                        
-               # Check white screen
-                if not in_battle:
-                    for d in range(0, 320, 80):
-                        if not self.color_match(200 + d, 1150 + d, 241, 241, 241, threashold=15):
-                        # if not self.color_match(200 + d, 1250, 241, 241, 241, threashold=15):
-                            self.log.debug("no white screen")
-                            in_battle = True
-                            break
-                return in_battle
+            def charged_attack():
+                self.tap_down(self.rel_x(0.5), self.rel_y(0.7), duration = 0, scale=False)
+                x = ox = self.rel_x(0.2)
+                y = oy = self.rel_y(0.65)
+                longitude = self.rel_x(0.6)
+                altitude = self.rel_x(0.18)
+                t = 0.03
+                step = 45
+                max_degrees = 360
+                for a in range(0,max_degrees, step):
+                    dx = ox + ( a * ( longitude / max_degrees))
+                    dy = oy + (int(math.sin(math.radians(a)) * altitude))
+                    self.moveCursor(x, y, dx, dy, scale=False)
+                    x = dx
+                    y = dy
+                    time.sleep(t)
+                for a in range(max_degrees, 0, -step):
+                    dx = ox + ( a * ( longitude / max_degrees))
+                    dy = oy + (int(math.sin(math.radians(a)) * altitude))
+                    self.moveCursor(x, y, dx, dy, scale=False)
+                    x = dx
+                    y = dy
+                    time.sleep(t)
+                self.tap_up(x, y + step, duration = 0, scale=False)
+                time.sleep(0.05)
+
 
             if not in_battle:
                 print("Wait battle start")
@@ -1617,7 +1620,7 @@ class TouchScreen:
             
             print("Start battle")
             
-            attack_y = self.rel_y(0.84)
+            attack_y = self.rel_y(0.86)
             attack_x =[self.rel_x(0.27), self.rel_x(0.5), self.rel_x(0.73)]
             while not self.buttons.i_exits.search(retries=1):
                 if ((datetime.now() - start_time).total_seconds()) > time_out_s:
@@ -1629,8 +1632,9 @@ class TouchScreen:
                     time.sleep(0.05)
                 while not self.buttons.i_exits.search(retries=1) \
                     and not self.buttons.i_exit_man.search(retries=1):
+                    charged_attack()
                     print('Charged attack')
-                    sleep(1)
+                    # sleep(1)
 
             return
 

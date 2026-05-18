@@ -371,8 +371,10 @@ class TextScan(ButtonParameter):
             s = coord if start <= end else coord + window_factor * step
             e = coord + window_factor * step if start <= end else coord
             if dir == 'v':
+                e = min(e, self.ts.specs['max_y'])
                 b = self.ts.buttons.text_only.search(text, ys=s, ye=e, **kwargs)
             else:
+                e = min(e, self.ts.specs['max_x'])
                 b = self.ts.buttons.text_only.search(text, xs=s, xe=e, **kwargs)
             if b:
                 return b
