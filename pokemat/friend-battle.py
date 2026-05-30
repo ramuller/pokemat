@@ -84,7 +84,7 @@ def trainer_battle(jsonFile):
                 guest.color_match_wait_click(486, 1750, 119, 215, 155)
                 host.color_match_wait_click(486, 1750, 119, 215, 155)
                 sleep(2)
-                guest.doBattle(opponent = host)
+                guest.do_battle(opponent = host)
                 host.color_match_wait_click(482, 1232, 119, 215, 155)
                 guest.color_match_wait_click(482, 1232, 119, 215, 155)
                 print(f"Round completed {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

@@ -175,7 +175,7 @@ def start_battle(phone):
     #     print("Wait black screen")
     #     time.sleep(0.05)
     print("do battle")
-    phone.doBattle()
+    phone.do_battle()
 
     # Wait for trainer
     for i in range(1,10):

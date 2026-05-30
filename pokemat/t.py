@@ -11,7 +11,7 @@ def callback():
 ps = {}
 for p in range(3003,3006):
     ps[p] = ts(p)
-    ps[p].doBattle()
+    ps[p].do_battle()
 sys.exit(0)
 p.screen_go_to_home()
 p.heal_all()

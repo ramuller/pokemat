@@ -1268,7 +1268,7 @@ class TouchScreen:
                 self.color_match_wait(81, 998, 255, 254, 255, same=False, time_out_ms=20000)
             except:
                 pass
-            self.doBattle()
+            self.do_battle()
             try:
                 next_battle = self.color_match_wait_click(315, 1535, 153, 219, 149, time_out_ms=20000)
                 next_battle = True
@@ -1330,7 +1330,7 @@ class TouchScreen:
                 self.log.error("Unknow trainer league {}".format(league))
 
             self.buttons.t_grunt_party.press(retries=5, delay=1)            
-            self.doBattle()
+            self.do_battle()
             self.buttons.i_exits.press(retries=25, delay=1)
             time.sleep(0.5)
         
@@ -1575,7 +1575,7 @@ class TouchScreen:
     #
     # Parameter:
     # in_battle - If true is in battle already dont's wait
-    def doBattle(self, in_battle = False, opponent = None):
+    def do_battle(self, in_battle = False, opponent = None):
             def charged_attack():
                 self.tap_down(self.rel_x(0.5), self.rel_y(0.7), duration = 0, scale=False)
                 x = ox = self.rel_x(0.2)
