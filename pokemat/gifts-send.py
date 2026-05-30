@@ -89,7 +89,10 @@ def gifting(port):
             phone.selectAll()
             phone.text_line_ok("\b")
             # phone.text_line_ok("!ff & !lucky & interactable")
-            phone.text_line_ok("!ff & interactable")
+            if args.all:
+                phone.text_line_ok('!oksfknds')
+            else:
+                phone.text_line_ok("!ff & interactable")
             time.sleep(0.5)
             phone.text_line_ok('\\n')
 
@@ -136,6 +139,8 @@ def main():
 
     parser = PokeArgs()
     global args
+    parser.add_argument("-a", "--all", action='store_true', \
+                        help="No special filter")
     args = parser.parse_args()
     
     global log 

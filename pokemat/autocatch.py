@@ -22,7 +22,7 @@ def rotate(phone, angle = 40):
     print(f"Rotate {angle}")
     sleep(1)
     # phone.scroll(angle * 10, 0, sy=680, sx = 500, stop_to=0.1)
-    phone.scroll(angle * 20, 0, sy=85, sx = 500, stop_to=0.1)
+    phone.scroll(phone.rel_x(80//angle), 0, sy=phone.rel_y(0.25), sx = phone.rel_x(0.75), stop_to=0.1)
         
 def search_target(phone):
     while True:   

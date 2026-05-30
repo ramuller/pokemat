@@ -35,6 +35,7 @@ ICONS_PATH = {
     },
     'exit_man': {
         'exit_man': 'exit_man.png',
+        'exit_man_2': 'exit_man_2.png',
     },
     'pokeball': {
         'home_pokeball': 'home_pokeball.png'
@@ -548,8 +549,8 @@ class Buttons(ButtonParameter):
         self.i_exit_man = IconButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.01),
                                         xe=int(ts.specs['max_x'] * 0.2),
-                                        ys=int(ts.specs['max_y'] * 0.1),
-                                        ye=int(ts.specs['max_y'] * 0.97)),
+                                        ys=int(ts.specs['max_y'] * 0.03),
+                                        ye=int(ts.specs['max_y'] * 0.2)),
                                     'exit_man')
         self.i_poke_stop_check = IconButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.38),

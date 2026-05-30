@@ -7,6 +7,8 @@ import math
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
+from pokelib import ScreenRegion
+
 
 import json
 import sys
@@ -31,12 +33,19 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
     while max_tries >= 0: # not p.color_match(90, 1414, 245, 254, 242):
         max_tries -= 1
         print("wait ball")
+        if p.buttons.i_exit_man.search(retries=1, verbose=0) is not None:
+            print('Exit man found')
         for to in range(20, 0, -1):
             # p.tap_screen(3, int(p.specs['max_y'] * 0.5), scale=False)
             if p.screen.get_current_screen() == 'home':
                 print('On homescreen')
                 return False
-            elif p.buttons.i_catch_ball.search(retries=1, verbose=0) is not None:
+            elif p.buttons.i_button_ok.search(retries=1, verbose=0) is not None:
+                print("OK found")
+                end_catch(p)
+                return True
+            elif p.buttons.i_catch_ball.search(retries=1, verbose=0) is not None \
+                and p.buttons.i_exit_man.search(retries=1, verbose=0) is not None:
                 print("Ball found")
                 break
             elif p.buttons.text_only.search('BERRIES', ys=p.rel_y(0.6)):
@@ -49,8 +58,10 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
                 end_catch(p)
                 return True
             else:
-                p.tap_screen(p.rel_x(0.5), p.rel_y(0.5))
-            sleep(0.3)
+                if to % 5 == 0:
+                    # print(f'Waiting for ball {to} tap center')
+                    p.tap_screen(p.rel_x(0.5), p.rel_y(0.5))
+            sleep(0.5)
         print("Ball ready")
 
         sleep(1)
@@ -69,7 +80,11 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
         sleep(1)
         print("distance {}".format(d))
         for i in range(20):
-            if p.buttons.i_catch_ball.search(retries=1) is not None:
+            if p.buttons.i_button_ok.search(retries=1, verbose=0) is not None:
+                print("End catch OK found")
+                end_catch(p)
+                return True
+            elif p.buttons.i_catch_ball.search(retries=1) is not None:
                 print("Throwing ball found start catch move")
                 p.catch_move(distance = d)
                 sleep(3)
@@ -77,10 +92,9 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
             if i % 5 == 0:
                 p.tap_screen(p.rel_x(0.5), p.rel_y(0.9), scale=False)
             sleep(0.5)
-        if p.color_match(392, 1400, 142, 219, 152) or to == 0:
-            print("game over")
-            end_catch(p)
-            return False
+        max_tries -= 1
+        sleep(1)
+    print('Catch failed')
     return True
 
 
@@ -101,7 +115,7 @@ def select_berry(p, berry):
         sleep(1)
         for i in range(5):
             b = p.buttons.scan_vertical.search(bs, 
-                                               start_rel=0.8, 
+                                               start_rel=0.6, 
                                                mode='line', 
                                                verbose=0)
             if not b:
@@ -110,6 +124,7 @@ def select_berry(p, berry):
             step = p.rel_x(1) // 3
             ys = b['top'] - 10
             ye = b['top'] + b['height'] + 10
+
             for x in range(3):
                 b = p.buttons.text_only.search(bs, 
                                                xs=x*step, xe=x*step+step,
@@ -117,11 +132,13 @@ def select_berry(p, berry):
                                                mode='line',
                                                verbose=0)
                 print(b)
-                if b:
+                if b != []:
                     break
             if b == []:
                 print(f'No berry {berry} found')
                 return None
+            else:
+                break
         sleep(1)
         try:
             x = b['center'][0]

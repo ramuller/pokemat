@@ -104,7 +104,6 @@ def defeat_gym(port, max_round=5):
         except Exception as e:
             print("Upps something went wrong but who cares?: {}", e)    
             phone.screen_go_to_home()
-    # phone.pokemon_search("cp1500-2000")
     if phone.screen_go_to_gym() == False:
         print("Dont know how to enter defeat mode bye bye")
         phone.screen_go_to_home()
