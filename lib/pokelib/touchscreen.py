@@ -922,7 +922,9 @@ class TouchScreen:
             # if not self.screen_is_pokestop():
                 return True
             print("Spin disk {}".format(to))
-            self.scroll(600, 0, sx = 150, sy = 1000)
+            self.scroll(self.rel_x(0.2), 0, 
+                    sy=self.rel_y(0.5), sx = self.rel_x(0.8),
+                    stop_to=0.1)
             sleep(1)
             to -= 1
         return False
