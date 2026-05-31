@@ -37,6 +37,9 @@ ICONS_PATH = {
         'exit_man': 'exit_man.png',
         'exit_man_2': 'exit_man_2.png',
     },
+    'menu_items': {
+        'menu_items': 'menu_items.png',
+    },
     'pokeball': {
         'home_pokeball': 'home_pokeball.png'
     },
@@ -204,6 +207,7 @@ ICONS_PATH = {
     },
     'egg_incubator_8': {
         'egg_incubator_8': 'egg_incubator_8.png',
+        'egg_incubator_8_sym': 'egg_incubator_8_sym.png',
     },
     'x_clear_text': {
         'x_clear_button': 'x_clear_text.png',
@@ -550,7 +554,7 @@ class Buttons(ButtonParameter):
                                         xs=int(ts.specs['max_x'] * 0.01),
                                         xe=int(ts.specs['max_x'] * 0.2),
                                         ys=int(ts.specs['max_y'] * 0.03),
-                                        ye=int(ts.specs['max_y'] * 0.2)),
+                                        ye=int(ts.specs['max_y'] * 0.25)),
                                     'exit_man')
         self.i_poke_stop_check = IconButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.38),
@@ -661,6 +665,30 @@ class Buttons(ButtonParameter):
                                         invert=True,
                                         process=False),                                       
                                         'PARTY')
+        self.b_grunt_rescue = TextButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.0),
+                                        xe=int(ts.specs['max_x'] * 1),
+                                        ys=int(ts.specs['max_y'] * 0.7),
+                                        ye=int(ts.specs['max_y'] * 1),
+                                        invert=True,
+                                        process=False),                                       
+                                        'RESCUE')
+        self.b_grunt_rematch = TextButton(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.2),
+                                        xe=int(ts.specs['max_x'] * 0.8),
+                                        ys=int(ts.specs['max_y'] * 0.7),
+                                        ye=int(ts.specs['max_y'] * 0.9),
+                                        invert=True,
+                                        process=True),                                       
+                                        'REMATCH')
+        self.t_grunt_ready = TextFlat(ScreenRegion(ts,
+                                        xs=int(ts.specs['max_x'] * 0.0),
+                                        xe=int(ts.specs['max_x'] * 0.3),
+                                        ys=int(ts.specs['max_y'] * 0.1),
+                                        ye=int(ts.specs['max_y'] * 0.35),
+                                        invert=False,
+                                        process=True),                                       
+                                        'Grunt')
         self.i_gym_mine = IconButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.8),
                                         xe=int(ts.specs['max_x']),
@@ -720,13 +748,21 @@ class Buttons(ButtonParameter):
                                     ys=ts.rel_y(0.5),
                                     ye=ts.rel_y(0.8)),
                                     'raid_battle')
-        self.b_passanger_fast = TextButton(ScreenRegion(ts,
+        self.b_passenger_fast = TextButton(ScreenRegion(ts,
                                     invert=True,
-                                    xs=int(ts.specs['max_x'] * 0.45),
-                                    xe=int(ts.specs['max_x'] * 0.55),
-                                    ys=int(ts.specs['max_y'] * 0.65),
-                                    ye=int(ts.specs['max_y'] * 0.72)),
+                                    xs=ts.rel_x(0.45),
+                                    xe=ts.rel_x(0.55),
+                                    ys=ts.rel_y(0.50),
+                                    ye=ts.rel_y(0.72)),
                                     'SS')    # IN PASSANGER
+        self.b_passenger = TextButton(ScreenRegion(ts,
+                                    invert=True,
+                                    xs=ts.rel_x(0.0),
+                                    xe=ts.rel_x(1),
+                                    ys=ts.rel_y(0.50),
+                                    ye=ts.rel_y(0.80),
+                                    process=False),
+                                    'PASSENGER')    # IN PASSANGER
         self.b_catch_berry = TextButton(ScreenRegion(ts,
                                     invert=True,
                                     ys=int(ts.specs['max_y'] * 0.40),
@@ -889,6 +925,13 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(0.8),
                                     invert=False),  
                                     'QUIT')
+        self.b_lucky_egg = TextButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0),
+                                    xe=ts.rel_x(1),
+                                    ys=ts.rel_y(0.5),
+                                    ye=ts.rel_y(0.95),
+                                    invert=True),  
+                                    'LUCKY')
         self.b_egg_incubate = TextButton(ScreenRegion(ts,
                                     xs=ts.rel_x(0),
                                     xe=ts.rel_x(1),
@@ -910,9 +953,10 @@ class Buttons(ButtonParameter):
                                         ),
                                         'egg_select')
         self.i_egg_incubator_8 = IconButton(ScreenRegion(ts,
-                                            ys=ts.rel_y(0.40),
-                                            ye=ts.rel_y(0.90)
-                                            ),
+                                        xe=ts.rel_x(0.40),
+                                        ys=ts.rel_y(0.40),
+                                        ye=ts.rel_y(0.90)
+                                        ),
                                         'egg_incubator_8')
         self.t_route_known = TextFlat(ScreenRegion(ts,
                                     xs=ts.rel_x(0),
@@ -928,6 +972,20 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(1),
                                     invert=True),  
                                     'PURIFY')
+        self.b_heal_all = TextButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0),
+                                    xe=ts.rel_x(1),
+                                    ys=ts.rel_y(0.5),
+                                    ye=ts.rel_y(1),
+                                    invert=True),  
+                                    'HEAL')
+        self.b_revive_all = TextButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0),
+                                    xe=ts.rel_x(1),
+                                    ys=ts.rel_y(0.5),
+                                    ye=ts.rel_y(1),
+                                    invert=True),  
+                                    'REVIVE')
         self.i_menu_battle = IconButton(ScreenRegion(ts,
                                     xs=ts.rel_x(0.5),
                                     xe=ts.rel_x(.95),
@@ -935,6 +993,13 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(0.65),
                                     ),  
                                     'menu_battle')
+        self.i_menu_items = IconButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.5),
+                                    xe=ts.rel_x(.95),
+                                    ys=ts.rel_y(0.5),
+                                    ye=ts.rel_y(0.9),
+                                    ),  
+                                    'menu_items')
         
     def t_gift(self, *args, **kwargs):
         self.startx = self.ocr.startx = int(0.6 * self.ts.specs['max_x'])
@@ -1016,7 +1081,7 @@ class StdButtons(ButtonParameter):
         ret = None
         while retries > 0:
             reg.npa = None
-            print(f'Retry - {retries}')
+            # print(f'Retry - {retries}')
             button, _ = method(text, reg,
                                  verbose=verbose)
             if button:

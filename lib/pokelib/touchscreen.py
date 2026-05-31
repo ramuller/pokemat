@@ -293,9 +293,10 @@ class TouchScreen:
                 # exit pokemon screen
                 self.buttons.i_exits.press(retries=25)
                 self.egg_incubate()
+                self.screen.go_home()
             except Exception as e:
                 print(f'ERROR egghandling {e}')
-                self.screen_go_to_home()
+                self.screen.go_home()
                 return False
         else:
             return False
@@ -929,6 +930,23 @@ class TouchScreen:
             to -= 1
         return False
     
+    def rotate(self, angle = 40):
+        print(f"Rotate {angle}")
+        self.scroll(self.rel_x(angle / 100), 
+                    0, 
+                    sy=self.rel_y(0.99), 
+                    sx = self.rel_x(0.1), 
+                    tap_time=0.01,
+                    stop_to=0.3)
+        return
+    
+        self.scroll(0,                      # dx
+                    self.rel_y(angle/100),  # dy
+                    sx = self.rel_x(0.01),
+                    sy = self.rel_y(0.30),    # startx
+                    tap_time=0.04,
+                    stop_to=0.3)
+    
     def screen_go_to_home(self):
         return self.screen.go_home()
         self.log.info("Go to homescreen")
@@ -1180,45 +1198,48 @@ class TouchScreen:
         
     def heal_all(self):
         print("Heal all")
-        self.screen_item()
-        sleep(1)
-        # Revive
-        for i in range(0, 21, 5):
-            self.tap_screen(920+i, 320+1)
-            sleep(0.2)
-        while not "MEDICINE" in self.ocr_read_line_center((496, 341), (300, 50)):
-            print(f"READ{self.ocr_read_line_center((496, 341), (300, 50))}")
-            self.scroll(0, -37, sx=900, sy=1900)
-        revived = False
-        for y in [960, 550]:
-            # for x in [750, 455, 150]           
-            for x in range(800,100, -20):
-                # self.log.debug(f"search revive {self.color_show(x, y)}")
-                if self.color_match(x, y, 220, 215, 110, threashold=35):
-                    print("Found revive at {},{}".format(x,y))
-                    self.tap_screen(x, y)
-                    time.sleep(0.5)
-                    if not self.color_match_wait_click(350, 1650, 159, 218, 148, ex=False, time_out_ms=1000):
-                        revived = True
-                    self.color_match_wait_click(525, 1850, 28, 135, 149, ex=False)
-                if revived:
-                    break
-            if revived:
-                break
-                            
-        time.sleep(1)
-        # Potion
-        healed = False
+        def find_last_match(data, key, value):
+            for item in reversed(data):
+                if item.get(key) == value:
+                    return item
+            return None
+        def find_first_match(data, key, value):
+            for item in data:
+                if item.get(key) == value:
+                    return item
+            return None
+        self.screen.go_items()
+        sleep(3)
         for i in range(0, 3):
-            # upper left potion
-            self.tap_screen(250, 550)
-            if not self.color_match_wait_click(350, 1650, 159, 218, 148, ex=False, time_out_ms=1000):
-                healed = True
-            self.color_match_wait_click(525, 1850, 28, 135, 149, ex=False)
-            if healed:
+            items = self.ocr.read()
+            last_revive = find_last_match(items, 'text', 'Revive')
+            if last_revive:
+                self.tap_screen(last_revive['center'][0], last_revive['center'][1], scale=False)
+                sleep(0.2)
+                revive = self.buttons.b_revive_all.press(retries=2)
+                sleep(1.5)
+                self.buttons.i_exits.press(retries=2)
+                sleep(1.5)
+            else:
+                print('No revive found')
+                revive = None
+            first_potion = find_first_match(items, 'text', 'Potion')
+            if first_potion:
+                self.tap_screen(first_potion['center'][0], first_potion['center'][1], scale=False)
+                sleep(0.2)
+                heal = self.buttons.b_heal_all.press(retries=2)
+                sleep(1.5)
+                if not self.screen.is_in_items():
+                    self.buttons.i_exits.press(retries=2)
+                    sleep(1.5)
+            else:
+                print('No heal found')
+                heal = None
+
+            if heal == None and revive == None:
+                print("No heal or revive found")
                 break
-            time.sleep(1)
-        self.screen_go_to_home()
+        self.screen.go_home()
 
     
     def battle_league(self):
@@ -1603,7 +1624,24 @@ class TouchScreen:
                     time.sleep(t)
                 self.tap_up(x, y + step, duration = 0, scale=False)
                 time.sleep(0.05)
-
+            def battle_start():
+                reg = ScreenRegion(self,
+                                   xs=10, xe=50,
+                                   ys=self.rel_y(0.4), ye=self.rel_y(0.6))
+                arr = self.image.scan_region(reg)
+                # all_zero = np.all(arr == 0)
+                print(f'Mean over check: {np.mean(arr)}')
+                # print(f'Battle over check: {all_zero}')
+                return np.mean(arr) < 20
+            def battle_over():
+                reg = ScreenRegion(self,
+                                   xs=10, xe=50,
+                                   ys=self.rel_y(0.4), ye=self.rel_y(0.6))
+                arr = self.image.scan_region(reg)
+                # all_zero = np.all(arr == 0)
+                print(f'Mean over check: {np.mean(arr)}')
+                # print(f'Battle over check: {all_zero}')
+                return np.mean(arr) < 20
 
             if not in_battle:
                 print("Wait battle start")
@@ -1624,7 +1662,10 @@ class TouchScreen:
             
             attack_y = self.rel_y(0.86)
             attack_x =[self.rel_x(0.27), self.rel_x(0.5), self.rel_x(0.73)]
-            while not self.buttons.i_exits.search(retries=1):
+            while not battle_over() \
+                    and not self.buttons.i_exits.search(retries=1) \
+                    and not self.buttons.t_grunt_ready.search(retries=1) \
+                    and not self.buttons.b_grunt_rescue.search(retries=1):
                 if ((datetime.now() - start_time).total_seconds()) > time_out_s:
                     print("Battle timed out after {}s".format(time_out_s))                        
                     return
@@ -1632,8 +1673,11 @@ class TouchScreen:
                 for x in attack_x:
                     self.tap_screen(x, attack_y, scale=False)
                     time.sleep(0.05)
-                while not self.buttons.i_exits.search(retries=1) \
-                    and not self.buttons.i_exit_man.search(retries=1):
+                while not battle_over() \
+                        and not self.buttons.i_exits.search(retries=1) \
+                        and not self.buttons.i_exit_man.search(retries=1)\
+                        and not self.buttons.b_grunt_rematch.search(retries=1) \
+                        and not self.buttons.b_grunt_rescue.search(retries=1):
                     charged_attack()
                     print('Charged attack')
                     # sleep(1)

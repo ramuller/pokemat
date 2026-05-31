@@ -17,7 +17,6 @@ def heal(port):
     print("Change trainers on port {}", port)
     global phone
     phone = TouchScreen(port)
-    phone.screen_go_to_home()
     phone.heal_all()
     
 def main():

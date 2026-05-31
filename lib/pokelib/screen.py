@@ -32,8 +32,33 @@ class Screen:
     def get_current_screen(self, verbose=0, retries=1):
         if self.ts.buttons.i_pokeball.search(verbose=verbose, retries=retries):
             return 'home'
+        elif self.is_in_items(verbose=0, retries=1):
+            return 'items'
+        elif self.is_in_gym():
+            return 'gym'
+        elif self.is_in_lobby():
+            return 'lobby'
+        elif self.is_in_pokestop():
+            return 'pokestop'
         else:
             return 'unknown'
+    
+    def is_home(self, verbose=0, retries=1):
+        if self.ts.buttons.i_pokeball.search(verbose=verbose, retries=retries):
+            return True
+        else:
+            return False
+
+    def is_in_items(self,verbose=0, retries=1):
+        reg = ScreenRegion(self.ts, 
+                           xs=self.ts.rel_x(0.35),
+                           xe=self.ts.rel_x(0.65),
+                           ys=self.ts.rel_y(0.03),
+                           ye=self.ts.rel_y(0.10))
+        if not self.ts.ocr.regex('.*ITEMS.*', reg, verbose=verbose, retries=retries):
+            return False
+        else:
+            return True
         
     def is_in_gym(self):
         if not self.ts.buttons.i_gym_photo_disk.search(retries=1):
@@ -52,7 +77,7 @@ class Screen:
         return False
 
        
-    def is_pokestop(self):
+    def is_in_pokestop(self):
         if not self.ts.buttons.i_poke_stop_check.search(retries=1):
             return False
         else:
@@ -101,6 +126,14 @@ class Screen:
         b = self.ts.buttons.i_menu_battle.press(retries=5)
         return b
 
+    def go_items(self):
+        if self.ts.buttons.i_menu_items.search(retries=1) is None:
+            self.go_home()
+            sleep(1)
+            self.ts.buttons.i_pokeball.press(retries=3)
+        b = self.ts.buttons.i_menu_items.press(retries=5)
+        return b
+
     @timeout_with_default(30, default=False, raise_on_timeout=False)    
     def go_eggs(self):
         b = self.ts.buttons.i_egg_select.search(retries=1)
@@ -121,12 +154,50 @@ class Screen:
             sleep(2)
         return True
 
+    def deep_exit(self):
+        self.ts.tap_screen(100, 100, button = 3)
+        sleep(1)
+        self.ts.log.warn("No homescreen after {MAX_TRYS} atempts")
+        print("Try egg")
+        if self.ts.egg_handle():
+            return
+        print('Try rescue')
+        if self.ts.buttons.b_lucky_egg.search(retries=1):
+            self.ts.buttone.i_exits.press(retries=1)
+            return
+        if self.ts.buttons.b_grunt_rescue.press(retries=1):
+            return
+        print('Try passenger')
+        if self.ts.buttons.b_passenger.press(retries=1):
+            return
+        # Abit tricke because the button is below the detected
+        if self.ts.buttons.b_grunt_rematch.search(retries=1):
+            b = self.ts.buttons.b_grunt_rematch.search(retries=1)
+            print(f'Rematch text found {b}')
+            ys = b['center'][1] + self.ts.rel_y(0.1)
+            for y in range(ys, self.ts.rel_y(0.9), 5):
+                self.ts.tap_screen(self.ts.rel_x(0.5), y, scale=False)
+                sleep(0.1)
+                if self.ts.screen.is_home():
+                    print("Back home")
+                    return
+            return
+
+        self.ts.buttons.t_cancel.press(retries=1)
+        self.ts.buttons.b_yes.press(retries=1)
+
     def go_home(self):
         count = 1
         MAX_TRYS = 5
+        print('screen go home')
         while self.get_current_screen() != 'home':
             # self.color_show(300, 1803)
             # OK on green in the middle
+            count += 1
+            if count > MAX_TRYS:
+                self.deep_exit()
+                count = 0
+            
             if self.ts.buttons.i_exits.press(retries=1,verbose=0) or \
                         self.ts.buttons.i_button_ok.press():
                 sleep(1)
@@ -145,29 +216,6 @@ class Screen:
                 else:
                     # return to home
                     self.ts.tap_screen(100, 100, button = 3)
-            count += 1
-            if count > MAX_TRYS:
-                self.ts.tap_screen(100, 100, button = 3)
-                sleep(1)
-                self.ts.log.warn("No homescreen after {MAX_TRYS} atempts")
-                print("Try egg")
-                if self.ts.egg_handle():
-                    break
-                self.ts.buttons.t_cancel.press(retries=1)
-                self.ts.buttons.b_yes.press(retries=1)
-
-                # for y in range(100, self.ts.maxY - 100, 25):
-                #     if self.ts.color_match(500, y, 116, 214, 156):
-                #         print(f"Something green at {y}")
-                #         b_text = self.ocr_read_line_center((500, y + 50), (100, 100))
-                #         print(f"Button text {b_text}")
-                #         if re.match(b_text, ".*CANCEL.*"):
-                #             print("Found OK")
-                #             self.tap_screen(b_text['center'])
-                #             break
-                count = 0
-            if self.ts.buttons.t_passenger.press(retries=1):
-                continue
             sleep(0.5)
 
         if count == 0:

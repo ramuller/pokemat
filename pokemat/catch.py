@@ -65,13 +65,15 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
         print("Ball ready")
 
         sleep(1)
-        bs = select_berry(p, berry)
-        berry_already = p.buttons.b_catch_berry.search(retries=2)
-        if berry_already:
-            p.tap_screen(p.rel_x(0.1), berry_already['center'][1], scale=False)
-            sleep(0.5)
-        else:
-            sleep(1.5)
+        if berry != "n":
+            bs = select_berry(p, berry)            
+            berry_already = p.buttons.b_catch_berry.search(retries=2)
+            if berry_already:
+                p.tap_screen(p.rel_x(0.1), berry_already['center'][1], scale=False)
+                sleep(0.5)
+            else:
+                sleep(1.5)
+
         if span != 0:
             d = distance + randrange(-span,span)
         else:

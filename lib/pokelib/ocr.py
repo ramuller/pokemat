@@ -150,7 +150,7 @@ class Ocr:
             reg.npa = None
             lines, reg = self.read_and_npa(reg, verbose=verbose)
             # self.reset_parameters()
-            print(f'Tries {tries}')
+            # print(f'Tries {tries}')
             for l in lines:
                 # print(f'Line {l["text"]}')
                 if re.search(regex, l['text']):

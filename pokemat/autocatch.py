@@ -44,7 +44,7 @@ def search_target(phone):
                     print("Pokemon screen")
                     # phone.screen_go_to_home()
                     return "pokemon"
-                elif phone.screen.is_pokestop():
+                elif phone.screen.is_in_pokestop():
                     print("Found pokestop")
                     return "pokestop"
                 elif phone.screen.is_in_gym() and False:
@@ -81,7 +81,7 @@ def auto_catch(phone):
             if args.catch:
                 action_count += 1
                 if not catch(phone, distance = 5, berry = args.berry, max_tries = 7, span = 2):
-                    rotate(phone, 90)
+                    rotate(phone, angle=60)
                 spins_after_poke += 1
         elif target == "gym-defeat":
             if args.defeat:
@@ -92,6 +92,8 @@ def auto_catch(phone):
             if args.spin:
                 action_count += 1
                 phone.spin_disk()
+                phone.screen_go_to_home()
+                rotate(phone, angle=20)
         elif target == "egg":
             pass
         if args.once and action_count > 0:

@@ -151,10 +151,8 @@
       "args": [
         "button",
         "--name",
-        "t_passenger",
+        "b_lucky_egg",
         "--show",
-        "--verbose",
-        "6"
       ]
     },
    {
@@ -172,28 +170,12 @@
     },
     {
       "name": "poketool screen",
+      "extends": "Base",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/poketool.py",
       "console": "integratedTerminal",
-      "args": [
-        "screen",
-        "--port",
-        "3004",
-        "--show",
-        "--kind",
-        "dark",
-        "--text",
-        "RETURNING PLAYER",
-        "--mode",
-        "line",
-        "--ys",
-        "20%",
-        "--verbose",
-        "0",
-        "--name",
-        "pokeball"
-      ],
+      "args": ["screen"],
       "comment":[
         "--invert",
       ],
@@ -331,6 +313,15 @@
       "extends": "Base",
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/raid.py",
+      "console": "integratedTerminal",
+      "args": []
+    },    
+    {
+      "name": "heal",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/heal.py",
       "console": "integratedTerminal",
       "args": []
     },    

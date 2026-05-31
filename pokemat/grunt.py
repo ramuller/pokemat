@@ -6,6 +6,7 @@ from time import sleep
 import os
 import logging
 import random
+from tkinter import YES
 
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
@@ -162,6 +163,16 @@ def select_team(phone):
         print("Wait go battle")
     return start
 
+def rescue_pokemon(phone):
+    if phone.buttons.b_grunt_rescue.press(retries=1):
+        print("Resucue found")
+        sleep(1)
+        print("Try to catch")    
+        watch_dog.reset()
+        catch(phone, distance = 6, max_tries = 12, span = 2)
+        return True
+    return False
+
 def start_battle(phone):
     startTime = datetime.now()
     # while not phone.black_screen():
@@ -177,24 +188,24 @@ def start_battle(phone):
     print("do battle")
     phone.do_battle()
 
-    # Wait for trainer
-    for i in range(1,10):
-        try:
-            phone.color_match_wait_click(305, 1773, 137, 216, 153, time_out_ms = 2000)
+    # After battle
+    for i in range(1,20):
+        if rescue_pokemon(phone):
             break
-        except:
-            print("Wait for rescue")
-            phone.tap_screen(305, 773)
-        pass
-    phone.tap_screen(512, 873)
+        elif phone.buttons.b_grunt_rematch.search(retries=1):
+            b = phone.buttons.b_grunt_rematch.search(retries=1)
+            print(f'Rematch text found {b}')
+            ys = b['center'][1] + phone.rel_y(0.1)
+            for y in range(ys, phone.rel_y(0.9), 5):
+                phone.tap_screen(phone.rel_x(0.5), y, scale=False)
+                time.sleep(0.1)
+                if phone.screen.is_home():
+                    print("Back home")
+                    return
+            break
+        phone.tap_screen(phone.rel_x(0.5), phone.rel_y(0.5), scale=False)
+        sleep(1)
 
-    sleep(2)
-    print("Try to catch")    
-    watch_dog.reset()
-    catch(phone, distance = 6, max_tries = 12, span = 2)
-    watch_dog.reset()
-    # action(port, phone, berry = "g")
-    print("Try to action")
     
 def find_grunt(phone):
     reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.5))
@@ -206,15 +217,15 @@ def find_grunt(phone):
         # g = b = r
         vf  = f'r{r}-g{g}-b{b}'
         print(vf)
-        bw_reg.npa = phone.image.find_rgb(reg, r, g, b, wait=1, verbose=0, tolerance=15)
+        bw_reg.npa = phone.image.find_rgb(reg, r, g, b, wait=1, verbose=0, tolerance=20)
         b = IconButton(bw_reg, 'grunt_r')
 
         det = b.search(retries=1, no_scan=True, verbose=0)
-        print(f'Detextion {det}')
+        print(f'Detection {det}')
         if det:
             x = det.center[0]
             y = det.center[1]
-            y += det.quad[3][1] - det.quad[0][1]
+            y += (det.quad[3][1] - det.quad[0][1]) * 2
             phone.tap_screen(x, y, scale=False)
             return det
         
@@ -225,7 +236,7 @@ def grunt(port):
     phone = TouchScreen(port)
     phone.screen.go_home()
     try:
-        phone.screen_go_to_home()
+        phone.screen.go_home()
     except:
         pass
     # phone.dno_gruntoBattle()
@@ -237,19 +248,33 @@ def grunt(port):
         # if is_red_in_the_sky(phone):
         #     no_grunt = False
         # no_grunt = scan_sky(phone, print, no_grunt)
+        phone.egg_handle()
+        rescue_pokemon(phone)
         grunt = find_grunt(phone)
         if grunt:
-            time.sleep(1)
+            time.sleep(2)
+            if not phone.screen.is_in_pokestop():
+                print("Not in pokestop")
+                phone.screen_go_to_home()
+                continue
             phone.spin_disk()
             for i in range(30):
-                if phone.buttons.t_pokestop_battle.press(retries=1):
+                if phone.buttons.t_pokestop_battle.press(retries=1, delay=1):
                     break
-                phone.buttons.i_exits.press()
+                if phone.buttons.i_exits.search(retries=1) is not None:
+                    print('Exit found')
+                    sleep(1)
+                    if phone.buttons.t_pokestop_battle.press(retries=1, delay=1):
+                        break
+
                 phone.tap_screen(phone.rel_x(0.3), phone.rel_y(0.9), scale=False)
                 sleep(1.5)
 
+
             print('time to battle')
 
+            sleep(0.5)
+            phone.buttons.t_pokestop_battle.press(retries=1, delay=1)
 
             reg = ScreenRegion(phone, ys=phone.rel_y(0.55))
             sb = StdButtons(reg)
@@ -281,7 +306,7 @@ def grunt(port):
 
         else:
             phone.screen_go_to_home()
-            rotate(phone)
+            phone.rotate()
 
 
 
@@ -304,7 +329,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    watch_dog = WatchDog(time_out = 240, _callback = wd_callback)
+    watch_dog = WatchDog(time_out = 360, _callback = wd_callback)
     while True:
         try:
             grunt(args.port)

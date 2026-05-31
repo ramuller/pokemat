@@ -152,20 +152,6 @@ def icon():
     detection = icon_button.search(retries=1)
 
 
-    
-def screen():
-
-    print(f'Current screen is "{phone.screen.get_current_screen(verbose=args.verbose)}"')
-    if args.save:
-        path = f'{phone.config_path}/icons/screens-shots/{args.save}'
-        if not re.match(r'.*\.png$', path):
-            path += '.png'
-        print(f'Saving screen to {path}')
-        npa = phone.image.scan_region(xs=0, ys=0, xe=0, ye=0, channel="gray")
-        if args.show:
-            phone.image.show_image(npa, wait=args.show, title='Screen shoot')
-        phone.image.save_image(npa, path)
-
 def home():
     print(f'Current screen is "{phone.screen.get_current_screen(verbose=args.verbose)}"')
     print(f'Try to go home screen')
@@ -270,6 +256,20 @@ def my_callback(ts, det):
 def my_test():
     # phone.screen.go_home()
     # return True
+    # phone.egg_handle(force=False)
+    # phone.screen.go_home()
+    print('My test')
+    count=1
+    while True:
+        print('Rotage {}'.format(count))
+        count+=1
+        phone.rotate()
+        sleep(0.5)
+
+
+
+    return
+
     phone.buttons.scan_vertical.search('Blanche',
                                         start_rel=1.0,
                                         end_rel=0.6,
@@ -294,33 +294,6 @@ def my_test():
                          sx=sx, sy=sy, scale=False)
         sleep(1)
 
-        sx = phone.rel_x(0.1)
-        sy= phone.rel_y(0.2)
-        phone.scroll(0, int(phone.specs['max_y'] * 0.8), 
-                         sx=sx, sy=sy, scale=False)
-        sleep(1)
-
-    print(f'Is in lobby {r}')
-
-    
-    reg = ScreenRegion(phone,
-                            xs=int(phone.specs['max_x'] * 0.15),
-                            xe=int(phone.specs['max_x'] * 0.30),
-                            ys=int(phone.specs['max_y'] * 0.80),
-                            ye=int(phone.specs['max_y'] * 0.95),
-                            color='green')
-    
-    reg.npa = phone.image.scan_region(reg)
-
-    print(f'min {reg.npa.min()}, max {reg.npa.max()}')
-
-    test_button_callback()
-    b = IconButton(phone, 'pokeball',
-                    xs=phone.rel_x(0.38),
-                    xe=phone.rel_x(0.62),
-                    ys=phone.rel_y(0.85),
-                    ye=phone.rel_y(0.97),
-                    search_callback=my_callback)
 
     while True:
         d = b.search()
@@ -352,8 +325,6 @@ def action(port, arg = None):
         ret = yuv()
     elif re.match('raw.*', command):
         ret = raw_button()
-    elif command == 'screen':
-        ret = screen()
     elif re.match('ho.*', command):
         ret = home()
     elif re.match('but.*', command):
@@ -366,6 +337,10 @@ def action(port, arg = None):
         ret = ball()
     elif re.match('find.*', command):
         ret = find_rgb()
+    elif re.match('home.*', command):
+        ret = phone.screen.go_home()
+    elif re.match('scr.*', command):
+        ret = print(f'Current screen {phone.screen.get_current_screen(verbose=args.verbose)}')
     elif re.match('test*', command):
         ret = my_test()
     else:
@@ -409,7 +384,7 @@ def main():
                         help='If something can repeat.', type=int)
     parser.add_argument('--invert', action='store_true', default=False, \
                         help='x start.')
-    parser.add_argument('--name', action='store', required=False, default=None, \
+    parser.add_argument('-n', '--name', action='store', required=False, default=None, \
                         help='If defined store picture with this name.')
     parser.add_argument('--save', action='store', required=False, default=None, \
                         help='Store picture with this name.')
