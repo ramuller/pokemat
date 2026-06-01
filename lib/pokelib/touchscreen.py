@@ -222,7 +222,9 @@ class TouchScreen:
         self.log.debug("Response : {}".format(response))
         time.sleep(0.001 * duration)
     
-    def tap_down(self, x, y, button = 1, duration = 0, scale=True):
+    def tap_down(self, x, y=None, button = 1, duration = 0, scale=True):
+        if y == None:
+            x, y = x        
         self.log.debug("tap_down {},{},{},{}".format(x,y,button, duration))
         if scale:
             x, y = self.scaleXY(x, y)
@@ -1511,14 +1513,24 @@ class TouchScreen:
        
         
     
-#     def catch_move(self, right = True, start = -90, end = 60, off_y = 900, radius = 250, delay = 0.012, step = 5, distance = 15):
-    def catch_move(self, right = True, start = -180, end = 90 + 720, off_x = 500, off_y = 1300, \
-                   radius = [80, 250], delay = 0.015, step = 5, distance = 5, tilt = -1.0):
+# Old 1000x2000 based values
+#     def catch_move(self, right = True, start = -180, end = 90 + 720, off_x = 500, off_y = 1300, \
+#                   radius = [80, 250], delay = 0.015, step = 5, distance = 5, tilt = -1.0):
+
+    def catch_move(self, right = True, start = -180, end = 90 + 720, off_x = 0, off_y = 0, \
+                   radius = 0, delay = 0.015, step = 5, distance = 5, tilt = -1.0):
         def getX(d, r, offset=0, tilt = 0.0):
             return math.sin(math.radians(d)) * float(r) + float(offset) + float(tilt)
         
         def getY(d, r, offset=0, tilt = 0.0):
             return math.cos(math.radians(d)) * float(r) + float(offset) + float(tilt)
+        start=0
+        if  off_x == 0:
+            off_x = self.rel_x(0.5)
+        if off_y == 0:
+            off_y = self.rel_y(0.65)
+        if radius == 0:
+            radius = [self.rel_x(0.08),self.rel_y(0.125)] 
         
         attempt = 1 
         # off_x = 500
@@ -1526,7 +1538,8 @@ class TouchScreen:
         # off_y = 900
         y = getY(start, radius[1])
         x = getX(start, radius[0], tilt = y * tilt) 
-        self.tap_down(x + off_x, y + off_y)
+        self.tap_down(x + off_x, y + off_y, scale=False)
+        sleep(0.2)
         top = 10
         while top < 0:
             for probe in range(750,900,2):
@@ -1561,7 +1574,7 @@ class TouchScreen:
             # print("radius {}".format(radius))
             # print("XY {} {}".format(x, y))
             # print("x = {}".format(x))
-            self.moveCursor(int(sx) + off_x, int(sy) + off_y, int(x) + off_x, int(y) + off_y)
+            self.moveCursor(int(sx) + off_x, int(sy) + off_y, int(x) + off_x, int(y) + off_y, scale=False)
             # dx = x - sx
             # dy = y - sy
             # d = math.sqrt(dx * dx + dy * dy)
@@ -1581,13 +1594,14 @@ class TouchScreen:
             accel = accel + 5.0
             ye = ys - ( d + accel)
             xe = xs + dx # distance - i
-            self.moveCursor(int(xs) + off_x, int(ys) + off_y, int(xe) + off_x, int(ye) + off_y)
+            self.moveCursor(int(xs) + off_x, int(ys) + off_y, int(xe) + off_x, int(ye) + off_y, scale=False)
             xs = xe
             ys = ye
             time.sleep(delay)
         # return
-        self.tap_up(x, y)
+        self.tap_up(x, y, scale=False)
         # 750
+        return
 
     def black_screen(self):
         for xy in range(100, 600, 100):

@@ -82,11 +82,12 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
         sleep(1)
         print("distance {}".format(d))
         for i in range(20):
+            ball = p.buttons.i_catch_ball.search(retries=1)
             if p.buttons.i_button_ok.search(retries=1, verbose=0) is not None:
                 print("End catch OK found")
                 end_catch(p)
                 return True
-            elif p.buttons.i_catch_ball.search(retries=1) is not None:
+            elif ball is not None:
                 print("Throwing ball found start catch move")
                 p.catch_move(distance = d)
                 sleep(3)

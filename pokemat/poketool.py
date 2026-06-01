@@ -261,10 +261,11 @@ def my_test():
     print('My test')
     count=1
     while True:
-        print('Rotage {}'.format(count))
+        b = phone.buttons.i_catch_ball.search(retries=1, verbose=0)
+        print(f'Rotage {count} : {b}')
         count+=1
-        phone.rotate()
-        sleep(0.5)
+        #phone.rotate()
+        # sleep(0.5)
 
 
 
