@@ -879,7 +879,7 @@ class Buttons(ButtonParameter):
         self.t_setting = TextFlat(ScreenRegion(ts,
                                     xs=ts.rel_x(0.5),
                                     xe=ts.rel_x(0.9),
-                                    ys=ts.rel_y(0.1),
+                                    ys=ts.rel_y(0.05),
                                     ye=ts.rel_y(0.2),
                                     invert=False),  
                                     'SETTINGS')

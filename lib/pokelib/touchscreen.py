@@ -152,10 +152,11 @@ class TouchScreen:
                         nav_bar = False
                         break
         if nav_bar:
-            c = self.get_rgb(specs["width"] // 3, specs["height"] -1, scale=False)
+            c = self.get_rgb(specs["width"] // 4, specs["height"] -1, scale=False)
             for y in range(specs["height"] - 1, specs["height"] // 10, -1):
                 c2 = self.get_rgb(specs["width"] // 3, y, scale=False)
-                if c != c2:
+                # if c != c2:
+                if c[0] != c2[0]:
                     print(f"nav_bar hight {specs['h'] - y}")
                     specs["h"] = y
                     break
@@ -936,7 +937,7 @@ class TouchScreen:
         print(f"Rotate {angle}")
         self.scroll(self.rel_x(angle / 100), 
                     0, 
-                    sy=self.rel_y(0.99), 
+                    sy=self.rel_y(0.98), 
                     sx = self.rel_x(0.1), 
                     tap_time=0.01,
                     stop_to=0.3)
@@ -1532,33 +1533,15 @@ class TouchScreen:
         if radius == 0:
             radius = [self.rel_x(0.08),self.rel_y(0.125)] 
         
-        attempt = 1 
-        # off_x = 500
-        # off_y = 1250
-        # off_y = 900
+
         y = getY(start, radius[1])
         x = getX(start, radius[0], tilt = y * tilt) 
         self.tap_down(x + off_x, y + off_y, scale=False)
         sleep(0.2)
-        top = 10
-        while top < 0:
-            for probe in range(750,900,2):
-                if self.color_match(500, probe, 240,240,240):
-                    top = probe
-        button = -1
-        while top < 0:
-            for probe in range(750,850,-2):
-                if self.color_match(500, probe, 240,240,240):
-                    top = probe
-        # print("Top = {}".format(top))
-        # return
+
         a  = start + step
         b = 0.0
-        if attempt % 2:
-            right = False
-        else:
-            right = True
-            
+
         while a < end + step:
             a = a + step + int(a / 60)
             b = b + 0.2
@@ -1570,17 +1553,9 @@ class TouchScreen:
             
             y = getY(a, radius[1]) # - a * 2
             x = getX(a, radius[0] , tilt = y * tilt)
-            attempt = attempt + 1
-            # print("radius {}".format(radius))
-            # print("XY {} {}".format(x, y))
-            # print("x = {}".format(x))
+
             self.moveCursor(int(sx) + off_x, int(sy) + off_y, int(x) + off_x, int(y) + off_y, scale=False)
-            # dx = x - sx
-            # dy = y - sy
-            # d = math.sqrt(dx * dx + dy * dy)
-            # print("Delta {}".format(d))
-            # canvas.create_line(sx, sy, x, y)
-            # canvas.update()
+
             time.sleep(delay)
         ys = int(y)
         xs = x
