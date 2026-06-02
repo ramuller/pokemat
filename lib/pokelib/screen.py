@@ -156,6 +156,8 @@ class Screen:
 
     def deep_exit(self):
         self.ts.tap_screen(100, 100, button = 3)
+        # Remove traced from screen debug
+        self.ts.tap_screen(2, 2)
         sleep(1)
         self.ts.log.warn("No homescreen after {MAX_TRYS} atempts")
         print("Try egg")

@@ -258,6 +258,8 @@ def my_test():
     # return True
     # phone.egg_handle(force=False)
     # phone.screen.go_home()
+
+
     print('My test')
     count=1
     while True:
