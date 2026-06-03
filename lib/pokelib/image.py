@@ -70,7 +70,7 @@ class PokeImage:
         #  combined_mask = green_mask
         # Get the triplets (R, G, B) that fall within the specified ranges
         triplets_in_range = work_reg.npa[combined_mask]
-        print(f'len {len(triplets_in_range)}')
+        # print(f'len {len(triplets_in_range)}')
         ra = ~combined_mask
         # int_mask = ~combined_mask.astype(np.uint8) * 255
         int_mask = ra.astype(np.uint8) * 255

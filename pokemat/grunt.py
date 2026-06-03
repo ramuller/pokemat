@@ -206,8 +206,61 @@ def start_battle(phone):
         phone.tap_screen(phone.rel_x(0.5), phone.rel_y(0.5), scale=False)
         sleep(1)
 
-    
+
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+def try_color(phone, reg, r):
+    g = r * 120 // 200
+    b = r * 100 // 200
+
+    vf = f"r{r}-g{g}-b{b}"
+    print(vf)
+
+    # IMPORTANT: use a separate local object if bw_reg is not thread-safe
+    bw_reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.5))
+    # bw_reg = reg
+    bw_reg.npa = phone.image.find_rgb(
+        reg, r, g, b,
+        wait=1,
+        verbose=0,
+        tolerance=20
+    )
+
+    btn = IconButton(bw_reg, "grunt_r")
+    det = btn.search(retries=1, no_scan=True, verbose=0)
+
+    if det:
+        return det
+
+    return None
+
 def find_grunt(phone):
+    startTime = datetime.now()
+    reg = ScreenRegion(phone, color='rgb', ys=phone.rel_y(0.0), ye=phone.rel_y(0.5))
+    reg.npa = phone.image.scan_region(reg)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [
+            executor.submit(try_color, phone, reg, r)
+            for r in range(250, 100, -10)
+        ]
+
+        for future in as_completed(futures):
+            det = future.result()
+
+            if det:
+                x = det.center[0]
+                y = det.center[1]
+                y += (det.quad[3][1] - det.quad[0][1]) * 2
+
+                phone.tap_screen(x, y, scale=False)
+                return det
+    endTime = datetime.now()
+    print(f'Time to find no grunt: {(endTime - startTime).total_seconds()}')    
+
+
+
+def find_grunt_1(phone):
+    startTime = datetime.now()
     reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.5))
     bw_reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.5))
     reg.npa = phone.image.scan_region(reg)
@@ -221,14 +274,15 @@ def find_grunt(phone):
         b = IconButton(bw_reg, 'grunt_r')
 
         det = b.search(retries=1, no_scan=True, verbose=0)
-        print(f'Detection {det}')
+        # print(f'Detection {det}')
         if det:
             x = det.center[0]
             y = det.center[1]
             y += (det.quad[3][1] - det.quad[0][1]) * 2
             phone.tap_screen(x, y, scale=False)
             return det
-        
+    endTime = datetime.now()
+    print(f'Time to find no grunt: {(endTime - startTime).total_seconds()}')    
     return None
 
 def grunt(port):

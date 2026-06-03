@@ -326,6 +326,15 @@
       "args": []
     },    
     {
+      "name": "grunt",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/grunt.py",
+      "console": "integratedTerminal",
+      "args": []
+    },    
+    {
       "name": "Change trainer",
       "type": "python",
       "extends": "Base",
