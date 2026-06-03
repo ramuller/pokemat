@@ -217,7 +217,9 @@ def try_color(phone, reg, r):
     print(vf)
 
     # IMPORTANT: use a separate local object if bw_reg is not thread-safe
-    bw_reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.5))
+    bw_reg = ScreenRegion(phone, color='rgb', 
+                          ys=phone.rel_y(0.1), 
+                          ye=phone.rel_y(0.5))
     # bw_reg = reg
     bw_reg.npa = phone.image.find_rgb(
         reg, r, g, b,
@@ -236,9 +238,11 @@ def try_color(phone, reg, r):
 
 def find_grunt(phone):
     startTime = datetime.now()
-    reg = ScreenRegion(phone, color='rgb', ys=phone.rel_y(0.0), ye=phone.rel_y(0.5))
+    reg = ScreenRegion(phone, color='rgb', 
+                       ys=phone.rel_y(0.1), 
+                       ye=phone.rel_y(0.5))
     reg.npa = phone.image.scan_region(reg)
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    with ThreadPoolExecutor(max_workers=args.threads) as executor:
         futures = [
             executor.submit(try_color, phone, reg, r)
             for r in range(250, 100, -10)
@@ -376,6 +380,8 @@ def main():
                         help="Connnect to autocatch.")    
     parser.add_argument("-d", "--delete-balls", action='store_true', required=False, default=False, \
                         help="Delete all red balls before connect")
+    parser.add_argument("-t", "--threads", type=int, action='store', required=False, default=2, \
+                        help="Number of threads to find grunt.")    
     global args
     args = parser.parse_args()
     

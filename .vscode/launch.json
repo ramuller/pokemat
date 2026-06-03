@@ -332,7 +332,9 @@
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/grunt.py",
       "console": "integratedTerminal",
-      "args": []
+      "args": [
+        "--threads", "2"
+      ]
     },    
     {
       "name": "Change trainer",
