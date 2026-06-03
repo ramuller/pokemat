@@ -45,7 +45,7 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
                 end_catch(p)
                 return True
             elif p.buttons.i_catch_ball.search(retries=1, verbose=0) is not None \
-                and p.buttons.i_exit_man.search(retries=1, verbose=0) is not None:
+                and p.buttons.i_catch_berry.search(retries=1, verbose=0) is not None:
                 print("Ball found")
                 break
             elif p.buttons.text_only.search('BERRIES', ys=p.rel_y(0.6)):
@@ -90,7 +90,7 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
             elif ball is not None:
                 print("Throwing ball found start catch move")
                 p.catch_move(distance = d)
-                sleep(3)
+                sleep(2)
                 break
             if i % 5 == 0:
                 p.tap_screen(p.rel_x(0.5), p.rel_y(0.9), scale=False)

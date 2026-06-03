@@ -1525,7 +1525,6 @@ class TouchScreen:
         
         def getY(d, r, offset=0, tilt = 0.0):
             return math.cos(math.radians(d)) * float(r) + float(offset) + float(tilt)
-        start=0
         if  off_x == 0:
             off_x = self.rel_x(0.5)
         if off_y == 0:

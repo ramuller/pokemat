@@ -637,9 +637,9 @@ class Buttons(ButtonParameter):
                                     'catch_ball')
         
         self.i_catch_berry = IconButton(ScreenRegion(ts,
-                                        xs=int(ts.specs['max_x'] * 0.07),
-                                        xe=int(ts.specs['max_x'] * 0.18),
-                                        ys=int(ts.specs['max_y'] * 0.85),
+                                        xs=int(ts.specs['max_x'] * 0.05),
+                                        xe=int(ts.specs['max_x'] * 0.20),
+                                        ys=int(ts.specs['max_y'] * 0.80),
                                         ye=int(ts.specs['max_y'] * 0.96)),
                                     'catch_berry')
         
