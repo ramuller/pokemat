@@ -47,7 +47,7 @@ def filterPoke(port, phone, filter):
     phone = TouchScreen(port, phone)
     # phone.scroll(0, -100)
     # sys.exit(0)
-    phone.selectPokemon(filter)
+    phone.select_pokemon(filter)
     sys.exit(0)
     giftsSent = 0
     giftsReceived = 0
@@ -56,7 +56,7 @@ def filterPoke(port, phone, filter):
     while True:
         try:
             phone.pokemon_select_first()
-            phone.evolvePokemon()
+            phone.evolve_pokemon()
             evolve_count = evolve_count + 1
             print("Time : Evolve {} ".format(phone.getTimeNow()))
             print("Pokemon evolved : {}".format(evolve_count))
@@ -65,7 +65,7 @@ def filterPoke(port, phone, filter):
             # sys.exit(1)
 
         except Exception as e:
-           phone.selectPokemon(filter)
+           phone.select_pokemon(filter)
            print("Upps something went wrong but who cares?: {}", e)
 
 def main():

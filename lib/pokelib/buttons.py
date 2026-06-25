@@ -25,6 +25,13 @@ from dataclasses import dataclass
 TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
 
 ICONS_PATH = {
+    'mag_glass': {
+        'mag_glass_1' : 'mag_glass_1.png',
+        'mag_glass_2' : 'mag_glass_2.png',
+    },
+    'evolve': {
+        'evolve' : 'evolve.png',
+    },
     'menu_battle': {
         'menu_battle': 'menu_battle.png',
     },
@@ -36,6 +43,7 @@ ICONS_PATH = {
     'exit_man': {
         'exit_man': 'exit_man.png',
         'exit_man_2': 'exit_man_2.png',
+        'exit_man_3': 'exit_man_3.png',
     },
     'menu_items': {
         'menu_items': 'menu_items.png',
@@ -198,6 +206,15 @@ ICONS_PATH = {
         'grunt_r_2': 'grunt-r-2.png',
         'grunt_r_3': 'grunt-r-3.png',
         'grunt_r_4': 'grunt-r-4.png',
+        'grunt_r_9': 'grunt-r-9.png',
+        'grunt_r_10': 'grunt-r-10.png',
+        'grunt_r_11': 'grunt-r-11.png',
+    },
+    'grunt_more_r': {
+        'grunt_r_5': 'grunt-r-5.png',
+        'grunt_r_6': 'grunt-r-6.png',
+        'grunt_r_7': 'grunt-r-7.png',
+        'grunt_r_8': 'grunt-r-8.png',
     },
     'egg_select': {
         'egg_2km': 'egg_2km.png',
@@ -255,7 +272,12 @@ class ButtonParameter:
             else:
                 sleep(self.delay)
             # self.ts.tap_screen(b['center'][0], b['center'][1], scale=False)
-            self.ts.tap_screen(b['center'], scale=False)
+            x,y = b['center']
+            if 'where' in kwargs:
+                where = kwargs['where']
+                if where == 'under':
+                    y = b['top'] + 2 * b['height']
+            self.ts.tap_screen(x, y, scale=False)
         return b
     
     def search(self, *args, **kwargs):
@@ -320,6 +342,7 @@ class TextOnly(ButtonParameter):
                            ys=ys, ye=ye,
                            invert=invert,
                            process=process,
+                           threshold=threshold,
                            mode=mode)
 
         b = self.ts.ocr.regex(text,
@@ -349,6 +372,7 @@ class TextScan(ButtonParameter):
     def __init__(self, reg, dir='v'):
         super().__init__(reg)
         self.dir = dir
+
 
     def search(self,
                text, 
@@ -380,6 +404,8 @@ class TextScan(ButtonParameter):
                 b = self.ts.buttons.text_only.search(text, ys=s, ye=e, **kwargs)
             else:
                 e = min(e, self.ts.specs['max_x'])
+                s = max(s, 0)
+                print(f'start {s} end {e}')
                 b = self.ts.buttons.text_only.search(text, xs=s, xe=e, **kwargs)
             if b:
                 return b
@@ -396,7 +422,12 @@ class TextFlat(ButtonParameter):
         self.text = text
         self.updated = False
 
-    def search(self, retries=1, pause=1, delay=0.1, verbose=0):
+    def search(self, 
+               retries=1, 
+               pause=1, 
+               delay=0.1,
+               where='center',
+               verbose=0):
         if verbose > 1:
             print(f'SEARCH {self.text}')
         b = self.ocr.regex(self.text,
@@ -422,6 +453,7 @@ class TextButton(ButtonParameter):
                 delay=0.01,
                 retries=1, 
                 call_back=None,
+                where='center',
                 verbose=0):
 
         if self.reg.invert:
@@ -788,10 +820,11 @@ class Buttons(ButtonParameter):
                                     'OPEN')
         self.b_yes = TextButton(ScreenRegion(ts,
                                     invert=True,
-                                    xs=int(ts.specs['max_x'] * 0.20),
-                                    xe=int(ts.specs['max_x'] * 0.80),
+                                    xs=int(ts.specs['max_x'] * 0.10),
+                                    xe=int(ts.specs['max_x'] * 0.90),
                                     ys=int(ts.specs['max_y'] * 0.30),
-                                    ye=int(ts.specs['max_y'] * 0.70)), 
+                                    ye=int(ts.specs['max_y'] * 0.80),
+                                    process=True),
                                     'YES')
         self.b_send_gift = TextButton(ScreenRegion(ts,
                                     invert=True,
@@ -986,6 +1019,13 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(1),
                                     invert=True),  
                                     'REVIVE')
+        self.i_evolve = IconButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0),
+                                    xe=ts.rel_x(0.5),
+                                    ys=ts.rel_y(0.4),
+                                    ye=ts.rel_y(1),
+                                    ),
+                                    'evolve')
         self.i_menu_battle = IconButton(ScreenRegion(ts,
                                     xs=ts.rel_x(0.5),
                                     xe=ts.rel_x(.95),
@@ -993,6 +1033,26 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(0.65),
                                     ),  
                                     'menu_battle')
+        self.t_menu_pokemon = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.05),
+                                    xe=ts.rel_x(.5),
+                                    ys=ts.rel_y(0.5),
+                                    ye=ts.rel_y(0.90),
+                                    ),  
+                                    'POK.MON')
+        self.t_pokemon_pokemon = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.00),
+                                    xe=ts.rel_x(1.00),
+                                    ys=ts.rel_y(0.00),
+                                    ye=ts.rel_y(0.10),
+                                    process=True),
+                                    'POK.MON')
+        self.i_pokemon_search = IconButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.00),
+                                    xe=ts.rel_x(1.00),
+                                    ys=ts.rel_y(0.00),
+                                    ye=ts.rel_y(0.30)),
+                                    'mag_glass')
         self.i_menu_items = IconButton(ScreenRegion(ts,
                                     xs=ts.rel_x(0.5),
                                     xe=ts.rel_x(.95),

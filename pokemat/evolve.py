@@ -24,13 +24,13 @@ from _operator import truediv
 
 global log
 
-def evolve(port, phone, filter):
+def evolve(port, filter):
     
-    print("Start evolutions \"{}\" on port {}", phone, port)
-    phone = TouchScreen(port, phone)
+    print("Start evolutions \"{}\" on port {}", port)
+    phone = TouchScreen(port)
     # phone.scroll(0, -100)
     # sys.exit(0)
-    phone.selectPokemon(filter)
+    phone.select_pokemon(filter)
     sleep(2)
 
     evolve_count = 0
@@ -40,7 +40,7 @@ def evolve(port, phone, filter):
             if not phone.pokemon_select_first():
                 print("All pokemons for filter '{}' evolved!".format(filter))
                 sys.exit(0)
-            phone.evolvePokemon()
+            phone.evolve_pokemon()
             evolve_count = evolve_count + 1
             print("Time : Evolve {} ".format(phone.getTimeNow()))
             print("Pokemon evolved : {}".format(evolve_count))
@@ -49,7 +49,7 @@ def evolve(port, phone, filter):
             # sys.exit(1)
 
         except Exception as e:
-           phone.selectPokemon(filter)
+           phone.select_pokemon(filter)
            print("Upps something went wrong but who cares?: {}", e)
 
 def main():
@@ -65,7 +65,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    evolve(args.port, args.phone, args.filter)
+    evolve(args.port, args.filter)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

@@ -60,6 +60,16 @@ class Screen:
         else:
             return True
         
+    def is_in_pokemon(self,verbose=0, retries=1):
+        reg = ScreenRegion(self.ts, 
+                           ys=self.ts.rel_y(0.00),
+                           ye=self.ts.rel_y(0.10),
+                           process=True)
+        if not self.ts.ocr.regex('.*POK.MON.*', reg, verbose=verbose, retries=retries):
+            return False
+        else:
+            return True
+        
     def is_in_gym(self):
         if not self.ts.buttons.i_gym_photo_disk.search(retries=1):
             return False
@@ -82,6 +92,21 @@ class Screen:
             return False
         else:
             return True
+
+    def go_pokemon(self):
+        b = self.ts.buttons.t_pokemon_pokemon.press(retries=1, verbose=0)
+        if b:
+            return True
+        self.go_home()
+        sleep(1)
+        if not self.ts.buttons.i_pokeball.press(retries=3):
+            return False
+        if not self.ts.buttons.t_menu_pokemon.press(where='under', 
+                                                retries=3,
+                                                verbose=0):
+            return False
+        return True
+
 
     def go_friends(self):
         b = self.ts.buttons.t_friends.press(retries=1)

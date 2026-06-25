@@ -152,7 +152,7 @@ class Ocr:
             # self.reset_parameters()
             # print(f'Tries {tries}')
             for l in lines:
-                # print(f'Line {l["text"]}')
+                print(f'Line {l["text"]}')
                 if re.search(regex, l['text']):
                     return l
             if tries <= 1:

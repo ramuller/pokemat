@@ -22,6 +22,17 @@
       ]
     },
     {
+      "name": "poketool save and find rgb",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "find_rgb"
+      ]
+    },
+    {
       "name": "poketool YUV",
       "extends": "Base",
       "type": "python",
@@ -150,9 +161,9 @@
       "console": "integratedTerminal",
       "args": [
         "button",
-        "--name",
-        "b_lucky_egg",
+        "--name", "t_evolve",
         "--show",
+        "--verbose=10"
       ]
     },
    {
@@ -304,9 +315,11 @@
       "program": "${workspaceFolder}/pokemat/autocatch.py",
       "console": "integratedTerminal",
       "args": [
-        "-s"
+        "-s",
+        "-n"
       ]
-    },  
+    }, 
+
     {
       "name": "raid",
       "type": "python",
@@ -334,6 +347,17 @@
       "console": "integratedTerminal",
       "args": [
         "--threads", "2"
+      ]
+    },    
+    {
+      "name": "evolve",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/evolve.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--filter", "machop"
       ]
     },    
     {

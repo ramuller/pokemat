@@ -81,7 +81,7 @@ class PokeImage:
             bm = blue_mask.astype(np.uint8) * 255
             rgb = np.hstack((rm, gm, bm))
             cv2.imshow('red', rgb)
-            k = cv2.waitKey(20000)
+            k = cv2.waitKey(wait)
             cv2.destroyAllWindows()       
 
         return int_mask
@@ -251,7 +251,7 @@ class PokeImage:
                     255, 
                     cv2.THRESH_BINARY
                     )
-            else:
+            elif reg.process:
                 reg.npa = cv2.adaptiveThreshold(
                     reg.npa,
                     255,

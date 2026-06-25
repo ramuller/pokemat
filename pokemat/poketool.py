@@ -1,5 +1,6 @@
 #!/bin/env python
 import math
+from cv2 import threshold
 import keyboard
 
 from pokelib import TouchScreen
@@ -73,23 +74,30 @@ def _post_process(reg):
         print(f'Saved image to {path}')
 
 def find_rgb():
-    reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.5))
-    bw_reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.5))
+    reg = ScreenRegion(phone, color='rgb',
+                       xe=phone.rel_x(0.9),
+                       ys=phone.rel_y(0.2), 
+                       ye=phone.rel_y(0.5))
+    bw_reg = ScreenRegion(phone, color='rgb', 
+                          xe=phone.rel_x(0.9),
+                          ys=phone.rel_y(0.2),
+                          ye=phone.rel_y(0.6))
     reg.npa = phone.image.scan_region(reg)
-    for r in range(250, 100, -20):
-        g = r * 87 // 180
-        b = r * 73 // 180
+    for r in range(250, 100, -10):
+        g = r * 120 // 200
+        b = r * 100 // 200
         vf  = f'r{r}-g{g}-b{b}'
         print(vf)
-        bw_reg.npa = phone.image.find_rgb(reg, r, g, b, wait=1, verbose=10)
-        det = phone.buttons.i_grunt_r.search(cust_reg=bw_reg, retries=1)
-        print(det)
+        bw_reg.npa = phone.image.find_rgb(reg, r, g, b, wait=500, verbose=0)
+        phone.image.show_image(bw_reg.npa, wait=1500, title=f'Found {vf}')
+        # det = phone.buttons.i_grunt_r.search(cust_reg=bw_reg, retries=1)
+        # print(det)
         if args.name:
             fn = f'{phone.config_path}/icons/screen-shots/{args.name}-{vf}.png'
             print(f'Save {fn }')
             phone.image.save_image(bw_reg.npa, fn)
-    lines, reg = phone.ocr.read_and_npa(reg, mode='line')
-    print(lines)    
+    # lines, reg = phone.ocr.read_and_npa(reg, mode='line')
+    # print(lines)    
 
 
 def _schow_screen(reg):
@@ -259,21 +267,37 @@ def my_test():
     # phone.egg_handle(force=False)
     # phone.screen.go_home()
 
+    pass
 
-    print('My test')
-    count=1
-    while True:
-        b = phone.buttons.i_catch_ball.search(retries=1, verbose=0)
-        print(f'Rotage {count} : {b}')
-        count+=1
-        #phone.rotate()
-        # sleep(0.5)
-
-
+    phone.buttons.scan_horizontal.search('.*EVO.*',
+                                        start_rel=0.6,
+                                        end_rel=0.1,
+                                        mode='word',
+                                        window_factor=3,
+                                        steps=30,
+                                        verbose=10,
+                                        invert=True,
+                                        process=True,
+                                        threshold=90,
+                                        ys=phone.rel_y(0.63))
 
     return
 
-    phone.buttons.scan_vertical.search('Blanche',
+    phone.tap_down(phone.rel_x(0.5), phone.rel_y(0.5))
+    sleep(0.5)
+    x = phone.rel_x(0.5)
+    y = phone.rel_y(0.25)
+    dx = 0
+    dy = phone.rel_y(0.25) // 12
+    phone.tap_down(x, y)
+    for i in range(10):
+        phone.moveCursor(x, y, dx, dy)
+        x = x + dx
+        y = y + dy
+        sleep(0.2)
+    return
+
+    phone.buttons.scan_horizontal.search('Blanche',
                                         start_rel=1.0,
                                         end_rel=0.6,
                                         mode='word', 

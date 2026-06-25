@@ -1,3 +1,4 @@
+from cv2 import repeat
 import requests
 import logging
 import threading
@@ -653,12 +654,13 @@ class TouchScreen:
             x = x + sx
             y = y + sy
             self.moveCursor(int(x), int(y), int(sx), int(sy), scale=scale)
+            # print(f'x={int(x)}, y={int(y)}, sx={int(sx)}, sy={int(sy)}')
             # print("sy={}".format(int(sy)))
             # self.moveCursor(int(sx), int(sy))
             time.sleep(tap_time)
             # self.tap_down(int(x), int(y), int(sx), int(sy))
         time.sleep(stop_to)
-        self.tap_up(int(x + dx), int(y + dy), scale=scale)
+        self.tap_up(int(x + sx), int(y + sy), scale=scale)
 
     def tap_open_gift(self):
         self.log.debug("tap_open_gift")
@@ -784,63 +786,49 @@ class TouchScreen:
             r, g, b = self.get_rgb(x, y)
             print("Pixel color {},{},{},{},{}".format(x, y, r, g ,b))
        
-    def evolvePokemon(self):
-        self.color_match_wait(135, 1001, 255, 255, 255)
+    def evolve_pokemon(self):
         time.sleep(1.5)
         # self.scroll(0, 200)
         # sys.exit(0)
         print("Scroll up")
-        self.scroll(0,-350, sy = 1500, tap_time = 0.3, stop_to = 0.5)
+        self.scroll(0,-350, sx=self.rel_x(0.02), sy = self.rel_y(0.9))
         # self.scroll(0,-330)
         # Search and tap evolve
-        for y in range(self.maxY - 2, self.maxY - 600, -10):
-            self.log.debug("Search in {}".format(y))
-            if self.color_match(116, y, 163, 220, 148):
-                print("Match at {}".format(y))
-                self.tap_screen(130, y -10)
-                break
-        time.sleep(1.2)
-         # Search and tap yes
-        found = False
-        for i in range(0, 4):
-            print("Wait for yes")
-            for y in range(1200, 1400, 10):
-                if self.color_match(319, y, 151, 218, 147):
-                    self.tap_screen(319, y)
-                    time.sleep(0.1)
-                    self.tap_screen(319, y)
-                    found = True
-                    break
-        if found == False:
-            text, image = self.ocr_read((350, 1650), (300, 76))
-            self.tap_screen(100, 100, button = 3)
-            time.sleep(1)
-            if "POWER" in ''.join(text):
-                print("Power up")
-                self.tap_screen(500,975)
-                sleep(1)
-                self.text_line_ok("\\a")
-                sleep(0.2)
-                self.text_line_ok("novolve")
-                sleep(0.2)
-                self.tapTextOK()
-                sleep(0.2)
-                self.tap_screen(500,1100)
-                sleep(0.2)
-            # 2 screens back
-            self.tap_screen(100, 100, button = 3)
-            time.sleep(0.8)
-            return
+        sleep(0.5)
+        if not self.buttons.i_evolve.press(retries=5):
+            print('No evolve found')
+            return False
+        if not self.buttons.b_yes.press(retries=5, verbose=0):
+            return False
+        # if found == False:
+        #     text, image = self.ocr_read((350, 1650), (300, 76))
+        #     self.tap_screen(100, 100, button = 3)
+        #     time.sleep(1)
+        #     if "POWER" in ''.join(text):
+        #         print("Power up")
+        #         self.tap_screen(500,975)
+        #         sleep(1)
+        #         self.text_line_ok("\\a")
+        #         sleep(0.2)
+        #         self.text_line_ok("novolve")
+        #         sleep(0.2)
+        #         self.tapTextOK()
+        #         sleep(0.2)
+        #         self.tap_screen(500,1100)
+        #         sleep(0.2)
+        #     # 2 screens back
+        #     self.tap_screen(100, 100, button = 3)
+        #     time.sleep(0.8)
+        #     return
         time.sleep(3)
         # 72, 476, 255, 255, 255
-        print("Wait for evolve ready")
-        self.color_match_wait(505, 1832, 28, 135, 149, time_out_ms=20000)
-        # self.color_match_wait(72, 476, 255, 255, 255, time_out_ms=20000)
-        # self.color_match_wait(135, 1388, 255, 255, 255, time_out_ms=20000)
-        # self.color_match_wait(135, 1388, 255, 255, 255, time_out_ms=20000)
+        count=0
+        while not self.buttons.i_exits.search(retries=2):
+            print('Wait for exit')
+            count += 1
         print("Evolve ready")
-        time.sleep(0.8)
-        self.tap_screenBack()
+        time.sleep(0.3)
+        self.buttons.i_exits.press()
         
     def tapBattle(self):
         self.color_match_wait_click(496, 1681, 95, 166, 83, delay=3)
@@ -919,8 +907,6 @@ class TouchScreen:
 
     def spin_disk(self, to = 2):
         while to > 0:
-            
-            
             # if self.color_match(152, 1921, 183, 116, 248, debug=True):
             if self.color_match(152, 1921, 137, 98, 227, debug=False):
             # if not self.screen_is_pokestop():
@@ -929,23 +915,25 @@ class TouchScreen:
             self.scroll(self.rel_x(0.2), 0, 
                     sy=self.rel_y(0.5), sx = self.rel_x(0.8),
                     stop_to=0.1)
-            sleep(1)
+            sleep(0.5)
             to -= 1
         return False
     
     def rotate(self, angle = 40):
-        print(f"Rotate {angle}")
-        self.scroll(self.rel_x(angle / 100), 
+        dx = self.rel_x(angle / 100)
+        sx = self.rel_x(0.5) - dx//2
+        print(f"Rotate {angle} dx {dx} sx {sx}")
+        self.scroll(dx, 
                     0, 
                     sy=self.rel_y(0.98), 
                     sx = self.rel_x(0.1), 
-                    tap_time=0.01,
+                    tap_time=0.02,
                     stop_to=0.3)
         return
     
         self.scroll(0,                      # dx
                     self.rel_y(angle/100),  # dy
-                    sx = self.rel_x(0.01),
+                    sx = sx,
                     sy = self.rel_y(0.30),    # startx
                     tap_time=0.04,
                     stop_to=0.3)
@@ -1098,19 +1086,14 @@ class TouchScreen:
         time.sleep(1)
         self.tap_me()
 
-    def pokeScreen(self):
-        self.screen_go_to_home()
-        self.tapPokeBall()
-        self.menuPokemon()
-        
-    def selectPokemon(self, filter):
-        self.pokeScreen()
-        self.tapPokeSearch()
-        self.color_match_wait(121, 1154, 255, 255, 255)
-        time.sleep(0.4)
-        self.text_line_ok(filter)
+    def select_pokemon(self, filter):
+        self.screen.go_pokemon()
+        sleep(2)
+        self.buttons.i_pokemon_search.press()
+        time.sleep(1)
+        self.text_line_ok(f'\\a{filter}\\n')
         time.sleep(1)        
-        self.tapTextOK()
+        # self.tapTextOK()
         
     def friend_search(self, name):
         self.buttons.black_on_white('.*SEARCH.*')
@@ -1218,7 +1201,7 @@ class TouchScreen:
             last_revive = find_last_match(items, 'text', 'Revive')
             if last_revive:
                 self.tap_screen(last_revive['center'][0], last_revive['center'][1], scale=False)
-                sleep(0.2)
+                sleep(1)
                 revive = self.buttons.b_revive_all.press(retries=2)
                 sleep(1.5)
                 self.buttons.i_exits.press(retries=2)
@@ -1229,7 +1212,7 @@ class TouchScreen:
             first_potion = find_first_match(items, 'text', 'Potion')
             if first_potion:
                 self.tap_screen(first_potion['center'][0], first_potion['center'][1], scale=False)
-                sleep(0.2)
+                sleep(1)
                 heal = self.buttons.b_heal_all.press(retries=2)
                 sleep(1.5)
                 if not self.screen.is_in_items():

@@ -214,12 +214,12 @@ def try_color(phone, reg, r):
     b = r * 100 // 200
 
     vf = f"r{r}-g{g}-b{b}"
-    print(vf)
+    # print(vf)
 
     # IMPORTANT: use a separate local object if bw_reg is not thread-safe
     bw_reg = ScreenRegion(phone, color='rgb', 
                           ys=phone.rel_y(0.1), 
-                          ye=phone.rel_y(0.5))
+                          ye=phone.rel_y(0.6))
     # bw_reg = reg
     bw_reg.npa = phone.image.find_rgb(
         reg, r, g, b,
@@ -240,7 +240,7 @@ def find_grunt(phone):
     startTime = datetime.now()
     reg = ScreenRegion(phone, color='rgb', 
                        ys=phone.rel_y(0.1), 
-                       ye=phone.rel_y(0.5))
+                       ye=phone.rel_y(0.6))
     reg.npa = phone.image.scan_region(reg)
     with ThreadPoolExecutor(max_workers=args.threads) as executor:
         futures = [
@@ -265,8 +265,8 @@ def find_grunt(phone):
 
 def find_grunt_1(phone):
     startTime = datetime.now()
-    reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.5))
-    bw_reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.5))
+    reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.6))
+    bw_reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.6))
     reg.npa = phone.image.scan_region(reg)
     for r in range(250, 100, -10):
         g = r * 120 // 200
