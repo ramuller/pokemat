@@ -833,11 +833,6 @@ class TouchScreen:
     def tapBattle(self):
         self.color_match_wait_click(496, 1681, 95, 166, 83, delay=3)
     
-    def tap_trade(self):
-        self.log.info("Tap Trade")
-        if self.buttons.black_on_white('.*LOCAL.*', retries=20) == None:
-            raise
-        
     def tap_battle(self):
         self.log.info("Tap battle")
         for i in range(0,20):
@@ -1705,22 +1700,6 @@ class TouchScreen:
                 if opponent:
                     opponent.tap_screen(309, 1681)
          
-    def hasGift(self):
-        xs = 402
-        ys = 1144
-        # self.color_match_wait(76, 1970, 240, 240, 240, threashold = 14, debug=True)
-        startTime = datetime.now()
-        while ((datetime.now() - startTime).total_seconds() * 1000) < 1500:
-            for x in range(xs, xs + 40, 4):
-                # print("Check if gift {},{}".format(x, ys))
-                if self.color_match(x, ys, 223, 15, 206, debug=False):
-                    print("Friend has gift to open")
-                    print("Found after {}ms".format(((datetime.now() - startTime).total_seconds() * 1000)))
-                    return True
-                time.sleep(0.1)
-        print("Friend has no gift yet.")
-        return False
-    
         
     '''
     Return name, friendship level amd time to become best friend
@@ -1905,7 +1884,7 @@ class TouchScreen:
         self.log.warning("Invite friend")
         self.friend_search(name)
         time.sleep(1)
-        if self.hasGift():
+        if self.has_gift():
             self.tap_screenBack()
         self.tapBattle()
         self.selectLeague(league)

@@ -32,7 +32,7 @@ def raid(port):
 
     reg = ScreenRegion(phone, ys=phone.rel_y(0.5))
 
-    for i in range(10):
+    for i in range(16):
         b = phone.buttons.i_raid_battle.press(retries=1)
         reg.npa = None
         if b or phone.ocr.regex('RAID', reg):
@@ -62,6 +62,7 @@ def raid(port):
     while not phone.buttons.t_raid_summary.search(retries=1):
         reg.npa = None
         try:
+            rejoin=0
             for x in range(200,700,150):
                 if phone.color_match(333, 1013, 159, 218, 148):
                     phone.tap_screen(333,1013)
@@ -71,6 +72,8 @@ def raid(port):
                     phone.tap_screen(333,1013)
                 phone.tap_screen(x, 1840)
                 time.sleep(0.04)
+                if rejoin % 5 == 0:
+                    phone.buttons.b_raid_rejoin.press()
                 # phone.atchColor(321, 1005, 160, 219, 147)
         except Exception as e:
             print("Upps something went wrong but who cares?: {}", e)

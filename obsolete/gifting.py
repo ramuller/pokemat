@@ -100,7 +100,7 @@ def gifting(port, phone):
             # time.sleep(2)
             
             if can_get_gifts:
-                if phone.hasGift():
+                if phone.has_gift():
                     if phone.gift_open() == False:  # False = daily limit
                         can_get_gifts = False
                         switch_order = True

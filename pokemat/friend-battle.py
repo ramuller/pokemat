@@ -60,7 +60,7 @@ def trainer_battle(jsonFile):
             host.friend_search(parameter["guest"]["name"])
             host.friend_select_first()
             sleep(2)
-            if host.hasGift():
+            if host.has_gift():
                 time.sleep(0.5)
                 host.tap_screenBack()
             sleep(1)

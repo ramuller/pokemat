@@ -161,9 +161,14 @@
       "console": "integratedTerminal",
       "args": [
         "button",
-        "--name", "t_evolve",
+        "--name", "t_sign_out",
+        "--verbose=10",
+      ],
+      "comment": [
+        "--name", "text_only",
+        "--text", ".*Sign.*",
         "--show",
-        "--verbose=10"
+        "--threashold", "20",
       ]
     },
    {
@@ -293,7 +298,7 @@
       "program": "${workspaceFolder}/pokemat/trade.py",
       "console": "integratedTerminal",
       "args": [
-        "${workspaceFolder}/configs/eizu-trade.json"
+        "${workspaceFolder}/configs/trade-aphex-helmut.json"
       ]
     },
     {
@@ -314,7 +319,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/autocatch.py",
       "console": "integratedTerminal",
-      "args": [
+      "argsss": [
         "-s",
         "-n"
       ]

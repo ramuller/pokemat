@@ -142,23 +142,34 @@ class Ocr:
         self.process = process
         return self.read(reg, verbose=verbose)
 
-    def regex(self, regex, reg : ScreenRegion=None, retries=1,
-              pause=1, verbose=0):
+    def regex(self, regex, reg : ScreenRegion=None, 
+              retries=1,
+              pause=1,
+              find_all=False,    # Find all matches
+              retry_callback=None,
+              verbose=0):
         if reg is None:
             reg = ScreenRegion(self.ts)
+        res=[]
         for tries in range(retries, 0, -1):
             reg.npa = None
             lines, reg = self.read_and_npa(reg, verbose=verbose)
             # self.reset_parameters()
             # print(f'Tries {tries}')
             for l in lines:
-                print(f'Line {l["text"]}')
+                # print(f'Line {l["text"]}')
                 if re.search(regex, l['text']):
-                    return l
+                    res.append(l)
+                    if not find_all:
+                        return res[0]
             if tries <= 1:
-                return []
+                return res
+            if retry_callback:
+                retry_callback()
             sleep(pause)
-        return []
+        return res
+    
+    
     
     def scan_vertical(self, bs, start_rel=1.0, end_rel=0.6, steps=20, window_factor=2, **kw):
         start = self.ts.rel_y(start_rel)

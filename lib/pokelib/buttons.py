@@ -251,7 +251,8 @@ class ButtonNotFoundError(Exception):
 class ButtonParameter:
     def __init__(self, reg: ScreenRegion, \
                  confidence=25.0, delay= 0.01, \
-                 search_callback=None, press_callback=None, \
+                 search_callback=None, 
+                 press_callback=None, \
                  verbose=0):
         self.reg = reg
         self.ts = reg.ts
@@ -329,7 +330,7 @@ class TextOnly(ButtonParameter):
 
     def search(self, text,
                 xs=0, xe=0, ys=0, ye=0,               
-                threshold=0.8,
+                threshold=0,
                 mode='word',
                 delay=0.01,
                 retries=1,
@@ -427,6 +428,8 @@ class TextFlat(ButtonParameter):
                pause=1, 
                delay=0.1,
                where='center',
+               retry_callback=None,
+               press_callback=None,
                verbose=0):
         if verbose > 1:
             print(f'SEARCH {self.text}')
@@ -434,6 +437,7 @@ class TextFlat(ButtonParameter):
                             self.reg, 
                             retries=retries,
                             pause=pause,
+                            retry_callback=retry_callback,
                             verbose=verbose)   
         return b 
 
@@ -687,7 +691,7 @@ class Buttons(ButtonParameter):
                                         ys=int(ts.specs['max_y'] * 0.50),
                                         ye=int(ts.specs['max_y'] * 0.90),
                                         invert=True,
-                                        process=False),                                       
+                                        process=True),                                       
                                         'BATTLE')
         self.t_grunt_party = TextButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.2),
@@ -695,7 +699,7 @@ class Buttons(ButtonParameter):
                                         ys=int(ts.specs['max_y'] * 0.60),
                                         ye=int(ts.specs['max_y'] * 0.97),
                                         invert=True,
-                                        process=False),                                       
+                                        process=True),                                       
                                         'PARTY')
         self.b_grunt_rescue = TextButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.0),
@@ -703,7 +707,7 @@ class Buttons(ButtonParameter):
                                         ys=int(ts.specs['max_y'] * 0.7),
                                         ye=int(ts.specs['max_y'] * 1),
                                         invert=True,
-                                        process=False),                                       
+                                        process=True),                                       
                                         'RESCUE')
         self.b_grunt_rematch = TextButton(ScreenRegion(ts,
                                         xs=int(ts.specs['max_x'] * 0.2),
@@ -793,10 +797,11 @@ class Buttons(ButtonParameter):
                                     xe=ts.rel_x(1),
                                     ys=ts.rel_y(0.50),
                                     ye=ts.rel_y(0.80),
-                                    process=False),
+                                    process=True),
                                     'PASSENGER')    # IN PASSANGER
         self.b_catch_berry = TextButton(ScreenRegion(ts,
                                     invert=True,
+                                    process=True,
                                     ys=int(ts.specs['max_y'] * 0.40),
                                     ye=int(ts.specs['max_y'] * 0.72)), 
                                     'Berry')
@@ -813,10 +818,11 @@ class Buttons(ButtonParameter):
                                     'OK')
         self.b_open_gift = TextButton(ScreenRegion(ts,
                                     invert=True,
+                                    process=True, 
                                     xs=int(ts.specs['max_x'] * 0.20),
                                     xe=int(ts.specs['max_x'] * 0.80),
                                     ys=int(ts.specs['max_y'] * 0.70),
-                                    ye=int(ts.specs['max_y'] * 0.95)), 
+                                    ye=int(ts.specs['max_y'] * 0.95)),
                                     'OPEN')
         self.b_yes = TextButton(ScreenRegion(ts,
                                     invert=True,
@@ -827,7 +833,8 @@ class Buttons(ButtonParameter):
                                     process=True),
                                     'YES')
         self.b_send_gift = TextButton(ScreenRegion(ts,
-                                    invert=True,
+                                    invert=True, 
+                                    process=True, 
                                     xs=int(ts.specs['max_x'] * 0.20),
                                     xe=int(ts.specs['max_x'] * 0.80),
                                     ys=int(ts.specs['max_y'] * 0.70),
@@ -835,6 +842,7 @@ class Buttons(ButtonParameter):
                                     'SEND')
         self.b_limit = TextButton(ScreenRegion(ts,
                                     invert=True,
+                                    process=True, 
                                     xs=int(ts.specs['max_x'] * 0.10),
                                     xe=int(ts.specs['max_x'] * 0.45),
                                     ys=int(ts.specs['max_y'] * 0.35),
@@ -846,6 +854,13 @@ class Buttons(ButtonParameter):
                                     ys=ts.rel_y(0.05),
                                     ye=ts.rel_y(0.15)),
                                     'IENDS')
+        self.t_sign_out = TextFlat(ScreenRegion(ts,
+                                    process=True, 
+                                    xs=ts.rel_x(0.0),
+                                    xe=ts.rel_x(.3),
+                                    ys=ts.rel_y(0.05),
+                                    ye=ts.rel_y(1)),
+                                    'Sign')
         self.t_passenger = TextFlat(ScreenRegion(ts,
                                     xs=ts.rel_x(0.25),
                                     xe=ts.rel_x(0.75),
@@ -874,6 +889,7 @@ class Buttons(ButtonParameter):
                                     invert=True),
                                     'OK')
         self.t_go_battle_gym = TextFlat(ScreenRegion(ts,
+                                    process=True,
                                     xs=ts.rel_x(0.2),
                                     xe=ts.rel_x(0.8),
                                     ys=ts.rel_y(0.20),
@@ -980,6 +996,14 @@ class Buttons(ButtonParameter):
                                     invert=True,
                                     process=True),  
                                     'EGGS')
+        self.b_raid_rejoin = TextButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.1),
+                                    xe=ts.rel_x(0.9),
+                                    ys=ts.rel_y(0.3),
+                                    ye=ts.rel_y(0.7),
+                                    invert=True,
+                                    process=True),  
+                                    'REJOIN')
         self.i_egg_select = IconButton(ScreenRegion(ts,
                                         ys=ts.rel_y(0.10),
                                         ye=ts.rel_y(0.80)
@@ -1033,6 +1057,13 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(0.65),
                                     ),  
                                     'menu_battle')
+        self.t_friend_trade = TextFlat(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.05),
+                                    xe=ts.rel_x(.5),
+                                    ys=ts.rel_y(0.8),
+                                    ye=ts.rel_y(1),
+                                    ),  
+                                    'LOCAL')
         self.t_menu_pokemon = TextFlat(ScreenRegion(ts,
                                     xs=ts.rel_x(0.05),
                                     xe=ts.rel_x(.5),

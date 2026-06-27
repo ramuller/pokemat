@@ -120,6 +120,7 @@ def select_berry(p, berry):
             b = p.buttons.scan_vertical.search(bs, 
                                                start_rel=0.6, 
                                                mode='line', 
+                                               process=True,
                                                verbose=0)
             if not b:
                 sleep(0.5)
@@ -133,6 +134,7 @@ def select_berry(p, berry):
                                                xs=x*step, xe=x*step+step,
                                                ys=ys, ye=ye,
                                                mode='line',
+                                               process=True,
                                                verbose=0)
                 print(b)
                 if b != []:

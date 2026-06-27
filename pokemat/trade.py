@@ -53,18 +53,35 @@ def trade(jsonFile):
     
     while True:
         try:
-            host.screen_go_to_home()
-            guest.screen_go_to_home()
-            host.screen_friend()
+            host.screen.go_home()
+            host.screen.go_friends()
+            max_tries = 20
+            b = None
+            while not b:
+                b = host.buttons.i_friends_search.press(retries=1)
+                if b:
+                    break
+                host.buttons.t_passenger.press(retries=1)
+                sleep(2)
+                max_tries -= 1
+                if max_tries == 0:
+                    raise
+            time.sleep(2.5)
             print("Friend screen")
-            host.friend_search(parameter["guest"]["name"])
-            host.friend_select_first()
+            host.text_line_ok(f'\a{parameter["guest"]["name"]}\\n')
+
             sleep(2)
-            if host.hasGift():
-                time.sleep(0.5)
-                host.tap_screenBack()
+            t = host.ocr.regex(parameter["guest"]["name"], find_all=True)
+            host.tap_screen(t[1]['center'], scale=False)
+            sleep(2)
+            def wait_4_trade_callback():
+                has_gift = host.buttons.b_open_gift.search()
+                if has_gift:
+                    host.tap_screen(100,100, button=3)
             sleep(1)
-            host.tap_trade()
+            b = host.buttons.t_friend_trade.press(retries=20, 
+                                                  retry_callback=wait_4_trade_callback)
+            b = host.buttons.t_friend_trade.press(retries=20)
             # time.sleep(2)
             retry = 0
             while True:
@@ -80,7 +97,7 @@ def trade(jsonFile):
                                    
             guest.friend_select_first()
             sleep(2)
-            if guest.hasGift():
+            if guest.has_gift():
                 print("Has gift")
                 guest.tap_screenBack()
             time.sleep(1)

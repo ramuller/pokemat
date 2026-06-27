@@ -184,15 +184,22 @@ def button():
     reg = _set_paramters_from_args()
     rep = args.count
     for i in range(rep):
-        detection = method.search(
-                                retries=1, 
-                                verbose=args.verbose)
-        if not method.updated and detection:
-            print('Update button search area based on result')
-            try:
-                method.update_area(detection)
-            except:
-                pass
+        if args.text:
+            detection = method.search(
+                                    args.text,
+                                    threshold=args.threshold,
+                                    retries=1, 
+                                    verbose=args.verbose)
+        else:
+            detection = method.search(
+                                    retries=1, 
+                                    verbose=args.verbose)
+            if not method.updated and detection:
+                print('Update button search area based on result')
+                try:
+                    method.update_area(detection)
+                except:
+                    pass
     print(f'Button found:')
     print(detection)
 
@@ -268,7 +275,8 @@ def my_test():
     # phone.screen.go_home()
 
     pass
-
+    from catch import select_berry
+    select_berry(phone, 'a')
     phone.buttons.scan_horizontal.search('.*EVO.*',
                                         start_rel=0.6,
                                         end_rel=0.1,
@@ -406,7 +414,7 @@ def main():
     parser.add_argument('--tl', action='store', required=False, default=0, \
                         help='threshold low.', type=int)
     parser.add_argument('-t', '--threshold', action='store', required=False, default=0, \
-                        help='threshold high.', type=int)
+                        help='threshold.', type=int)
     parser.add_argument('--count', action='store', required=False, default=1, \
                         help='If something can repeat.', type=int)
     parser.add_argument('--invert', action='store_true', default=False, \

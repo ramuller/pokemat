@@ -118,11 +118,9 @@ def do_change_trainer(port, trainer):
                 phone.scroll(0, int(phone.specs['max_y'] * -0.8), 
                              sx=sx, sy=sy, scale=False)
                 sleep(0.5)
-                t = phone.buttons.text_only.press('.*Sign.*', \
-                                                  xs=phone.rel_x(0.05), xe=phone.rel_x(0.5), \
-                                                  retries=3, verbose=0)
+                t = phone.buttons.t_sign_out.press()
                 sleep(0.5)
-                if t:
+                if t != []:
                     t = phone.buttons.b_yes.press(retries=3, verbose=0)
                     break
             else:

@@ -52,7 +52,7 @@ def search_target(phone):
                     print("Something else go home")
                 phone.screen.go_home()
                 phone.rotate()
-        sleep(0.5)
+        sleep(0.25)
         phone.rotate()
             
 
@@ -78,20 +78,14 @@ def auto_catch(phone):
             sleep(0.5)
         elif target == "pokemon":
             print('Found pokemon')
+            action_count += 1                
             if args.no_catch:
-                action_count += 1                
-                if args.no_catch:
-                    print('No catch today')
-                    phone.tap_screen(
-                        phone.rel_x(0.5),
-                        phone.rel_y(0.5),
-                        button=3
-                    )
-                    sleep(0.5)
-                    phone.rotate()
-                elif not catch(phone, distance = 5, berry = args.berry, max_tries = 7, span = 2):
-                    phone.rotate()
-                spins_after_poke += 1
+                print('No catch today')
+                phone.screen.go_home()
+            else:
+               catch(phone, distance = 5, berry = args.berry, max_tries = 7, span = 2)
+            phone.rotate()
+            spins_after_poke += 1
         elif target == "gym-defeat":
             if args.defeat:
                 action_count += 1
@@ -101,8 +95,8 @@ def auto_catch(phone):
             if args.spin:
                 action_count += 1
                 phone.spin_disk()
-                phone.screen_go_to_home()
-                phone.rotate()
+            phone.screen.go_home()
+            phone.rotate()
         elif target == "egg":
             pass
         if args.once and action_count > 0:
@@ -142,7 +136,7 @@ def main():
                         help="Connnect to autocatch.")
     parser.add_argument("-d", "--span", action="store", required=False, default=0, \
                         help="Vary distance by span.")
-    parser.add_argument("-n", "--no-catch", action='store_true', required=False, default=True, \
+    parser.add_argument("-n", "--no-catch", action='store_true', required=False, default=False, \
                         help="Do NOT catch pokemon")    
     parser.add_argument("-D", "--deafeat", action='store_true', required=False, default=False, \
                         help="Defeat gyms")    

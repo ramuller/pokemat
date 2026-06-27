@@ -51,7 +51,7 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
     sleep(1)
     # for i in range(0,5):
     while len(set(hist_names)) > 1:
-        if p.hasGift():
+        if p.has_gift():
             p.tap_screenBack()
             print("Has gift")
             sleep(0.5)

@@ -133,7 +133,7 @@ def gifting(port):
         
         # except Exception as e:
         #    print("Upps something went wrong but who cares?: {}", e)
-    return False
+    return True
 
 def main():
 

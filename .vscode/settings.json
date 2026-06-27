@@ -1,6 +1,6 @@
 {
-  "github.copilot.enable": false,
-  "github.copilot.inlineSuggest.enable": false,
+  "github.copilot.enable": true,
+  "github.copilot.inlineSuggest.enable": true,
   "editor.inlineSuggest.enabled": true,
   "python.analysis.autoImportCompletions": true,
   "python.analysis.completeFunctionParens": true

@@ -226,7 +226,8 @@ class Screen:
                 count = 0
             
             if self.ts.buttons.i_exits.press(retries=1,verbose=0) or \
-                        self.ts.buttons.i_button_ok.press():
+                        self.ts.buttons.i_button_ok.press() \
+                        or self.ts.buttons.i_exit_man.press():
                 sleep(1)
                 continue
             elif self.ts.ocr.regex('exit'):
