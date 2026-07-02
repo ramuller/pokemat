@@ -828,7 +828,7 @@ class Buttons(ButtonParameter):
                                     invert=True,
                                     xs=int(ts.specs['max_x'] * 0.10),
                                     xe=int(ts.specs['max_x'] * 0.90),
-                                    ys=int(ts.specs['max_y'] * 0.30),
+                                    ys=int(ts.specs['max_y'] * 0.50),
                                     ye=int(ts.specs['max_y'] * 0.80),
                                     process=True),
                                     'YES')
@@ -1030,6 +1030,7 @@ class Buttons(ButtonParameter):
                                     invert=True),  
                                     'PURIFY')
         self.b_heal_all = TextButton(ScreenRegion(ts,
+                                    process=True,
                                     xs=ts.rel_x(0),
                                     xe=ts.rel_x(1),
                                     ys=ts.rel_y(0.5),
@@ -1043,6 +1044,22 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(1),
                                     invert=True),  
                                     'REVIVE')
+        self.b_trade_next = TextButton(ScreenRegion(ts,
+                                        invert=True,
+                                        process=True,
+                                        xs=ts.rel_x(0),
+                                        xe=ts.rel_x(1),
+                                        ys=ts.rel_y(0.5),
+                                        ye=ts.rel_y(1)),
+                                        'NEXT')
+        self.t_trade_confirm = TextFlat(ScreenRegion(ts,
+                                        invert=True,
+                                        xs=ts.rel_x(0.0),
+                                        xe=ts.rel_x(.5),
+                                        ys=ts.rel_y(0.2),
+                                        ye=ts.rel_y(0.8),
+                                        ),  
+                                        'CONFIRM')
         self.i_evolve = IconButton(ScreenRegion(ts,
                                     xs=ts.rel_x(0),
                                     xe=ts.rel_x(0.5),
@@ -1113,7 +1130,8 @@ class StdButtons(ButtonParameter):
         super().__init__(reg)
         self.ocr = Ocr(reg.ts)
 
-    def _button(self, name, reg : ScreenRegion=None, verbose=0):
+    def _button(self, name, reg : ScreenRegion=None, 
+                verbose=0):
         reg = reg or ScreenRegion(self.ts)
         if reg.npa is None:
             reg.npa = self.ts.image.scan_region(reg)
@@ -1163,8 +1181,8 @@ class StdButtons(ButtonParameter):
                         method,
                         text, 
                         reg : ScreenRegion=None,
-                        action='press', 
-                        retries=3,
+                        action='press',
+                        retries=1,
                         delay=0.01,
                         call_back=None,
                         verbose=0):
@@ -1174,7 +1192,8 @@ class StdButtons(ButtonParameter):
             reg.npa = None
             # print(f'Retry - {retries}')
             button, _ = method(text, reg,
-                                 verbose=verbose)
+                               verbose=verbose)
+                                 #verbose=verbose)
             if button:
                 if action == 'press':
                     if verbose > 2:
@@ -1192,7 +1211,7 @@ class StdButtons(ButtonParameter):
                     r = call_back()
                     if r:
                         return r
-                sleep(0.7)
+                sleep(1)
         return ret
 
     def _text_from_screen(self, *args, **kwargs):

@@ -298,7 +298,7 @@
       "program": "${workspaceFolder}/pokemat/trade.py",
       "console": "integratedTerminal",
       "args": [
-        "${workspaceFolder}/configs/trade-aphex-helmut.json"
+        "${workspaceFolder}/configs/trade-test.json"
       ]
     },
     {
@@ -362,7 +362,7 @@
       "program": "${workspaceFolder}/pokemat/evolve.py",
       "console": "integratedTerminal",
       "args": [
-        "--filter", "machop"
+        "--filter", "e1&evolve"
       ]
     },    
     {

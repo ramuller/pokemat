@@ -96,6 +96,7 @@ class Screen:
     def go_pokemon(self):
         b = self.ts.buttons.t_pokemon_pokemon.press(retries=1, verbose=0)
         if b:
+            print('Already on pogo screen')            
             return True
         self.go_home()
         sleep(1)

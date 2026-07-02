@@ -1,0 +1,14 @@
+{
+    "mode": "trade",
+    "league": "master",
+    "host": { 
+        "port": "3002",
+        "name": "yellow",
+		"filter": "lechonk"
+   },
+    "guest": {
+        "port": "3003",
+        "name": "higimmi44",
+		"filter": "lechonk"
+    }
+}

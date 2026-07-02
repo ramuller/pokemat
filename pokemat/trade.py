@@ -12,14 +12,20 @@ import argparse
 import time
 from time import sleep
 import os
+import re
 import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
+from pokelib import ScreenRegion
+from pokelib import TextFlat
 
 import json
 import sys
 from datetime import datetime
 from _operator import truediv
+
+
+from concurrent.futures import ThreadPoolExecutor
 
 global log
 
@@ -53,108 +59,114 @@ def trade(jsonFile):
     
     while True:
         try:
-            host.screen.go_home()
-            host.screen.go_friends()
-            max_tries = 20
-            b = None
-            while not b:
-                b = host.buttons.i_friends_search.press(retries=1)
-                if b:
-                    break
-                host.buttons.t_passenger.press(retries=1)
-                sleep(2)
-                max_tries -= 1
-                if max_tries == 0:
-                    raise
-            time.sleep(2.5)
-            print("Friend screen")
-            host.text_line_ok(f'\a{parameter["guest"]["name"]}\\n')
+            guest.tap_screen(100,100,button=3)
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                trade_host = executor.submit(start_trade,
+                                          host,                                          
+                                          parameter["guest"]["name"],
+                                          parameter["guest"]["filter"])
+                trade_guest = executor.submit(start_trade,
+                                          guest,
+                                          parameter["host"]["name"],
+                                          parameter["host"]["filter"])
 
-            sleep(2)
-            t = host.ocr.regex(parameter["guest"]["name"], find_all=True)
-            host.tap_screen(t[1]['center'], scale=False)
-            sleep(2)
-            def wait_4_trade_callback():
-                has_gift = host.buttons.b_open_gift.search()
-                if has_gift:
-                    host.tap_screen(100,100, button=3)
-            sleep(1)
-            b = host.buttons.t_friend_trade.press(retries=20, 
-                                                  retry_callback=wait_4_trade_callback)
-            b = host.buttons.t_friend_trade.press(retries=20)
+                # Wait for both to finish (and propagate exceptions)
+                trade_host.result()
+                trade_guest.result()
+
             # time.sleep(2)
             retry = 0
-            while True:
-                if retry > 3:
-                    raise
-                retry += 1
-                guest.screen_friend()
-                sleep(3)
-                if guest.color_match(41, 796, 255, 246, 208, debug=True) == True:
-                    log.info("Found inviting friend")
-                    break
-                log.info("No one invites let's retry")
-                                   
-            guest.friend_select_first()
-            sleep(2)
-            if guest.has_gift():
-                print("Has gift")
-                guest.tap_screenBack()
-            time.sleep(1)
-            guest.tap_trade()
-            
-            host.pokemon_search(parameter["host"]["filter"])
-            guest.pokemon_search(parameter["guest"]["filter"])
-            
+    
+            # traded_pokemon(host)
+
             log.info("Time : Trading loop starts {}".format(host.getTimeNow()))
             while True:
-                # Wait for the blue screen
-                #try:
-                #    host.color_match_wait(95, 396, 101, 179, 246, time_out_ms=1000)
-                # except:
-                #    pass
-                # Select left corner
-                time.sleep(1)
-                host.color_match_wait_click(46, 724, 255, 255, 255, time_out_ms=60000)
-                guest.color_match_wait_click(46, 724, 255, 255, 255, time_out_ms=60000)
-                try:
-                    host.color_match_wait_click(177, 724, 255, 255, 255, same=False, time_out_ms=60000)
-                    guest.color_match_wait_click(177, 724, 255, 255, 255, same=False, time_out_ms=60000)
-                except:
-                    host.tap_screen(177, 724)
-                    guest.tap_screen(177, 724)
-                # tap twice because sometimes it missing a tap
-                time.sleep(1.0)
-                host.tap_screen(177, 724)
-                guest.tap_screen(177, 724)
-                time.sleep(0.5)
-                host.tap_screen(177, 724)
-                guest.tap_screen(177, 724)
-                # Click Next
-                host.color_match_wait_click(371, 1605, 147, 217, 150)
-                guest.color_match_wait_click(371, 1605, 147, 217, 150)
-                # for to in range(0, 10):
-                #     host.ocr_wait_text_center((), (), "CONFIRM", pause=0.5)
-                #     break
-                # Click confirm
-                host.color_match_wait_click(17, 1037, 92, 204, 146, time_out_ms=60000)
-                guest.color_match_wait_click(17, 1037, 92, 204, 146, time_out_ms=60000)
-                # Wait trade complete
-                host.color_match_wait_click(482, 1849, 28, 135, 149, time_out_ms=60000)
-                guest.color_match_wait_click(482, 1849, 28, 135, 149, time_out_ms=60000)
-                time.sleep(2)
-                host.tap_trade()
-                guest.tap_trade()
-                
-                print("Fertig")
-                # sys.exit(0)
+                with ThreadPoolExecutor(max_workers=2) as executor:
+                    trade_h = executor.submit(trade_pokemon,
+                                                host, parameter["host"]["name"])
+
+                    trade_g = executor.submit(trade_pokemon,
+                                                guest, parameter["guest"]["name"])
+                    # Wait for both to finish (and propagate exceptions)
+                    trade_h.result()
+                    trade_g.result()
+                pass
+
 
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
             sys.exit(1)
 
         except Exception as e:
+            trade_host.cancel()
+            trade_guest.cancel()
+            trade_h.cancel()
+            trade_g.cancel()
             print("Upps something went wrong but who cares?: {}", e)
+
+def trade_pokemon(p, trainer):
+
+    print(f'{trainer} - select first pokemon')
+    p.pokemon_select_first(verbose=0)
+    print(f'{trainer} - press next')
+    p.buttons.b_trade_next.press(retries=30)
+    print(f'{trainer} - confirm')
+    p.buttons.t_trade_confirm.press(retries=30)
+    print(f'{trainer} - wait for pokemon received')
+    p.buttons.i_exits.press(retries=30)
+    
+
+def start_trade(p, trainer, filter):
+    p.screen.go_home()
+    p.screen.go_friends()
+    max_tries = 20
+    b = None
+    while not b:
+        b = p.buttons.i_friends_search.press(retries=1)
+        if b:
+            break
+        p.buttons.t_passenger.press(retries=1)
+        sleep(2)
+        max_tries -= 1
+        if max_tries == 0:
+            raise
+    time.sleep(2.5)
+    print("Friend screen")
+    p.text_line_ok(f'\\a{trainer}')
+    sleep(1)
+    p.text_line_ok(f' \\n')
+
+    sleep(2)
+    t_no_case = re.compile(trainer, re.I)
+    t = p.ocr.regex(t_no_case, find_all=True)
+    p.tap_screen(t[1]['center'], scale=False)
+    sleep(2)
+    def wait_4_trade_callback():
+        has_gift = p.buttons.b_open_gift.search()
+        if has_gift:
+            p.tap_screen(100,100, button=3)
+    sleep(1)
+    b = p.buttons.t_friend_trade.press(retries=20, 
+                                        retry_callback=wait_4_trade_callback)
+    b = p.buttons.t_friend_trade.press(retries=20)
+    
+    but = TextFlat(ScreenRegion(p,
+                    ye=p.rel_y(0.40)),
+                    'Search')
+    
+    for i in range(5):
+        if but.press(retries=1, verbose=0):
+            break
+        elif p.buttons.i_pokemon_search.press():
+            break
+
+    sleep(1)
+
+    p.text_line_ok(f'\\a{filter}')
+    sleep(.5)
+    p.text_line_ok(f' \\n')
+    print(f'{trainer} - ready for trading')
+    return True
 
 def main():
 

@@ -9,7 +9,7 @@ from pokelib import PokeArgs
 from pokelib.buttons import ButtonParameter
 from pokelib import ScreenRegion
 from pokelib import TextOnly, Coordinates,ButtonParameter 
-from pokelib import IconButton, TextButton, StdButtons
+from pokelib import IconButton, TextButton, StdButtons, TextFlat
 
 from hybrid_icon_detector import IconDetector
 from catch import select_berry
@@ -275,6 +275,15 @@ def my_test():
     # phone.screen.go_home()
 
     pass
+
+    phone.pokemon_select_first()
+
+    but = TextFlat(ScreenRegion(phone,
+                    ye=phone.rel_y(0.30)),
+                    'Search')
+    
+    r = but.press(retries=10, verbose=10)
+
     from catch import select_berry
     select_berry(phone, 'a')
     phone.buttons.scan_horizontal.search('.*EVO.*',

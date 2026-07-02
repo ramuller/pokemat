@@ -162,7 +162,7 @@ class Ocr:
                     res.append(l)
                     if not find_all:
                         return res[0]
-            if tries <= 1:
+            if tries <= 1 or res:
                 return res
             if retry_callback:
                 retry_callback()

@@ -219,6 +219,8 @@ class TouchScreen:
         self.log.debug("tap {},{},{},{}".format(x,y,button, duration))
         if scale:
             x, y = self.scaleXY(x, y)
+        if button == 3:
+            pass
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
         response = self.write_to_phone("click:{},{},{},{}".format(x,y,button, duration))
         self.log.debug("Response : {}".format(response))
@@ -762,24 +764,25 @@ class TouchScreen:
             return False
         return True
         
-    def pokemon_select_first(self):
+    def pokemon_select_first(self,
+                             retries=1,
+                             verbose=0):
         found_poke = False
-        time.sleep(0.2)
-        self.color_match_wait(79, 179, 255, 255, 255)
-        for i in range(0,15):
-            time.sleep(0.1)
-            if self.color_match(184, 777, 251, 254, 249) and \
-                self.color_match(184, 750, 255, 255, 255) and \
-                self.color_match(178, 730, 255, 255, 255) and \
-                self.color_match(184, 710,255, 255, 255):
-                print(f"No more pokemons with this filter round{i}")
-            else:
-                found_poke = True
-                break
-        if not found_poke:
+        reg = ScreenRegion(self,
+                xs=self.rel_x(0),
+                xe=self.rel_x(1),
+                ys=self.rel_y(0.28),
+                ye=self.rel_y(0.75)
+                )
+        # Search 2 characters together
+        pl = self.ocr.regex('.*...*', reg, 
+                       retries=retries,
+                       find_all=True,
+                       verbose=verbose)
+        if not pl:
+            print('No pokemon found')
             return False
-        print("Tap 177, 751")
-        self.tap_screen(177, 751)
+        self.tap_screen(pl[0]['center'], scale=False)
         return True
     
     def color_show(self, x, y):
@@ -798,7 +801,11 @@ class TouchScreen:
         if not self.buttons.i_evolve.press(retries=5):
             print('No evolve found')
             return False
-        if not self.buttons.b_yes.press(retries=5, verbose=0):
+        sleep(0.25)
+        if not self.buttons.b_yes.press(retries=5, verbose=0, delay=0.2):
+        # if not self.buttons.b_yes.search(retries=5, verbose=0, delay=0.2):
+        #    self.tap_screen(20,20,button=3)
+            print('Yes not found')
             return False
         # if found == False:
         #     text, image = self.ocr_read((350, 1650), (300, 76))
@@ -824,7 +831,7 @@ class TouchScreen:
         # 72, 476, 255, 255, 255
         count=0
         while not self.buttons.i_exits.search(retries=2):
-            print('Wait for exit')
+            # print('Wait for exit')
             count += 1
         print("Evolve ready")
         time.sleep(0.3)
@@ -862,7 +869,7 @@ class TouchScreen:
             # print(c)
             self.write_to_phone("key:{}".format(c))
             # time.sleep(0.0035)
-            time.sleep(0.013)
+            time.sleep(0.02)
 
     def selectAll(self):
         self.text_line_ok("\\a")
@@ -1197,7 +1204,7 @@ class TouchScreen:
             if last_revive:
                 self.tap_screen(last_revive['center'][0], last_revive['center'][1], scale=False)
                 sleep(1)
-                revive = self.buttons.b_revive_all.press(retries=2)
+                revive = self.buttons.b_revive_all.press(retries=3)
                 sleep(1.5)
                 self.buttons.i_exits.press(retries=2)
                 sleep(1.5)
@@ -1208,7 +1215,7 @@ class TouchScreen:
             if first_potion:
                 self.tap_screen(first_potion['center'][0], first_potion['center'][1], scale=False)
                 sleep(1)
-                heal = self.buttons.b_heal_all.press(retries=2)
+                heal = self.buttons.b_heal_all.press(retries=3)
                 sleep(1.5)
                 if not self.screen.is_in_items():
                     self.buttons.i_exits.press(retries=2)
