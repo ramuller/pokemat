@@ -1093,7 +1093,9 @@ class TouchScreen:
         sleep(2)
         self.buttons.i_pokemon_search.press()
         time.sleep(1)
-        self.text_line_ok(f'\\a{filter}\\n')
+        self.text_line_ok(f'\\a{filter}')
+        sleep(0.2)
+        self.text_line_ok('\\n')
         time.sleep(1)        
         # self.tapTextOK()
         
@@ -1232,10 +1234,8 @@ class TouchScreen:
     
     def battle_league(self):
         time.sleep(3)
-        self.color_show(200, 1900)
-        if self.color_match(200, 1900, 255, 180, 82):
+        if self.buttons.b_battle_claim.press():
             print("Claim rewards")
-            self.tap_screen(200, 1900)
             time.sleep(1)
             return
 

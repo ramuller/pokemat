@@ -162,11 +162,10 @@
       "args": [
         "button",
         "--name", "b_yes",
-        "--show",
-        "--verbose=10",
       ],
       "comment": [
-        "--name", "b_yes",
+        "--show",
+        "--verbose=10",
         "--text", ".*Sign.*",
         "--show",
         "--threashold", "20",
@@ -391,7 +390,7 @@
       ]
     },
     {
-      "name": "battle trainer 2",
+      "name": "battle"
       "type": "python",
       "extends": "Base",
       "request": "launch",
@@ -399,9 +398,14 @@
       "console": "integratedTerminal",
       "debugOptions": ["DisableGUI"],
       "args": [
-        "--type", "trainer2"
+        "-L", "great"
       ]
     },
+    {
+      "com":[
+        "--type", "trainer2"
+      ]
+    }
     {
       "name": "test",
       "type": "python",

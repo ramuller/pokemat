@@ -149,7 +149,7 @@ class PokeImage:
         rgb = np.stack([B, G, R], axis=-1)
         return rgb
 
-    def boxes_get(self, reg, verbose=0, pad=10):
+    def boxes_get(self, reg, verbose=0, pad=10, show_boxes=False):
         # self.ts.sc.show_image(img, wait=1000, title='unprocessed')
         reg.npa = cv2.normalize(reg.npa, None, 
                                 alpha=0, beta=255, 
@@ -182,7 +182,7 @@ class PokeImage:
             if verbose > 2:
                 print(f'Cont : x{x},y{y},w{w},h{h}')
 
-            if True: #True:  # hardcode debug
+            if show_boxes:
                 tpad = 0
                 cv2.imshow('current box',
                             reg.npa[
