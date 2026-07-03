@@ -182,10 +182,10 @@ class PokeImage:
             if verbose > 2:
                 print(f'Cont : x{x},y{y},w{w},h{h}')
 
-            if False: #True:  # hardcode debug
+            if True: #True:  # hardcode debug
                 tpad = 0
                 cv2.imshow('current box',
-                            npa[
+                            reg.npa[
                                 y+tpad : y+h-tpad,
                                 x+tpad : x+w-tpad
                             ])

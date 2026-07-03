@@ -826,11 +826,12 @@ class Buttons(ButtonParameter):
                                     'OPEN')
         self.b_yes = TextButton(ScreenRegion(ts,
                                     invert=True,
-                                    xs=int(ts.specs['max_x'] * 0.10),
-                                    xe=int(ts.specs['max_x'] * 0.90),
-                                    ys=int(ts.specs['max_y'] * 0.50),
-                                    ye=int(ts.specs['max_y'] * 0.80),
-                                    process=True),
+                                    process=True,
+                                    blur=3,
+                                    xs=ts.rel_x(0.10),
+                                    xe=ts.rel_x(0.90),
+                                    ys=ts.rel_y(0.50),
+                                    ye=ts.rel_y(0.80)),
                                     'YES')
         self.b_send_gift = TextButton(ScreenRegion(ts,
                                     invert=True, 
@@ -1135,6 +1136,9 @@ class StdButtons(ButtonParameter):
         reg = reg or ScreenRegion(self.ts)
         if reg.npa is None:
             reg.npa = self.ts.image.scan_region(reg)
+
+        if reg.blur > 0:
+            reg.npa = cv2.blur(reg.npa, (reg.blur, reg.blur))
     
         boxes = self.ts.image.boxes_get(reg, verbose=verbose)            
 

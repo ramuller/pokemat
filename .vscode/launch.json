@@ -161,11 +161,12 @@
       "console": "integratedTerminal",
       "args": [
         "button",
-        "--name", "t_sign_out",
+        "--name", "b_yes",
+        "--show",
         "--verbose=10",
       ],
       "comment": [
-        "--name", "text_only",
+        "--name", "b_yes",
         "--text", ".*Sign.*",
         "--show",
         "--threashold", "20",
@@ -362,7 +363,7 @@
       "program": "${workspaceFolder}/pokemat/evolve.py",
       "console": "integratedTerminal",
       "args": [
-        "--filter", "e1&evolve"
+        "--filter", "machop&!traded"
       ]
     },    
     {
