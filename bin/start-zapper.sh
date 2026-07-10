@@ -1,7 +1,6 @@
 #!/bin/bash
 
 ZAPPER_DIR=$HOME/git/scrcpyzapper
-ZAPPER_DIR=$HOME/git/merge/scrcpyzapper
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source $SCRIPT_DIR/phone-lib.sh
@@ -35,7 +34,7 @@ if false ; then
 
 elif [ "$1" == "1" ];then
     echo SN=$SN
-    [ -z "$SN" ] && SN=ce091609f2237a1904
+    [ -z "$SN" ] && SN=$SN_3001
     echo SN=$SN
     adb -s $SN shell "su -c \"echo 1040000 >/sys/power/cpufreq_max_limit\""
     ./run x $EXTRA --window-title="$1" -s $SN $STD_ARGS --window-x=00 --window-y=0 --rest-api-port=300$1 

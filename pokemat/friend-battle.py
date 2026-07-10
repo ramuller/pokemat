@@ -12,6 +12,7 @@ import argparse
 import time
 from time import sleep
 import os
+import re
 import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
@@ -46,7 +47,7 @@ def trainer_battle(jsonFile):
         print("Unsupported {}".format(parameter["mode"]))
         return
     
-    print("start trading")
+    print("start battle-friend mode")
     host = TouchScreen(parameter["host"]["port"], name = parameter["host"]["name"])
     guest = TouchScreen(parameter["guest"]["port"], name = parameter["guest"]["name"])
     tradesDone = 1
@@ -59,29 +60,31 @@ def trainer_battle(jsonFile):
             host.friend_search(parameter["guest"]["name"])
             host.friend_select_first()
             sleep(2)
-            if host.hasGift():
+            if host.has_gift():
                 time.sleep(0.5)
                 host.tap_screenBack()
             sleep(1)
-            host.tap_battle()
-            host.battle_friend(parameter["league"])
-            # guest.screen_go_to_home()
-            # guest.screen_friend()
-            # guest.friend_search(parameter["host"]["name"])
-            # guest.friend_select_first()
-            # sleep(2)
-            # if guest.hasGift():
-            #     time.sleep(0.5)
-            #     guest.tap_screenBack()
-            # sleep(1)
-            # guest.tap_battle()           # time.sleep(2)
+
+            if not host.buttons.black_on_white('.*BATTLE.*', retries=10):
+                log.info("No BATTLE button found. Retry after some time")
+                raise
+            sleep(3)
+            r = re.compile(parameter["league"], re.IGNORECASE)
+            if not host.buttons.black_on_white(r, retries=10):
+                log.info("No BATTLE button found. Retry after some time")
+                raise
+            sleep(1)
+            if not host.buttons.dark('.*BATTLE.*', retries=10):
+                log.info("No BATTLE button found. Retry after some time")
+                raise
+
             log.info("Time : Battle loop starts {}".format(host.getTimeNow()))
             guest.color_match_wait_click(451, 1226, 126, 215, 155)
             while True:
                 guest.color_match_wait_click(486, 1750, 119, 215, 155)
                 host.color_match_wait_click(486, 1750, 119, 215, 155)
                 sleep(2)
-                guest.doBattle(opponent = host)
+                guest.do_battle(opponent = host)
                 host.color_match_wait_click(482, 1232, 119, 215, 155)
                 guest.color_match_wait_click(482, 1232, 119, 215, 155)
                 print(f"Round completed {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

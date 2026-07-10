@@ -6,11 +6,14 @@ from time import sleep
 import os
 import logging
 import random
+from tkinter import YES
 
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import WatchDog
 from pokelib import PokeArgs
+from pokelib import ScreenRegion
+from pokelib import IconButton, StdButtons
 
 from catch import catch
 from reconnect import connect
@@ -100,9 +103,9 @@ def is_red_in_the_sky(p):
         sys.exit(0)
 
 def rotate(phone):
-    phone.scroll(0, 800, start_y=200, start_x = 980, stop_to=0.1)
-    phone.scroll(0, 800, start_y=200, start_x = 980, stop_to=0.1)
-    # phone.scroll(0, 800, start_y=200, start_x = 980, stop_to=0.1)
+    phone.scroll(0, 800, sy=200, sx = 980, stop_to=0.1)
+    phone.scroll(0, 800, sy=200, sx = 980, stop_to=0.1)
+    # phone.scroll(0, 800, sy=200, sx = 980, stop_to=0.1)
 
 
 def scan_sky(phone, print, no_grunt):
@@ -129,7 +132,7 @@ def scan_sky(phone, print, no_grunt):
             if is_grunt_in_gym(phone) \
                     or phone.color_match(868, 197, 241, 247, 240) \
                     or phone.color_match(506, 849, 206, 92, 51):
-                if "BATTLE" in phone.pocr_read_line_center((444, 1464), (300, 120)):
+                if "BATTLE" in phone.ocr_read_line_center((444, 1464), (300, 120)):
                     print("Max battle or so")
                     continue
                 no_grunt = False
@@ -144,7 +147,7 @@ def scan_sky(phone, print, no_grunt):
 def select_team(phone):    
     start = None
     for i in range(15):
-        start, _ = phone.pocr_find_regex('USE THIS.*')
+        start, _ = phone.ocr_find_regex('USE THIS.*')
         print(f"Start {start}")
         if start:
             watch_dog.reset()
@@ -160,143 +163,210 @@ def select_team(phone):
         print("Wait go battle")
     return start
 
-def prepare_battle(phone):
-    if not select_team(phone):
-        return False
+def rescue_pokemon(phone):
+    if phone.buttons.b_grunt_rescue.press(retries=1):
+        print("Resucue found")
+        sleep(1)
+        print("Try to catch")    
+        watch_dog.reset()
+        catch(phone, distance = 6, max_tries = 12, span = 2)
+        return True
+    return False
 
-    # try:
-    #     phone.color_match_wait_click(338, 1779, 162, 220, 148, threashold=20, time_out_ms = 15500)
-    # except:
-    #     pass
-    # watch_dog.reset()
-
+def start_battle(phone):
     startTime = datetime.now()
-    while not phone.black_screen():
-        if ((datetime.now() - startTime).total_seconds() * 1000) > 10000:
-            break
-        print("Wait black screen")
-        time.sleep(0.05)
-    while phone.black_screen():
-        if ((datetime.now() - startTime).total_seconds() * 1000) > 3000:
-            break
-        print("Wait black screen")
-        time.sleep(0.05)
+    # while not phone.black_screen():
+    #     if ((datetime.now() - startTime).total_seconds() * 1000) > 10000:
+    #         break
+    #     print("Wait black screen")
+    #     time.sleep(0.05)
+    # while phone.black_screen():
+    #     if ((datetime.now() - startTime).total_seconds() * 1000) > 3000:
+    #         break
+    #     print("Wait black screen")
+    #     time.sleep(0.05)
     print("do battle")
-    phone.doBattle()
+    phone.do_battle()
 
-    # Wait for trainer
-    for i in range(1,10):
-        try:
-            phone.color_match_wait_click(305, 1773, 137, 216, 153, time_out_ms = 2000)
+    # After battle
+    for i in range(1,20):
+        if rescue_pokemon(phone):
             break
-        except:
-            print("Wait for rescue")
-            phone.tap_screen(305, 773)
-        pass
-    phone.tap_screen(512, 873)
+        elif phone.buttons.b_grunt_rematch.search(retries=1):
+            b = phone.buttons.b_grunt_rematch.search(retries=1)
+            print(f'Rematch text found {b}')
+            ys = b['center'][1] + phone.rel_y(0.1)
+            for y in range(ys, phone.rel_y(0.9), 5):
+                phone.tap_screen(phone.rel_x(0.5), y, scale=False)
+                time.sleep(0.1)
+                if phone.screen.is_home():
+                    print("Back home")
+                    return
+            break
+        phone.tap_screen(phone.rel_x(0.5), phone.rel_y(0.5), scale=False)
+        sleep(1)
 
-    sleep(2)
-    print("Try to catch")    
-    watch_dog.reset()
-    catch(phone, distance = 6, max_tries = 12, span = 2)
-    watch_dog.reset()
-    # action(port, phone, berry = "g")
-    print("Try to action")
-    
+
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+def try_color(phone, reg, r):
+    g = r * 120 // 200
+    b = r * 100 // 200
+
+    vf = f"r{r}-g{g}-b{b}"
+    # print(vf)
+
+    # IMPORTANT: use a separate local object if bw_reg is not thread-safe
+    bw_reg = ScreenRegion(phone, color='rgb', 
+                          ys=phone.rel_y(0.1), 
+                          ye=phone.rel_y(0.6))
+    # bw_reg = reg
+    bw_reg.npa = phone.image.find_rgb(
+        reg, r, g, b,
+        wait=1,
+        verbose=0,
+        tolerance=20
+    )
+
+    btn = IconButton(bw_reg, "grunt_r")
+    det = btn.search(retries=1, no_scan=True, verbose=0)
+
+    if det:
+        return det
+
+    return None
+
+def find_grunt(phone):
+    startTime = datetime.now()
+    reg = ScreenRegion(phone, color='rgb', 
+                       ys=phone.rel_y(0.1), 
+                       ye=phone.rel_y(0.6))
+    reg.npa = phone.image.scan_region(reg)
+    with ThreadPoolExecutor(max_workers=args.threads) as executor:
+        futures = [
+            executor.submit(try_color, phone, reg, r)
+            for r in range(250, 100, -10)
+        ]
+
+        for future in as_completed(futures):
+            det = future.result()
+
+            if det:
+                x = det.center[0]
+                y = det.center[1]
+                y += (det.quad[3][1] - det.quad[0][1]) * 2
+
+                phone.tap_screen(x, y, scale=False)
+                return det
+    endTime = datetime.now()
+    print(f'Time to find no grunt: {(endTime - startTime).total_seconds()}')    
+
+
+
+def find_grunt_1(phone):
+    startTime = datetime.now()
+    reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.6))
+    bw_reg = ScreenRegion(phone, color='rgb', ye=phone.rel_y(0.6))
+    reg.npa = phone.image.scan_region(reg)
+    for r in range(250, 100, -10):
+        g = r * 120 // 200
+        b = r * 100 // 200
+        # g = b = r
+        vf  = f'r{r}-g{g}-b{b}'
+        print(vf)
+        bw_reg.npa = phone.image.find_rgb(reg, r, g, b, wait=1, verbose=0, tolerance=20)
+        b = IconButton(bw_reg, 'grunt_r')
+
+        det = b.search(retries=1, no_scan=True, verbose=0)
+        # print(f'Detection {det}')
+        if det:
+            x = det.center[0]
+            y = det.center[1]
+            y += (det.quad[3][1] - det.quad[0][1]) * 2
+            phone.tap_screen(x, y, scale=False)
+            return det
+    endTime = datetime.now()
+    print(f'Time to find no grunt: {(endTime - startTime).total_seconds()}')    
+    return None
+
 def grunt(port):
     print("Looking for grunt \"{}\" on port {}", port)
     phone = TouchScreen(port)
+    phone.screen.go_home()
     try:
-        phone.screen_go_to_home()
+        phone.screen.go_home()
     except:
         pass
     # phone.dno_gruntoBattle()
     if args.autoconnect:
         connect(phone, del_balls=args.delete_balls)    
-    no_grunt = False
-    no_grunt = True
-    while no_grunt:
+    grunt = None
+    while not grunt:
         # rotate(phone)
         # if is_red_in_the_sky(phone):
         #     no_grunt = False
-        no_grunt = scan_sky(phone, print, no_grunt)
-        if not no_grunt:
-            time.sleep(1)
-            if is_grunt_in_gym(phone):
-                no_grunt = False
+        # no_grunt = scan_sky(phone, print, no_grunt)
+        phone.egg_handle()
+        rescue_pokemon(phone)
+        grunt = find_grunt(phone)
+        if grunt:
+            time.sleep(2)
+            if not phone.screen.is_in_pokestop():
+                print("Not in pokestop")
+                phone.screen_go_to_home()
+                continue
+            phone.spin_disk()
+            for i in range(30):
+                if phone.buttons.t_pokestop_battle.press(retries=1, delay=1):
+                    break
+                if phone.buttons.i_exits.search(retries=1) is not None:
+                    print('Exit found')
+                    sleep(1)
+                    if phone.buttons.t_pokestop_battle.press(retries=1, delay=1):
+                        break
+
+                phone.tap_screen(phone.rel_x(0.3), phone.rel_y(0.9), scale=False)
+                sleep(1.5)
+
+
+            print('time to battle')
+
+            sleep(0.5)
+            phone.buttons.t_pokestop_battle.press(retries=1, delay=1)
+
+            reg = ScreenRegion(phone, ys=phone.rel_y(0.55))
+            sb = StdButtons(reg)
+
+            # def cb():
+            #     if phone.ocr.regex('.*Team|Grunt|seeing|many|been.*', reg=reg) \
+            #         or phone.buttons.dark('BATTLE', action='check'):
+            #         phone.tap_screen(phone.rel_x(.5), phone.rel_y(.5))
+            #     return False
+            # if not sb.dark('BATTLE', call_back=cb, action='press', retries=30):
+            #     return
+
+            if not phone.buttons.t_grunt_party.search(retries=20):
+                phone.screen_go_to_home()
+                phone.screen_go_to_home()
+                break
+            phone.tap_screen(phone.rel_x(.98), phone.rel_y(.75), scale=False)
+            sleep(1)
+            if not phone.buttons.t_grunt_party.press(retries=20):
+                phone.screen_go_to_home()
+                phone.screen_go_to_home()
+                break
+            sleep(0.5)
+            start_battle(phone)
+
+            phone.screen_go_to_home()
+            phone.screen_go_to_home()
+            phone.heal_all()
+
         else:
             phone.screen_go_to_home()
-            rotate(phone)
+            phone.rotate()
 
-    try:
-        phone.color_match_wait_click(463, 855, 203, 79, 41, time_out_ms = 1500)
-    except:
-        pass
-    time.sleep(1)
-    oponent = False
-    try:
-        i = 4
-        no_grunt = True
-        go_out = 2
-        while i > 0:
-            i = i -1
-            print("Wait opponent and spin{}".format(i))
 
-            phone.spin_disk()
-            phone.tap_screen(498, 1824)
-            sleep(3)
-            print("after sleep")
-            if phone.color_match(506, 849, 206, 92, 51, threashold = 20) or \
-                   phone.color_match(506, 880, 206, 92, 51, threashold = 20) or \
-                   phone.color_match(611, 880, 206, 92, 51, threashold = 20) or \
-                   phone.color_match(620, 880, 206, 92, 51, threashold = 20):
-                phone.tap_screen(506, 849)
-                oponent = True
-                print("Opponent found")
-                i = 0
-                break
-            if phone.color_match(498, 1824, 235, 242, 242):
-                phone.tap_screen(498, 1824)
-            if phone.is_home():
-                print("Is home")
-                i = 0
-        print("oponent {}".format(oponent))
-        if not oponent:
-            print("No opponent found")
-    except Exception as e:
-        print(e)
-        pass
-    print("Wait battle")
-
-    i = 10
-    start_grunt = False
-    while i > 0:
-        try:
-            print("Wait for battle")
-            battle, fs = phone.pocr_find_regex('BATTLE')
-            if battle:
-                g, fs = phone.pocr_find_regex('Grunt')
-                if g:
-                    print("Set start grunt to True")
-                    start_grunt = True
-                    i = 0
-                    break
-            phone.tap_screen(348, 1000)
-            sleep(0.5)
-            i -= 1
-            
-            # phone.color_match_wait_click(348, 1554, 151, 217, 149, threashold=20, time_out_ms = 1000)
-        except:
-            i = i -1
-    if start_grunt:
-        phone.tap_screen(battle['center'], scale=False)
-        sleep(0.5)
-        phone.tap_screen(battle['center'], scale=False)
-        prepare_battle(phone)
-
-        phone.screen_go_to_home()
-        phone.screen_go_to_home()
-        phone.heal_all()
 
 def wd_callback():
     print("Watchdog timeout strike just exit {}".format(threading.main_thread().native_id))
@@ -310,6 +380,8 @@ def main():
                         help="Connnect to autocatch.")    
     parser.add_argument("-d", "--delete-balls", action='store_true', required=False, default=False, \
                         help="Delete all red balls before connect")
+    parser.add_argument("-t", "--threads", type=int, action='store', required=False, default=2, \
+                        help="Number of threads to find grunt.")    
     global args
     args = parser.parse_args()
     
@@ -317,12 +389,12 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    watch_dog = WatchDog(time_out = 240, _callback = wd_callback)
+    watch_dog = WatchDog(time_out = 360, _callback = wd_callback)
     while True:
         try:
             grunt(args.port)
         except Exception as e:
-            print("Upps something went wrong but who cares?: {}", e)    # ts.click(200,200)
+            print(f'Upps something went wrong but who cares?: {e}')    # ts.click(200,200)
     print("end")
     watch_dog.kill()
     # ts.click(200,y)

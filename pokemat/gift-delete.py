@@ -24,15 +24,15 @@ from _operator import truediv
 
 global log
 
-def deleteGifts(port, phone):
+def deleteGifts(port):
     
     can_get_gifts = True
     can_send_gifts = True
     with open("phone-spec.json", 'r') as file:
         phones = json.load(file)
         
-    print("Delete difts phone \"{}\" on port {}", phone, port)
-    phone = TouchScreen(port, phone)
+    print("Delete difts phone port {}", port)
+    phone = TouchScreen(port)
     while True:
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
@@ -59,7 +59,7 @@ def main():
     log = logging.getLogger("gifting")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    deleteGifts(args.port, args.phone)
+    deleteGifts(args.port)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

@@ -1,0 +1,439 @@
+{
+  "version": "0.2.0",
+
+  "configurations": [
+    {
+      "name": "Base",
+      "expamds": "Base0",
+      "type": "node",
+      "request": "launch",
+      "envFile": "${workspaceFolder}/.env",   
+
+    },
+    {
+      "name": "poketool my_test",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "test"
+      ]
+    },
+    {
+      "name": "poketool save and find rgb",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "find_rgb"
+      ]
+    },
+    {
+      "name": "poketool YUV",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "yuv",
+      ],
+    },
+    {
+      "name": "poketool snapshot",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "snapshot",
+        "--xs", "0",
+        "--xe", "100%",
+        "--ys", "0%",
+        "--ye", "100%",
+        "--count", "1",
+        "--name", "test",
+        "--color", "rgb"
+      ],
+    },
+    {
+      "name": "poketool ball",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "ball",
+        "--xs", "0",
+        "--xe", "0",
+        "--ys", "50%",
+        "--ye", "0",
+        "--count", "5",
+        "--name", "test"
+      ],
+    },
+    {
+      "name": "poketool read",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "read",
+        "--show",
+        "--invert",
+        "--color", "blue",
+      ],
+      "comment":[
+        "--process",
+        "--name",
+        "--threshold=120",
+        "foo.png",
+        "--ys", "60%",
+        "--xs", "50%"
+      ]
+    },
+    {
+      "name": "poketool raw_button",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "raw_button",
+        "--show",
+        "--color", "blue",
+        "--kind","white_on_black",
+        "--text","BATTLE",
+        "--mode", "line",
+        "--ys", "0%",
+        "--threshold", "0",        "--th", "57",
+        "--verbose",
+        "10"],
+      "comment":[
+        "--invert",
+        "--name",
+        "foo.png",
+      ]
+    },
+    {
+      "name": "poketool icon button",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "ico",
+        "--port",
+        "3007",
+        "--show",
+        "--kind",
+        "dark",
+        "--text",
+        "RETURNING PLAYER",
+        "--mode",
+        "line",
+        "--ys",
+        "20%",
+        "--verbose",
+        "0",
+        "--name",
+        "pokeball"
+      ],
+      "comment":[
+        "--invert",
+      ]
+    },
+   {
+      "name": "poketool button",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "button",
+        "--name", "b_yes",
+      ],
+      "comment": [
+        "--show",
+        "--verbose=10",
+        "--text", ".*Sign.*",
+        "--show",
+        "--threashold", "20",
+      ]
+    },
+   {
+      "name": "poketool home",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "home",
+        "--port",
+        "3007",
+      ]
+    },
+    {
+      "name": "poketool screen",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": ["screen"],
+      "comment":[
+        "--invert",
+      ],
+      "env": { "POKEMAT_CONFIG": "/tmp"}
+    },
+    {
+      "name": "gifts receive",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/gifts-receive.py",
+      "console": "integratedTerminal",
+      "args": [ "-a" ]
+    },   
+     {
+      "name": "gifts send",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/gifts-send.py",
+      "console": "integratedTerminal",
+      "args": [ ]
+    },   
+     {
+      "name": "feed",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/feed_in_gym.py",
+      "console": "integratedTerminal",
+      "args": [ ]
+    },   
+      {
+      "name": "Run foo_ocr.py",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/foo_ocr.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--port",
+        "3007"
+      ]
+    }, 
+      {
+      "name": "Defeat gym",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/defeat_gym.py",
+      "console": "integratedTerminal",
+      "args": [
+      ]
+    }, 
+    {
+      "name": "Run learning phone",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/learn_phone.py",
+      "console": "integratedTerminal",
+      "preLaunchTask": "prune-phone-dbs",
+      "args": [
+        "--port",
+        "3009"
+      ]
+    },
+    {
+      "name": "Run route",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/route.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--route", "vuorelle"
+      ]
+    },  
+    {
+      "name": "Get Icon",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/icons/get_icon.py",
+      "cwd": "${workspaceFolder}/icons",      
+      "console": "integratedTerminal",
+      "args": [
+      ]
+    },  
+    {
+      "name": "Run test-ocr",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/testing/test-ocr.py",
+      "console": "integratedTerminal",
+      "debugOptions": ["DisableGUI"],
+      "args": [
+      ]
+    },  
+    {
+      "name": "Trade",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/trade.py",
+      "console": "integratedTerminal",
+      "args": [
+        "${workspaceFolder}/configs/trade-test.json"
+      ]
+    },
+    {
+      "name": "catch",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/catch.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--berry", "a"
+      ]
+    },    
+    {
+      "name": "autocatch",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/autocatch.py",
+      "console": "integratedTerminal",
+      "argsss": [
+        "-s",
+        "-n"
+      ]
+    }, 
+
+    {
+      "name": "raid",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/raid.py",
+      "console": "integratedTerminal",
+      "args": []
+    },    
+    {
+      "name": "heal",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/heal.py",
+      "console": "integratedTerminal",
+      "args": []
+    },    
+    {
+      "name": "grunt",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/grunt.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--threads", "2"
+      ]
+    },    
+    {
+      "name": "evolve",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/evolve.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--filter", "machop&!traded"
+      ]
+    },    
+    {
+      "name": "Change trainer",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/change_trainer.py",
+      "console": "integratedTerminal",
+      "debugOptions": ["DisableGUI"],
+      "args": [
+        "schlumpiz"
+      ]
+    },    
+    {
+      "name": "friend-battle.py",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/friend-battle.py",
+      "console": "integratedTerminal",
+      "debugOptions": ["DisableGUI"],
+      "args": [
+        "${workspaceFolder}/configs/battle.json"
+      ]
+    },
+    {
+      "name": "battle"
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/battle.py",
+      "console": "integratedTerminal",
+      "debugOptions": ["DisableGUI"],
+      "args": [
+        "-L", "great"
+      ]
+    },
+    {
+      "name": "send-text"
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/send-text.py",
+      "console": "integratedTerminal",
+      "debugOptions": ["DisableGUI"],
+      "args": [
+        "\\ahello world***"
+      ]
+    },
+    {
+      "com":[
+        "--type", "trainer2"
+      ]
+    }
+    {
+      "name": "test",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "programm": "${workspaceFolder}/pokemat/start-gps.py",
+      "programc": "${workspaceFolder}/pokemat/raid.py",
+      "programb": "${workspaceFolder}/pokemat/autocatch.py",
+      "programz": "${workspaceFolder}/pokemat/purify-pokemon.py",
+      "program": "${workspaceFolder}/pokemat/grunt.py",
+      "programa": "${workspaceFolder}/pokemat/purify-pokemon.py",
+      "programf": "${workspaceFolder}/pokemat/feed_in_gym.py",
+      "console": "integratedTerminal",
+      "args": [
+      ]
+    }
+
+  ]
+}

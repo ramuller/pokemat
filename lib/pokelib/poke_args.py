@@ -12,8 +12,7 @@ class PokeArgs(ArgumentParser):
         else:
             self.add_argument("-p", "--port", action="store", required=False, default=self.phone_port, \
                               help="TCP port for the connection.")
-        self.add_argument("-P", "--phone", action="store", required=False, default="s7", \
-                                help="Name os the phone model. Check phones.json.")
+
         self.add_argument('-l', '--loglevel', action='store', default=logging.INFO)            
             
         

@@ -13,8 +13,7 @@ do
         "off" | "disabled")
             echo "Disable airplane mode on $s"
             adb -s $s shell su -c 'settings put global airplane_mode_on 0' >/dev/null 2&>1
-            adb -s $s shell su -c 'am broadcast -a android.intent.action.AIRPLANE_MODE --ez state false' &
-            ;;
+            adb -s $s shell su -c 'am broadcast -a android.intent.action.AIRPLANE_MODE --ez state false' >/dev/null 2&>1
         *)
             echo "Enable airplane mode on $s"
             adb -s $s shell su -c 'settings put global airplane_mode_on 1' >/dev/null 2&>1

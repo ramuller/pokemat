@@ -1,7 +1,7 @@
 # Schlumpiz
-export SN_3001=ce091609f2237a1904
+export SN_3001=ce091719d290250304
 # Pokeralle
-export SN_3007=ce091719d290250304
+export SN_3002=ce01182118d5b02a0c
 # White
 export SN_3003=ce12160c4dac273705
 # Gold
@@ -11,11 +11,14 @@ export SN_3005=ce091609ec79190d04
 # Broken dev
 export SN_3006=ce11160bc1ce7d1705
 # Gold from Eoija
-export SN_3002=ce01182118d5b02a0c
+
+# Leo
+export SN_3007=ce091609f2237a1904
 
 # Aphex
 export SN_3008=R58N648E8EX
-
+# Plastic
+export SN_3009=ce0718273126160104
 my_args=$*
 export my_args
 

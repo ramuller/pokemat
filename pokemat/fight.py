@@ -19,7 +19,7 @@ def action(port, phone, distance = 15, right = True, berry = "g"):
     print("Start catching on  \"{}\" on port {}", phone, port)
     
     p = TouchScreen(port, phone)
-    p.doBattle()
+    p.do_battle()
 
 def main():
 

@@ -13,9 +13,11 @@ from pokelib import PokeArgs
 
 import numpy as np
 from PIL import Image
+import cv2
 import matplotlib.pyplot as plt
 
-# import pytesseract
+import pytesseract
+from pytesseract import Output
 
 import json
 import sys
@@ -54,21 +56,50 @@ def cap_and_show():
         y += xr[2]
     #print(dd[3003])
     pixel_array = np.array(jbuf["gray"], dtype=np.uint8)
-    pixel_array = pixel_array.reshape((jbuf["hight"], jbuf["width"]))
+    pixel_array = pixel_array.reshape((jbuf["height"], jbuf["width"]))
     image = Image.fromarray(pixel_array, mode='L')    
     plt.imshow(image, cmap='gray', vmin=0, vmax=255)
     plt.title(f'Grayscale Bitmap')
     plt.axis('off')
     plt.show()
-def ocr_test(p):
+    
+    
+def ocr_ex(p):
     print("Start ocr testing")
-    reader = easyocr.Reader(['en'])
-    jbuf = p.screen_capture_bw((0,0), (575, 1023), scale=False)
-    for i in range(0, 300):
+
+    jbuf = p.screen_capture((0,0), (576, 1024), scale=False)
+    for i in range(1):
         # print(f"Round {i}")
         t1 = datetime.now()
         pixel_array = np.array(jbuf["gray"], dtype=np.uint8)
-        pixel_array = pixel_array.reshape((jbuf["hight"], jbuf["width"]))
+        pixel_array = pixel_array.reshape((jbuf["height"], jbuf["width"]))
+        image = Image.fromarray(pixel_array, mode='L')
+        pa = np.array(jbuf["gray"], dtype=np.uint8).reshape((jbuf["height"], jbuf["width"]))
+        pu = np.array(jbuf["v"], dtype=np.uint8).reshape((jbuf["height"]//2, jbuf["width"]//2))
+        image = Image.fromarray(pu, mode='L')
+        df = pytesseract.image_to_data(pa, output_type=Output.DATAFRAME)
+        print(df)
+        # text = reader.readtext(pixel_array)
+        t2 = datetime.now()
+        # print("Elapsed time {}s".format((t2-t1).total_seconds()))
+    # for t in text:
+    # print(text)
+       
+    cv2.imshow("Image", pa)
+    print("Press any key to continue...")
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()    
+    
+    
+def ocr_test(p):
+    print("Start ocr testing")
+    reader = easyocr.Reader(['en'])
+    jbuf = p.screen_capture((0,0), (575, 1023), scale=False)
+    for i in range(1):
+        # print(f"Round {i}")
+        t1 = datetime.now()
+        pixel_array = np.array(jbuf["gray"], dtype=np.uint8)
+        pixel_array = pixel_array.reshape((jbuf["height"], jbuf["width"]))
         image = Image.fromarray(pixel_array, mode='L')
         
         text = reader.readtext(pixel_array)
@@ -76,6 +107,12 @@ def ocr_test(p):
         # print("Elapsed time {}s".format((t2-t1).total_seconds()))
     for t in text:
        print(t)
+       
+    cv2.imshow("Image", pixel_array)
+    print("Press any key to continue...")
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    
     return
     plt.imshow(image, cmap='gray', vmin=0, vmax=255)
     plt.title(f'Grayscale Bitmap')
@@ -88,7 +125,7 @@ def action(port, arg = None):
     # global p
     p = TouchScreen(port)
     startTime = datetime.now()
-    ocr_test(p)
+    ocr_ex(p)
 
     return
     while True:
@@ -103,23 +140,23 @@ def action(port, arg = None):
     
     
     for y in range(100, 1900,20):
-        text, image = p.pocr_read_line((200, y),(300, 50))
+        text, image = p.ocr_read_line((200, y),(300, 50))
         if text != '':
             print(f"Read at {y} text : {text.lower()}")
     
     for i in range(0,2):
         print("Scroll up")
-        p.scroll(0, -1800, start_x=900, start_y=1900)
+        p.scroll(0, -1800, sx=900, sy=1900)
         sleep(1)        
 
     for y in range(100, 1900,20):
-        text, image = p.pocr_read_line((200, y),(300, 50))
+        text, image = p.ocr_read_line((200, y),(300, 50))
         if text != '':
             print(f"Read at {y} text : {text.lower()}")
     
     for i in range(0,2):
         print("Scroll up")
-        p.scroll(0, 1800, start_x=900, start_y=100)
+        p.scroll(0, 1800, sx=900, sy=100)
         sleep(1)        
     sys.exit(0)
     
@@ -149,12 +186,12 @@ def action(port, arg = None):
         if False:
             # text = reader.readtext(pixel_array)
             # text = p.read_text(550, 550, 230, 70)
-            text, image = p.pocr_read(350, 1650, 300, 76)
+            text, image = p.ocr_read(350, 1650, 300, 76)
             for t in text:
                 print("Read with easyocr {}".format(t))
         # print("Read with easyocr {}".format(text))
         if True:
-            text, image = p.pocr_read(350, 1650, 300, 76)
+            text, image = p.ocr_read(350, 1650, 300, 76)
             print("Read with tessertact {}".format(text))
         # _, image = p.read_text(290, 530, 400, 90)
     t2 = datetime.now()

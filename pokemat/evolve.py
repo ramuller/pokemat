@@ -16,6 +16,8 @@ import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
+from pokelib import ScreenRegion
+
 
 import json
 import sys
@@ -24,24 +26,54 @@ from _operator import truediv
 
 global log
 
-def evolve(port, phone, filter):
+def empty_search(p):
+    if p.ocr.regex('.*Search*.',
+        ScreenRegion(p,
+            xs=p.rel_x(0.2),
+            xe=p.rel_x(0.8),
+            ye=p.rel_y(0.3),
+            )):
+        return True
+    return False
+
+def evolve(port, filter):
     
-    print("Start evolutions \"{}\" on port {}", phone, port)
-    phone = TouchScreen(port, phone)
+    print("Start evolutions \"{}\" on port {}", port)
+    phone = TouchScreen(port)
     # phone.scroll(0, -100)
     # sys.exit(0)
-    phone.selectPokemon(filter)
+    print(empty_search(phone))
+    phone.select_pokemon(filter)
     sleep(2)
 
     evolve_count = 0
     print("Start time : Evolve {}".format(phone.getTimeNow()))
+
     while True:
         try:
-            if not phone.pokemon_select_first():
+            if empty_search(phone):
+                phone.buttons.i_pokemon_search.press()
+                time.sleep(1)
+                phone.text_line_ok(f'\\a{filter}')
+                sleep(0.5)
+                phone.text_line_ok(f'\\n')
+                time.sleep(1)                 
+            if not phone.pokemon_select_first(retries=10):
+                for i in range(3):
+                    print('Try from home, if really no more pokemons for filter "{}" exist, the script will exit'.format(filter))
+                    phone.screen.go_home()
+                    phone.select_pokemon(filter)
+                    if phone.pokemon_select_first(retries=10):
+                        sleep(2)
                 print("All pokemons for filter '{}' evolved!".format(filter))
                 sys.exit(0)
-            phone.evolvePokemon()
+            if not phone.buttons.i_pokemon_search.press():
+                print('Unknow situation')
+                raise('Unknow situation')
+            phone.evolve_pokemon()
             evolve_count = evolve_count + 1
+            sleep(0.5)
+            # phone.screen.go_pokemon()
             print("Time : Evolve {} ".format(phone.getTimeNow()))
             print("Pokemon evolved : {}".format(evolve_count))
         except ExPokeLibFatal as e:
@@ -49,7 +81,7 @@ def evolve(port, phone, filter):
             # sys.exit(1)
 
         except Exception as e:
-           phone.selectPokemon(filter)
+           phone.select_pokemon(filter)
            print("Upps something went wrong but who cares?: {}", e)
 
 def main():
@@ -65,7 +97,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    evolve(args.port, args.phone, args.filter)
+    evolve(args.port, args.filter)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

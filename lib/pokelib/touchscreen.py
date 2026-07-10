@@ -1,3 +1,4 @@
+from cv2 import repeat
 import requests
 import logging
 import threading
@@ -11,21 +12,29 @@ import random
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-import pytesseract
 import re
+from pathlib import Path
 
 log = logging.getLogger("pokelib")
 from .pixelvector import PixelVector
+
 from .ocr import Ocr
 from .database import Database as db_p
-from .screen_capture import ScreenCapture
+from .image import PokeImage
+from .ocr import Ocr
+from .buttons import Buttons, ScreenRegion, StdButtons
+from .screen import Screen
+from .phone_db import PhoneDB
 
 from pokelib import ExPokeLibError, ExPokeNoHomeError, ExPokeLibFatal
 
 import signal
 import functools
 from pprint import pprint
-import inspect
+
+
+'''
+'''
 
 '''
 Timeout decorator return from what ever funtion after timeout
@@ -90,7 +99,9 @@ class TouchScreen:
         self.log.info("\nPokemat phone : {}".format(tcpPort))
         self.url = "http://localhost:{}/v1".format(tcpPort)
         self.specs = self._get_phone_specs()
-        
+        self.config_path = TouchScreen.phone_config_path()
+        print('config_path {}'.format(self.config_path))
+        # self.p_db = PhoneDB.open_for_phone(self.specs['model'])        
         self.my_name = None
         self.scaleX = scaleX
         self.scaleY = scaleY
@@ -102,18 +113,14 @@ class TouchScreen:
         self.vector_left_right = PixelVector(self, 850, 850 + 201, 1850, 1850, 3, "left_right")
         self.vector_top_down = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
         self.vector = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
-        # self.pocr = None
-        self.pocr = Ocr(self)
-        self.sc = ScreenCapture(self)
-        for self.min_width in range(1,100):
-            tb = self.screen_capture_bw((100,100), (self.min_width, 100))
-            if tb["width"] == 1:
-                break
-        for self.min_height in range(1,100):
-            tb = self.screen_capture_bw((100,100), (100, self.min_height))
-            if tb["height"] == 1:
-                break
-    
+        # self.ocr = None
+
+        self.image = PokeImage(self)
+        self.ocr = Ocr(self)
+        self.buttons = Buttons(ScreenRegion(self))
+        self.screen = Screen(self)
+
+    def __del__(self):
         pass
     
     def _get_phone_specs(self):
@@ -121,29 +128,73 @@ class TouchScreen:
         specs["h"] = specs["height"]
         specs["w"] = specs["width"]
         # Check if we have a buttonbar
-        c = self.get_rgb(0, specs["height"] -1, scale=False)
-        print(c)
-        nav_bar = True
-        for x in range(0, specs["width"]-1):
-            c2 = self.get_rgb(x, specs["height"] -1, scale=False)
-            if c != c2:
-                print(f"no nav_bar {x} {c2}")
-                nav_bar = False
-                break
+        if specs['model'] in ['SM-G930F']:
+            nav_bar = False
+        elif self.color_match(specs["width"] // 3, \
+                            specs["height"] - 1, \
+                            32, 109, 224 , \
+                            threashold=15, scale=False, \
+                            excep=False)\
+            or self.color_match(specs["width"] // 3, \
+                                specs["height"] - 1, \
+                                84, 81, 20 , \
+                                threashold=15, scale=False, \
+                                debug=True, excep=False):
+            print("Gym detected no nav bar")
+            nav_bar = False
+        else:
+            c = self.get_rgb(0, specs["height"] -1, scale=False)
+            print(c)
+            nav_bar = True
+            for x in range(0, specs["width"]-1):
+                    c2 = self.get_rgb(x, specs["height"] -1, scale=False)
+                    if c != c2:
+                        print(f"No nav_bar {x} {c2}")
+                        nav_bar = False
+                        break
         if nav_bar:
-            c = self.get_rgb(specs["width"] // 3, specs["height"] -1, scale=False)
-            for y in range(specs["height"] - 1, int(specs["height"]/2), -1):
+            c = self.get_rgb(specs["width"] // 4, specs["height"] -1, scale=False)
+            for y in range(specs["height"] - 1, specs["height"] // 10, -1):
                 c2 = self.get_rgb(specs["width"] // 3, y, scale=False)
-                if c != c2:
+                # if c != c2:
+                if c[0] != c2[0]:
                     print(f"nav_bar hight {specs['h'] - y}")
                     specs["h"] = y
                     break
             
         specs["max_y"] = specs["h"] - 1
-        specs["max_x"] = specs["w"] - 1  
+        specs["max_x"] = specs["w"] - 1 
+        specs['ratio'] = specs['h'] / specs['w']
+        print(f'Phone specs : {specs}')
         self.log.debug(f"Phone specs {specs}")
         return specs
         
+    
+    def max_x(self):
+        return self.specs['max_x']
+
+    def max_y(self):
+        return self.specs['max_y']
+
+    def rel_x(self, f : float):
+        return int(self.specs['max_x'] * f)
+    
+    def rel_y(self, f : float):
+        return int(self.specs['max_y'] * f)
+    
+    def ratio(self):
+        return self.specs['ratio']
+
+    def phone_config_path(base_dir: Path | None = None) -> Path:
+        """
+        Returns ~/.config/pokemat/<phone>.db (or custom base_dir).
+        """
+        if base_dir is None:    
+            # Respect POKEMAT_CONFIG when present; fallback to ~/.config
+            xdg = os.environ.get('POKEMAT_CONFIG_DIR')
+            base_dir = Path(xdg).expanduser() if xdg else Path.home() / ".config" / "pokemat"
+
+        return base_dir
     
     def get_vector_object_left_right(self):
         return self.vector_left_right
@@ -168,58 +219,90 @@ class TouchScreen:
         self.log.debug("tap {},{},{},{}".format(x,y,button, duration))
         if scale:
             x, y = self.scaleXY(x, y)
+        if button == 3:
+            pass
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
         response = self.write_to_phone("click:{},{},{},{}".format(x,y,button, duration))
         self.log.debug("Response : {}".format(response))
         time.sleep(0.001 * duration)
     
-    def tap_down(self, x, y, button = 1, duration = 0):
+    def tap_down(self, x, y=None, button = 1, duration = 0, scale=True):
+        if y == None:
+            x, y = x        
         self.log.debug("tap_down {},{},{},{}".format(x,y,button, duration))
-        x, y = self.scaleXY(x, y)
+        if scale:
+            x, y = self.scaleXY(x, y)
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
         response = self.write_to_phone("button_down:{},{},{},{}".format(x,y,button, duration))
         self.log.debug("Response : {}".format(response))
         time.sleep(0.001 * duration)
     
-    def tap_up(self, x, y, button = 1, duration = 50):
+    def tap_up(self, x, y, button = 1, duration = 50, scale=True):
         self.log.debug("tap_up {},{},{},{}".format(x,y,button, duration))
-        x, y = self.scaleXY(x, y)
+        if scale:
+            x, y = self.scaleXY(x, y)
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
         response = self.write_to_phone("button_up:{},{},{},{}".format(x,y,button, duration))
         self.log.debug("Response : {}".format(response))
         time.sleep(0.001 * duration)
         
-    def moveCursor(self, x, y, dx, dy):
+    def moveCursor(self, x, y, dx, dy, scale=True):
         self.log.debug("move {},{}".format(x,y))
-        x, y = self.scaleXY(x, y)
-        dx, dy = self.scaleXY(dx, dy)
+        if scale:
+            x, y = self.scaleXY(x, y)
+            dx, dy = self.scaleXY(dx, dy)
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
         response = self.write_to_phone("move:{},{},{},{}".format(x,y,dx,dy))
         self.log.debug("Response : {}".format(response))
         # time.sleep(0.1)
-    
-    def egg_handle(self):
 
-        if self.screen_is_egg():
+
+    def egg_incubate(self, incubator="8"):
+        b = self.buttons.i_egg_select.press(retries=10)
+        if not b:
+            print("Egg select not found")
+            return False
+        b = self.buttons.b_egg_incubate.press(retries=5, delay=1)
+        # Select incubator
+        sleep(1)
+
+        if incubator == "8":
+            b = self.buttons.i_egg_incubator_8.press(retries=10)
+            return
+        if incubator == "1":
+            re = '.*1.*USE.*'
+        elif incubator == "2":
+            re = '.*2.*USE.*'
+        elif incubator == "3":
+            re = '.*3.*USE.*'
+        else:
+            print('Unknown incubator {}'.format(incubator))
+            return False
+        b = self.buttons.text_only.press(re,
+                                         process=True,
+                                         ys=self.rel_y(0.5))
+
+        sleep(1)
+        b = self.buttons.i_exits.press()
+        return True
+    
+    def egg_handle(self, force=False):
+
+        if self.screen_is_egg() or force:
             print("Egg detected")
             try:
+
                 # Open egg
-                self.tap_screen(500, 1000)
-                # exit pokemon scree
-                self.color_match_wait_click(493, 1826, 28, 135, 149, time_out_ms=20000)
-                sleep(5)
-                # Select egg
-                self.tap_screen(190, 544)
-                # Tap incubate
-                self.color_match_wait_click(493, 1425, 119, 215, 155)
-                sleep(2)
-                # Select incubator
-                self.tap_screen(140, 1470)
-                sleep(1)
-                self.tap_screen(100, 100, button = 3)
-                return True
-            except:
-                self.screen_go_to_home()
+                self.tap_screen(self.rel_x(0.5),
+                                self.rel_y(0.5),
+                                scale=False)
+                # exit pokemon screen
+                self.buttons.i_exits.press(retries=25)
+                self.egg_incubate()
+                self.screen.go_home()
+            except Exception as e:
+                print(f'ERROR egghandling {e}')
+                self.screen.go_home()
                 return False
         else:
             return False
@@ -242,11 +325,11 @@ class TouchScreen:
         print("mouse {}".format(m))
         return int(m["x"] / self.scaleX), int(m["y"] /self.scaleY)
     
-    def color_match(self, x, y, r, g, b, threashold=10, debug=False, excep = True):
-        rr, gg, bb = self.get_rgb(x, y)
+    def color_match(self, x, y, r, g, b, threashold=10, debug=False, excep = True, scale=False):
+        rr, gg, bb = self.get_rgb(x, y, scale=scale)
         if debug:
-            self.log.info("color_match x{},y{},r{},g{},b{},t{}".format(x, y, r, g, b,threashold))
-            self.log.info("color_match x{},y{},r{},g{},b{},t{}".format(x, y, rr, gg, bb, threashold))
+            self.log.debug("color_match x{},y{},r{},g{},b{},t{}".format(x, y, r, g, b,threashold))
+            self.log.debug("color_match x{},y{},r{},g{},b{},t{}".format(x, y, rr, gg, bb, threashold))
         if gg > (g + threashold) or gg < (g - threashold):
             log.debug("color_match : False")
         if      rr > (r + threashold) or rr < (r - threashold) or \
@@ -429,14 +512,12 @@ class TouchScreen:
         return "stop_no"
     
     def screen_is_egg(self):
-        t, _ = self.pocr_find_regex('.*Oh?.*')
+        reg = ScreenRegion(self, ye=self.rel_y(0.5))
+        t = self.ocr.regex('.*Oh.*', reg)
                                  
         if not t:
             return False
-        t, _ = self.pocr_read_and_image_center((480, 408), (100,100))
-        t =  "".join(t)
-        # ad from ready...
-        return "Oh" in t or "ad" in t
+        return True
 
     def screen_capture_cent_bw(self, start, size, scale=True):
         x, y = start
@@ -449,7 +530,7 @@ class TouchScreen:
 
     def screen_capture_bw(self, start, size, scale=True):
         x, y = start
-        w, h = map(lambda x: x - 1, size)
+        w, h = size
         if x < 0 or (x + w) >= self.maxX \
            or y < 0 or (y + h) >= self.maxY:
             self.log.error("clip out of range x{}, y{}, width{}, height{}", x, y, w, h)
@@ -463,7 +544,8 @@ class TouchScreen:
     
     def screen_capture(self, start, size, scale=True):
         x, y = start
-        w, h = map(lambda x: x - 1, size)
+        w, h = size
+        # w, h = map(lambda x: x - 1, size)
         if x < 0 or (x + w) >= self.maxX \
            or y < 0 or (y + h) >= self.maxY:
             self.log.error("clip out of range x{}, y{}, width{}, height{}", x, y, w, h)
@@ -472,20 +554,20 @@ class TouchScreen:
             x, y = self.scaleXY(x, y)
             w, h = self.scaleXY(w, h)
     
-        response = self.write_to_phone("snip:{},{},{},{}".format(x ,y ,w, h))           
+        response = self.write_to_phone("snip:{},{},{},{}".format(x ,y ,w , h))           
         return response.json()
         
     def pocr_read_line_center(self, start, size, scale=True):
         cs = (start[0] - size[0]/2, start[1] - size[1]/2,)
-        t = self.pocr_read(cs, size, scale=scale)
+        t = self.ocr_read(cs, size, scale=scale)
         return "".join(t)        
 
     def pocr_read_and_image_center(self, start, size, scale=True):
         cs = (start[0] - size[0]/2, start[1] - size[1]/2,)
-        return self.pocr_read_and_image(cs, size, scale=scale)
+        return self.ocr_read_and_image(cs, size, scale=scale)
 
     def pocr_read_line(self, start, size, scale=True):
-        t = self.pocr_read(start, size, scale=scale)
+        t = self.ocr_read(start, size, scale=scale)
         # self.log.debug(f"pocr_read_line {"".join(t)}")
         return "".join(t)
 
@@ -497,24 +579,23 @@ class TouchScreen:
             start[0] = self.maxX < size[0] / 2
 
     def pocr_read(self, start, size, scale=True):
-        if not self.pocr:
-            self.pocr = Ocr(self)
+
         try:
             # if check_boundaries(start, size):
-            #    return self.pocr.pocr_read(start, size)
-            return self.pocr.pocr_read(start, size, scale)
+            #    return self.ocr.ocr_read(start, size)
+            return self.ocr.read_rec_lines(start, size, scale)
         except:
             print("No good")
             sleep(1)
             return [""]
 
     def pocr_read_and_image(self, start, size, scale=True):
-        if not self.pocr:
-            self.pocr = Ocr(self)
+        if not self.ocr:
+            self.ocr = Ocr(self)
         try:
             # if check_boundaries(start, size):
-            #    return self.pocr.pocr_read(start, size)
-            return self.pocr.pocr_read_and_image(start, size, scale=scale)
+            #    return self.ocr.ocr_read(start, size)
+            return self.ocr.ocr_read_and_image(start, size, scale=scale)
         except:
             print("No good")
             sleep(1)
@@ -522,7 +603,7 @@ class TouchScreen:
     
     @poke_timeout()
     def pocr_wait_text(self, start, size, text, pause=0,  to_ms=0, debug=False, scale=True):
-        t = self.pocr_read_line(start, size, scale=scale)
+        t = self.ocr.read_line(start, size, scale=scale)
         self.log.debug("read {}".format(t))
         if text in t:
             return t
@@ -540,7 +621,7 @@ class TouchScreen:
         if fs == None:
             if lr == None:
                 lr = (self.specs ['w'], self.specs['h'])
-            fs = self.pocr.easyocr_read_center(ul, lr, scale=False)
+            fs = self.ocr.easyocr_read_center(ul, lr, scale=False)
         for s in fs:
             if re.search(regex, s['text']):
                 return s, fs
@@ -549,30 +630,39 @@ class TouchScreen:
     def pocr_wait_text_center(self, start, size, text, pause=0.99,  to_s=6, debug=False, scale=True):
         cs = (start[0] - size[0]/2, start[1] - size[1]/2,)
         while to_s > 0:
-            if self.pocr_wait_text(cs, size, text, pause, to_s, debug, scale=scale) != False:
+            if self.ocr_wait_text(cs, size, text, pause, to_s, debug, scale=scale) != False:
                 return True
             sleep(pause)
             to_s -= pause
         return False
 
-    def scroll(self, dx, dy, start_x = 100, start_y = 1000, tap_time = 0.1, stop_to = 0.6):
+
+    def scroll(self, dx, dy, 
+               sx = None,
+               sy = None,
+               tap_time = 0.02, stop_to = 0.6, scale=False):
         # self.log.info("Scroll")
         # x = maxX / 2
-        x = float(start_x)
-        y = float(start_y)
+        if sx == None:
+            sx = self.rel_x(0.5)
+        if sy == None:
+            sy = self.rel_y(0.5)
+        x = float(sx)
+        y = float(sy)
         sx = float(dx / 20.0)
         sy = float(dy / 20.0)
-        self.tap_down(int(x), int(y), tap_time)
+        self.tap_down(int(x), int(y), scale=scale)
         for s in range(0,20):
             x = x + sx
             y = y + sy
-            self.moveCursor(int(x), int(y), int(sx), int(sy))
+            self.moveCursor(int(x), int(y), int(sx), int(sy), scale=scale)
+            # print(f'x={int(x)}, y={int(y)}, sx={int(sx)}, sy={int(sy)}')
             # print("sy={}".format(int(sy)))
             # self.moveCursor(int(sx), int(sy))
-            time.sleep(0.02)
+            time.sleep(tap_time)
             # self.tap_down(int(x), int(y), int(sx), int(sy))
         time.sleep(stop_to)
-        self.tap_up(int(x + dx), int(y + dy))
+        self.tap_up(int(x + sx), int(y + sy), scale=scale)
 
     def tap_open_gift(self):
         self.log.debug("tap_open_gift")
@@ -580,7 +670,7 @@ class TouchScreen:
         # self.color_match_wait_click(406, 1654, 137, 218, 154)
         to = 50
         while to > 0:
-            text = self.pocr_read((400, 1620), (200, 76))
+            text = self.ocr_read((400, 1620), (200, 76))
             print(text)
             if "OPEN" in ''.join(text):
                 break
@@ -628,7 +718,7 @@ class TouchScreen:
         self.tap_add_friend()
         sleep(2)
         for i in range(5):
-            mn = self.pocr_read_line_center((500, 575),(420, 70))
+            mn = self.ocr_read_line_center((500, 575),(420, 70))
             for i in range(2, len(mn)):
                 print(mn[:i])
                 ret = db_p().get_trainer(mn[:i])
@@ -674,104 +764,83 @@ class TouchScreen:
             return False
         return True
         
-    def pokemon_select_first(self):
+    def pokemon_select_first(self,
+                             retries=1,
+                             verbose=0):
         found_poke = False
-        time.sleep(0.2)
-        self.color_match_wait(79, 179, 255, 255, 255)
-        for i in range(0,15):
-            time.sleep(0.1)
-            if self.color_match(184, 777, 251, 254, 249) and \
-                self.color_match(185, 628, 255, 255, 255) and \
-                self.color_match(184, 750, 255, 255, 255) and \
-                self.color_match(178, 730, 255, 255, 255) and \
-                self.color_match(144, 689, 255, 255, 255) and \
-                self.color_match(184, 710,255, 255, 255):
-                print(f"No more pokemons with this filter round{i}")
-            else:
-                found_poke = True
-                break
-        if not found_poke:
+        reg = ScreenRegion(self,
+                xs=self.rel_x(0),
+                xe=self.rel_x(1),
+                ys=self.rel_y(0.28),
+                ye=self.rel_y(0.75)
+                )
+        # Search 2 characters together
+        pl = self.ocr.regex('.*...*', reg, 
+                       retries=retries,
+                       find_all=True,
+                       verbose=verbose)
+        if not pl:
+            print('No pokemon found')
             return False
-        print("Tap 177, 751")
-        self.tap_screen(177, 751)
+        sleep(0.75)
+        self.tap_screen(pl[0]['center'], scale=False)
         return True
     
     def color_show(self, x, y):
             r, g, b = self.get_rgb(x, y)
             print("Pixel color {},{},{},{},{}".format(x, y, r, g ,b))
        
-    def evolvePokemon(self):
-        self.color_match_wait(135, 1001, 255, 255, 255)
+    def evolve_pokemon(self):
         time.sleep(1.5)
         # self.scroll(0, 200)
         # sys.exit(0)
         print("Scroll up")
-        self.scroll(0,-350, start_y = 1500, tap_time = 0.3, stop_to = 0.5)
+        self.scroll(0,-350, sx=self.rel_x(0.02), sy = self.rel_y(0.9))
         # self.scroll(0,-330)
         # Search and tap evolve
-        for y in range(self.maxY - 2, self.maxY - 600, -10):
-            self.log.debug("Search in {}".format(y))
-            if self.color_match(116, y, 163, 220, 148):
-                print("Match at {}".format(y))
-                self.tap_screen(130, y -10)
-                break
-        time.sleep(1.2)
-         # Search and tap yes
-        found = False
-        for i in range(0, 4):
-            print("Wait for yes")
-            for y in range(1200, 1400, 10):
-                if self.color_match(319, y, 151, 218, 147):
-                    self.tap_screen(319, y)
-                    time.sleep(0.1)
-                    self.tap_screen(319, y)
-                    found = True
-                    break
-        if found == False:
-            text, image = self.pocr_read((350, 1650), (300, 76))
-            self.tap_screen(100, 100, button = 3)
-            time.sleep(1)
-            if "POWER" in ''.join(text):
-                print("Power up")
-                self.tap_screen(500,975)
-                sleep(1)
-                self.text_line_ok("\\a")
-                sleep(0.2)
-                self.text_line_ok("novolve")
-                sleep(0.2)
-                self.tapTextOK()
-                sleep(0.2)
-                self.tap_screen(500,1100)
-                sleep(0.2)
-            # 2 screens back
-            self.tap_screen(100, 100, button = 3)
-            time.sleep(0.8)
-            return
+        sleep(0.5)
+        if not self.buttons.i_evolve.press(retries=5):
+            print('No evolve found')
+            return False
+        sleep(0.25)
+        if not self.buttons.b_yes.press(retries=5, verbose=0, delay=0.2):
+        # if not self.buttons.b_yes.search(retries=5, verbose=0, delay=0.2):
+        #    self.tap_screen(20,20,button=3)
+            print('Yes not found')
+            return False
+        # if found == False:
+        #     text, image = self.ocr_read((350, 1650), (300, 76))
+        #     self.tap_screen(100, 100, button = 3)
+        #     time.sleep(1)
+        #     if "POWER" in ''.join(text):
+        #         print("Power up")
+        #         self.tap_screen(500,975)
+        #         sleep(1)
+        #         self.text_line_ok("\\a")
+        #         sleep(0.2)
+        #         self.text_line_ok("novolve")
+        #         sleep(0.2)
+        #         self.tapTextOK()
+        #         sleep(0.2)
+        #         self.tap_screen(500,1100)
+        #         sleep(0.2)
+        #     # 2 screens back
+        #     self.tap_screen(100, 100, button = 3)
+        #     time.sleep(0.8)
+        #     return
         time.sleep(3)
         # 72, 476, 255, 255, 255
-        print("Wait for evolve ready")
-        self.color_match_wait(505, 1832, 28, 135, 149, time_out_ms=20000)
-        # self.color_match_wait(72, 476, 255, 255, 255, time_out_ms=20000)
-        # self.color_match_wait(135, 1388, 255, 255, 255, time_out_ms=20000)
-        # self.color_match_wait(135, 1388, 255, 255, 255, time_out_ms=20000)
+        count=0
+        while not self.buttons.i_exits.search(retries=2):
+            # print('Wait for exit')
+            count += 1
         print("Evolve ready")
-        time.sleep(0.8)
-        self.tap_screenBack()
+        time.sleep(0.3)
+        self.buttons.i_exits.press()
         
     def tapBattle(self):
         self.color_match_wait_click(496, 1681, 95, 166, 83, delay=3)
     
-    def tap_trade(self):
-        self.log.info("Tap Trade")
-        for i in range(0,20):
-            t, _ = self.pocr_find_regex('LO.AL.*')
-            print("Wait for trade button")
-            if t:
-                self.tap_screen(t['center'], scale=False)
-                return
-            time.sleep(0.5)
-        raise
-        
     def tap_battle(self):
         self.log.info("Tap battle")
         for i in range(0,20):
@@ -801,7 +870,7 @@ class TouchScreen:
             # print(c)
             self.write_to_phone("key:{}".format(c))
             # time.sleep(0.0035)
-            time.sleep(0.013)
+            time.sleep(0.02)
 
     def selectAll(self):
         self.text_line_ok("\\a")
@@ -811,7 +880,8 @@ class TouchScreen:
 
     def is_home(self):
         # self.log.debug(f"screen_si_home{self.color_show(501,1802)}")
-        return self.color_match(501,1802,255,55,72,10)
+        return self.color_match(496, 1794, 255, 57, 69)
+        # 501,1802,255,55,72,10)
     
     def button_has_exit(self):
         for y in range(1835,1880,4):
@@ -826,7 +896,7 @@ class TouchScreen:
     
     def screen_is_friend(self):
         
-        # text, image = self.pocr_read_line((400, 125), (200, 70))
+        # text, image = self.ocr_read_line((400, 125), (200, 70))
         # if "FRIENDS" in text:
         #    return True
         # return False
@@ -840,19 +910,39 @@ class TouchScreen:
 
     def spin_disk(self, to = 2):
         while to > 0:
-            
-            
             # if self.color_match(152, 1921, 183, 116, 248, debug=True):
             if self.color_match(152, 1921, 137, 98, 227, debug=False):
             # if not self.screen_is_pokestop():
                 return True
             print("Spin disk {}".format(to))
-            self.scroll(600, 0, start_x = 150, start_y = 1000)
-            sleep(1)
+            self.scroll(self.rel_x(0.2), 0, 
+                    sy=self.rel_y(0.5), sx = self.rel_x(0.8),
+                    stop_to=0.1)
+            sleep(0.5)
             to -= 1
         return False
     
+    def rotate(self, angle = 40):
+        dx = self.rel_x(angle / 100)
+        sx = self.rel_x(0.5) - dx//2
+        print(f"Rotate {angle} dx {dx} sx {sx}")
+        self.scroll(dx, 
+                    0, 
+                    sy=self.rel_y(0.98), 
+                    sx = self.rel_x(0.1), 
+                    tap_time=0.02,
+                    stop_to=0.3)
+        return
+    
+        self.scroll(0,                      # dx
+                    self.rel_y(angle/100),  # dy
+                    sx = sx,
+                    sy = self.rel_y(0.30),    # startx
+                    tap_time=0.04,
+                    stop_to=0.3)
+    
     def screen_go_to_home(self):
+        return self.screen.go_home()
         self.log.info("Go to homescreen")
         print("Go Home")
         MAX_TRYS = 10 
@@ -860,7 +950,7 @@ class TouchScreen:
 
         # sys.exit()
         # Try left button as long als possible!
-        while self.is_home() == False:
+        while self.buttons.pokeball.search() != 'home':
             # self.color_show(300, 1803)
             # OK on green in the middle
             log.debug(f"Go home atempt {count}")
@@ -874,9 +964,15 @@ class TouchScreen:
                 self.tap_screen(57, 365)
             elif self.color_match(357, 1005, 150, 218, 151, debug=False):
                 # Not exit pokemon
-                if not "GO" in self.pocr_read_line_center((790, 800), (100, 70)):
+                # t,_ = self.ocr.find_regex('.*exit Pok.mon GO.*', verbose=0)
+                mode = self.ocr.mode
+                self.ocr.mode = "line"
+                t,_ = self.ocr.regex('.*Do you want to exit Pok.*', verbose=0)
+                self.ocr.mode = mode
+                if not t:
                     self.tap_confirm()
                 else:
+                    # return to home
                     self.tap_screen(100, 100, button = 3)
             else:
                 self.tap_screen(100, 100, button = 3)
@@ -886,15 +982,17 @@ class TouchScreen:
                 print("Try egg")
                 if self.egg_handle():
                     break
-                for y in range(100, self.maxY - 100, 25):
-                    if self.color_match(500, y, 116, 214, 156):
-                        print(f"Something green at {y}")
-                        b_text = self.pocr_read_line_center((500, y + 50), (100, 100))
-                        print(f"Button text {b_text}")
-                        if re.match(b_text, ".*OK.*"):
-                            print("Found OK")
-                            self.tap_screen(500, y)
-                            break
+                self.buttons.dark('.*CANCEL.*', retries=1)
+
+                # for y in range(100, self.maxY - 100, 25):
+                #     if self.color_match(500, y, 116, 214, 156):
+                #         print(f"Something green at {y}")
+                #         b_text = self.ocr_read_line_center((500, y + 50), (100, 100))
+                #         print(f"Button text {b_text}")
+                #         if re.match(b_text, ".*CANCEL.*"):
+                #             print("Found OK")
+                #             self.tap_screen(b_text['center'])
+                #             break
                 count = 0
             sleep(1)
 
@@ -979,7 +1077,9 @@ class TouchScreen:
         self.screen_go_to_home()
         self.tapAvatar()
         sleep(3)
-        self.tapFriends()
+        self.ocr.endy = int(0.15 * self.specs['max_y'])
+        self.buttons.ocr.endy = int(0.2 * self.specs['max_y'])
+        self.buttons.black_on_white('.*FRIENDS.*')
         self.color_match_wait(878, 1562, 255, 255, 255, time_out_ms=30000)
 
     def screen_me(self):
@@ -989,22 +1089,20 @@ class TouchScreen:
         time.sleep(1)
         self.tap_me()
 
-    def pokeScreen(self):
-        self.screen_go_to_home()
-        self.tapPokeBall()
-        self.menuPokemon()
-        
-    def selectPokemon(self, filter):
-        self.pokeScreen()
-        self.tapPokeSearch()
-        self.color_match_wait(121, 1154, 255, 255, 255)
-        time.sleep(0.4)
-        self.text_line_ok(filter)
+    def select_pokemon(self, filter):
+        self.screen.go_pokemon()
+        sleep(2)
+        self.buttons.i_pokemon_search.press()
+        time.sleep(1)
+        self.text_line_ok(f'\\a{filter}')
+        sleep(0.2)
+        self.text_line_ok('\\n')
         time.sleep(1)        
-        self.tapTextOK()
+        # self.tapTextOK()
         
     def friend_search(self, name):
-        self.tapSearch()
+        self.buttons.black_on_white('.*SEARCH.*')
+        sleep(1)
         print("done")
         self.text_line_ok(name)
         self.tapTextOK()
@@ -1091,67 +1189,118 @@ class TouchScreen:
         
     def heal_all(self):
         print("Heal all")
-        self.screen_item()
-        sleep(1)
-        # Revive
-        for i in range(0, 21, 5):
-            self.tap_screen(920+i, 320+1)
-            sleep(0.2)
-        while not "MEDICINE" in self.pocr_read_line_center((496, 341), (300, 50)):
-            print(f"READ{self.pocr_read_line_center((496, 341), (300, 50))}")
-            self.scroll(0, -37, start_x=900, start_y=1900)
-        revived = False
-        for y in [960, 550]:
-            # for x in [750, 455, 150]           
-            for x in range(800,100, -20):
-                # self.log.debug(f"search revive {self.color_show(x, y)}")
-                if self.color_match(x, y, 220, 215, 110, threashold=35):
-                    print("Found revive at {},{}".format(x,y))
-                    self.tap_screen(x, y)
-                    time.sleep(0.5)
-                    if not self.color_match_wait_click(350, 1650, 159, 218, 148, ex=False, time_out_ms=1000):
-                        revived = True
-                    self.color_match_wait_click(525, 1850, 28, 135, 149, ex=False)
-                if revived:
-                    break
-            if revived:
-                break
-                            
-        time.sleep(1)
-        # Potion
-        healed = False
+        def find_last_match(data, key, value):
+            for item in reversed(data):
+                if item.get(key) == value:
+                    return item
+            return None
+        def find_first_match(data, key, value):
+            for item in data:
+                if item.get(key) == value:
+                    return item
+            return None
+        self.screen.go_items()
+        sleep(3)
         for i in range(0, 3):
-            # upper left potion
-            self.tap_screen(250, 550)
-            if not self.color_match_wait_click(350, 1650, 159, 218, 148, ex=False, time_out_ms=1000):
-                healed = True
-            self.color_match_wait_click(525, 1850, 28, 135, 149, ex=False)
-            if healed:
+            items = self.ocr.read()
+            last_revive = find_last_match(items, 'text', 'Revive')
+            if last_revive:
+                self.tap_screen(last_revive['center'][0], last_revive['center'][1], scale=False)
+                sleep(1)
+                revive = self.buttons.b_revive_all.press(retries=3)
+                sleep(1.5)
+                self.buttons.i_exits.press(retries=2)
+                sleep(1.5)
+            else:
+                print('No revive found')
+                revive = None
+            first_potion = find_first_match(items, 'text', 'Potion')
+            if first_potion:
+                self.tap_screen(first_potion['center'][0], first_potion['center'][1], scale=False)
+                sleep(1)
+                heal = self.buttons.b_heal_all.press(retries=3)
+                sleep(1.5)
+                if not self.screen.is_in_items():
+                    self.buttons.i_exits.press(retries=2)
+                    sleep(1.5)
+            else:
+                print('No heal found')
+                heal = None
+
+            if heal == None and revive == None:
+                print("No heal or revive found")
                 break
-            time.sleep(1)
-        self.screen_go_to_home()
+        self.screen.go_home()
 
     
+    def charged_attack(self):
+        x = ox = self.rel_x(0.15)
+        y = oy = self.rel_y(0.65)
+        self.tap_down(x, y, duration = 0, scale=False)
+        longitude = self.rel_x(0.7)
+        altitude = self.rel_y(0.15)
+        t = 0.015
+        #t = 0.2
+        step = 45
+        max_degrees = 360
+        for a in range(0,max_degrees, step):
+            dx = ox + ( a * ( longitude / max_degrees))
+            dy = oy + (int(math.sin(math.radians(a)) * altitude))
+            self.moveCursor(x, y, dx, dy, scale=False)
+            x = dx
+            y = dy
+            time.sleep(t)
+        for a in range(max_degrees, 0, -step):
+            dx = ox + ( a * ( longitude / max_degrees))
+            dy = oy - (int(math.sin(math.radians(a)) * altitude))
+            self.moveCursor(x, y, dx, dy, scale=False)
+            x = dx
+            y = dy
+            time.sleep(t)
+        self.tap_up(x, y + step, duration = 0, scale=False)
+        time.sleep(0.05)
+
+
+    def battle_start(self):
+        reg = ScreenRegion(self,
+                            xs=10, xe=50,
+                            ys=self.rel_y(0.4), ye=self.rel_y(0.6))
+        arr = self.image.scan_region(reg)
+        # all_zero = np.all(arr == 0)
+        print(f'Mean over check: {np.mean(arr)}')
+        # print(f'Battle over check: {all_zero}')
+        return np.mean(arr) > 220
+    def battle_over(self):
+        reg = ScreenRegion(self,
+                            xs=10, xe=50,
+                            ys=self.rel_y(0.4), ye=self.rel_y(0.6))
+        arr = self.image.scan_region(reg)
+        # all_zero = np.all(arr == 0)
+        print(f'Mean over check: {np.mean(arr)}')
+        # print(f'Battle over check: {all_zero}')
+        return np.mean(arr) < 20
+        
     def battle_league(self):
+
+        
         time.sleep(3)
-        self.color_show(200, 1900)
-        if self.color_match(200, 1900, 255, 180, 82):
+        if self.buttons.b_battle_claim.press():
             print("Claim rewards")
-            self.tap_screen(200, 1900)
             time.sleep(1)
             return
 
-        count = 10
-        while not self.color_match(366, 1939, 154, 218, 149) and \
-                not self.color_match(361, 1878, 229, 246, 227):
-            count = count -1
-            print("Scroll")
+        count = 5
+        while not self.buttons.t_pokestop_battle.press():
+            self.scroll(0, self.rel_y(-0.2), 
+                        sx=self.rel_x(0.05), sy=self.rel_y(0.5), scale=False)
+            sleep(0.5)
+            count -= 1
             if count == 0:
+                print("No battle found")
                 return
-            if self.is_home():
-                return
-            self.scroll(0, -60)
+        while True:
             time.sleep(0.5)
+<<<<<<< HEAD
         time.sleep(0.5)
         if self.color_match(361, 1878, 229, 246, 227):
             self.collectRewards()
@@ -1190,6 +1339,55 @@ class TouchScreen:
             except:
                 next_battle = False
                 
+=======
+            but = self.ocr.regex('Great|Ultra|Master', retries=5, verbose=0)
+            if not but:
+                print("No league found")
+                return
+            sleep(0.5)
+            self.tap_screen(but['center'], scale=False)
+            but = self.buttons.t_grunt_party.press(retries=5, delay=1)
+            attack_y = self.rel_y(0.86)
+            attack_x =[self.rel_x(0.27), self.rel_x(0.5), self.rel_x(0.73)]
+            time_out_s = 5 * 60
+
+            while not self.battle_start():
+                print("Wait for battle start")
+                sleep(0.5)
+            print('Battle started')
+            start_time = datetime.now()
+            while not self.battle_over() \
+                    and not self.buttons.i_exits.search(retries=1) \
+                    and not self.buttons.t_grunt_ready.search(retries=1) \
+                    and not self.buttons.b_grunt_rescue.search(retries=1):
+                if ((datetime.now() - start_time).total_seconds()) > time_out_s:
+                    print("Battle timed out after {}s".format(time_out_s))                        
+                    return
+                # print("Wait for battle to stop")
+                for x in attack_x:
+                    self.tap_screen(x, attack_y, scale=False)
+                    time.sleep(0.05)
+                while not self.battle_over() \
+                        and not self.buttons.i_exits.search(retries=1) \
+                        and not self.buttons.i_exit_man.search(retries=1)\
+                        and not self.buttons.b_grunt_rematch.search(retries=1) \
+                        and not self.buttons.b_grunt_rescue.search(retries=1):
+                    self.charged_attack()
+
+            if not self.buttons.b_battle_battle.press(retries=15):
+                print('No NEXT BATTLE button found')
+                return
+            sleep(1)
+        
+
+        print('Battle over')
+        pass
+
+        for x in attack_x:
+            self.tap_screen(x, attack_y, scale=False)
+            time.sleep(0.05)
+
+>>>>>>> origin/catch
     def battle_friend(self, league):
             # Press battle
             sleep(4)
@@ -1203,30 +1401,48 @@ class TouchScreen:
             self.color_match_wait_click(468, 1281, 123, 215, 154)  
         
     def battleTrainer(self, trainer, league):
-        for i in range(0,6):
-            print("Scroll step {}".format(i))
-            self.scroll(0,-1000, start_y = 1500, tap_time = 0.3, stop_to = 0.3)
-            sleep(0.5)
-            
-        time.sleep(1)
-        
+        sx = self.rel_x(0.05)
+        sy = self.rel_y(0.9)
+        sleep(3)
+        for i in range(0,5):
+            self.scroll(0, self.rel_y(-0.8), 
+                     sx=sx, 
+                     sy=sy, 
+                     scale=False)
+            sleep(1)
+            b = self.buttons.scan_vertical.search(
+                trainer,
+                start_rel=0.7,
+                mode='word', 
+                verbose=0)
+            if b:
+                break
+        if not b:
+            self.log.error(f"Trainer {trainer} not found")
+            return False
+        # Tap a bit over the text
+        trainer_x = b['center'][0]
+        trainer_y = b['top'] - b['height']
         cont = True
         while cont:
-            self.tap_screen(250 + ((trainer - 1) * 250), 1634)
-            # Press battle
-            self.color_match_wait_click(362, 1552, 149, 217, 148)
+            sleep(1)
+            # Select trainer
+            self.tap_screen(trainer_x, trainer_y, scale=False)
+            sleep(1)
+            b = self.buttons.t_pokestop_battle.press(retries=2, delay=1)
+            b = self.buttons.t_pokestop_battle.press(retries=2, delay=1)
             if league == "great":
-                self.color_match_wait_click(338, 850, 255, 255, 255)
+                self.buttons.text_only.press('.*Great.*', retries=5, delay=1)
             elif league == "ultra":
-                self.color_match_wait_click(333, 1300, 255, 255, 255)
+                self.buttons.text_only.press('.*Ultra.*', retries=5, delay=1)
             elif league == "master":
-                self.color_match_wait(345, 1640, 255, 255, 255)
+                self.buttons.text_only.press('.*Master.*', retries=5, delay=1)
             else:
                 self.log.error("Unknow trainer league {}".format(league))
-                
-            self.color_match_wait_click(501, 1742, 113, 213, 157)
-            self.doBattle()
-            self.color_match_wait_click(500, 1826, 28, 135, 149)
+
+            self.buttons.t_grunt_party.press(retries=5, delay=1)            
+            self.do_battle()
+            self.buttons.i_exits.press(retries=25, delay=1)
             time.sleep(0.5)
         
     def attack(self, time_out_ms = 12000):
@@ -1362,7 +1578,7 @@ class TouchScreen:
                     sleep(1)
                     no_berry = False
             elif berry == "g":
-                self.scroll(600,0, start_y = 1750, tap_time = 1)
+                self.scroll(600,0, sy = 1750, tap_time = 1)
                 time.sleep(0.5)
                 if self.color_match(454, 1732, 255, 143, 9):
                     self.tap_screen(454, 1718)
@@ -1383,41 +1599,33 @@ class TouchScreen:
        
         
     
-#     def catch_move(self, right = True, start = -90, end = 60, off_y = 900, radius = 250, delay = 0.012, step = 5, distance = 15):
-    def catch_move(self, right = True, start = -180, end = 90 + 720, off_x = 500, off_y = 1300, \
-                   radius = [80, 250], delay = 0.015, step = 5, distance = 5, tilt = -1.0):
+# Old 1000x2000 based values
+#     def catch_move(self, right = True, start = -180, end = 85 + 720, off_x = 500, off_y = 1300, \
+#                   radius = [80, 250], delay = 0.015, step = 5, distance = 5, tilt = -1.0):
+
+    def catch_move(self, right = True, start = -180, end = 90 + 720, off_x = 0, off_y = 0, \
+                   radius = 0, delay = 0.015, step = 5, distance = 5, tilt = -1.0):
         def getX(d, r, offset=0, tilt = 0.0):
             return math.sin(math.radians(d)) * float(r) + float(offset) + float(tilt)
         
         def getY(d, r, offset=0, tilt = 0.0):
             return math.cos(math.radians(d)) * float(r) + float(offset) + float(tilt)
+        if  off_x == 0:
+            off_x = self.rel_x(0.5)
+        if off_y == 0:
+            off_y = self.rel_y(0.65)
+        if radius == 0:
+            radius = [self.rel_x(0.08),self.rel_y(0.125)] 
         
-        attempt = 1 
-        # off_x = 500
-        # off_y = 1250
-        # off_y = 900
+
         y = getY(start, radius[1])
         x = getX(start, radius[0], tilt = y * tilt) 
-        self.tap_down(x + off_x, y + off_y)
-        top = 10
-        while top < 0:
-            for probe in range(750,900,2):
-                if self.color_match(500, probe, 240,240,240):
-                    top = probe
-        button = -1
-        while top < 0:
-            for probe in range(750,850,-2):
-                if self.color_match(500, probe, 240,240,240):
-                    top = probe
-        # print("Top = {}".format(top))
-        # return
+        self.tap_down(x + off_x, y + off_y, scale=False)
+        sleep(0.2)
+
         a  = start + step
         b = 0.0
-        if attempt % 2:
-            right = False
-        else:
-            right = True
-            
+
         while a < end + step:
             a = a + step + int(a / 60)
             b = b + 0.2
@@ -1429,17 +1637,9 @@ class TouchScreen:
             
             y = getY(a, radius[1]) # - a * 2
             x = getX(a, radius[0] , tilt = y * tilt)
-            attempt = attempt + 1
-            # print("radius {}".format(radius))
-            # print("XY {} {}".format(x, y))
-            # print("x = {}".format(x))
-            self.moveCursor(int(sx) + off_x, int(sy) + off_y, int(x) + off_x, int(y) + off_y)
-            # dx = x - sx
-            # dy = y - sy
-            # d = math.sqrt(dx * dx + dy * dy)
-            # print("Delta {}".format(d))
-            # canvas.create_line(sx, sy, x, y)
-            # canvas.update()
+
+            self.moveCursor(int(sx) + off_x, int(sy) + off_y, int(x) + off_x, int(y) + off_y, scale=False)
+
             time.sleep(delay)
         ys = int(y)
         xs = x
@@ -1453,13 +1653,14 @@ class TouchScreen:
             accel = accel + 5.0
             ye = ys - ( d + accel)
             xe = xs + dx # distance - i
-            self.moveCursor(int(xs) + off_x, int(ys) + off_y, int(xe) + off_x, int(ye) + off_y)
+            self.moveCursor(int(xs) + off_x, int(ys) + off_y, int(xe) + off_x, int(ye) + off_y, scale=False)
             xs = xe
             ys = ye
             time.sleep(delay)
         # return
-        self.tap_up(x, y)
+        self.tap_up(x, y, scale=False)
         # 750
+        return
 
     def black_screen(self):
         for xy in range(100, 600, 100):
@@ -1470,119 +1671,90 @@ class TouchScreen:
     #
     # Parameter:
     # in_battle - If true is in battle already dont's wait
-    def doBattle(self, in_battle = False, opponent = None):
-            def still_in_battle():
-                in_battle = False
-                if not self.color_match(100, 100, 10, 10, 10) and \
-                        not self.color_match(500, 1826, 28, 135, 149):
-                    print("Found trainer screen")
-                    # return False
-                # Check black screen    
-                        
-               # Check white screen
-                if not in_battle:
-                    for d in range(0, 320, 80):
-                        if not self.color_match(200 + d, 1150 + d, 241, 241, 241, threashold=15):
-                        # if not self.color_match(200 + d, 1250, 241, 241, 241, threashold=15):
-                            self.log.debug("no white screen")
-                            in_battle = True
-                            break
-                
-                return in_battle
-            
-            # while not self.color_match(79, 357, 212, 227, 217) \
-            #     and not self.color_match(76, 360, 240, 240, 240):
-            #     time.sleep(0.1)
-            def balls_visible():
-                if not self.color_match(164, 222, 246, 14, 29) \
-                    and not self.color_match(161, 218, 240, 38, 20):
-                    return False
-                return True
+    def do_battle(self, in_battle = False, opponent = None):
+        def charged_attack():
+            self.tap_down(self.rel_x(0.5), self.rel_y(0.7), duration = 0, scale=False)
+            x = ox = self.rel_x(0.2)
+            y = oy = self.rel_y(0.65)
+            longitude = self.rel_x(0.6)
+            altitude = self.rel_x(0.18)
+            t = 0.03
+            step = 45
+            max_degrees = 360
+            for a in range(0,max_degrees, step):
+                dx = ox + ( a * ( longitude / max_degrees))
+                dy = oy + (int(math.sin(math.radians(a)) * altitude))
+                self.moveCursor(x, y, dx, dy, scale=False)
+                x = dx
+                y = dy
+                time.sleep(t)
+            for a in range(max_degrees, 0, -step):
+                dx = ox + ( a * ( longitude / max_degrees))
+                dy = oy + (int(math.sin(math.radians(a)) * altitude))
+                self.moveCursor(x, y, dx, dy, scale=False)
+                x = dx
+                y = dy
+                time.sleep(t)
+            self.tap_up(x, y + step, duration = 0, scale=False)
+            time.sleep(0.05)
+        def battle_start():
+            reg = ScreenRegion(self,
+                                xs=10, xe=50,
+                                ys=self.rel_y(0.4), ye=self.rel_y(0.6))
+            arr = self.image.scan_region(reg)
+            # all_zero = np.all(arr == 0)
+            print(f'Mean over check: {np.mean(arr)}')
+            # print(f'Battle over check: {all_zero}')
+            return np.mean(arr) < 20
+        def battle_over():
+            reg = ScreenRegion(self,
+                                xs=10, xe=50,
+                                ys=self.rel_y(0.4), ye=self.rel_y(0.6))
+            arr = self.image.scan_region(reg)
+            # all_zero = np.all(arr == 0)
+            print(f'Mean over check: {np.mean(arr)}')
+            # print(f'Battle over check: {all_zero}')
+            return np.mean(arr) < 20
 
-            
-            if not in_battle:
-                print("Wait for trainer")
-                time_out_s = 90
-                start_time = datetime.now()
-                while not balls_visible():
-                    # print("Wait for trainer")
-                    if ((datetime.now() - start_time).total_seconds()) > time_out_s:
-                        print("Battle did not start in time")                        
-                        return
-                    sleep(0.001)
-
-            time_out_s = 5 * 60
-
+        if not in_battle:
+            print("Wait battle start")
+            time_out_s = 90
             start_time = datetime.now()
-            
-            print("Start battle")
-            
-            while still_in_battle():
+            while self.buttons.i_exits.search(retries=1):
+                # print("Wait for trainer")
                 if ((datetime.now() - start_time).total_seconds()) > time_out_s:
-                    print("Battle timed out after {}s".format(time_out_s))                        
+                    print("Battle did not start in time")                        
                     return
-                for x in [270, 500, 730]:
-                    # print("tap_screen : {},{}".format(x,1850))
-                    
-                    # Check for attack and use shield
-                    if self.color_match(545, 195, 108, 121, 126, threashold=20) and False:
-                    # if self.color_match(498, 1500, 237, 122, 241):
-                        print("Use shield")
-                        self.tap_screen(498, 1500)
-                        # time.sleep(1)
-                    if False:
-                        print("")
-                        for i in range(0, 80,2):
-                            xx = 400 + i
-                            yy = 660 + i
-                            r,g,b =self.get_rgb(xx, yy)
-                            print("{},{},{},{},{}".format(xx, yy, r, g, b))
-                    time.sleep(0.4)
-                    self.tap_screen(x, 1780, duration = 80)
-                    time.sleep(0.4)
-                    # self.tap_screen(x, 1790)
-                    # time.sleep(0.01)
-                    self.tap_screen(x, 1800, duration = 80)
-                    # self.tap_screen(x, 1810)
-                    # wait for ready of last red ball disappear
-                    if self.black_screen():
-                       return
-                    # for x in range(400, 420, 4):
-                    #    print("DEBUG X({}):{}".format(x,self.get_rgb(x, 665)))
-                    # if self.color_match(405, 665, 220, 220, 220, threashold=20) \
-                    #    or self.color_match(48, 670, 220, 220, 220, threashold=20):
-                    # if self.color_match(394, 630, 252, 255, 255):
-                    # if self.color_match(505, 660, 245, 245, 245) and \
-                    # for xx in range(0,8,2):
-                    #     for yy in range(0,8,2):
-                    #         self.color_show(158 + xx,216 + yy)
-                if not balls_visible():
-                    self.attack()
-                        # print("Exit")
-                        # sys.exit(0)
-                        
-                # self.tap_screen(498, 1500)
-                time.sleep(0.01)
-                self.tap_screen(498, 1500)
-                if opponent:
-                    opponent.tap_screen(309, 1681)
-         
-    def hasGift(self):
-        xs = 402
-        ys = 1144
-        # self.color_match_wait(76, 1970, 240, 240, 240, threashold = 14, debug=True)
-        startTime = datetime.now()
-        while ((datetime.now() - startTime).total_seconds() * 1000) < 1500:
-            for x in range(xs, xs + 40, 4):
-                # print("Check if gift {},{}".format(x, ys))
-                if self.color_match(x, ys, 223, 15, 206, debug=False):
-                    print("Friend has gift to open")
-                    print("Found after {}ms".format(((datetime.now() - startTime).total_seconds() * 1000)))
-                    return True
-                time.sleep(0.1)
-        print("Friend has no gift yet.")
-        return False
-    
+                sleep(1)
+
+        time_out_s = 5 * 60
+        start_time = datetime.now()
+        
+        print("Start battle")
+        
+        attack_y = self.rel_y(0.86)
+        attack_x =[self.rel_x(0.27), self.rel_x(0.5), self.rel_x(0.73)]
+        while not battle_over() \
+                and not self.buttons.i_exits.search(retries=1) \
+                and not self.buttons.t_grunt_ready.search(retries=1) \
+                and not self.buttons.b_grunt_rescue.search(retries=1):
+            if ((datetime.now() - start_time).total_seconds()) > time_out_s:
+                print("Battle timed out after {}s".format(time_out_s))                        
+                return
+            # print("Wait for battle to stop")
+            for x in attack_x:
+                self.tap_screen(x, attack_y, scale=False)
+                time.sleep(0.05)
+            while not battle_over() \
+                    and not self.buttons.i_exits.search(retries=1) \
+                    and not self.buttons.i_exit_man.search(retries=1)\
+                    and not self.buttons.b_grunt_rematch.search(retries=1) \
+                    and not self.buttons.b_grunt_rescue.search(retries=1):
+                charged_attack()
+                print('Charged attack')
+                # sleep(1)
+
+        return         
         
     '''
     Return name, friendship level amd time to become best friend
@@ -1592,12 +1764,12 @@ class TouchScreen:
         # Open 4th heart under friend name
         self.tap_screen(270, 360)
         sleep(1.5)
-        friend_level = self.pocr_read_line((360, 650), (280, 50)) # Tap the last heart for details
+        friend_level = self.ocr_read_line((360, 650), (280, 50)) # Tap the last heart for details
         self.tap_screen(750, 880)
         sleep(1)
-        name = self.pocr_read_line((290, 530), (400, 90)) # Best friends do not open so bit care
+        name = self.ocr_read_line((290, 530), (400, 90)) # Best friends do not open so bit care
         try:
-            text = self.pocr_read_line_center((400, 1100), (100, 60))
+            text = self.ocr_read_line_center((400, 1100), (100, 60))
             tl = re.findall(r'\d+\.?\d*', text)
             days_to_go = int(tl[0])
         except:
@@ -1611,9 +1783,9 @@ class TouchScreen:
     must be on the friends screen!!
     '''
     def friend_set_nickname(self, nick):
-        self.scroll(0, -1800, start_x=50, start_y=1900)
+        self.scroll(0, -1800, sx=50, sy=1900)
         sleep(1)
-        text = self.pocr_read_line_center((515, 1404), (300, 70))
+        text = self.ocr_read_line_center((515, 1404), (300, 70))
         if "NICKNAME" in text:
             self.tap_screen(515, 1404)
             sleep(1)
@@ -1635,15 +1807,15 @@ class TouchScreen:
     def friend_change_nick(self, nick):
         print(f"Change nick to {nick}")
         sleep(1)
-        self.scroll(0, -1700, start_x = 50, start_y = 1750, tap_time = 0.3, stop_to = 0.5)
+        self.scroll(0, -1700, sx = 50, sy = 1750, tap_time = 0.3, stop_to = 0.5)
         print("Sroll up to nickname and wait")
         sleep(1)
         retries = 0
         text = ""
         while not "SET" in text:
-            self.scroll(0, -1700, start_x = 50, start_y = 1750, tap_time = 0.3, stop_to = 0.5)
+            self.scroll(0, -1700, sx = 50, sy = 1750, tap_time = 0.3, stop_to = 0.5)
             sleep(1)
-            text, _ = self.pocr_read_line((400, 1355), (300, 70))
+            text, _ = self.ocr_read_line((400, 1355), (300, 70))
             if retries > 30:
                 return False
         # Tap set nickname
@@ -1654,79 +1826,105 @@ class TouchScreen:
         # nail it down
         sleep(0.5)
         self.tap_screen(286, 1105)
-
-    def gift_open(self):
-        opened = True
-        self.log.info("tap gift")
-        try:
-            self.color_match_wait(496, 1000, 230, 51, 198, time_out_ms = 4000, threashold=50)
-        except:
-            pass
-        time.sleep(0.5)
-        self.tap_screen(500, 1000)
-        # time.sleep(0.1)
-        # self.tap_screen(500, 1000)
-        self.log.info("gift_open")
-        self.tap_open_gift()
-        while self.color_match(85, 1960, 255, 255, 255) == False:
-            # if ping_limit:
-            #     return False
-            if self.color_match(376, 1630, 144, 217, 149):
-                print("Daily limit reached")
-                self.tap_screen(500, 1850)
-                opened = False
-            else:
-                self.tap_screen(85, 1960)
-                time.sleep(0.5)
-        name, days_to_go, level = self.friend_get_info()
-        self.friend_update_db(name, days_to_go, level, opened=opened)
-        if days_to_go <= 2 or days_to_go == 62 or days_to_go == 61:
-            self.friend_set_nickname("ff pokemat")
-        return opened
     
+    def wait_gift_ready(self):
+        startTime = datetime.now()
+        reg = ScreenRegion(self,
+                            xs=self.rel_x(0.15),
+                            xe=self.rel_x(0.30),
+                            ys=self.rel_y(0.80),
+                            ye=self.rel_y(1),             
+                            color='green')
+        try:
+            while (datetime.now() - startTime).total_seconds() < 20:
+                reg.npa = self.image.scan_region(reg)
+                if reg.npa.min() < 50:
+                    return True
+                if self.buttons.b_open_gift.search():
+                    self.buttons.i_exits.press(retries=1)
+            return False
+        except Exception as e:
+            print(f'ERROR : wait_gift_ready {e}')   
+        
+    def select_gift(self):
+        reg = ScreenRegion(self,
+                            xs=self.rel_x(0.02),
+                            xe=self.rel_x(0.70),
+                            color='green')
+        startTime = datetime.now()
+        try:
+            while (datetime.now() - startTime).total_seconds() < 20:
+                for y in range(self.rel_y(0.40), self.rel_y(0.61), self.rel_y(0.05)):
+                    reg.ys = y
+                    reg.ye = y + self.rel_y(0.20)
+                    txt = self.ocr.regex('.*....*', reg, verbose=0)
+                    if txt != []:
+                        self.tap_screen(txt['center'], scale=False)
+                        sleep(0.5)
+                        return
+                sleep(0.5)
+
+            return   
+
+        # reg = ScreenRegion(self,
+        #                     xs=self.rel_x(0.02),
+        #                     xe=self.rel_x(0.70),
+        #                     ys=self.rel_y(0.30),
+        #                     ye=self.rel_y(0.65),             
+        #                     color='green')
+        # reg2 = ScreenRegion(self,
+        #                     xs=self.rel_x(0.12),
+        #                     xe=self.rel_x(0.70),
+        #                     ys=self.rel_y(0.40),
+        #                     ye=self.rel_y(0.65),             
+        #                     color='green')
+        # startTime = datetime.now()
+        # try:
+        #     while (datetime.now() - startTime).total_seconds() < 20:
+        #         txt = self.ocr.regex('.*...*', reg)
+        #         if txt is None:
+        #             txt = self.ocr.regex('.*...*', reg2)
+        #         if txt is not None:
+        #             self.tap_screen(txt['center'], scale=False)
+        #             sleep(0.5)
+        #             return
+        except Exception as e:
+            print(f'ERROR :  select_gift {e}')
+
     def gift_send(self, has_gift = False):
-        print("Send gift")
+        print(f'Send gift with has_gift {has_gift}')
         # if self.hasGift():
         #    self.tap_screen(500, 1850)
-        time.sleep(2)
         if has_gift:
-            self.tap_screen(500, 1850)
+            print('press exit')
+            time.sleep(2)
+            # self.buttons.b_open_gift.press(retries=5)
+            self.buttons.i_exits.press(retries=10)
+
+
         # if self.color_match(175, 1919, 243, 243, 243, threashold=13):
         # if self.color_match(237, 1900, 172, 172, 172):
         #     print("Friend has a gift")
         #     return False
-        timeout = 50
+        # timeout = 50
         # while self.color_match(800, 857, 255, 255, 255,threashold=1) == False:
         # Check for post card
-        name, days_to_go, level = self.friend_get_info()
+        # name, days_to_go, level = self.friend_get_info()
         # self.friend_update_db(name, days_to_go, level)
-        if days_to_go <= 2 or days_to_go == 62 or days_to_go == 61:
-            self.friend_set_nickname("ff pokemat")
-            sleep(1)
-        while self.color_match(700, 857, 255, 255, 255,threashold=1) == False \
-                and self.color_match(750, 1110, 255, 255, 255,threashold=1) == False:
-            
-            time.sleep(0.2)
-            self.tap_screen(170, 1919)
-            timeout = timeout - 1
-            # Timout or send already
-            if timeout == 0 or \
-                self.color_match(95, 1000, 232, 128, 181):
-                return False
-        time.sleep(1)
-        self.tap_screen(750, 857)
-        try:
-            self.color_match_wait_click(407, 1638, 140, 216, 152)
-        except:
-            print("Gift not sent !?!?")
-        sleep(2.5)
-        if self.color_match(105, 1000, 232, 128, 181):
-            print("No gifts")
-            
-                        
-        self.tap_back()
-        
         # self.color_match_wait_click(503, 1820, 30, 134, 149)
+
+        sleep(1)
+        self.buttons.t_send_gift.search(retries=10)
+        if self.wait_gift_ready():
+            sleep(0.5)
+            self.buttons.t_send_gift.press(retries=5)
+        else:
+            return False
+        sleep(1)
+
+        self.select_gift()
+
+        self.buttons.b_send_gift.press(retries=5)
         return True
     
     def gift_send2(self):
@@ -1741,7 +1939,7 @@ class TouchScreen:
         self.log.warning("Invite friend")
         self.friend_search(name)
         time.sleep(1)
-        if self.hasGift():
+        if self.has_gift():
             self.tap_screenBack()
         self.tapBattle()
         self.selectLeague(league)
@@ -1755,25 +1953,47 @@ class TouchScreen:
         print("useThisParty end")
     
     def sort_receive_gift(self, hasGift = True):
-        self.color_match_wait_click(857, 1798, 28, 135, 149)
-        if hasGift == True:
-            self.color_match_wait_click(796, 1431, 44, 113, 119)
-        else:
-            self.color_match_wait_click(913, 1644, 41, 105, 120)
+        if not self.buttons.i_has_gift.search():
+            b = self.buttons.i_change_sort.press()
+            sleep(0.5)
+            b = self.buttons.i_sort_has_gift.press(retries=10)
+        sort = self.buttons.i_sort.search(retries=30, verbose=3)
+        try:
+            if sort.icon_name == 'up':
+                self.buttons.i_change_sort.press()
+                self.buttons.i_sort_has_gift.press(delay=1)
+        except Exception as e:
+            print(f'No up or down found. Wrong place?{e}')
+            return False
+        if self.buttons.i_sort.search(retries=30, verbose=3):
+            return True
+        return False
+        
 
     def sort_has_gift(self, noGift = False):
-        self.screen_friend()
+        self.screen.go_friends()
         self.sort_receive_gift()
-        self.color_match_wait(838, 220, 255, 255, 255)
-        # for x in range(912, 935, 2):
-        #    r, g, b = self.get_rgb(x, 1860)
-        #    print("X {},{},{},{}".format(x, r, g ,b))
-        # sys.exit(0)
-        while self.color_match(929, 1860, 170, 245, 205, threashold=20) == noGift:            
-            self.sort_receive_gift()
-            self.color_match_wait(838, 220, 255, 255, 255)
-        else:
-            print("Order is OK")
+            
+    def sort_send_gift(self, hasGift = True):
+        if not self.buttons.i_can_receive_gift.search():
+            b = self.buttons.i_change_sort.press()
+            sleep(0.5)
+            b = self.buttons.i_sort_can_receive_gift.press(retries=10)
+        sort = self.buttons.i_sort.search(retries=30, verbose=3)
+        try:
+            if sort.icon_name == 'up':
+                self.buttons.i_change_sort.press()
+                self.buttons.i_sort_can_receive_gift.press(delay=1)
+        except Exception as e:
+            print(f'No up or down found. Wrong place?{e}')
+            return False
+        if self.buttons.i_sort.search(retries=30, verbose=3):
+            return True
+        return False
+        
+    def sort_can_send(self, noGift = False):
+        self.screen.go_friends()
+        self.sort_send_gift()
             
     def friendSortCanReceive(self, noGift = False):
         self.screen_friend()

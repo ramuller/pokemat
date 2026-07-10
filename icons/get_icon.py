@@ -149,7 +149,7 @@ def yuv420_dict_to_rgb(jbuf):
     rgb = np.stack([R, G, B], axis=-1)
     return rgb
 
-def scan_image(x, y, w, h, channel="gray"):
+def scan_immage(x, y, w, h, channel="gray"):
     if channel == "gray":
         jbuf = p.screen_capture_bw((x, y), (w, h), scale=False)
         pixel_array = np.array(jbuf["gray"], dtype=np.uint8).reshape((jbuf["height"], jbuf["width"]))
@@ -214,44 +214,20 @@ def action(port, arg = None):
     n = "friend_order_arrow_up.png"
     # n = "pokemon_order_recent.png"
     n = "icon.png"
+    r = 'icon-r.png'
     icon =  cv2.imread(n, cv2.IMREAD_GRAYSCALE)
+    icon_r = cv2.imread(r, cv2.IMREAD_GRAYSCALE)
     print(f"ICON shape {icon.shape}")
-    
-    # jbuf = p.screen_capture_bw((0,0), (p.specs['width'], p.specs['height']), scale=False)
-    # icon = scan_center_image(int(576/2), 943, 72,72)
-    # Friend order
-    # icon = scan_center_image(498, 948, 100,106)
-    # Only arrow
-    #icon = scan_center_image(540, 949, 38,38)
-    # pokemon RECENT
-    # icon = scan_center_image(500, 327, 38,38)
-    # pokemon FAVORITE
-    # icon = scan_center_image(500, 429, 38,38)
-    # pokemon NUMBER
-    # icon = scan_center_image(500, 531, 38,38)
-    # pokemon HP
-    # icon = scan_center_image(500, 633, 38,38)
-    # pokemon az
-    # icon = scan_center_image(500, 736, 38,38)
-    # pokemon az
-    # icon = scan_center_image(500, 838, 38,38)
-    # Scan red R
-    # icon = scan_center_image(299, 399, 48, 48, channel="red")
-        
-    
-    
-    
-    # icon =  cv2.imread("friend_order_arrow_up.png", cv2.IMREAD_GRAYSCALE)
-    # cv2.imwrite("icon.png", icon)
-    
-    # icon = cv2.imread("pokeball.png", cv2.IMREAD_GRAYSCALE)
-    # icon = scan_center_image(int(p.specs['width']/2), 700, 72,72)
-    # scene = scan_image(0, 0, p.specs['width'], p.specs['height'])
+    if False:
+        cv2.imshow("icon", cv2.hconcat([icon,icon_r]))
+        cv2.waitKey(000)
+        cv2.destroyAllWindows()
+
     ende = True
     while ende:
-        scene = scan_image(0, 0, p.specs['w'], p.specs['h'])
+        scene = p.image.scan_region() # Full screen gray
         # scene = scan_image(p.specs['width'] - 150, p.specs['height'] - 150, 150, 100)
-        cv2.imshow("result", scene)
+        # cv2.imshow("result", scene)
         ende = False    
 
     print("icon:", icon.shape, icon.dtype, int(icon.min()), int(icon.max()))
@@ -259,9 +235,12 @@ def action(port, arg = None):
 
     # cv2.imshow("Screen", scene)
     # cv2.imshow("icon", icon)
+    home_pokeball =  cv2.imread('home_pokeball.png', cv2.IMREAD_GRAYSCALE)
 
     icons = {
         "icon": icon,
+        "icon_r": icon_r,
+        "home_pokeball": home_pokeball
     }
     use_template_only(scene, icon)
     detector = IconDetector(icons)
@@ -269,10 +248,15 @@ def action(port, arg = None):
     t1 = datetime.now()
     for i in range(0,1):
         # scene = scan_image(p.specs['width'] - 150, p.specs['height'] - 150, 150, 100)
-        channel="red"
-        scene = scan_image(0, 0, p.specs['w']-1, p.specs['h']-1, channel=channel)
+        # channel="red"
+        channel="gray"
+        # scene = scan_image(0, 0, p.specs['w']-1, p.specs['h']-1, channel=channel)
+        # scene = p.sc.scan_region(xs=p.specs['max_x'] - p.specs['max_x'] // 4, ys=p.specs['max_y'] - p.specs['max_y'] // 4,channel=channel) # Full screen gray
+        scene = p.sc.scan_region(xs=p.specs['max_x'] // 3, xe=p.specs['max_x'] - p.specs['max_x'] // 3, ys = p.specs['max_y'] - p.specs['max_y'] / 8)
+        # scene = cv2.bitwise_not(scene)
         dets = detector.detect(scene)
     t2 = datetime.now()
+    print(f'duration {t2-t1}')
     print("Hybrid : Elapsed time {}s".format((t2-t1).total_seconds()))
     print(f"Detected\n {dets}")
     for d in dets:

@@ -1,0 +1,14 @@
+{
+    "mode": "trade",
+    "league": "master",
+    "host": { 
+        "port": "3001",
+        "name": "schlumpiz",
+		"filter": "gastly&0*&!traded"
+   },
+    "guest": {
+        "port": "3002",
+        "name": "pokeeizu",
+		"filter": "phantump&!traded"
+    }
+}
