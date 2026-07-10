@@ -147,7 +147,8 @@ def do_change_trainer(port, trainer):
                 print('Still see exit')
                 sleep(1)
             sleep(5)
-            while phone.screen.get_current_screen != 'home':
+            while phone.screen.get_current_screen() != 'home':
+                print('Still not home')
                 phone.screen.go_home()
 
         

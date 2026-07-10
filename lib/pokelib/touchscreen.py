@@ -782,6 +782,7 @@ class TouchScreen:
         if not pl:
             print('No pokemon found')
             return False
+        sleep(0.75)
         self.tap_screen(pl[0]['center'], scale=False)
         return True
     
@@ -1232,62 +1233,120 @@ class TouchScreen:
         self.screen.go_home()
 
     
+    def charged_attack(self):
+        x = ox = self.rel_x(0.15)
+        y = oy = self.rel_y(0.65)
+        self.tap_down(x, y, duration = 0, scale=False)
+        longitude = self.rel_x(0.7)
+        altitude = self.rel_y(0.15)
+        t = 0.015
+        #t = 0.2
+        step = 45
+        max_degrees = 360
+        for a in range(0,max_degrees, step):
+            dx = ox + ( a * ( longitude / max_degrees))
+            dy = oy + (int(math.sin(math.radians(a)) * altitude))
+            self.moveCursor(x, y, dx, dy, scale=False)
+            x = dx
+            y = dy
+            time.sleep(t)
+        for a in range(max_degrees, 0, -step):
+            dx = ox + ( a * ( longitude / max_degrees))
+            dy = oy - (int(math.sin(math.radians(a)) * altitude))
+            self.moveCursor(x, y, dx, dy, scale=False)
+            x = dx
+            y = dy
+            time.sleep(t)
+        self.tap_up(x, y + step, duration = 0, scale=False)
+        time.sleep(0.05)
+
+
+    def battle_start(self):
+        reg = ScreenRegion(self,
+                            xs=10, xe=50,
+                            ys=self.rel_y(0.4), ye=self.rel_y(0.6))
+        arr = self.image.scan_region(reg)
+        # all_zero = np.all(arr == 0)
+        print(f'Mean over check: {np.mean(arr)}')
+        # print(f'Battle over check: {all_zero}')
+        return np.mean(arr) > 220
+    def battle_over(self):
+        reg = ScreenRegion(self,
+                            xs=10, xe=50,
+                            ys=self.rel_y(0.4), ye=self.rel_y(0.6))
+        arr = self.image.scan_region(reg)
+        # all_zero = np.all(arr == 0)
+        print(f'Mean over check: {np.mean(arr)}')
+        # print(f'Battle over check: {all_zero}')
+        return np.mean(arr) < 20
+        
     def battle_league(self):
+
+        
         time.sleep(3)
         if self.buttons.b_battle_claim.press():
             print("Claim rewards")
             time.sleep(1)
             return
 
-        count = 10
-        while not self.color_match(366, 1939, 154, 218, 149) and \
-                not self.color_match(361, 1878, 229, 246, 227):
-            count = count -1
-            print("Scroll")
+        count = 5
+        while not self.buttons.t_pokestop_battle.press():
+            self.scroll(0, self.rel_y(-0.2), 
+                        sx=self.rel_x(0.05), sy=self.rel_y(0.5), scale=False)
+            sleep(0.5)
+            count -= 1
             if count == 0:
+                print("No battle found")
                 return
-            if self.is_home():
-                return
-            self.scroll(0, -60)
+        while True:
             time.sleep(0.5)
-        time.sleep(0.5)
-        if self.color_match(361, 1878, 229, 246, 227):
-            self.collectRewards()
-            # time.sleep(30)
-        if self.color_match(312, 1835, 149, 217, 148):
-            self.tap_screen(312, 1835)
-            return
-        self.color_match_wait_click(366, 1939, 154, 218, 149)
-        next_battle = True
-        while next_battle:
-            for to in range(1,10):
-                if self.color_match(288, 1806, 151, 217, 147):
-                    self.tap_screen(288, 1806)
-                # Frist battle
-                if self.color_match(328, 939, 255, 255, 255) and False:
-                    self.tap_screen(328, 939)
-                    break
-                if self.color_match(500, 1150, 255, 255, 255): #  and False:
-                    self.tap_screen(500, 1150)
-                    break
-                elif self.color_match(347, 1812, 144, 218, 152):
-                    self.tap_screen(347, 1812)
-                time.sleep(1)
-            self.color_match_wait_click(322, 1781, 163, 220, 148)
-            try:
-                time.sleep(1)
-                self.color_match_wait(81, 998, 255, 254, 255, same=False, time_out_ms=20000)
-            except:
-                pass
-            self.do_battle()
-            try:
-                next_battle = self.color_match_wait_click(315, 1535, 153, 219, 149, time_out_ms=20000)
-                next_battle = True
-                time.sleep(1)
-                # next_battle = self.color_match_wait(690, 1539, 72, 209, 163)
-            except:
-                next_battle = False
-                
+            but = self.ocr.regex('Great|Ultra|Master', retries=5, verbose=0)
+            if not but:
+                print("No league found")
+                return
+            sleep(0.5)
+            self.tap_screen(but['center'], scale=False)
+            but = self.buttons.t_grunt_party.press(retries=5, delay=1)
+            attack_y = self.rel_y(0.86)
+            attack_x =[self.rel_x(0.27), self.rel_x(0.5), self.rel_x(0.73)]
+            time_out_s = 5 * 60
+
+            while not self.battle_start():
+                print("Wait for battle start")
+                sleep(0.5)
+            print('Battle started')
+            start_time = datetime.now()
+            while not self.battle_over() \
+                    and not self.buttons.i_exits.search(retries=1) \
+                    and not self.buttons.t_grunt_ready.search(retries=1) \
+                    and not self.buttons.b_grunt_rescue.search(retries=1):
+                if ((datetime.now() - start_time).total_seconds()) > time_out_s:
+                    print("Battle timed out after {}s".format(time_out_s))                        
+                    return
+                # print("Wait for battle to stop")
+                for x in attack_x:
+                    self.tap_screen(x, attack_y, scale=False)
+                    time.sleep(0.05)
+                while not self.battle_over() \
+                        and not self.buttons.i_exits.search(retries=1) \
+                        and not self.buttons.i_exit_man.search(retries=1)\
+                        and not self.buttons.b_grunt_rematch.search(retries=1) \
+                        and not self.buttons.b_grunt_rescue.search(retries=1):
+                    self.charged_attack()
+
+            if not self.buttons.b_battle_battle.press(retries=15):
+                print('No NEXT BATTLE button found')
+                return
+            sleep(1)
+        
+
+        print('Battle over')
+        pass
+
+        for x in attack_x:
+            self.tap_screen(x, attack_y, scale=False)
+            time.sleep(0.05)
+
     def battle_friend(self, league):
             # Press battle
             sleep(4)
@@ -1500,7 +1559,7 @@ class TouchScreen:
         
     
 # Old 1000x2000 based values
-#     def catch_move(self, right = True, start = -180, end = 90 + 720, off_x = 500, off_y = 1300, \
+#     def catch_move(self, right = True, start = -180, end = 85 + 720, off_x = 500, off_y = 1300, \
 #                   radius = [80, 250], delay = 0.015, step = 5, distance = 5, tilt = -1.0):
 
     def catch_move(self, right = True, start = -180, end = 90 + 720, off_x = 0, off_y = 0, \
@@ -1572,141 +1631,89 @@ class TouchScreen:
     # Parameter:
     # in_battle - If true is in battle already dont's wait
     def do_battle(self, in_battle = False, opponent = None):
-            def charged_attack():
-                self.tap_down(self.rel_x(0.5), self.rel_y(0.7), duration = 0, scale=False)
-                x = ox = self.rel_x(0.2)
-                y = oy = self.rel_y(0.65)
-                longitude = self.rel_x(0.6)
-                altitude = self.rel_x(0.18)
-                t = 0.03
-                step = 45
-                max_degrees = 360
-                for a in range(0,max_degrees, step):
-                    dx = ox + ( a * ( longitude / max_degrees))
-                    dy = oy + (int(math.sin(math.radians(a)) * altitude))
-                    self.moveCursor(x, y, dx, dy, scale=False)
-                    x = dx
-                    y = dy
-                    time.sleep(t)
-                for a in range(max_degrees, 0, -step):
-                    dx = ox + ( a * ( longitude / max_degrees))
-                    dy = oy + (int(math.sin(math.radians(a)) * altitude))
-                    self.moveCursor(x, y, dx, dy, scale=False)
-                    x = dx
-                    y = dy
-                    time.sleep(t)
-                self.tap_up(x, y + step, duration = 0, scale=False)
-                time.sleep(0.05)
-            def battle_start():
-                reg = ScreenRegion(self,
-                                   xs=10, xe=50,
-                                   ys=self.rel_y(0.4), ye=self.rel_y(0.6))
-                arr = self.image.scan_region(reg)
-                # all_zero = np.all(arr == 0)
-                print(f'Mean over check: {np.mean(arr)}')
-                # print(f'Battle over check: {all_zero}')
-                return np.mean(arr) < 20
-            def battle_over():
-                reg = ScreenRegion(self,
-                                   xs=10, xe=50,
-                                   ys=self.rel_y(0.4), ye=self.rel_y(0.6))
-                arr = self.image.scan_region(reg)
-                # all_zero = np.all(arr == 0)
-                print(f'Mean over check: {np.mean(arr)}')
-                # print(f'Battle over check: {all_zero}')
-                return np.mean(arr) < 20
+        def charged_attack():
+            self.tap_down(self.rel_x(0.5), self.rel_y(0.7), duration = 0, scale=False)
+            x = ox = self.rel_x(0.2)
+            y = oy = self.rel_y(0.65)
+            longitude = self.rel_x(0.6)
+            altitude = self.rel_x(0.18)
+            t = 0.03
+            step = 45
+            max_degrees = 360
+            for a in range(0,max_degrees, step):
+                dx = ox + ( a * ( longitude / max_degrees))
+                dy = oy + (int(math.sin(math.radians(a)) * altitude))
+                self.moveCursor(x, y, dx, dy, scale=False)
+                x = dx
+                y = dy
+                time.sleep(t)
+            for a in range(max_degrees, 0, -step):
+                dx = ox + ( a * ( longitude / max_degrees))
+                dy = oy + (int(math.sin(math.radians(a)) * altitude))
+                self.moveCursor(x, y, dx, dy, scale=False)
+                x = dx
+                y = dy
+                time.sleep(t)
+            self.tap_up(x, y + step, duration = 0, scale=False)
+            time.sleep(0.05)
+        def battle_start():
+            reg = ScreenRegion(self,
+                                xs=10, xe=50,
+                                ys=self.rel_y(0.4), ye=self.rel_y(0.6))
+            arr = self.image.scan_region(reg)
+            # all_zero = np.all(arr == 0)
+            print(f'Mean over check: {np.mean(arr)}')
+            # print(f'Battle over check: {all_zero}')
+            return np.mean(arr) < 20
+        def battle_over():
+            reg = ScreenRegion(self,
+                                xs=10, xe=50,
+                                ys=self.rel_y(0.4), ye=self.rel_y(0.6))
+            arr = self.image.scan_region(reg)
+            # all_zero = np.all(arr == 0)
+            print(f'Mean over check: {np.mean(arr)}')
+            # print(f'Battle over check: {all_zero}')
+            return np.mean(arr) < 20
 
-            if not in_battle:
-                print("Wait battle start")
-                time_out_s = 90
-                start_time = datetime.now()
-                while self.buttons.i_exits.search(retries=1):
-                    # print("Wait for trainer")
-                    if ((datetime.now() - start_time).total_seconds()) > time_out_s:
-                        print("Battle did not start in time")                        
-                        return
-                    sleep(1)
-
-            time_out_s = 5 * 60
-
+        if not in_battle:
+            print("Wait battle start")
+            time_out_s = 90
             start_time = datetime.now()
-            
-            print("Start battle")
-            
-            attack_y = self.rel_y(0.86)
-            attack_x =[self.rel_x(0.27), self.rel_x(0.5), self.rel_x(0.73)]
+            while self.buttons.i_exits.search(retries=1):
+                # print("Wait for trainer")
+                if ((datetime.now() - start_time).total_seconds()) > time_out_s:
+                    print("Battle did not start in time")                        
+                    return
+                sleep(1)
+
+        time_out_s = 5 * 60
+        start_time = datetime.now()
+        
+        print("Start battle")
+        
+        attack_y = self.rel_y(0.86)
+        attack_x =[self.rel_x(0.27), self.rel_x(0.5), self.rel_x(0.73)]
+        while not battle_over() \
+                and not self.buttons.i_exits.search(retries=1) \
+                and not self.buttons.t_grunt_ready.search(retries=1) \
+                and not self.buttons.b_grunt_rescue.search(retries=1):
+            if ((datetime.now() - start_time).total_seconds()) > time_out_s:
+                print("Battle timed out after {}s".format(time_out_s))                        
+                return
+            # print("Wait for battle to stop")
+            for x in attack_x:
+                self.tap_screen(x, attack_y, scale=False)
+                time.sleep(0.05)
             while not battle_over() \
                     and not self.buttons.i_exits.search(retries=1) \
-                    and not self.buttons.t_grunt_ready.search(retries=1) \
+                    and not self.buttons.i_exit_man.search(retries=1)\
+                    and not self.buttons.b_grunt_rematch.search(retries=1) \
                     and not self.buttons.b_grunt_rescue.search(retries=1):
-                if ((datetime.now() - start_time).total_seconds()) > time_out_s:
-                    print("Battle timed out after {}s".format(time_out_s))                        
-                    return
-                # print("Wait for battle to stop")
-                for x in attack_x:
-                    self.tap_screen(x, attack_y, scale=False)
-                    time.sleep(0.05)
-                while not battle_over() \
-                        and not self.buttons.i_exits.search(retries=1) \
-                        and not self.buttons.i_exit_man.search(retries=1)\
-                        and not self.buttons.b_grunt_rematch.search(retries=1) \
-                        and not self.buttons.b_grunt_rescue.search(retries=1):
-                    charged_attack()
-                    print('Charged attack')
-                    # sleep(1)
+                charged_attack()
+                print('Charged attack')
+                # sleep(1)
 
-            return
-
-            while not self.buttons.i_exits.search(retries=1):
-                if ((datetime.now() - start_time).total_seconds()) > time_out_s:
-                    print("Battle timed out after {}s".format(time_out_s))                        
-                    return
-                for x in [270, 500, 730]:
-                    # print("tap_screen : {},{}".format(x,1850))
-                    
-                    # Check for attack and use shield
-                    if self.color_match(545, 195, 108, 121, 126, threashold=20) and False:
-                    # if self.color_match(498, 1500, 237, 122, 241):
-                        print("Use shield")
-                        self.tap_screen(498, 1500)
-                        # time.sleep(1)
-                    if False:
-                        print("")
-                        for i in range(0, 80,2):
-                            xx = 400 + i
-                            yy = 660 + i
-                            r,g,b =self.get_rgb(xx, yy)
-                            print("{},{},{},{},{}".format(xx, yy, r, g, b))
-                    time.sleep(0.15)
-                    self.tap_screen(x, 1780, duration = 80)
-                    time.sleep(0.15)
-                    # self.tap_screen(x, 1790)
-                    # time.sleep(0.01)
-                    self.tap_screen(x, 1800, duration = 80)
-                    # self.tap_screen(x, 1810)
-                    # wait for ready of last red ball disappear
-                    if self.black_screen():
-                       return
-                    # for x in range(400, 420, 4):
-                    #    print("DEBUG X({}):{}".format(x,self.get_rgb(x, 665)))
-                    # if self.color_match(405, 665, 220, 220, 220, threashold=20) \
-                    #    or self.color_match(48, 670, 220, 220, 220, threashold=20):
-                    # if self.color_match(394, 630, 252, 255, 255):
-                    # if self.color_match(505, 660, 245, 245, 245) and \
-                    # for xx in range(0,8,2):
-                    #     for yy in range(0,8,2):
-                    #         self.color_show(158 + xx,216 + yy)
-                if not balls_visible():
-                    self.attack()
-                        # print("Exit")
-                        # sys.exit(0)
-                        
-                # self.tap_screen(498, 1500)
-                time.sleep(0.01)
-                self.tap_screen(498, 1500)
-                if opponent:
-                    opponent.tap_screen(309, 1681)
-         
+        return         
         
     '''
     Return name, friendship level amd time to become best friend

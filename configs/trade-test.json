@@ -2,13 +2,13 @@
     "mode": "trade",
     "league": "master",
     "host": { 
-        "port": "3002",
-        "name": "yellow",
-		"filter": "lechonk"
+        "port": "3001",
+        "name": "schlumpiz",
+		"filter": "gastly&0*&!traded"
    },
     "guest": {
-        "port": "3003",
-        "name": "higimmi44",
-		"filter": "lechonk"
+        "port": "3002",
+        "name": "pokeeizu",
+		"filter": "phantump&!traded"
     }
 }

@@ -402,6 +402,18 @@
       ]
     },
     {
+      "name": "send-text"
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/send-text.py",
+      "console": "integratedTerminal",
+      "debugOptions": ["DisableGUI"],
+      "args": [
+        "\\ahello world***"
+      ]
+    },
+    {
       "com":[
         "--type", "trainer2"
       ]

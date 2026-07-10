@@ -25,15 +25,15 @@ from skimage.filters.rank.generic import threshold
 
 global log
 
-def delete_pokemon(port, phone):
+def delete_pokemon(port):
     
     can_get_gifts = True
     can_send_gifts = True
     # with open("phone-spec.json", 'r') as file:
     #     phones = json.load(file)
         
-    print("Delete pokemon phone \"{}\" on port {}", phone, port)
-    phone = TouchScreen(port, phone)
+    print("Delete pokemon  on port {}", port)
+    phone = TouchScreen(port)
     while True:
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
@@ -73,7 +73,7 @@ def main():
     log = logging.getLogger("gifting")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    delete_pokemon(args.port, args.phone)
+    delete_pokemon(args.port)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

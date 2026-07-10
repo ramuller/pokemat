@@ -181,6 +181,7 @@ class Screen:
         return True
 
     def deep_exit(self):
+        print('screen deep exit')
         self.ts.tap_screen(100, 100, button = 3)
         # Remove traced from screen debug
         self.ts.tap_screen(2, 2)
@@ -194,6 +195,10 @@ class Screen:
             self.ts.buttone.i_exits.press(retries=1)
             return
         if self.ts.buttons.b_grunt_rescue.press(retries=1):
+            return
+        if self.ts.buttons.t_info_dismiss.press(retries=1):
+            return
+        if self.ts.buttons.t_battle_lets_go.press(retries=1):
             return
         print('Try passenger')
         if self.ts.buttons.b_passenger.press(retries=1):
@@ -216,7 +221,7 @@ class Screen:
 
     def go_home(self):
         count = 1
-        MAX_TRYS = 5
+        MAX_TRYS = 3
         print('screen go home')
         while self.get_current_screen() != 'home':
             # self.color_show(300, 1803)

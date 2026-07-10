@@ -14,7 +14,7 @@ from time import sleep
 import os
 import re
 import logging
-from pokelib import TouchScreen
+from pokelib import TouchScreen, ocr
 from pokelib import ExPokeLibFatal
 from pokelib import ScreenRegion
 from pokelib import TextFlat
@@ -26,6 +26,8 @@ from _operator import truediv
 
 
 from concurrent.futures import ThreadPoolExecutor
+
+from regex import F
 
 global log
 
@@ -55,20 +57,29 @@ def trade(jsonFile):
     print("start trading")
     host = TouchScreen(parameter["host"]["port"], name = parameter["host"]["name"])
     guest = TouchScreen(parameter["guest"]["port"], name = parameter["guest"]["name"])
+    guest.buttons.t_friend_trade.search(retries=1)
+    guest.buttons.t_friend_trade.search(retries=1)
+    guest.buttons.t_friend_trade.search(retries=1)
+    global trade_started
+    trade_started = {
+        parameter["host"]["name"]: False,
+        parameter["guest"]["name"]: False
+    }
     tradesDone = 1
-    
+    # start_trade(guest, parameter["host"]["name"], parameter["host"]["filter"])
+
     while True:
+        tradeing = False
         try:
-            guest.tap_screen(100,100,button=3)
             with ThreadPoolExecutor(max_workers=2) as executor:
                 trade_host = executor.submit(start_trade,
                                           host,                                          
                                           parameter["guest"]["name"],
-                                          parameter["guest"]["filter"])
+                                          parameter["host"]["filter"])
                 trade_guest = executor.submit(start_trade,
                                           guest,
                                           parameter["host"]["name"],
-                                          parameter["host"]["filter"])
+                                          parameter["guest"]["filter"])
 
                 # Wait for both to finish (and propagate exceptions)
                 trade_host.result()
@@ -76,6 +87,8 @@ def trade(jsonFile):
 
             # time.sleep(2)
             retry = 0
+
+            tradeing = True
     
             # traded_pokemon(host)
 
@@ -93,31 +106,71 @@ def trade(jsonFile):
                 pass
 
 
+
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
             sys.exit(1)
 
         except Exception as e:
+            print("Upps something went wrong but who cares?: {}", e)
             trade_host.cancel()
             trade_guest.cancel()
-            trade_h.cancel()
-            trade_g.cancel()
-            print("Upps something went wrong but who cares?: {}", e)
+            if tradeing:
+                trade_h.cancel()
+                trade_g.cancel()
+
+def search_and_press(button):
+    print(f'Searching for button {button.ts.url}')
+    # wait until button is found and press it
+    if button.search(retries=30) is None:
+        raise Exception("Button not found")
+    # press it until button is not found anymore
+    counter = 0
+    while button.press(retries=1):
+        counter += 1
+        if counter > 230:
+            raise Exception("Button still there after 20 retries")
+        print(f'Button pressed address {button.ts.url} counter {counter}')
+        sleep(1)
 
 def trade_pokemon(p, trainer):
-
-    print(f'{trainer} - select first pokemon')
-    p.pokemon_select_first(verbose=0)
+    # Initialize the attribute if it doesn't exist yet
+    retries = 35
+    print(f'{trainer} - waiting for trade to start {retries}')
+    while not p.ocr.regex('POK.MON', 
+                      ScreenRegion(p, ye=p.rel_y(0.25)),
+                      retries=1, pause=1):
+        print(f'{trainer} - waiting for trade to start {retries}')
+        p.buttons.t_friend_trade.press(retries=1)
+        if retries <= 0:
+            raise Exception(f"{trainer} - Trade not started yet")
+        retries += 1
+        sleep(0.75)
+    print(f'{trainer} - pokemon screen found')
+    trade_started[trainer] = True
+    retries=20
+    while p.ocr.regex('POK.MON', 
+                      ScreenRegion(p, ye=p.rel_y(0.12)),
+                      retries=1, pause=1):
+        print(f'{trainer} - select first pokemon retries {retries}')
+        p.pokemon_select_first(verbose=0)
+        retries -= 1
+        if retries == 0:
+            raise Exception(f"{trainer} - Could not select first pokemon after 20 retries")
+        sleep(1)
     print(f'{trainer} - press next')
-    p.buttons.b_trade_next.press(retries=30)
+    # p.buttons.b_trade_next.press(retries=50)
+    search_and_press(p.buttons.b_trade_next)
     print(f'{trainer} - confirm')
-    p.buttons.t_trade_confirm.press(retries=30)
+    # p.buttons.t_trade_confirm.press(retries=50)
+    search_and_press(p.buttons.t_trade_confirm)
     print(f'{trainer} - wait for pokemon received')
     p.buttons.i_exits.press(retries=30)
-    
+    print(f'{trainer} - pokemon received exit pressed')
 
 def start_trade(p, trainer, filter):
     p.screen.go_home()
+    print(f'{trainer} - go friends')
     p.screen.go_friends()
     max_tries = 20
     b = None

@@ -276,6 +276,8 @@ def my_test():
 
     pass
 
+    phone.charged_attack()
+    phone.charged_attack()
     phone.pokemon_select_first()
 
     but = TextFlat(ScreenRegion(phone,
