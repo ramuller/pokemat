@@ -24,6 +24,9 @@ def wait_raid_start(p, wait_inside=True):
 def raid(port):
     print("Start raid on port {}", port)
     phone = TouchScreen(port)
+    if args.now:
+        print('Start battle now')
+        _battle_raid(phone)
     reg1 = ScreenRegion(phone) #, xs=phone.rel_y(0.5), ye=phone.rel_y(0.5))
     # fp = phone.ocr.regex('FREE', reg1)
     fp = phone.ocr.regex('(FREE|RAID|PASS)', reg1)
@@ -58,22 +61,26 @@ def raid(port):
     wait_raid_start(phone)
     print("Raid starts")
 
+
     # self.color_match(500, 144, 70, 207, 181)
-    while not phone.buttons.t_raid_summary.search(retries=1):
-        reg.npa = None
+    _battle_raid(phone)
+
+def _battle_raid(p):
+    while not p.buttons.t_raid_summary.search(retries=1):
+        y1 = p.rel_y(0.88)
+        y2 = p.rel_y(0.9)
         try:
             rejoin=0
-            for x in range(200,700,150):
-                if phone.color_match(333, 1013, 159, 218, 148):
-                    phone.tap_screen(333,1013)
-                phone.tap_screen(x, 1500)
+                
+            for x in [p.rel_x(0.2), p.rel_x(0.5), p.rel_x(0.7)]:
+                print(f'TAP x{x} y{y1}')
+                p.tap_screen(x, y1, scale=False)
                 time.sleep(0.04)
-                if phone.color_match(333, 1013, 159, 218, 148):
-                    phone.tap_screen(333,1013)
-                phone.tap_screen(x, 1840)
+                # p.tap_screen(x, y2, scale=False)
                 time.sleep(0.04)
-                if rejoin % 5 == 0:
-                    phone.buttons.b_raid_rejoin.press()
+                # if rejoin % 5 == 0:
+                #    p.buttons.b_raid_rejoin.press()
+                rejoin += 1
                 # phone.atchColor(321, 1005, 160, 219, 147)
         except Exception as e:
             print("Upps something went wrong but who cares?: {}", e)
@@ -83,8 +90,8 @@ def main():
 
     parser = PokeArgs()
     global args
-    args = parser.parse_args()
-
+    parser.add_argument("-n", "--now", action='store_true', \
+                        help="Start battle immediatly")
     args = parser.parse_args()
     global log 
     log = logging.getLogger("evolve")

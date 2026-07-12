@@ -28,18 +28,18 @@ def deleteGifts(port):
     
     can_get_gifts = True
     can_send_gifts = True
-    with open("phone-spec.json", 'r') as file:
-        phones = json.load(file)
-        
     print("Delete difts phone port {}", port)
     phone = TouchScreen(port)
     while True:
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
-            phone.tap_screen(836, 521)
-            phone.color_match_wait_click(352, 1044, 150, 218, 149)
-            time.sleep(2)             
-            print("Ready")
+            if not phone.buttons.i_gifts_trash.press(retries=10):
+                print('No gifts left')
+                return
+            if not phone.buttons.b_yes.press(retries=10):
+                print('dont know where I am')
+                return
+            
             # sys.exit(0)
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
