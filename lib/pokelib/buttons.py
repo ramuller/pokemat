@@ -25,6 +25,9 @@ from dataclasses import dataclass
 TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
 
 ICONS_PATH = {
+    'gifts_trash': {
+        'gifts_trash' : 'gifts_trash.png',
+    },
     'mag_glass': {
         'mag_glass_1' : 'mag_glass_1.png',
         'mag_glass_2' : 'mag_glass_2.png',
@@ -970,10 +973,10 @@ class Buttons(ButtonParameter):
                                     invert=False),  
                                     'SETTINGS')
         self.t_raid_summary = TextButton(ScreenRegion(ts,
-                                    xs=ts.rel_x(0.2),
-                                    xe=ts.rel_x(0.7),
-                                    ys=ts.rel_y(0.3),
-                                    ye=ts.rel_y(0.9),
+                                    xs=ts.rel_x(0.1),
+                                    xe=ts.rel_x(0.9),
+                                    ys=ts.rel_y(0.5),
+                                    ye=ts.rel_y(0.99),
                                     invert=True),  
                                     'SUMMARY')
         self.t_overview_route = TextFlat(ScreenRegion(ts,
@@ -1111,6 +1114,13 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(0.65),
                                     ),  
                                     'menu_battle')
+        self.i_gifts_trash = IconButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.0),
+                                    xe=ts.rel_x(.5),
+                                    ys=ts.rel_y(0.10),
+                                    ye=ts.rel_y(0.40),
+                                    ),  
+                                    'gifts_trash')
         self.t_friend_trade = TextFlat(ScreenRegion(ts,
                                     xs=ts.rel_x(0.05),
                                     xe=ts.rel_x(.5),

@@ -93,7 +93,7 @@ def gifting(port):
             if args.all:
                 phone.text_line_ok("!fff & interactable")
             elif len(shuffled_letters) > 0:
-                phone.text_line_ok("!ff & interactable & {}".format(shuffled_letters[0]))
+                phone.text_line_ok("!fff & interactable & {}".format(shuffled_letters[0]))
             else:
                 last_tries -= 1
                 if last_tries <= 0:
