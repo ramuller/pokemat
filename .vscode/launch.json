@@ -7,7 +7,10 @@
       "expamds": "Base0",
       "type": "node",
       "request": "launch",
-      "envFile": "${workspaceFolder}/.env",   
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/pokemat/lib"
+      }
 
     },
     {

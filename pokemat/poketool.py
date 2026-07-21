@@ -1,7 +1,7 @@
 #!/bin/env python
 import math
 from cv2 import threshold
-import keyboard
+# import keyboard
 
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal

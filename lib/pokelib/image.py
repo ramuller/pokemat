@@ -25,7 +25,7 @@ class PokeImage:
         y = reg.ys
         try:
             if reg.color == "gray":
-                jbuf = self.ts.write_to_phone(f"snip_gray:{x},{y},{w},{h}").json()
+                jbuf = self.ts.write_to_phone(f"snip_gray?x={x}&y={y}&w={w}&h={h}").json()
                 pixel_array = np.array(jbuf["gray"], dtype=np.uint8).reshape((jbuf["height"], jbuf["width"]))
             else:
                 jbuf = self.ts.screen_capture((x, y), (w, h), scale=False)

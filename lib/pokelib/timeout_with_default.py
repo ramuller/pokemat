@@ -1,5 +1,7 @@
 import functools
 import multiprocessing as mp
+import multiprocessing.connection
+
 import os
 from typing import Any, Callable, Optional, TypeVar
 

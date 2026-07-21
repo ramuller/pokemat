@@ -97,7 +97,7 @@ class TouchScreen:
     def __init__(self, tcpPort, name = "no-set", scaleX = 0.576, scaleY = 0.512):
         self.log = logging.getLogger(str(tcpPort))
         self.log.info("\nPokemat phone : {}".format(tcpPort))
-        self.url = "http://localhost:{}/v1".format(tcpPort)
+        self.url = "http://localhost:{}".format(tcpPort)
         self.specs = self._get_phone_specs()
         self.config_path = TouchScreen.phone_config_path()
         print('config_path {}'.format(self.config_path))
@@ -110,9 +110,9 @@ class TouchScreen:
         self.httpErrorCount = 0
         self.maxX = 1000
         self.maxY = 2000
-        self.vector_left_right = PixelVector(self, 850, 850 + 201, 1850, 1850, 3, "left_right")
-        self.vector_top_down = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
-        self.vector = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
+        # self.vector_left_right = PixelVector(self, 850, 850 + 201, 1850, 1850, 3, "left_right")
+        # self.vector_top_down = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
+        # self.vector = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
         # self.ocr = None
 
         self.image = PokeImage(self)
@@ -128,7 +128,7 @@ class TouchScreen:
         specs["h"] = specs["height"]
         specs["w"] = specs["width"]
         # Check if we have a buttonbar
-        if specs['model'] in ['SM-G930F']:
+        if specs['model'] in ['SM-G930F', 'SM-G781B']:
             nav_bar = False
         elif self.color_match(specs["width"] // 3, \
                             specs["height"] - 1, \
@@ -207,13 +207,15 @@ class TouchScreen:
     def write_to_phone(self, cmd):
         self.log.debug("Send CMD - {}".format(cmd))
         # print("Send CMD - {} url {}".format(cmd, self.url))
+        if ':' in cmd:
+            print(f'CMD {cmd} ')
         try:
-            return requests.get("{}/{}".format(self.url, cmd))
+            return requests.get("{}/api/v1/{}".format(self.url, cmd))
         except Exception as e:
             raise ExPokeLibFatal("No connection")
             # self.log.fatal("No connection")
         
-    def tap_screen(self, x, y=None, button = 1, duration = 30, scale=True):
+    def tap_screen(self, x, y=None, button = 1, duration = 30, scale=False):
         if y == None:
             x, y = x
         self.log.debug("tap {},{},{},{}".format(x,y,button, duration))
@@ -222,27 +224,27 @@ class TouchScreen:
         if button == 3:
             pass
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
-        response = self.write_to_phone("click:{},{},{},{}".format(x,y,button, duration))
+        response = self.write_to_phone('click?x={}&y={}&b={},ms={},type=click'.format(x,y,button, duration))
         self.log.debug("Response : {}".format(response))
         time.sleep(0.001 * duration)
     
-    def tap_down(self, x, y=None, button = 1, duration = 0, scale=True):
+    def tap_down(self, x, y=None, button = 1, duration = 0, scale=False):
         if y == None:
             x, y = x        
         self.log.debug("tap_down {},{},{},{}".format(x,y,button, duration))
         if scale:
             x, y = self.scaleXY(x, y)
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
-        response = self.write_to_phone("button_down:{},{},{},{}".format(x,y,button, duration))
+        response = self.write_to_phone('click?x={}&y={}&b={}&ms={}&type=down'.format(x,y,button, duration))
         self.log.debug("Response : {}".format(response))
         time.sleep(0.001 * duration)
     
-    def tap_up(self, x, y, button = 1, duration = 50, scale=True):
+    def tap_up(self, x, y, button = 1, duration = 50, scale=False):
         self.log.debug("tap_up {},{},{},{}".format(x,y,button, duration))
         if scale:
             x, y = self.scaleXY(x, y)
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
-        response = self.write_to_phone("button_up:{},{},{},{}".format(x,y,button, duration))
+        response = self.write_to_phone('click?x={}&y={}&b={}&ms={}&type=up'.format(x,y,button, duration))
         self.log.debug("Response : {}".format(response))
         time.sleep(0.001 * duration)
         
@@ -252,7 +254,7 @@ class TouchScreen:
             x, y = self.scaleXY(x, y)
             dx, dy = self.scaleXY(dx, dy)
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
-        response = self.write_to_phone("move:{},{},{},{}".format(x,y,dx,dy))
+        response = self.write_to_phone("move?x={}&y={}&dx={}&dy={}".format(x,y,dx,dy))
         self.log.debug("Response : {}".format(response))
         # time.sleep(0.1)
 
@@ -311,8 +313,8 @@ class TouchScreen:
     def get_rgb(self, x, y, scale=True):
         if scale:
             x, y = self.scaleXY(x, y)
-        response = self.write_to_phone("color:{},{}".format(x,y))           
-        self.write_to_phone("color:{},{}\n".format(x,y))
+        response = self.write_to_phone("color?x={}&y={}".format(x,y))           
+        self.write_to_phone("color?{}&{}\n".format(x,y))
         self.log.debug("Response : {}".format(response.status_code))
         self.log.debug("Response : {}".format(response.json()))
         rgb = response.json()
@@ -524,7 +526,7 @@ class TouchScreen:
         w, h = map(lambda x: x - 1, size)
         x = x - w/2
         y = y - h/2
-        response = self.write_to_phone("snip_gray:{},{},{},{}".format(x ,y ,w, h))           
+        response = self.write_to_phone("snip_gray?x={}&y={}&w={}&h={}".format(x ,y ,w, h))           
         return response.json()
 
 
@@ -539,7 +541,7 @@ class TouchScreen:
             x, y = self.scaleXY(x, y)
             w, h = self.scaleXY(w, h)
     
-        response = self.write_to_phone("snip_gray:{},{},{},{}".format(x ,y ,w, h))           
+        response = self.write_to_phone("snip_gray?x={}&y={}&w={}&h={}".format(x ,y ,w, h))           
         return response.json()
     
     def screen_capture(self, start, size, scale=True):
@@ -554,7 +556,7 @@ class TouchScreen:
             x, y = self.scaleXY(x, y)
             w, h = self.scaleXY(w, h)
     
-        response = self.write_to_phone("snip:{},{},{},{}".format(x ,y ,w , h))           
+        response = self.write_to_phone("snip_gray?x={}&y={}&w={}&h={}".format(x ,y ,w, h))           
         return response.json()
         
     def pocr_read_line_center(self, start, size, scale=True):
@@ -1300,46 +1302,7 @@ class TouchScreen:
                 return
         while True:
             time.sleep(0.5)
-<<<<<<< HEAD
-        time.sleep(0.5)
-        if self.color_match(361, 1878, 229, 246, 227):
-            self.collectRewards()
-            # time.sleep(30)
-        if self.color_match(312, 1835, 149, 217, 148):
-            self.tap_screen(312, 1835)
-            return
-        self.color_match_wait_click(366, 1939, 154, 218, 149)
-        next_battle = True
-        while next_battle:
-            for to in range(1,10):
-                if self.color_match(288, 1806, 151, 217, 147):
-                    self.tap_screen(288, 1806)
-                # Frist battle
-                if self.color_match(328, 939, 255, 255, 255):
-                    self.tap_screen(328, 939)
-                    break
-                if self.color_match(500, 1150, 255, 255, 255) and False:
-                    self.tap_screen(500, 1150)
-                    break
-                if self.color_match(347, 1812, 144, 218, 152):
-                    self.tap_screen(347, 1812)
-                time.sleep(1)
-            self.color_match_wait_click(322, 1781, 163, 220, 148)
-            try:
-                time.sleep(1)
-                self.color_match_wait(81, 998, 255, 254, 255, same=False, time_out_ms=20000)
-            except:
-                pass
-            self.doBattle()
-            try:
-                next_battle = self.color_match_wait_click(315, 1535, 153, 219, 149, time_out_ms=20000)
-                next_battle = True
-                time.sleep(1)
-                # next_battle = self.color_match_wait(690, 1539, 72, 209, 163)
-            except:
-                next_battle = False
-                
-=======
+
             but = self.ocr.regex('Great|Ultra|Master', retries=5, verbose=0)
             if not but:
                 print("No league found")
@@ -1387,7 +1350,6 @@ class TouchScreen:
             self.tap_screen(x, attack_y, scale=False)
             time.sleep(0.05)
 
->>>>>>> origin/catch
     def battle_friend(self, league):
             # Press battle
             sleep(4)
