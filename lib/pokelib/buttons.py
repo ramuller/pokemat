@@ -321,7 +321,8 @@ class ScanText(ButtonParameter):
         # The last scan start one step before end
         offset = (end - start) // reg.scan_step
         scan_reg = ScreenRegion(p, 
-                                xs=reg.xs, xe=reg.xe, ys=reg.ys, ye=reg.ye, invert=reg.invert, process=reg.process)
+                                xs=reg.xs, xe=reg.xe, ys=reg.ys, ye=reg.ye, 
+                                invert=reg.invert, process=reg.process)
 
 '''
 Text only
@@ -707,6 +708,14 @@ class Buttons(ButtonParameter):
                                         ys=ts.rel_y(0.75),
                                         ye=ts.rel_y(1)),
                                         'LET.S')
+        self.t_friend_lets_battle = TextButton(ScreenRegion(ts,
+                                        invert=True,
+                                        process=True,
+                                        xs=ts.rel_x(0.0),
+                                        xe=ts.rel_x(1),
+                                        ys=ts.rel_y(0.0),
+                                        ye=ts.rel_y(1)),
+                                        'LET.S')
         self.t_grunt_party = TextButton(ScreenRegion(ts,
                                         xs=ts.rel_x(0.2),
                                         xe=ts.rel_x(0.8),
@@ -728,6 +737,14 @@ class Buttons(ButtonParameter):
                                         xe=ts.rel_x(0.8),
                                         ys=ts.rel_y(0.7),
                                         ye=ts.rel_y(0.9),
+                                        invert=True,
+                                        process=True),                                       
+                                        'REMATCH')
+        self.b_friend_rematch = TextButton(ScreenRegion(ts,
+                                        xs=ts.rel_x(0.),
+                                        xe=ts.rel_x(0.99),
+                                        ys=ts.rel_y(0.3),
+                                        ye=ts.rel_y(0.8),
                                         invert=True,
                                         process=True),                                       
                                         'REMATCH')
@@ -887,6 +904,13 @@ class Buttons(ButtonParameter):
                                     ys=ts.rel_y(0.05),
                                     ye=ts.rel_y(0.15)),
                                     'IENDS')
+        self.t_friend_battle = TextFlat(ScreenRegion(ts,
+                                    process=True, 
+                                    xs=ts.rel_x(0.7),
+                                    xe=ts.rel_x(0.99),
+                                    ys=ts.rel_y(0.60),
+                                    ye=ts.rel_y(0.99)),
+                                    'BATTLE')
         self.t_sign_out = TextFlat(ScreenRegion(ts,
                                     process=True, 
                                     xs=ts.rel_x(0.0),
@@ -1071,19 +1095,22 @@ class Buttons(ButtonParameter):
                                     'PURIFY')
         self.b_heal_all = TextButton(ScreenRegion(ts,
                                     process=True,
+                                        invert=True,
+                                        blur=0,
                                     xs=ts.rel_x(0),
                                     xe=ts.rel_x(1),
                                     ys=ts.rel_y(0.5),
-                                    ye=ts.rel_y(1),
-                                    invert=True),  
+                                    ye=ts.rel_y(1)),
                                     'HEAL')
         self.b_revive_all = TextButton(ScreenRegion(ts,
-                                    xs=ts.rel_x(0),
-                                    xe=ts.rel_x(1),
-                                    ys=ts.rel_y(0.5),
-                                    ye=ts.rel_y(1),
-                                    invert=True),  
-                                    'REVIVE')
+                                        process=False,
+                                        invert=True,
+                                        blur=0,
+                                        xs=ts.rel_x(0),
+                                        xe=ts.rel_x(1),
+                                        ys=ts.rel_y(0.5),
+                                        ye=ts.rel_y(1)),
+                                        'REVIVE')
         self.b_trade_next = TextButton(ScreenRegion(ts,
                                         invert=True,
                                         process=True,

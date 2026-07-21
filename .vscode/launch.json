@@ -398,7 +398,6 @@
       "console": "integratedTerminal",
       "debugOptions": ["DisableGUI"],
       "args": [
-        "-L", "great"
       ]
     },
     {

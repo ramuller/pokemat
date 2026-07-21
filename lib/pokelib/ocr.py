@@ -165,7 +165,8 @@ class Ocr:
             if tries <= 1 or res:
                 return res
             if retry_callback:
-                retry_callback()
+                if retry_callback():
+                    return res
             sleep(pause)
         return res
     
