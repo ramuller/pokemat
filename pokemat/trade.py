@@ -190,8 +190,9 @@ def start_trade(p, trainer, filter):
     p.text_line_ok(f' \\n')
 
     sleep(2)
-    t_no_case = re.compile(trainer, re.I)
-    t = p.ocr.regex(t_no_case, find_all=True)
+    t_no_case = re.compile(f'.*{trainer}.*', re.I)
+    reg = ScreenRegion(p, process=True, blur=3)
+    t = p.ocr.regex(t_no_case, reg=reg, find_all=True)
     p.tap_screen(t[1]['center'], scale=False)
     sleep(2)
     def wait_4_trade_callback():
@@ -201,7 +202,7 @@ def start_trade(p, trainer, filter):
     sleep(1)
     b = p.buttons.t_friend_trade.press(retries=20, 
                                         retry_callback=wait_4_trade_callback)
-    b = p.buttons.t_friend_trade.press(retries=20)
+    b = p.buttons.t_friend_trade.press(retries=1)
     
     but = TextFlat(ScreenRegion(p,
                     ye=p.rel_y(0.40)),

@@ -25,6 +25,9 @@ from dataclasses import dataclass
 TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
 
 ICONS_PATH = {
+    'gifts_trash': {
+        'gifts_trash' : 'gifts_trash.png',
+    },
     'mag_glass': {
         'mag_glass_1' : 'mag_glass_1.png',
         'mag_glass_2' : 'mag_glass_2.png',
@@ -318,7 +321,8 @@ class ScanText(ButtonParameter):
         # The last scan start one step before end
         offset = (end - start) // reg.scan_step
         scan_reg = ScreenRegion(p, 
-                                xs=reg.xs, xe=reg.xe, ys=reg.ys, ye=reg.ye, invert=reg.invert, process=reg.process)
+                                xs=reg.xs, xe=reg.xe, ys=reg.ys, ye=reg.ye, 
+                                invert=reg.invert, process=reg.process)
 
 '''
 Text only
@@ -704,6 +708,14 @@ class Buttons(ButtonParameter):
                                         ys=ts.rel_y(0.75),
                                         ye=ts.rel_y(1)),
                                         'LET.S')
+        self.t_friend_lets_battle = TextButton(ScreenRegion(ts,
+                                        invert=True,
+                                        process=True,
+                                        xs=ts.rel_x(0.0),
+                                        xe=ts.rel_x(1),
+                                        ys=ts.rel_y(0.0),
+                                        ye=ts.rel_y(1)),
+                                        'LET.S')
         self.t_grunt_party = TextButton(ScreenRegion(ts,
                                         xs=ts.rel_x(0.2),
                                         xe=ts.rel_x(0.8),
@@ -725,6 +737,14 @@ class Buttons(ButtonParameter):
                                         xe=ts.rel_x(0.8),
                                         ys=ts.rel_y(0.7),
                                         ye=ts.rel_y(0.9),
+                                        invert=True,
+                                        process=True),                                       
+                                        'REMATCH')
+        self.b_friend_rematch = TextButton(ScreenRegion(ts,
+                                        xs=ts.rel_x(0.),
+                                        xe=ts.rel_x(0.99),
+                                        ys=ts.rel_y(0.3),
+                                        ye=ts.rel_y(0.8),
                                         invert=True,
                                         process=True),                                       
                                         'REMATCH')
@@ -884,6 +904,13 @@ class Buttons(ButtonParameter):
                                     ys=ts.rel_y(0.05),
                                     ye=ts.rel_y(0.15)),
                                     'IENDS')
+        self.t_friend_battle = TextFlat(ScreenRegion(ts,
+                                    process=True, 
+                                    xs=ts.rel_x(0.7),
+                                    xe=ts.rel_x(0.99),
+                                    ys=ts.rel_y(0.60),
+                                    ye=ts.rel_y(0.99)),
+                                    'BATTLE')
         self.t_sign_out = TextFlat(ScreenRegion(ts,
                                     process=True, 
                                     xs=ts.rel_x(0.0),
@@ -970,10 +997,10 @@ class Buttons(ButtonParameter):
                                     invert=False),  
                                     'SETTINGS')
         self.t_raid_summary = TextButton(ScreenRegion(ts,
-                                    xs=ts.rel_x(0.2),
-                                    xe=ts.rel_x(0.7),
-                                    ys=ts.rel_y(0.3),
-                                    ye=ts.rel_y(0.9),
+                                    xs=ts.rel_x(0.1),
+                                    xe=ts.rel_x(0.9),
+                                    ys=ts.rel_y(0.5),
+                                    ye=ts.rel_y(0.99),
                                     invert=True),  
                                     'SUMMARY')
         self.t_overview_route = TextFlat(ScreenRegion(ts,
@@ -1068,19 +1095,22 @@ class Buttons(ButtonParameter):
                                     'PURIFY')
         self.b_heal_all = TextButton(ScreenRegion(ts,
                                     process=True,
+                                        invert=True,
+                                        blur=0,
                                     xs=ts.rel_x(0),
                                     xe=ts.rel_x(1),
                                     ys=ts.rel_y(0.5),
-                                    ye=ts.rel_y(1),
-                                    invert=True),  
+                                    ye=ts.rel_y(1)),
                                     'HEAL')
         self.b_revive_all = TextButton(ScreenRegion(ts,
-                                    xs=ts.rel_x(0),
-                                    xe=ts.rel_x(1),
-                                    ys=ts.rel_y(0.5),
-                                    ye=ts.rel_y(1),
-                                    invert=True),  
-                                    'REVIVE')
+                                        process=False,
+                                        invert=True,
+                                        blur=0,
+                                        xs=ts.rel_x(0),
+                                        xe=ts.rel_x(1),
+                                        ys=ts.rel_y(0.5),
+                                        ye=ts.rel_y(1)),
+                                        'REVIVE')
         self.b_trade_next = TextButton(ScreenRegion(ts,
                                         invert=True,
                                         process=True,
@@ -1111,6 +1141,13 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(0.65),
                                     ),  
                                     'menu_battle')
+        self.i_gifts_trash = IconButton(ScreenRegion(ts,
+                                    xs=ts.rel_x(0.0),
+                                    xe=ts.rel_x(.5),
+                                    ys=ts.rel_y(0.10),
+                                    ye=ts.rel_y(0.40),
+                                    ),  
+                                    'gifts_trash')
         self.t_friend_trade = TextFlat(ScreenRegion(ts,
                                     xs=ts.rel_x(0.05),
                                     xe=ts.rel_x(.5),

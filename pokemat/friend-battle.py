@@ -14,13 +14,18 @@ from time import sleep
 import os
 import re
 import logging
+from keyboard import press
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
+from pokelib import ScreenRegion
+from pokelib import TextFlat
 
 import json
 import sys
 from datetime import datetime
 from _operator import truediv
+
+from concurrent.futures import ThreadPoolExecutor
 
 global log
 
@@ -54,41 +59,37 @@ def trainer_battle(jsonFile):
     
     while True:
         try:
-            host.screen_go_to_home()
-            guest.screen_go_to_home()
-            host.screen_friend()
-            host.friend_search(parameter["guest"]["name"])
-            host.friend_select_first()
-            sleep(2)
-            if host.has_gift():
-                time.sleep(0.5)
-                host.tap_screenBack()
-            sleep(1)
+            guest.screen.go_home()
+            start_battle(
+                        host, 
+                        parameter["guest"]["name"],
+                        parameter["league"]
+                        )
+            guest.buttons.t_friend_lets_battle.press(retries=5)
 
-            if not host.buttons.black_on_white('.*BATTLE.*', retries=10):
-                log.info("No BATTLE button found. Retry after some time")
-                raise
-            sleep(3)
-            r = re.compile(parameter["league"], re.IGNORECASE)
-            if not host.buttons.black_on_white(r, retries=10):
-                log.info("No BATTLE button found. Retry after some time")
-                raise
-            sleep(1)
-            if not host.buttons.dark('.*BATTLE.*', retries=10):
-                log.info("No BATTLE button found. Retry after some time")
-                raise
+            if not guest.buttons.t_grunt_party.press(retries=15):
+                raise 'failed to use party'
 
-            log.info("Time : Battle loop starts {}".format(host.getTimeNow()))
-            guest.color_match_wait_click(451, 1226, 126, 215, 155)
             while True:
-                guest.color_match_wait_click(486, 1750, 119, 215, 155)
-                host.color_match_wait_click(486, 1750, 119, 215, 155)
-                sleep(2)
-                guest.do_battle(opponent = host)
-                host.color_match_wait_click(482, 1232, 119, 215, 155)
-                guest.color_match_wait_click(482, 1232, 119, 215, 155)
-                print(f"Round completed {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-                # sys.exit(0)
+                battle_start = datetime.now()
+                with ThreadPoolExecutor(max_workers=2) as executor:
+                    b_h = executor.submit(host.do_battle)
+                    b_g = executor.submit(guest.do_battle)
+
+                    r_h = b_h.result()
+                    r_g = b_g.result()
+                host.tap_screen(10,10,scale=False)
+                guest.tap_screen(10,10,scale=False)
+                if not host.buttons.b_friend_rematch.press(retries=25) or \
+                   not guest.buttons.b_friend_rematch.press(retries=25):
+                    raise 'No rematch'
+
+                if not host.buttons.t_grunt_party.press(retries=15):
+                    raise 'failed to use party'
+                if not guest.buttons.t_grunt_party.press(retries=15):
+                    raise 'failed to use party'
+                dur = (datetime.now() - battle_start).total_seconds()
+                print(f'Battle duration {dur}s')
 
         except ExPokeLibFatal as e:
             log.fatal("Unrecoverable situation. Give up")
@@ -96,6 +97,59 @@ def trainer_battle(jsonFile):
 
         except Exception as e:
             print("Upps something went wrong but who cares?: {}", e)
+
+def start_battle(p, trainer, league):
+    p.screen.go_home()
+    print(f'{trainer} - go friends')
+    p.screen.go_friends()
+    max_tries = 20
+    b = None
+    while not b:
+        b = p.buttons.i_friends_search.press(retries=1)
+        if b:
+            break
+        p.buttons.t_passenger.press(retries=1)
+        sleep(2)
+        max_tries -= 1
+        if max_tries == 0:
+            raise
+    time.sleep(2.5)
+    print("Friend screen")
+    p.text_line_ok(f'\\a{trainer}')
+    sleep(1)
+    p.text_line_ok(f' \\n')
+
+    sleep(2)
+    t_no_case = re.compile(f'.*{trainer}.*', re.I)
+    reg = ScreenRegion(p, process=True, blur=3)
+    t = p.ocr.regex(t_no_case, reg=reg, find_all=True)
+    p.tap_screen(t[1]['center'], scale=False)
+    sleep(2)
+    def wait_4_callback():
+        has_gift = p.buttons.b_open_gift.search()
+        if has_gift:
+            p.tap_screen(100,100, button=3)
+    sleep(1)
+    b = p.buttons.t_friend_battle.press(retries=20, 
+                                        retry_callback=wait_4_callback)
+    b = p.buttons.t_friend_battle.press(retries=1)
+    
+    t_no_case = re.compile(f'.*{league}.*', re.I)
+    but = TextFlat(ScreenRegion(p,
+                                process=True),
+                                t_no_case)
+    
+    for i in range(5):
+        if but.press(retries=2, verbose=0):
+            break
+
+    sleep(1)
+
+    p.buttons.t_friend_lets_battle.press(retries=5)
+
+    p.buttons.t_grunt_party.press(retries=5)
+
+    return True
 
 def main():
 

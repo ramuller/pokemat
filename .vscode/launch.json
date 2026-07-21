@@ -401,7 +401,6 @@
       "console": "integratedTerminal",
       "debugOptions": ["DisableGUI"],
       "args": [
-        "-L", "great"
       ]
     },
     {
@@ -430,7 +429,7 @@
       "programc": "${workspaceFolder}/pokemat/raid.py",
       "programb": "${workspaceFolder}/pokemat/autocatch.py",
       "programz": "${workspaceFolder}/pokemat/purify-pokemon.py",
-      "program": "${workspaceFolder}/pokemat/grunt.py",
+      "program": "${workspaceFolder}/pokemat/gift-delete.py",
       "programa": "${workspaceFolder}/pokemat/purify-pokemon.py",
       "programf": "${workspaceFolder}/pokemat/feed_in_gym.py",
       "console": "integratedTerminal",
