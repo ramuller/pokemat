@@ -1,6 +1,7 @@
 from time import sleep
 import traceback
 import re
+import os
 import numpy as np
 from PIL import Image
 # import easyocr
@@ -14,7 +15,20 @@ from .image import PokeImage
 from .structs import ScreenRegion
 
 
-TESSDATA_PATH = '/usr/share/tesseract/tessdata/'
+def _get_tessdata_path():
+    """Find tessdata directory, supporting both Ubuntu and non-Ubuntu distros."""
+    candidates = [
+        '/usr/share/tesseract-ocr/5/tessdata/',  # Non-Ubuntu (ROM-based)
+        '/usr/share/tesseract-ocr/tessdata/',    # Alternative non-Ubuntu path
+        '/usr/share/tesseract/tessdata/',         # Ubuntu
+    ]
+    for path in candidates:
+        if os.path.isdir(path):
+            return path
+    # If none found, return first candidate (will fail with clear error)
+    return candidates[0]
+
+TESSDATA_PATH = _get_tessdata_path()
 
 class Ocr:
     def __init__(self, ts):

@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/bash -x
 
-ZAPPER_DIR=$HOME/git/scrcpyzapper
+SCRCTRL_DIR=$HOME/git/scrctrl
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source $SCRIPT_DIR/phone-lib.sh
@@ -25,13 +25,13 @@ source $SCRIPT_DIR/phone-lib.sh
 [ -n "$EXTRA" ] || EXTRA="--disable-screensaver"
 
 STD_ARGS="-m 1024 --max-fps=8 --no-audio-playback --raw-key-events --no-resize --audio-codec=aac"
-STD_ARGS="-m 1024 --max-fps=8 --no-audio-playback --raw-key-events --audio-codec=aac"
+STD_ARGS="-m 1024 --max-fps=8 --no-audio-playback --prefer-text --no-audio --no-resize"
 
-cd $ZAPPER_DIR
+cd $SCRCTRL_DIR
+export ASAN_OPTIONS=detect_leaks=1
 
 if false ; then
     true
-
 elif [ "$1" == "1" ];then
     echo SN=$SN
     [ -z "$SN" ] && SN=$SN_3001

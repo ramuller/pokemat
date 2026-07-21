@@ -54,9 +54,10 @@ def evolve(port, filter):
             if empty_search(phone):
                 phone.buttons.i_pokemon_search.press()
                 time.sleep(1)
-                phone.text_line_ok(f'\\a{filter}')
+                phone.selectAll()
+                phone.send_text_line(f'{filter}')
                 sleep(0.5)
-                phone.text_line_ok(f'\\n')
+                phone.send_text_line(f'\n')
                 time.sleep(1)                 
             if not phone.pokemon_select_first(retries=10):
                 for i in range(3):
@@ -67,9 +68,9 @@ def evolve(port, filter):
                         sleep(2)
                 print("All pokemons for filter '{}' evolved!".format(filter))
                 sys.exit(0)
-            if not phone.buttons.i_pokemon_search.press():
-                print('Unknow situation')
-                raise('Unknow situation')
+            # if not phone.buttons.i_pokemon_search.press():
+            #     print('Unknow situation')
+            #     raise('Unknow situation')
             phone.evolve_pokemon()
             evolve_count = evolve_count + 1
             sleep(0.5)

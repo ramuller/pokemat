@@ -18,7 +18,7 @@ for ph in range(1,8):
         sleep(0.5)
         p.tap_screen(430, 1029)
         sleep(0.5)
-        p.text_line_ok(args.location)
+        p.send_text_line(args.location)
         sleep(0.5)
         p.tap_screen(822, 798)
         sleep(1)

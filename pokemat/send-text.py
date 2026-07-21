@@ -18,9 +18,13 @@ def action(port, text):
     print("Start sending text {} on port {} ".format(port, text))
     p = TouchScreen(port)
     if args.select:
-        p.tap_screen(510, 375)
+        p.buttons.i_pokemon_search.press(retries=1)
+        sleep(0.5)
+    if args.replace:
+        p.selectAll()
+        sleep(0.2)
     sleep(1)
-    p.text_line_ok(text)
+    p.send_text_line(text)
     
 def main():
 
@@ -28,6 +32,8 @@ def main():
     global args
     parser.add_argument("text", type=str, help="text to send")
     parser.add_argument("-s", "--select", action='store_true', help='select pokemon')    
+    parser.add_argument("-r", "--replace", action='store_true', 
+                        help='replace existing text "select all" befor typing')    
     args = parser.parse_args()
     global log 
     if args.port != "NA":

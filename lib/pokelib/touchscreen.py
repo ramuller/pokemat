@@ -99,7 +99,7 @@ class TouchScreen:
     def __init__(self, tcpPort, name = "no-set", scaleX = 0.576, scaleY = 0.512):
         self.log = logging.getLogger(str(tcpPort))
         self.log.info("\nPokemat phone : {}".format(tcpPort))
-        self.url = "http://localhost:{}/v1".format(tcpPort)
+        self.url = "http://localhost:{}".format(tcpPort)
         self.specs = self._get_phone_specs()
         self.config_path = TouchScreen.phone_config_path()
         print('config_path {}'.format(self.config_path))
@@ -112,9 +112,9 @@ class TouchScreen:
         self.httpErrorCount = 0
         self.maxX = 1000
         self.maxY = 2000
-        self.vector_left_right = PixelVector(self, 850, 850 + 201, 1850, 1850, 3, "left_right")
-        self.vector_top_down = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
-        self.vector = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
+        # self.vector_left_right = PixelVector(self, 850, 850 + 201, 1850, 1850, 3, "left_right")
+        # self.vector_top_down = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
+        # self.vector = PixelVector(self, 50, 50, 100, 100 + 201, 3, "top_down")
         # self.ocr = None
 
         self.image = PokeImage(self)
@@ -130,7 +130,7 @@ class TouchScreen:
         specs["h"] = specs["height"]
         specs["w"] = specs["width"]
         # Check if we have a buttonbar
-        if specs['model'] in ['SM-G930F']:
+        if specs['model'] in ['SM-G930F', 'SM-G781B']:
             nav_bar = False
         elif self.color_match(specs["width"] // 3, \
                             specs["height"] - 1, \
@@ -207,15 +207,34 @@ class TouchScreen:
         return int(x), int(y)
         
     def write_to_phone(self, cmd):
-        self.log.debug("Send CMD - {}".format(cmd))
+        return self.get_request(cmd)
+
+    def get_request(self, data):
+        self.log.debug("Send CMD - {}".format(data))
         # print("Send CMD - {} url {}".format(cmd, self.url))
         try:
-            return requests.get("{}/{}".format(self.url, cmd))
+            return requests.get("{}/api/v1/{}".format(self.url, data))
         except Exception as e:
             raise ExPokeLibFatal("No connection")
             # self.log.fatal("No connection")
         
-    def tap_screen(self, x, y=None, button = 1, duration = 30, scale=True):
+
+    def post_request(self, api, data):
+        self.log.debug("Send to api - {}".format(api))
+        # print("Send CMD - {} url {}".format(cmd, self.url))
+        try:
+            return requests.post(
+                f'{self.url}/api/v1/{api}',
+                data=data.encode("utf-8"),
+                headers={
+                    "Content-Type": "text/plain; charset=utf-8"
+                },
+            )                
+        except Exception as e:
+            raise ExPokeLibFatal("No connection")
+            # self.log.fatal("No connection")
+
+    def tap_screen(self, x, y=None, button = 1, duration = 30, scale=False):
         if y == None:
             x, y = x
         self.log.debug("tap {},{},{},{}".format(x,y,button, duration))
@@ -224,27 +243,27 @@ class TouchScreen:
         if button == 3:
             pass
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
-        response = self.write_to_phone("click:{},{},{},{}".format(x,y,button, duration))
+        response = self.write_to_phone('click?x={}&y={}&b={},ms={},type=click'.format(x,y,button, duration))
         self.log.debug("Response : {}".format(response))
         time.sleep(0.001 * duration)
     
-    def tap_down(self, x, y=None, button = 1, duration = 0, scale=True):
+    def tap_down(self, x, y=None, button = 1, duration = 0, scale=False):
         if y == None:
             x, y = x        
         self.log.debug("tap_down {},{},{},{}".format(x,y,button, duration))
         if scale:
             x, y = self.scaleXY(x, y)
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
-        response = self.write_to_phone("button_down:{},{},{},{}".format(x,y,button, duration))
+        response = self.write_to_phone('click?x={}&y={}&b={}&ms={}&type=down'.format(x,y,button, duration))
         self.log.debug("Response : {}".format(response))
         time.sleep(0.001 * duration)
     
-    def tap_up(self, x, y, button = 1, duration = 50, scale=True):
+    def tap_up(self, x, y, button = 1, duration = 50, scale=False):
         self.log.debug("tap_up {},{},{},{}".format(x,y,button, duration))
         if scale:
             x, y = self.scaleXY(x, y)
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
-        response = self.write_to_phone("button_up:{},{},{},{}".format(x,y,button, duration))
+        response = self.write_to_phone('click?x={}&y={}&b={}&ms={}&type=up'.format(x,y,button, duration))
         self.log.debug("Response : {}".format(response))
         time.sleep(0.001 * duration)
         
@@ -254,7 +273,7 @@ class TouchScreen:
             x, y = self.scaleXY(x, y)
             dx, dy = self.scaleXY(dx, dy)
         # response = requests.get("{}/tap_screen:{},{},{},{}".format(self.url, x, x, button, duration)
-        response = self.write_to_phone("move:{},{},{},{}".format(x,y,dx,dy))
+        response = self.write_to_phone("move?x={}&y={}&dx={}&dy={}".format(x,y,dx,dy))
         self.log.debug("Response : {}".format(response))
         # time.sleep(0.1)
 
@@ -313,8 +332,8 @@ class TouchScreen:
     def get_rgb(self, x, y, scale=True):
         if scale:
             x, y = self.scaleXY(x, y)
-        response = self.write_to_phone("color:{},{}".format(x,y))           
-        self.write_to_phone("color:{},{}\n".format(x,y))
+        response = self.write_to_phone("color?x={}&y={}".format(x,y))           
+        self.write_to_phone("color?{}&{}\n".format(x,y))
         self.log.debug("Response : {}".format(response.status_code))
         self.log.debug("Response : {}".format(response.json()))
         rgb = response.json()
@@ -526,7 +545,7 @@ class TouchScreen:
         w, h = map(lambda x: x - 1, size)
         x = x - w/2
         y = y - h/2
-        response = self.write_to_phone("snip_gray:{},{},{},{}".format(x ,y ,w, h))           
+        response = self.write_to_phone("snip_gray?x={}&y={}&w={}&h={}".format(x ,y ,w, h))           
         return response.json()
 
 
@@ -541,7 +560,7 @@ class TouchScreen:
             x, y = self.scaleXY(x, y)
             w, h = self.scaleXY(w, h)
     
-        response = self.write_to_phone("snip_gray:{},{},{},{}".format(x ,y ,w, h))           
+        response = self.write_to_phone("snip_gray?x={}&y={}&w={}&h={}".format(x ,y ,w, h))           
         return response.json()
     
     def screen_capture(self, start, size, scale=True):
@@ -556,7 +575,7 @@ class TouchScreen:
             x, y = self.scaleXY(x, y)
             w, h = self.scaleXY(w, h)
     
-        response = self.write_to_phone("snip:{},{},{},{}".format(x ,y ,w , h))           
+        response = self.write_to_phone("snip_gray?x={}&y={}&w={}&h={}".format(x ,y ,w, h))           
         return response.json()
         
     def pocr_read_line_center(self, start, size, scale=True):
@@ -853,10 +872,14 @@ class TouchScreen:
             time.sleep(1)
         raise
         
-    def text_line_ok(self, text):
+    def send_text_line(self, text):
         time.sleep(0.1)
         # self.log.debug("type string {}".format(text))
         i = 0
+
+        return self.post_request("text", text)
+
+
         
         while i < len(text):
             c = text[i]
@@ -870,12 +893,12 @@ class TouchScreen:
                 i += 1
             # print("RALF string '{}'".format(c))
             # print(c)
-            self.write_to_phone("key:{}".format(c))
+            self.write_to_phone("key?text={}".format(c))
             # time.sleep(0.0035)
             time.sleep(0.02)
 
     def selectAll(self):
-        self.text_line_ok("\\a")
+        self.get_request('key?key=a&mod=ctrl')
     
     def getTimeNow(self):
         return datetime.now().strftime("%d-%m-%Y %H:%M:%S")
@@ -1096,9 +1119,10 @@ class TouchScreen:
         sleep(2)
         self.buttons.i_pokemon_search.press()
         time.sleep(1)
-        self.text_line_ok(f'\\a{filter}')
-        sleep(0.2)
-        self.text_line_ok('\\n')
+        self.selectAll()
+        self.send_text_line(f'{filter}')
+        sleep(1)
+        self.send_text_line('\n')
         time.sleep(1)        
         # self.tapTextOK()
         
@@ -1106,7 +1130,7 @@ class TouchScreen:
         self.buttons.black_on_white('.*SEARCH.*')
         sleep(1)
         print("done")
-        self.text_line_ok(name)
+        self.send_text_line(name)
         self.tapTextOK()
 
     def pokemon_search(self, filter):
@@ -1114,7 +1138,7 @@ class TouchScreen:
         time.sleep(1)
         self.selectAll()
         time.sleep(0.2)
-        self.text_line_ok(filter)
+        self.send_text_line(filter)
         self.tapTextOK()
     
     def swipe(self, x1, y1, x2, y2):
@@ -1850,7 +1874,7 @@ class TouchScreen:
         if "NICKNAME" in text:
             self.tap_screen(515, 1404)
             sleep(1)
-            self.text_line_ok(f"\a{nick}\\n")
+            self.send_text_line(f"\a{nick}\\n")
         self.color_match_wait_click(392, 1101, 134, 217, 153, time_out_ms=1500, ex=False)
     '''
     Update friend level
@@ -1882,7 +1906,7 @@ class TouchScreen:
         # Tap set nickname
         self.tap_screen(500,1400)   
         sleep(1)
-        self.text_line_ok(nick)
+        self.send_text_line(nick)
         self.tapTextOK()
         # nail it down
         sleep(0.5)
@@ -2018,7 +2042,7 @@ class TouchScreen:
             b = self.buttons.i_change_sort.press()
             sleep(0.5)
             b = self.buttons.i_sort_has_gift.press(retries=10)
-        sort = self.buttons.i_sort.search(retries=30, verbose=3)
+        sort = self.buttons.i_sort.search(retries=30, verbose=0)
         try:
             if sort.icon_name == 'up':
                 self.buttons.i_change_sort.press()
