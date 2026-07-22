@@ -26,12 +26,12 @@ do
     for i in $(seq ${first} ${last})
     do
         port=300$i
-        ps -ef |grep scrcpy |grep --silent 300$i
+        ps -ef |grep scrctrl |grep --silent 300$i
         if [ $? -eq 0 ]; then
             echo scrcpy is running
         else
-            echo restarting scrcpy on port 300$i logfile /tmp/sc-300$i.log
-            $thisdir/start-zapper.sh $i >/tmp/sc-300$i.log  2>&1 &
+            echo restarting scrctrl on port 300$i logfile /tmp/sc-300$i.log
+            $thisdir/start-scrctrl.sh $i >/tmp/sc-300$i.log  2>&1 &
         fi
         # net_mon $port
     done

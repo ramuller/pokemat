@@ -207,7 +207,7 @@ class TouchScreen:
         return int(x), int(y)
         
     def write_to_phone(self, cmd):
-        return self.get_request(data)
+        return self.get_request(cmd)
 
     def get_request(self, data):
         self.log.debug("Send CMD - {}".format(data))
@@ -898,7 +898,7 @@ class TouchScreen:
             time.sleep(0.02)
 
     def selectAll(self):
-        self.text_line_ok("\\a")
+        self.get_request('key?key=a&mod=ctrl')
     
     def getTimeNow(self):
         return datetime.now().strftime("%d-%m-%Y %H:%M:%S")
