@@ -61,7 +61,7 @@ ICONS_PATH = {
         'a_z': 'friends_az.png',
     },
     'sort': {
-        'down': 'sort_down.png',
+        'down': 'sort_down_2.png',
         'up': 'sort_up.png',
     },
     'change_sort': {

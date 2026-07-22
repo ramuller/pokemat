@@ -207,16 +207,33 @@ class TouchScreen:
         return int(x), int(y)
         
     def write_to_phone(self, cmd):
-        self.log.debug("Send CMD - {}".format(cmd))
+        return self.get_request(data)
+
+    def get_request(self, data):
+        self.log.debug("Send CMD - {}".format(data))
         # print("Send CMD - {} url {}".format(cmd, self.url))
-        if ':' in cmd:
-            print(f'CMD {cmd} ')
         try:
-            return requests.get("{}/api/v1/{}".format(self.url, cmd))
+            return requests.get("{}/api/v1/{}".format(self.url, data))
         except Exception as e:
             raise ExPokeLibFatal("No connection")
             # self.log.fatal("No connection")
         
+
+    def post_request(self, api, data):
+        self.log.debug("Send to api - {}".format(api))
+        # print("Send CMD - {} url {}".format(cmd, self.url))
+        try:
+            return requests.post(
+                f'{self.url}/api/v1/{api}',
+                data=data.encode("utf-8"),
+                headers={
+                    "Content-Type": "text/plain; charset=utf-8"
+                },
+            )                
+        except Exception as e:
+            raise ExPokeLibFatal("No connection")
+            # self.log.fatal("No connection")
+
     def tap_screen(self, x, y=None, button = 1, duration = 30, scale=False):
         if y == None:
             x, y = x
@@ -859,6 +876,10 @@ class TouchScreen:
         time.sleep(0.1)
         # self.log.debug("type string {}".format(text))
         i = 0
+
+        return self.post_request("text", text)
+
+
         
         while i < len(text):
             c = text[i]
@@ -872,7 +893,7 @@ class TouchScreen:
                 i += 1
             # print("RALF string '{}'".format(c))
             # print(c)
-            self.write_to_phone("key:{}".format(c))
+            self.write_to_phone("key?text={}".format(c))
             # time.sleep(0.0035)
             time.sleep(0.02)
 
@@ -2020,7 +2041,7 @@ class TouchScreen:
             b = self.buttons.i_change_sort.press()
             sleep(0.5)
             b = self.buttons.i_sort_has_gift.press(retries=10)
-        sort = self.buttons.i_sort.search(retries=30, verbose=3)
+        sort = self.buttons.i_sort.search(retries=30, verbose=0)
         try:
             if sort.icon_name == 'up':
                 self.buttons.i_change_sort.press()
