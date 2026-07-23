@@ -365,7 +365,7 @@
       "program": "${workspaceFolder}/pokemat/evolve.py",
       "console": "integratedTerminal",
       "args": [
-        "--filter", "machop&!traded"
+        "--filter", "machop,abra&!traded"
       ]
     },    
     {

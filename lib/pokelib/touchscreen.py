@@ -1119,9 +1119,10 @@ class TouchScreen:
         sleep(2)
         self.buttons.i_pokemon_search.press()
         time.sleep(1)
-        self.text_line_ok(f'\\a{filter}')
-        sleep(0.2)
-        self.text_line_ok('\\n')
+        self.selectAll()
+        self.text_line_ok(f'{filter}')
+        sleep(1)
+        self.text_line_ok('\n')
         time.sleep(1)        
         # self.tapTextOK()
         
