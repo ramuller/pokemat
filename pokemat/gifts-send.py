@@ -87,14 +87,12 @@ def gifting(port):
             #     time.sleep(0.3)
             time.sleep(1.5)
             phone.selectAll()
-            phone.text_line_ok("\b")
-            # phone.text_line_ok("!ff & !lucky & interactable")
             if args.all:
                 phone.text_line_ok('!oksfknds')
             else:
                 phone.text_line_ok("!fff")
             time.sleep(0.5)
-            phone.text_line_ok('\\n')
+            phone.text_line_ok('\n')
 
             # phone.screen.go_friends()
 
