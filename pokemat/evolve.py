@@ -55,9 +55,9 @@ def evolve(port, filter):
                 phone.buttons.i_pokemon_search.press()
                 time.sleep(1)
                 phone.selectAll()
-                phone.text_line_ok(f'{filter}')
+                phone.send_text_line(f'{filter}')
                 sleep(0.5)
-                phone.text_line_ok(f'\n')
+                phone.send_text_line(f'\n')
                 time.sleep(1)                 
             if not phone.pokemon_select_first(retries=10):
                 for i in range(3):

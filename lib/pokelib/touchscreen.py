@@ -872,7 +872,7 @@ class TouchScreen:
             time.sleep(1)
         raise
         
-    def text_line_ok(self, text):
+    def send_text_line(self, text):
         time.sleep(0.1)
         # self.log.debug("type string {}".format(text))
         i = 0
@@ -1120,9 +1120,9 @@ class TouchScreen:
         self.buttons.i_pokemon_search.press()
         time.sleep(1)
         self.selectAll()
-        self.text_line_ok(f'{filter}')
+        self.send_text_line(f'{filter}')
         sleep(1)
-        self.text_line_ok('\n')
+        self.send_text_line('\n')
         time.sleep(1)        
         # self.tapTextOK()
         
@@ -1130,7 +1130,7 @@ class TouchScreen:
         self.buttons.black_on_white('.*SEARCH.*')
         sleep(1)
         print("done")
-        self.text_line_ok(name)
+        self.send_text_line(name)
         self.tapTextOK()
 
     def pokemon_search(self, filter):
@@ -1138,7 +1138,7 @@ class TouchScreen:
         time.sleep(1)
         self.selectAll()
         time.sleep(0.2)
-        self.text_line_ok(filter)
+        self.send_text_line(filter)
         self.tapTextOK()
     
     def swipe(self, x1, y1, x2, y2):
@@ -1874,7 +1874,7 @@ class TouchScreen:
         if "NICKNAME" in text:
             self.tap_screen(515, 1404)
             sleep(1)
-            self.text_line_ok(f"\a{nick}\\n")
+            self.send_text_line(f"\a{nick}\\n")
         self.color_match_wait_click(392, 1101, 134, 217, 153, time_out_ms=1500, ex=False)
     '''
     Update friend level
@@ -1906,7 +1906,7 @@ class TouchScreen:
         # Tap set nickname
         self.tap_screen(500,1400)   
         sleep(1)
-        self.text_line_ok(nick)
+        self.send_text_line(nick)
         self.tapTextOK()
         # nail it down
         sleep(0.5)

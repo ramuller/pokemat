@@ -24,7 +24,7 @@ def action(port, text):
         p.selectAll()
         sleep(0.2)
     sleep(1)
-    p.text_line_ok(text)
+    p.send_text_line(text)
     
 def main():
 

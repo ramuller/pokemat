@@ -86,11 +86,11 @@ def gifting(port, phone):
                 time.sleep(0.3)
             time.sleep(1)
             phone.selectAll()
-            phone.text_line_ok("\b")
+            phone.send_text_line("\b")
             if len(shuffled_letters) > 0:
-                phone.text_line_ok("!ff & !lucky & {}".format(shuffled_letters[0]))
+                phone.send_text_line("!ff & !lucky & {}".format(shuffled_letters[0]))
             else:
-                phone.text_line_ok("!ff & !lucky")
+                phone.send_text_line("!ff & !lucky")
             time.sleep(1)
             phone.tapTextOK()      
             time.sleep(0.3)
