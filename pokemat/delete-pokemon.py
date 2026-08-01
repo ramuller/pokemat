@@ -16,6 +16,7 @@ import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
+from pokelib import StdButtons
 
 import json
 import sys
@@ -39,20 +40,14 @@ def delete_pokemon(port):
         try:
             phone.pokemon_select_first()
             print("Click menu")
-            sleep(0.5)
-            phone.color_match_wait_click(866, 1800, 28, 135, 149)
-            print("Click transfer")
-            sleep(0.5)
-            phone.color_match_wait_click(800, 1634, 42, 108, 120)
-            sleep(0.5)
-            print("Tap transfer")
-            phone.color_match_wait_click(637, 1123, 80, 211, 162, threashold=20)
-            try:
-                phone.color_match_wait_click(368, 1031, 146, 216, 149, time_out_ms = 1500)
-            except:
-                print("No extra tab")
-                pass
-            # phone.color_match_wait_click(352, 1044, 150, 218, 149)
+            if not phone.buttons.i_pokemon_menu.press(retries=8):
+                raise 'No pokemenu found'
+            if not phone.buttons.t_pokemon_transfer.press(retries=8):
+                raise 'No transfer option'
+            if not phone.buttons.b_yes.press(retries=8):
+                raise 'No YES button'
+            sleep(1)
+            phone.buttons.b_yes.press(retries=3)
             time.sleep(2)             
             print("Ready")
             # sys.exit(0)

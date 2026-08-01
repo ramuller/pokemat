@@ -115,9 +115,10 @@ def start_battle(p, trainer, league):
             raise
     time.sleep(2.5)
     print("Friend screen")
-    p.text_line_ok(f'\\a{trainer}')
+    p.selectAll()
+    p.send_text_line(f'{trainer}')
     sleep(1)
-    p.text_line_ok(f' \\n')
+    p.send_text_line(f' \n')
 
     sleep(2)
     t_no_case = re.compile(f'.*{trainer}.*', re.I)

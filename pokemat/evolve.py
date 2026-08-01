@@ -59,7 +59,7 @@ def evolve(port, filter):
                 sleep(0.5)
                 phone.send_text_line(f'\n')
                 time.sleep(1)                 
-            if not phone.pokemon_select_first(retries=10):
+            if not phone.pokemon_select_first(retries=10,verbose=0):
                 for i in range(3):
                     print('Try from home, if really no more pokemons for filter "{}" exist, the script will exit'.format(filter))
                     phone.screen.go_home()

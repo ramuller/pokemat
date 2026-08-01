@@ -161,12 +161,14 @@ class Ocr:
               pause=1,
               find_all=False,    # Find all matches
               retry_callback=None,
+              update_npa=True,
               verbose=0):
         if reg is None:
             reg = ScreenRegion(self.ts)
         res=[]
         for tries in range(retries, 0, -1):
-            reg.npa = None
+            if update_npa:
+                reg.npa = None
             lines, reg = self.read_and_npa(reg, verbose=verbose)
             # self.reset_parameters()
             # print(f'Tries {tries}')

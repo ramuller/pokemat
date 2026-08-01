@@ -36,11 +36,11 @@ class PokeImage:
                     pixel_array = (g, u ,v)
                 else:
                     rgb = self.yuv420_dict_to_rgb(jbuf)
-                    if reg.color == "red":
+                    if reg.color == "blue":
                         pixel_array = np.array(rgb[:, :, 0], dtype=np.uint8).reshape(h, w)
                     elif reg.color == "green":
                         pixel_array = np.array(rgb[:, :, 1], dtype=np.uint8).reshape(h, w)
-                    elif reg.color == "blue":
+                    elif reg.color == "red":
                         pixel_array = np.array(rgb[:, :, 2], dtype=np.uint8).reshape(h, w)
                     elif reg.color == "rgb":
                         pixel_array = np.array(rgb, dtype=np.uint8).reshape(h, w, 3)

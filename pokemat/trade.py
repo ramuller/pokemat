@@ -185,9 +185,9 @@ def start_trade(p, trainer, filter):
             raise
     time.sleep(2.5)
     print("Friend screen")
-    p.text_line_ok(f'\\a{trainer}')
+    p.send_text_line(f'\\a{trainer}')
     sleep(1)
-    p.text_line_ok(f' \\n')
+    p.send_text_line(f' \\n')
 
     sleep(2)
     t_no_case = re.compile(f'.*{trainer}.*', re.I)
@@ -216,9 +216,9 @@ def start_trade(p, trainer, filter):
 
     sleep(1)
 
-    p.text_line_ok(f'\\a{filter}')
+    p.send_text_line(f'\\a{filter}')
     sleep(.5)
-    p.text_line_ok(f' \\n')
+    p.send_text_line(f' \\n')
     print(f'{trainer} - ready for trading')
     return True
 

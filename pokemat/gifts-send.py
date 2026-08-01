@@ -90,7 +90,7 @@ def gifting(port):
             if args.all:
                 phone.send_text_line('!oksfknds')
             else:
-                phone.send_text_line("!fff")
+                phone.send_text_line("!fff & interactable")
             time.sleep(0.5)
             phone.send_text_line('\n')
 

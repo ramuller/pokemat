@@ -19,10 +19,16 @@ def deleteRedBalls(phone):
 
 def connect(phone, del_balls=False):
     try:
-        print("Check connection status")
-        if not phone.color_match(914, 585, 149, 97, 121):
+        # Retry because there might be some berries in the view
+        status = phone.buttons.i_autocatch.search(retries=5)
+        if not status:
+            print('STATUS : Icon not found status unkown')
             return False
-        
+        if status.icon_name == 'on':
+            print(f'STATUS : Connection on, nothing to do')
+
+        print('STATUS : No connection, try to connect')
+      
         try:
             if args.delete_balls:
                 delete_red_balls(phone)
@@ -36,32 +42,46 @@ def connect(phone, del_balls=False):
                     delete_red_balls(phone)
             except:
                 pass
-        phone.screen_go_to_home()
-        # phone.color_match_wait(914, 585, 149, 97, 121, time_out_ms=20000)
-        
-        phone.tap_screen(914, 585)
-        print("Color match")
-        time.sleep(1)
-        # phone.color_match_wait(137, 361, 22, 22, 22, time_out_ms=30000)
-        phone.color_match_wait(92, 205, 168, 238, 255, time_out_ms=30000)
-        print("Connect screen detected")
-        for x in range(230, 280, 4):
-            r, g, b = phone.get_rgb(x, 369)
-            print("X {},{},{},{}".format(x, r, g ,b))
-        # phone.color_match_wait_click(241, 369, 143, 208, 218)
-        time.sleep(1)
-        print("TAP connect")
-        phone.tap_screen(241, 369)
-        phone.color_match_wait(251, 1205, 66, 66, 66)
-        time.sleep(1)
-        print("TAP pair")
-        phone.tap_screen(828, 1177)
-        # phone.color_match_wait_click(807, 1189, 29, 88, 102)
-        print("Wait a minute to get the connection up!")
-        for i in range(0,10):
-            time.sleep(6)
-            if phone.color_match(914, 582, 255, 1, 0):
+        but = phone.buttons.i_autocatch.press(retries=5)
+        if not but:
+            print('ERROR : button not found')
+            return False
+        for i in range(30):
+            if status.icon_name == 'on':
+                print('STATUS : connected')
+                return True
+            text, reg = phone.ocr.read_and_npa()
+            res =  phone.ocr.regex('.*connect', 
+                                   reg=reg,
+                                   update_npa=False)
+            if res:
+                print('STATUS : connect found')
+                phone.tap_screen(res['center'])
+                for i in range(30):
+                    res =  phone.ocr.regex('.*connect')
+                    if not res:
+                        break
+            sleep(1)
+
+        for i in range(30):
+            if status.icon_name == 'on':
+                print('STATUS : connected')
+                return True
+            text, reg = phone.ocr.read_and_npa()
+            res =  phone.ocr.regex('Pair', 
+                                   reg=reg,
+                                   update_npa=False)
+            if res:
+                print('STATUS : Pair found')
+                phone.tap_screen(res['center'])
                 break
+            sleep(1)
+        print('STATUS: Assuming connection is comming up')
+        return True
+
+
+
+
         return True
     except Exception as e:
         print("Upps something went wrong but who cares?: {}", e)
@@ -71,10 +91,6 @@ def reconnect(port):
     print("Start reconnect on port {}", port)
     phone = TouchScreen(port)
     while True:
-        # phone.tap_screen(119, 1791) # Avatar
-        phone.tap_screen(90, 30) # Clock
-        time.sleep(2)
-        phone.screen_go_to_home()
         connect(phone)
         time.sleep(60)
         

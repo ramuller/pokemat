@@ -28,9 +28,16 @@ ICONS_PATH = {
     'gifts_trash': {
         'gifts_trash' : 'gifts_trash.png',
     },
+    'pokemon_menu': {
+        'pokemon_menu' : 'pokemon_menu.png',
+    },
     'mag_glass': {
         'mag_glass_1' : 'mag_glass_1.png',
         'mag_glass_2' : 'mag_glass_2.png',
+    },
+    'autocatch': {
+        'on' : 'autocatch-on.png',
+        'off' : 'autocatch-off.png',
     },
     'evolve': {
         'evolve' : 'evolve.png',
@@ -587,6 +594,19 @@ class Buttons(ButtonParameter):
                                         ye=ts.rel_y(0.97)),
                                     'pokeball',
                                     search_callback=_cb_pokeball)
+        self.i_pokemon_menu = IconButton(ScreenRegion(ts,
+                                        xs=ts.rel_x(0.60),
+                                        xe=ts.rel_x(0.99),
+                                        ys=ts.rel_y(0.60),
+                                        ye=ts.rel_y(0.99)),
+                                    'pokemon_menu')
+        self.i_autocatch = IconButton(ScreenRegion(ts,
+                                        color='red',
+                                        xs=ts.rel_x(0.80),
+                                        xe=ts.rel_x(0.98),
+                                        ys=ts.rel_y(0.10),
+                                        ye=ts.rel_y(0.30)),
+                                    'autocatch')
         self.i_exits = IconButton(ScreenRegion(ts,
                                         xs=ts.rel_x(0.38),
                                         xe=ts.rel_x(0.62),
@@ -708,6 +728,14 @@ class Buttons(ButtonParameter):
                                         ys=ts.rel_y(0.75),
                                         ye=ts.rel_y(1)),
                                         'LET.S')
+        self.t_pokemon_transfer = TextFlat(ScreenRegion(ts,
+                                        invert=True,
+                                        process=False,
+                                        xs=ts.rel_x(0.5),
+                                        xe=ts.rel_x(1.0),
+                                        ys=ts.rel_y(0.5),
+                                        ye=ts.rel_y(1.0)),
+                                        'TRANSFER')
         self.t_friend_lets_battle = TextButton(ScreenRegion(ts,
                                         invert=True,
                                         process=True,
@@ -858,7 +886,7 @@ class Buttons(ButtonParameter):
         self.b_yes = TextButton(ScreenRegion(ts,
                                     invert=True,
                                     process=True,
-                                    blur=3,
+                                    blur=1,
                                     xs=ts.rel_x(0.10),
                                     xe=ts.rel_x(0.90),
                                     ys=ts.rel_y(0.30),

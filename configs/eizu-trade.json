@@ -2,14 +2,14 @@
     "mode": "trade",
     "league": "master",
     "host": { 
-        "port": "3005",
-        "name": "gimmi222",
+        "port": "3002",
+        "name": "pokeralle",
 		"filterx": "floette & !3* & !norade & !traded & !favorite",
 		"filter": "xp1 & !norade & !traded & !favorite"
    },
     "guest": {
-        "port": "3006",
-        "name": "blond2023",
+        "port": "3003",
+        "name": "pokeeizu",
 		"ffilter": "'karrablast,shelmet",
 		"fffilter": "karrablast,shelmet,phantump & !norade & !traded & !shiny & !favorite",
 		"filter": "xp1 & !norade & !traded & !favorite"

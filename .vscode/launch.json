@@ -365,7 +365,7 @@
       "program": "${workspaceFolder}/pokemat/evolve.py",
       "console": "integratedTerminal",
       "args": [
-        "--filter", "machop,abra&!traded"
+        "--filter", "deino"
       ]
     },    
     {
@@ -430,6 +430,8 @@
       "programb": "${workspaceFolder}/pokemat/autocatch.py",
       "programz": "${workspaceFolder}/pokemat/purify-pokemon.py",
       "program": "${workspaceFolder}/pokemat/gift-delete.py",
+      "program": "${workspaceFolder}/pokemat/reconnect.py",
+      "program": "${workspaceFolder}/pokemat/delete-pokemon.py",
       "programa": "${workspaceFolder}/pokemat/purify-pokemon.py",
       "programf": "${workspaceFolder}/pokemat/feed_in_gym.py",
       "console": "integratedTerminal",

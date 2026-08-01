@@ -790,6 +790,7 @@ class TouchScreen:
                              verbose=0):
         found_poke = False
         reg = ScreenRegion(self,
+                process=True,
                 xs=self.rel_x(0),
                 xe=self.rel_x(1),
                 ys=self.rel_y(0.28),
@@ -877,9 +878,11 @@ class TouchScreen:
         # self.log.debug("type string {}".format(text))
         i = 0
 
-        return self.post_request("text", text)
-
-
+        resp = self.post_request("text", text)
+        pt = 0.01 * len(text)
+        # print(f'Break for {pt}s')
+        sleep(pt)
+        return resp
         
         while i < len(text):
             c = text[i]
@@ -936,8 +939,10 @@ class TouchScreen:
     def spin_disk(self, to = 2):
         while to > 0:
             # if self.color_match(152, 1921, 183, 116, 248, debug=True):
-            if self.color_match(152, 1921, 137, 98, 227, debug=False):
-            # if not self.screen_is_pokestop():
+            if self.color_match(
+                                self.rel_x(152/1000),
+                                self.rel_y(1921/2000)
+                                , 137, 98, 227, debug=False):
                 return True
             print("Spin disk {}".format(to))
             self.scroll(self.rel_x(0.2), 0, 

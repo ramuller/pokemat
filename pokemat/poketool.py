@@ -276,6 +276,7 @@ def my_test():
 
     pass
 
+    phone.spin_disk()
     phone.charged_attack()
     phone.charged_attack()
     phone.pokemon_select_first()
