@@ -18,6 +18,9 @@ def heal(port):
     print("Feed in gym {}", port)
     global phone
     phone = TouchScreen(port)
+    if not phone.screen.is_in_gym():
+        print("Not in gym")
+        return False
     while True:
         fx = random.uniform(0.01, 0.99)
         x = phone.rel_x(fx)

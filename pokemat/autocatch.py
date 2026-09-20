@@ -99,6 +99,8 @@ def auto_catch(phone):
             phone.rotate()
         elif target == "egg":
             pass
+        else:
+            phone.rotate()
         if args.once and action_count > 0:
             phone.screen_go_to_home()
             return

@@ -21,10 +21,10 @@ def action(port, text):
         p.buttons.i_pokemon_search.press(retries=1)
         sleep(0.5)
     if args.replace:
-        p.selectAll()
+        p.text_select_all()
         sleep(0.2)
     sleep(1)
-    p.send_text_line(text)
+    p.text_send_line(text)
     
 def main():
 

@@ -1,15 +1,15 @@
 {
     "mode": "battle-friend",
-	"league-m": "master",
+	"league": "master",
 	"league-g": "great",
-	"league": "ultra",
+	"league-u": "ultra",
     "host": { 
         "port": "3003",
-        "namee": "schlumpiz",
+        "namee": "pokeralle",
         "name": "helmut"
     },
     "guest": {
-        "port": "3002",
+        "port": "3005",
         "name": "higimmi222",
         "namee": "Localhost"
     }

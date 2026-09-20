@@ -245,7 +245,7 @@ ICONS_PATH = {
 Some buttons need an special test in a call back
 '''
 def _cb_pokeball(ts, det):
-    print('Call back for pokeball')
+    # print('Call back for pokeball')
     x = (det.quad[0][0] + det.quad[1][0]) // 2
     y = det.quad[3][1]
     if ts.color_match(x, y , 254, 254, 254, threashold=1, scale=False):
@@ -444,8 +444,8 @@ class TextFlat(ButtonParameter):
                press_callback=None,
                verbose=0):
         self.reg.npa = None
-        if verbose > 1:
-            print(f'SEARCH {self.text}')
+        if verbose > 0:
+            print(f'TextFlat SEARCH {self.text}')
         b = self.ocr.regex(self.text,
                             self.reg, 
                             retries=retries,
@@ -466,7 +466,6 @@ class TextButton(ButtonParameter):
         self.b = StdButtons(self.reg)
 
     def search(self,
-                threshold=0.8,
                 delay=0.01,
                 retries=1, 
                 call_back=None,
@@ -530,7 +529,7 @@ class IconButton(ButtonParameter):
                 pause=1,
                 delay=0.01,
                 no_scan=False,
-                call_back=None,
+                callback=None,
                 verbose=0):
         self.reg.npa = None
         if verbose > 1:
@@ -563,6 +562,10 @@ class IconButton(ButtonParameter):
                 print(f'Icon button not found. retry({tries})')
             if tries >= retries:
                 return None
+            if callback:
+                ret = callback()
+                if ret is not None:
+                    return ret
             sleep(pause)
         return None
             
@@ -772,7 +775,7 @@ class Buttons(ButtonParameter):
                                         xs=ts.rel_x(0.),
                                         xe=ts.rel_x(0.99),
                                         ys=ts.rel_y(0.3),
-                                        ye=ts.rel_y(0.8),
+                                        ye=ts.rel_y(0.95),
                                         invert=True,
                                         process=True),                                       
                                         'REMATCH')
@@ -887,8 +890,10 @@ class Buttons(ButtonParameter):
                                     invert=True,
                                     process=True,
                                     blur=1,
-                                    xs=ts.rel_x(0.10),
-                                    xe=ts.rel_x(0.90),
+                                    # color='red',
+                                    threshold=100,
+                                    xs=ts.rel_x(0.00),
+                                    xe=ts.rel_x(0.99),
                                     ys=ts.rel_y(0.30),
                                     ye=ts.rel_y(0.80)),
                                     'YES')
@@ -1149,6 +1154,7 @@ class Buttons(ButtonParameter):
                                         'NEXT')
         self.t_trade_confirm = TextFlat(ScreenRegion(ts,
                                         invert=True,
+                                        process=True,
                                         xs=ts.rel_x(0.0),
                                         xe=ts.rel_x(.5),
                                         ys=ts.rel_y(0.2),
@@ -1244,6 +1250,7 @@ class StdButtons(ButtonParameter):
         boxes = self.ts.image.boxes_get(reg, verbose=verbose)            
 
         for box in boxes:
+            box.threshold = reg.threshold
             box = self.ts.image.process_array(box, verbose=verbose)
             
             if verbose > 5:
@@ -1251,7 +1258,7 @@ class StdButtons(ButtonParameter):
             if box.npa is None:
                 continue
 
-            words = self.ocr._tesserocr_from_array(box)
+            words = self.ocr._tesserocr_from_array(box, verbose=verbose)
             # texts = self._concat_tesserocr_results(words)
             for w in words:
                 if verbose > 2:

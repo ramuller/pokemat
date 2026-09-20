@@ -91,7 +91,10 @@ class Ocr:
         # For line detection
         button_of_line = -1
         for r in iterate_level(ri, level):
+            if r.Empty(level=0):
+                continue
             try:
+                # print(f'Is empty: {r.Empty(level=0)}')
                 text = r.GetUTF8Text(level)
             except:
                 continue
@@ -173,7 +176,8 @@ class Ocr:
             # self.reset_parameters()
             # print(f'Tries {tries}')
             for l in lines:
-                # print(f'Line {l["text"]}')
+                if verbose > 0:
+                    print(f'OCR on {self.ts.url} line : {l["text"]}')
                 if re.search(regex, l['text']):
                     res.append(l)
                     if not find_all:

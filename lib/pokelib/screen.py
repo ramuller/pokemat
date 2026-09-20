@@ -125,7 +125,7 @@ class Screen:
                         xe=(self.ts.specs['max_x'] * 0.5),
                         ys=self.ts.specs['max_y'] * 0.37,
                         ye=self.ts.specs['max_y'] * 0.60)
-            while (datetime.now() - startTime).total_seconds() < 30:
+            while (datetime.now() - startTime).total_seconds() < 90:
                 if len(self.ts.ocr.regex('.*.....*', reg, retries=1)) > 0:
                     return True
                 npa = self.ts.image.scan_region(reg_center)
@@ -140,7 +140,7 @@ class Screen:
     def go_gym(self):
         while not self.ts.buttons.i_gym_photo_disk.search(retries=1):
             print("Not in gym")
-            self.ts.tap_screen(281, 339, scale=False)
+            self.ts.tap_screen(self.ts.rel_x(.5), self.ts.rel_y(.5), scale=False)
             sleep(1)
         return True
 
@@ -194,10 +194,16 @@ class Screen:
         if self.ts.buttons.b_lucky_egg.search(retries=1):
             self.ts.buttone.i_exits.press(retries=1)
             return
+        print('Try rescue')
         if self.ts.buttons.b_grunt_rescue.press(retries=1):
             return
+        print('Try dismiss')
         if self.ts.buttons.t_info_dismiss.press(retries=1):
             return
+        print('Try friend lets go')
+        if self.ts.buttons.t_friend_lets_battle.press(retries=1):
+            return
+        print('Try battle lets go')
         if self.ts.buttons.t_battle_lets_go.press(retries=1):
             return
         print('Try passenger')

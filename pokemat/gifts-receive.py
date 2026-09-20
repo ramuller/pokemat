@@ -88,20 +88,20 @@ def gifting(port):
             #     phone.tap_screen(612, 494)
             #     time.sleep(0.3)
             time.sleep(2.5)
-            phone.selectAll()
+            phone.text_select_all()
             if args.all:
-                phone.send_text_line("!fff & interactable")
+                phone.text_send_line("!fff & interactable")
             elif len(shuffled_letters) > 0:
-                phone.send_text_line("!fff & interactable & {}".format(shuffled_letters[0]))
+                phone.text_send_line("!fff & interactable & {}".format(shuffled_letters[0]))
             else:
                 last_tries -= 1
                 if last_tries <= 0:
                     phone.screen_go_to_home()
                     sys.exit(0)
-                # phone.send_text_line("!ff  & interactable\ņ")
-                phone.send_text_line("!ff & hama")
+                # phone.text_send_line("!ff  & interactable\ņ")
+                phone.text_send_line("!ff & hama")
             time.sleep(0.5)
-            phone.send_text_line('\n')
+            phone.text_send_line('\n')
 
             # phone.buttons.t_input_ok.press(verbose=0)
             sleep(0.5)

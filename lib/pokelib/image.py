@@ -23,6 +23,7 @@ class PokeImage:
         h = reg.ye - reg.ys + 1
         x = reg.xs
         y = reg.ys
+        # print(f'Scanning region from : {self.ts.url}')
         try:
             if reg.color == "gray":
                 jbuf = self.ts.write_to_phone(f"snip_gray?x={x}&y={y}&w={w}&h={h}").json()
@@ -44,6 +45,10 @@ class PokeImage:
                         pixel_array = np.array(rgb[:, :, 2], dtype=np.uint8).reshape(h, w)
                     elif reg.color == "rgb":
                         pixel_array = np.array(rgb, dtype=np.uint8).reshape(h, w, 3)
+            # name = f"{self.ts.tcp_port}" 
+            # import hashlib
+            # checksum = hashlib.sha256(pixel_array.tobytes()).hexdigest()
+            # print(f'name {name} cs {checksum}')
             return pixel_array
         except Exception as e:
             print(f'Exception {e}')

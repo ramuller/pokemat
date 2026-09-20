@@ -164,7 +164,9 @@
       "console": "integratedTerminal",
       "args": [
         "button",
-        "--name", "b_yes",
+        "--name", "i_pokeball",
+        "--show",
+        "--verbose=10"
       ],
       "comment": [
         "--show",
@@ -301,6 +303,9 @@
       "program": "${workspaceFolder}/pokemat/trade.py",
       "console": "integratedTerminal",
       "args": [
+        "${workspaceFolder}/configs/aphex-trade.json"
+      ],
+      "argss": [
         "${workspaceFolder}/configs/trade-test.json"
       ]
     },
@@ -389,6 +394,9 @@
       "console": "integratedTerminal",
       "debugOptions": ["DisableGUI"],
       "args": [
+        "--type=trainer1"
+      ]
+      "argss": [
         "${workspaceFolder}/configs/battle.json"
       ]
     },
@@ -431,8 +439,8 @@
       "programz": "${workspaceFolder}/pokemat/purify-pokemon.py",
       "program": "${workspaceFolder}/pokemat/gift-delete.py",
       "program": "${workspaceFolder}/pokemat/reconnect.py",
-      "program": "${workspaceFolder}/pokemat/delete-pokemon.py",
-      "programa": "${workspaceFolder}/pokemat/purify-pokemon.py",
+      "programd": "${workspaceFolder}/pokemat/delete-pokemon.py",
+      "program": "${workspaceFolder}/pokemat/purify-pokemon.py",
       "programf": "${workspaceFolder}/pokemat/feed_in_gym.py",
       "console": "integratedTerminal",
       "args": [

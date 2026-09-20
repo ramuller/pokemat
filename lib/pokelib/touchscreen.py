@@ -97,6 +97,7 @@ class TouchScreen:
     maxY = 0
     specs = {}
     def __init__(self, tcpPort, name = "no-set", scaleX = 0.576, scaleY = 0.512):
+        self.tcp_port = tcpPort
         self.log = logging.getLogger(str(tcpPort))
         self.log.info("\nPokemat phone : {}".format(tcpPort))
         self.url = "http://localhost:{}".format(tcpPort)
@@ -813,7 +814,7 @@ class TouchScreen:
             print("Pixel color {},{},{},{},{}".format(x, y, r, g ,b))
        
     def evolve_pokemon(self):
-        time.sleep(1.5)
+        time.sleep(2)
         # self.scroll(0, 200)
         # sys.exit(0)
         print("Scroll up")
@@ -873,7 +874,7 @@ class TouchScreen:
             time.sleep(1)
         raise
         
-    def send_text_line(self, text):
+    def text_send_line(self, text):
         time.sleep(0.1)
         # self.log.debug("type string {}".format(text))
         i = 0
@@ -900,7 +901,7 @@ class TouchScreen:
             # time.sleep(0.0035)
             time.sleep(0.02)
 
-    def selectAll(self):
+    def text_select_all(self):
         self.get_request('key?key=a&mod=ctrl')
     
     def getTimeNow(self):
@@ -1124,10 +1125,10 @@ class TouchScreen:
         sleep(2)
         self.buttons.i_pokemon_search.press()
         time.sleep(1)
-        self.selectAll()
-        self.send_text_line(f'{filter}')
+        self.text_select_all()
+        self.text_send_line(f'{filter}')
         sleep(1)
-        self.send_text_line('\n')
+        self.text_send_line('\n')
         time.sleep(1)        
         # self.tapTextOK()
         
@@ -1135,15 +1136,15 @@ class TouchScreen:
         self.buttons.black_on_white('.*SEARCH.*')
         sleep(1)
         print("done")
-        self.send_text_line(name)
+        self.text_send_line(name)
         self.tapTextOK()
 
     def pokemon_search(self, filter):
         self.color_match_wait_click(500, 345, 233, 233, 223, threashold=14, time_out_ms=30000,debug=False)
         time.sleep(1)
-        self.selectAll()
+        self.text_select_all()
         time.sleep(0.2)
-        self.send_text_line(filter)
+        self.text_send_line(filter)
         self.tapTextOK()
     
     def swipe(self, x1, y1, x2, y2):
@@ -1239,10 +1240,10 @@ class TouchScreen:
 
     
     def charged_attack(self):
-        x = ox = self.rel_x(0.2)
+        x = ox = self.rel_x(0.15)
         y = oy = self.rel_y(0.65)
         self.tap_down(x, y, duration = 0, scale=False)
-        longitude = self.rel_x(0.6)
+        longitude = self.rel_x(0.7)
         altitude = self.rel_y(0.19)
         t = 0.025
         #t = 0.2
@@ -1262,7 +1263,11 @@ class TouchScreen:
             x = dx
             y = dy
             time.sleep(t)
-        self.tap_up(x, y + step, duration = 0, scale=False)
+        a -= step
+        dx = ox + ( a * ( longitude / max_degrees))
+        dy = oy - (int(math.sin(math.radians(a)) * altitude))
+        # self.tap_up(x, y + step, duration = 0, scale=False)
+        self.tap_up(dx, dy, duration = 0, scale=False)
         time.sleep(0.05)
 
 
@@ -1313,8 +1318,7 @@ class TouchScreen:
 
 
     def battle_league(self):
-
-        
+       
         time.sleep(3)
 
         count = 5
@@ -1762,31 +1766,6 @@ class TouchScreen:
     # Parameter:
     # in_battle - If true is in battle already dont's wait
     def do_battle(self, in_battle = False, opponent = None):
-        def charged_attack():
-            self.tap_down(self.rel_x(0.5), self.rel_y(0.7), duration = 0, scale=False)
-            x = ox = self.rel_x(0.2)
-            y = oy = self.rel_y(0.65)
-            longitude = self.rel_x(0.6)
-            altitude = self.rel_x(0.18)
-            t = 0.03
-            step = 45
-            max_degrees = 360
-            for a in range(0,max_degrees, step):
-                dx = ox + ( a * ( longitude / max_degrees))
-                dy = oy + (int(math.sin(math.radians(a)) * altitude))
-                self.moveCursor(x, y, dx, dy, scale=False)
-                x = dx
-                y = dy
-                time.sleep(t)
-            for a in range(max_degrees, 0, -step):
-                dx = ox + ( a * ( longitude / max_degrees))
-                dy = oy + (int(math.sin(math.radians(a)) * altitude))
-                self.moveCursor(x, y, dx, dy, scale=False)
-                x = dx
-                y = dy
-                time.sleep(t)
-            self.tap_up(x, y + step, duration = 0, scale=False)
-            time.sleep(0.05)
         def battle_start():
             reg = ScreenRegion(self,
                                 xs=10, xe=50,
@@ -1840,7 +1819,7 @@ class TouchScreen:
                     and not self.buttons.i_exit_man.search(retries=1)\
                     and not self.buttons.b_grunt_rematch.search(retries=1) \
                     and not self.buttons.b_grunt_rescue.search(retries=1):
-                charged_attack()
+                self.charged_attack()
                 print('Charged attack')
                 # sleep(1)
 
@@ -1879,7 +1858,7 @@ class TouchScreen:
         if "NICKNAME" in text:
             self.tap_screen(515, 1404)
             sleep(1)
-            self.send_text_line(f"\a{nick}\\n")
+            self.text_send_line(f"\a{nick}\\n")
         self.color_match_wait_click(392, 1101, 134, 217, 153, time_out_ms=1500, ex=False)
     '''
     Update friend level
@@ -1911,7 +1890,7 @@ class TouchScreen:
         # Tap set nickname
         self.tap_screen(500,1400)   
         sleep(1)
-        self.send_text_line(nick)
+        self.text_send_line(nick)
         self.tapTextOK()
         # nail it down
         sleep(0.5)

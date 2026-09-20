@@ -4,16 +4,11 @@
     "host": { 
         "port": "3001",
         "name": "schlumpiz",
-		"filterr": "\\a pidgeotto&!3* & !favorite & ! traded &!4*&!3*",
-		"filter": "!traded & xp1 &!favorite",
-		"filtedr": "zigzagoon&!4*&!3* !favorite & !shadow &!shiny&!legendary",
-		"filter2": "gastly"
+		"filter": "!traded & xp1"
    },
     "guest": {
-        "port": "3004",
-        "name": "higimmi222",
-		"filter": "!traded & xp1 &!favorite",
-		"filterr": "shelmet,karrablast&!legendary",
-		"filterx": "wooper,trumbeak & !xxs & !xxl & !4* & !3* & !favorite"
+        "port": "3002",
+        "name": "helmut",
+		"filter": "!traded & machoke"
     }
 }

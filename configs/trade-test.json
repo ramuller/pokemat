@@ -1,12 +1,12 @@
 {
     "mode": "trade",
     "league": "master",
-    "host": { 
+    "guest": {
         "port": "3002",
         "name": "pokeralle",
 		"filter": "xp1&!traded"
    },
-    "guest": {
+    "host": { 
         "port": "3003",
         "name": "pokeeizu",
 		"filter": "xp1&!traded"

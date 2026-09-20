@@ -86,13 +86,13 @@ def gifting(port):
             #     phone.tap_screen(612, 494)
             #     time.sleep(0.3)
             time.sleep(1.5)
-            phone.selectAll()
+            phone.text_select_all()
             if args.all:
-                phone.send_text_line('!oksfknds')
+                phone.text_send_line('!oksfknds')
             else:
-                phone.send_text_line("!fff & interactable")
+                phone.text_send_line("!fff")
             time.sleep(0.5)
-            phone.send_text_line('\n')
+            phone.text_send_line('\n')
 
             # phone.screen.go_friends()
 

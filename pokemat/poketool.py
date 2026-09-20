@@ -192,7 +192,7 @@ def button():
                                     verbose=args.verbose)
         else:
             detection = method.search(
-                                    retries=1, 
+                                    retries=1,
                                     verbose=args.verbose)
             if not method.updated and detection:
                 print('Update button search area based on result')
@@ -425,8 +425,8 @@ def main():
                         help='x start.')
     parser.add_argument('--tl', action='store', required=False, default=0, \
                         help='threshold low.', type=int)
-    parser.add_argument('-t', '--threshold', action='store', required=False, default=0, \
-                        help='threshold.', type=int)
+    parser.add_argument('-t', '--threshold', action='store', required=False, default=1.0, \
+                        help='threshold.', type=float)
     parser.add_argument('--count', action='store', required=False, default=1, \
                         help='If something can repeat.', type=int)
     parser.add_argument('--invert', action='store_true', default=False, \

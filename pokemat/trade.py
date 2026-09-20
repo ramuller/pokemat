@@ -27,7 +27,7 @@ from _operator import truediv
 
 from concurrent.futures import ThreadPoolExecutor
 
-from regex import F
+from regex import F, T
 
 global log
 
@@ -125,27 +125,28 @@ def search_and_press(button):
     if button.search(retries=30) is None:
         raise Exception("Button not found")
     # press it until button is not found anymore
+    print(f'Pressing button found {button.ts.url}')
     counter = 0
-    while button.press(retries=1):
+    while button.press(retries=1, verbose=0):
         counter += 1
-        if counter > 230:
+        if counter > 20:
             raise Exception("Button still there after 20 retries")
         print(f'Button pressed address {button.ts.url} counter {counter}')
         sleep(1)
 
 def trade_pokemon(p, trainer):
     # Initialize the attribute if it doesn't exist yet
-    retries = 35
-    print(f'{trainer} - waiting for trade to start {retries}')
+    retries = 100
+    print(f'{trainer} - waiting for trade to start for {retries}s!')
     while not p.ocr.regex('POK.MON', 
                       ScreenRegion(p, ye=p.rel_y(0.25)),
                       retries=1, pause=1):
-        print(f'{trainer} - waiting for trade to start {retries}')
-        p.buttons.t_friend_trade.press(retries=1)
+        print(f'{trainer} - waiting for trade to start {retries}s left')
+        print(f'Button result {p.buttons.t_friend_trade.press(retries=1, verbose=0)}')
         if retries <= 0:
             raise Exception(f"{trainer} - Trade not started yet")
-        retries += 1
-        sleep(0.75)
+        retries -= 1
+        sleep(1)
     print(f'{trainer} - pokemon screen found')
     trade_started[trainer] = True
     retries=20
@@ -160,12 +161,20 @@ def trade_pokemon(p, trainer):
         sleep(1)
     print(f'{trainer} - press next')
     # p.buttons.b_trade_next.press(retries=50)
-    search_and_press(p.buttons.b_trade_next)
+    # search_and_press(p.buttons.b_trade_next)
     print(f'{trainer} - confirm')
     # p.buttons.t_trade_confirm.press(retries=50)
-    search_and_press(p.buttons.t_trade_confirm)
+    # search_and_press(p.buttons.t_trade_confirm)
+    sleep(2)
+    p.buttons.t_trade_confirm.press(retries=1)
     print(f'{trainer} - wait for pokemon received')
-    p.buttons.i_exits.press(retries=30)
+    def cb_confirm():
+        next = p.buttons.b_trade_next.press(retries=1)
+        conf = p.buttons.t_trade_confirm.press(retries=1)
+        yes = p.buttons.b_yes.press(retries=1)
+        print(f'{trainer} - callback conf {conf} next {next} yes {yes}')
+        return None
+    p.buttons.i_exits.press(retries=40,callback=cb_confirm)
     print(f'{trainer} - pokemon received exit pressed')
 
 def start_trade(p, trainer, filter):
@@ -185,14 +194,25 @@ def start_trade(p, trainer, filter):
             raise
     time.sleep(2.5)
     print("Friend screen")
-    p.send_text_line(f'\\a{trainer}')
-    sleep(1)
-    p.send_text_line(f' \\n')
+    p.text_select_all()
+    sleep(0.5)
+    p.text_send_line(f'{trainer}')
+    sleep(0.5)
+    p.text_send_line(f' \n')
 
     sleep(2)
     t_no_case = re.compile(f'.*{trainer}.*', re.I)
-    reg = ScreenRegion(p, process=True, blur=3)
-    t = p.ocr.regex(t_no_case, reg=reg, find_all=True)
+    reg = ScreenRegion(p, process=False, blur=0)
+    count_down = 10
+    while True:
+        count_down -= 1
+        t = p.ocr.regex(t_no_case, reg=reg, find_all=True)
+        print(f'Waiting for friend {trainer} to appear in the list, found {len(t)}')
+        if len(t) > 1:
+            break
+        if count_down == 0:
+            raise Exception(f"{trainer} - Could not find friend after 10 retries")
+        sleep(1)
     p.tap_screen(t[1]['center'], scale=False)
     sleep(2)
     def wait_4_trade_callback():
@@ -200,8 +220,15 @@ def start_trade(p, trainer, filter):
         if has_gift:
             p.tap_screen(100,100, button=3)
     sleep(1)
-    b = p.buttons.t_friend_trade.press(retries=20, 
-                                        retry_callback=wait_4_trade_callback)
+    for i in range(40):
+        b = p.buttons.t_friend_trade.press(retries=1, verbose=0)
+        if b:
+            break
+        else:
+            print(f'{trainer} - waiting for trade button to appear {i}')
+            sleep(1)
+    # b = p.buttons.t_friend_trade.press(retries=20, 
+    #                                    retry_callback=wait_4_trade_callback)
     b = p.buttons.t_friend_trade.press(retries=1)
     
     but = TextFlat(ScreenRegion(p,
@@ -216,9 +243,11 @@ def start_trade(p, trainer, filter):
 
     sleep(1)
 
-    p.send_text_line(f'\\a{filter}')
+    p.text_select_all()
+    sleep(0.5)
+    p.text_send_line(f'{filter}')
     sleep(.5)
-    p.send_text_line(f' \\n')
+    p.text_send_line(f' \n')
     print(f'{trainer} - ready for trading')
     return True
 
