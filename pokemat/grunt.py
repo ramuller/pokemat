@@ -242,6 +242,7 @@ def find_grunt(phone):
                        ys=phone.rel_y(0.1), 
                        ye=phone.rel_y(0.6))
     reg.npa = phone.image.scan_region(reg)
+    # try_color(phone, reg, 200)
     with ThreadPoolExecutor(max_workers=args.threads) as executor:
         futures = [
             executor.submit(try_color, phone, reg, r)

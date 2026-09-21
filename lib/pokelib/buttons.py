@@ -531,7 +531,9 @@ class IconButton(ButtonParameter):
                 no_scan=False,
                 callback=None,
                 verbose=0):
-        self.reg.npa = None
+        if not no_scan:
+            self.reg.npa = None
+            
         if verbose > 1:
             print("Searching for icon button...")
         
