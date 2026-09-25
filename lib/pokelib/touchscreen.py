@@ -792,6 +792,7 @@ class TouchScreen:
         found_poke = False
         reg = ScreenRegion(self,
                 process=True,
+                threshold=130,
                 xs=self.rel_x(0),
                 xe=self.rel_x(1),
                 ys=self.rel_y(0.28),
@@ -953,15 +954,16 @@ class TouchScreen:
             to -= 1
         return False
     
-    def rotate(self, angle = 40):
+    def rotate(self, angle = 60):
         dx = self.rel_x(angle / 100)
         sx = self.rel_x(0.5) - dx//2
         print(f"Rotate {angle} dx {dx} sx {sx}")
         self.scroll(dx, 
                     0, 
-                    sy=self.rel_y(0.98), 
+                    sy=self.rel_y(0.5), 
+                    # sy=self.rel_y(0.98), 
                     sx = self.rel_x(0.1), 
-                    tap_time=0.02,
+                    tap_time=0.03,
                     stop_to=0.3)
         return
     

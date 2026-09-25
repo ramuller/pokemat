@@ -64,6 +64,7 @@ def select_trainer(trainer):
                                         mode='line',
                                         process=True,
                                         invert=True,
+                                        threshold=100,
                                         retries=60)
     if but == []:
         print('No choose trainer bye bye')
@@ -76,7 +77,9 @@ def select_trainer(trainer):
                                          xs=phone.rel_x(0.2),
                                          mode='line',
                                          invert=True,
-                                         retries=2, verbose=0):
+                                         threshold=100,
+                                         retries=2, 
+                                         verbose=0):
             return True
         sx = int(phone.specs['width'] // 2 )
         sy = int(phone.specs['max_y'] * 0.9)

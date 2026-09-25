@@ -133,6 +133,10 @@ class Ocr:
         return concatenated
     
     def read_and_npa(self, reg : ScreenRegion=None,
+                     process=False, 
+                     invert=False,
+                     color='gray',
+                     mode='word',
                      verbose=0):
         reg = reg or ScreenRegion(self.ts)
         if reg.npa is None:

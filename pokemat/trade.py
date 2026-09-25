@@ -17,7 +17,12 @@ import logging
 from pokelib import TouchScreen, ocr
 from pokelib import ExPokeLibFatal
 from pokelib import ScreenRegion
+# Butttons
 from pokelib import TextFlat
+from pokelib import CButtFriendTrade
+from pokelib import CButtTradeNext
+from pokelib import CButtTradeConfirm
+from pokelib import CButtYes
 
 import json
 import sys
@@ -26,8 +31,6 @@ from _operator import truediv
 
 
 from concurrent.futures import ThreadPoolExecutor
-
-from regex import F, T
 
 global log
 
@@ -57,9 +60,6 @@ def trade(jsonFile):
     print("start trading")
     host = TouchScreen(parameter["host"]["port"], name = parameter["host"]["name"])
     guest = TouchScreen(parameter["guest"]["port"], name = parameter["guest"]["name"])
-    guest.buttons.t_friend_trade.search(retries=1)
-    guest.buttons.t_friend_trade.search(retries=1)
-    guest.buttons.t_friend_trade.search(retries=1)
     global trade_started
     trade_started = {
         parameter["host"]["name"]: False,
@@ -138,11 +138,12 @@ def trade_pokemon(p, trainer):
     # Initialize the attribute if it doesn't exist yet
     retries = 100
     print(f'{trainer} - waiting for trade to start for {retries}s!')
+    but_trade = CButtFriendTrade(p)
     while not p.ocr.regex('POK.MON', 
                       ScreenRegion(p, ye=p.rel_y(0.25)),
                       retries=1, pause=1):
         print(f'{trainer} - waiting for trade to start {retries}s left')
-        print(f'Button result {p.buttons.t_friend_trade.press(retries=1, verbose=0)}')
+        print(f'Button result {but_trade.press(retries=1, verbose=0)}')
         if retries <= 0:
             raise Exception(f"{trainer} - Trade not started yet")
         retries -= 1
@@ -160,21 +161,19 @@ def trade_pokemon(p, trainer):
             raise Exception(f"{trainer} - Could not select first pokemon after 20 retries")
         sleep(1)
     print(f'{trainer} - press next')
-    # p.buttons.b_trade_next.press(retries=50)
-    # search_and_press(p.buttons.b_trade_next)
-    print(f'{trainer} - confirm')
-    # p.buttons.t_trade_confirm.press(retries=50)
-    # search_and_press(p.buttons.t_trade_confirm)
     sleep(2)
-    p.buttons.t_trade_confirm.press(retries=1)
+    confirm = CButtTradeConfirm(p)
+    next = CButtTradeNext(p)
+    yes = CButtYes(p)
+
     print(f'{trainer} - wait for pokemon received')
-    def cb_confirm():
-        next = p.buttons.b_trade_next.press(retries=1)
-        conf = p.buttons.t_trade_confirm.press(retries=1)
-        yes = p.buttons.b_yes.press(retries=1)
+    def cb_confirm(n=next, c=confirm, y=yes):
+        next = n.press(retries=1)
+        conf = c.press(retries=1)
+        yes = y.press(retries=1)
         print(f'{trainer} - callback conf {conf} next {next} yes {yes}')
         return None
-    p.buttons.i_exits.press(retries=40,callback=cb_confirm)
+    p.buttons.i_exits.press(retries=40, callback=cb_confirm)
     print(f'{trainer} - pokemon received exit pressed')
 
 def start_trade(p, trainer, filter):
@@ -220,27 +219,33 @@ def start_trade(p, trainer, filter):
         if has_gift:
             p.tap_screen(100,100, button=3)
     sleep(1)
+    but_trade = CButtFriendTrade(p)
     for i in range(40):
-        b = p.buttons.t_friend_trade.press(retries=1, verbose=0)
+        b = but_trade.press(retries=1, press_callback=wait_4_trade_callback, verbose=0)
         if b:
             break
         else:
+            has_gift = p.buttons.b_open_gift.search()
+            if has_gift:
+                p.tap_screen(100,100, button=3)
             print(f'{trainer} - waiting for trade button to appear {i}')
             sleep(1)
     # b = p.buttons.t_friend_trade.press(retries=20, 
     #                                    retry_callback=wait_4_trade_callback)
-    b = p.buttons.t_friend_trade.press(retries=1)
+    b = but_trade.press(retries=1)
     
     but = TextFlat(ScreenRegion(p,
                     ye=p.rel_y(0.40)),
                     'Search')
-    
-    for i in range(5):
-        if but.press(retries=1, verbose=0):
+    found = False
+    for i in range(50):
+        print(f'{trainer} - Waiting for search button to appear {i}')
+        if but.press(retries=1, verbose=0) or p.buttons.i_pokemon_search.press(retries=1, verbose=0):
+            found = True
             break
-        elif p.buttons.i_pokemon_search.press():
-            break
-
+        sleep(1)
+    if not found:
+        raise Exception(f'{trainer} - Could not find search button after 50 retries')
     sleep(1)
 
     p.text_select_all()

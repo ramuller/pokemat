@@ -246,6 +246,7 @@ class PokeImage:
                 reg.npa = cv2.bitwise_not(reg.npa)
             # if not reg.process:
             #     return reg
+            # self.show_image(reg.npa, title='preprocess', wait=1000)
             reg.npa = cv2.normalize(reg.npa, 
                                 None, 
                                 alpha=0, beta=255, 

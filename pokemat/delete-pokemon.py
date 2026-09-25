@@ -38,7 +38,7 @@ def delete_pokemon(port):
     while True:
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
-            phone.pokemon_select_first()
+            phone.pokemon_select_first(retries=3, verbose=0)
             print("Click menu")
             if not phone.buttons.i_pokemon_menu.press(retries=8):
                 raise 'No pokemenu found'

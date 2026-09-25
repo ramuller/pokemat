@@ -2,6 +2,7 @@
 import math
 from cv2 import threshold
 # import keyboard
+import cv2
 
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
@@ -10,6 +11,7 @@ from pokelib.buttons import ButtonParameter
 from pokelib import ScreenRegion
 from pokelib import TextOnly, Coordinates,ButtonParameter 
 from pokelib import IconButton, TextButton, StdButtons, TextFlat
+import pokelib.buttons
 
 from hybrid_icon_detector import IconDetector
 from catch import select_berry
@@ -108,6 +110,9 @@ def _schow_screen(reg):
 def read():
     reg = _set_paramters_from_args()
 
+    if args.pic:
+        reg.npa = cv2.imread(args.pic, cv2.IMREAD_GRAYSCALE)
+        print(f'Loaded image {args.pic}')
     print(f'Reading region x:{reg.xs}-{reg.xe} y:{reg.ys}-{reg.ye}')
     print(f'reg.invert:{phone.ocr.invert} reg.process:{phone.ocr.process} reg.mode:{phone.ocr.mode}') 
 
@@ -425,7 +430,7 @@ def main():
                         help='x start.')
     parser.add_argument('--tl', action='store', required=False, default=0, \
                         help='threshold low.', type=int)
-    parser.add_argument('-t', '--threshold', action='store', required=False, default=1.0, \
+    parser.add_argument('-t', '--threshold', action='store', required=False, default=0, \
                         help='threshold.', type=float)
     parser.add_argument('--count', action='store', required=False, default=1, \
                         help='If something can repeat.', type=int)
@@ -437,6 +442,8 @@ def main():
                         help='Store picture with this name.')
     parser.add_argument('-c', '--color', action='store', required=False, default='gray', \
                         help='Color mode.')
+    parser.add_argument('--pic', action='store', required=False, default='', \
+                        help='PNG file name for picture processing tests.')
     parser.add_argument('--text', action='store', required=False, default=None, \
                         help='Where ever text is needed, e.g. button text or input text.')
     parser.add_argument('--kind', action='store', required=False, default='dark', \

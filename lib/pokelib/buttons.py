@@ -470,6 +470,7 @@ class TextButton(ButtonParameter):
                 retries=1, 
                 call_back=None,
                 where='center',
+                threshold=0,
                 verbose=0):
         self.reg.npa = None
         if self.reg.invert:
@@ -478,6 +479,7 @@ class TextButton(ButtonParameter):
                 reg=self.reg,
                 action='check',
                 delay=delay,
+                threshold=threshold,
                 retries=retries, 
                 verbose=verbose)
         else:
@@ -486,6 +488,7 @@ class TextButton(ButtonParameter):
                 reg=self.reg,
                 action='check',
                 delay=delay,
+                threshold=threshold,
                 retries=retries, 
                 verbose=verbose)
 
@@ -583,6 +586,65 @@ class IconButton(ButtonParameter):
         self.endy = int(det.quad[3][1]) + 5
         self.updated = True
 
+class CButtFriendTrade(TextFlat):
+    def __init__(self, ts):
+        super().__init__(
+            ScreenRegion(ts,
+            xs=ts.rel_x(0.05),
+            xe=ts.rel_x(.5),
+            ys=ts.rel_y(0.8),
+            ye=ts.rel_y(1)),
+            'LOCAL')
+
+class CButtYes(TextButton):
+    def __init__(self, ts):
+        super().__init__(
+            ScreenRegion(ts,
+            invert=True,
+            process=True,
+            blur=1,
+            # color='red',
+            threshold=100,
+            xs=ts.rel_x(0.00),
+            xe=ts.rel_x(0.99),
+            ys=ts.rel_y(0.30),
+            ye=ts.rel_y(0.80)),
+            'YES')
+
+class CButtTradeConfirm(TextFlat):
+    def __init__(self, ts):
+        super().__init__(
+            ScreenRegion(ts,
+            invert=True,
+            process=True,
+            xs=ts.rel_x(0.0),
+            xe=ts.rel_x(.5),
+            ys=ts.rel_y(0.2),
+            ye=ts.rel_y(0.8),
+            ),  
+            'CONFIRM')
+
+class CButtCatchBerrie(TextFlat):
+    def __init__(self, ts, threshold=0):
+        super().__init__(
+            ScreenRegion(ts,
+            threshold=threshold,
+            ys=ts.rel_y(0.40),
+            ye=ts.rel_y(0.72)), 
+            'Berry')
+
+
+class CButtTradeNext(TextButton):
+    def __init__(self, ts):
+        super().__init__(
+            ScreenRegion(ts,
+            invert=True,
+            process=True,
+            xs=ts.rel_x(0),
+            xe=ts.rel_x(1),
+            ys=ts.rel_y(0.5),
+            ye=ts.rel_y(1)),
+            'NEXT')
 
 class Buttons(ButtonParameter):
     def __init__(self, reg):
@@ -1146,23 +1208,7 @@ class Buttons(ButtonParameter):
                                         ys=ts.rel_y(0.5),
                                         ye=ts.rel_y(1)),
                                         'REVIVE')
-        self.b_trade_next = TextButton(ScreenRegion(ts,
-                                        invert=True,
-                                        process=True,
-                                        xs=ts.rel_x(0),
-                                        xe=ts.rel_x(1),
-                                        ys=ts.rel_y(0.5),
-                                        ye=ts.rel_y(1)),
-                                        'NEXT')
-        self.t_trade_confirm = TextFlat(ScreenRegion(ts,
-                                        invert=True,
-                                        process=True,
-                                        xs=ts.rel_x(0.0),
-                                        xe=ts.rel_x(.5),
-                                        ys=ts.rel_y(0.2),
-                                        ye=ts.rel_y(0.8),
-                                        ),  
-                                        'CONFIRM')
+
         self.i_evolve = IconButton(ScreenRegion(ts,
                                     xs=ts.rel_x(0),
                                     xe=ts.rel_x(0.5),
@@ -1184,13 +1230,6 @@ class Buttons(ButtonParameter):
                                     ye=ts.rel_y(0.40),
                                     ),  
                                     'gifts_trash')
-        self.t_friend_trade = TextFlat(ScreenRegion(ts,
-                                    xs=ts.rel_x(0.05),
-                                    xe=ts.rel_x(.5),
-                                    ys=ts.rel_y(0.8),
-                                    ye=ts.rel_y(1),
-                                    ),  
-                                    'LOCAL')
         self.t_menu_pokemon = TextFlat(ScreenRegion(ts,
                                     xs=ts.rel_x(0.05),
                                     xe=ts.rel_x(.5),
@@ -1241,6 +1280,7 @@ class StdButtons(ButtonParameter):
         self.ocr = Ocr(reg.ts)
 
     def _button(self, name, reg : ScreenRegion=None, 
+                threshold :int=0, 
                 verbose=0):
         reg = reg or ScreenRegion(self.ts)
         if reg.npa is None:
@@ -1298,6 +1338,7 @@ class StdButtons(ButtonParameter):
                         action='press',
                         retries=1,
                         delay=0.01,
+                        threshold=0,
                         call_back=None,
                         verbose=0):
         reg = reg or ScreenRegion(self.ts)
@@ -1306,8 +1347,8 @@ class StdButtons(ButtonParameter):
             reg.npa = None
             # print(f'Retry - {retries}')
             button, _ = method(text, reg,
+                               threshold=threshold,
                                verbose=verbose)
-                                 #verbose=verbose)
             if button:
                 if action == 'press':
                     if verbose > 2:

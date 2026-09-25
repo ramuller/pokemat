@@ -4,11 +4,11 @@
     "host": { 
         "port": "3001",
         "name": "schlumpiz",
-		"filter": "!traded & xp1"
+		"filter": "!traded&shelmet,phantump,karrablast,haunter,kadabra,graveler,pumpkaboo"
    },
     "guest": {
         "port": "3002",
-        "name": "helmut",
-		"filter": "!traded & machoke"
+        "name": "pokeralle",
+		"filter": "!traded&shelmet,phantump,karrablast,haunter,kadabra,graveler,pumpkaboo"
     }
 }

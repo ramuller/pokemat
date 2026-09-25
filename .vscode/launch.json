@@ -90,11 +90,13 @@
       "console": "integratedTerminal",
       "args": [
         "read",
+        "--pic", "/turbo/home/ralf/git/pokemat/icons/screen-shots/berries-24.png",
         "--show",
-        "--invert",
-        "--color", "blue",
+        "--threshold=220",
+        "--color", "gray",
       ],
       "comment":[
+        "--invert",
         "--process",
         "--name",
         "--threshold=120",

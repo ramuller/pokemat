@@ -1,4 +1,5 @@
 #!/bin/env python
+from tabnanny import verbose
 import time
 from time import sleep
 import os
@@ -8,6 +9,7 @@ from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
 from pokelib import ScreenRegion
+from pokelib import CButtCatchBerrie
 
 
 import json
@@ -66,8 +68,9 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
 
         sleep(1)
         if berry != "n":
-            bs = select_berry(p, berry)            
-            berry_already = p.buttons.b_catch_berry.search(retries=4)
+            bs = select_berry(p, berry)                 
+            # berry_already = p.buttons.b_catch_berry.search(retries=4)
+            berry_already = CButtCatchBerrie(p,threshold=220).search(retries=4,verbose=0)
             if berry_already:
                 p.tap_screen(p.rel_x(0.1), berry_already['center'][1], scale=False)
                 sleep(0.5)
