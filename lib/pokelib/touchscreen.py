@@ -788,21 +788,27 @@ class TouchScreen:
         
     def pokemon_select_first(self,
                              retries=1,
-                             verbose=0):
+                             verbose=10):
         found_poke = False
+        # for i in range(0, retries):
         reg = ScreenRegion(self,
                 process=True,
-                threshold=130,
+                threshold=150,
                 xs=self.rel_x(0),
                 xe=self.rel_x(1),
-                ys=self.rel_y(0.28),
+                ys=self.rel_y(0.25),
+                #    random.randint(-self.rel_y(0.05), self.rel_y(0.05)),
                 ye=self.rel_y(0.75)
                 )
         # Search 2 characters together
         pl = self.ocr.regex('.*...*', reg, 
-                       retries=retries,
-                       find_all=True,
-                       verbose=verbose)
+                    retries=retries,
+                    find_all=True,
+                    verbose=verbose)
+            # if pl:
+            #     found_poke = True
+            #     break
+            # sleep(0.5)
         if not pl:
             print('No pokemon found')
             return False
@@ -818,13 +824,15 @@ class TouchScreen:
         time.sleep(2)
         # self.scroll(0, 200)
         # sys.exit(0)
-        print("Scroll up")
-        self.scroll(0,-350, sx=self.rel_x(0.02), sy = self.rel_y(0.9))
-        # self.scroll(0,-330)
-        # Search and tap evolve
-        sleep(0.5)
-        if not self.buttons.i_evolve.press(retries=5):
-            print('No evolve found')
+        for i in range(3, 1, -1):
+            print("Scroll up")
+            self.scroll(0,-300, sx=self.rel_x(0.02), sy = self.rel_y(0.9))
+            sleep(0.5)
+            if self.buttons.i_evolve.press(retries=5):
+                print('evolve found')
+                break
+        if i == 1:
+            print('evolve not found')
             return False
         sleep(0.25)
         if not self.buttons.b_yes.press(retries=5, verbose=0, delay=0.2):
@@ -861,6 +869,7 @@ class TouchScreen:
         print("Evolve ready")
         time.sleep(0.3)
         self.buttons.i_exits.press()
+        return True
         
     def tapBattle(self):
         self.color_match_wait_click(496, 1681, 95, 166, 83, delay=3)
@@ -954,10 +963,10 @@ class TouchScreen:
             to -= 1
         return False
     
-    def rotate(self, angle = 60):
+    def rotate(self, angle = 45):
         dx = self.rel_x(angle / 100)
         sx = self.rel_x(0.5) - dx//2
-        print(f"Rotate {angle} dx {dx} sx {sx}")
+        # print(f"Rotate {angle} dx {dx} sx {sx}")
         self.scroll(dx, 
                     0, 
                     sy=self.rel_y(0.5), 
@@ -1282,6 +1291,7 @@ class TouchScreen:
         print(f'Mean over check: {np.mean(arr)}')
         # print(f'Battle over check: {all_zero}')
         return np.mean(arr) > 220
+    
     def battle_over(self):
         reg = ScreenRegion(self,
                             xs=10, xe=50,
@@ -1696,7 +1706,7 @@ class TouchScreen:
         
     
 # Old 1000x2000 based values
-#     def catch_move(self, right = True, start = -180, end = 85 + 720, off_x = 500, off_y = 1300, \
+#     def catch_move(self, right = True, start = -180, end = 80 + 720, off_x = 500, off_y = 1300, \
 #                   radius = [80, 250], delay = 0.015, step = 5, distance = 5, tilt = -1.0):
 
     def catch_move(self, right = True, start = -180, end = 90 + 720, off_x = 0, off_y = 0, \

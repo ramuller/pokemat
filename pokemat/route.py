@@ -179,7 +179,8 @@ def main():
     parser = PokeArgs()
     parser.add_argument("-r", "--route", action='store', 
                         help="Name of the route at least part",
-                        default='cross')    
+                        default='Painiitty')    
+#                        default='cross')    
     global args
     args = parser.parse_args()
 

@@ -8,6 +8,8 @@ from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
 from pokelib import ScreenRegion
+from pokelib import CButtRaidInvite
+from pokelib import CButtRaidInvite10
 
 import json
 import sys
@@ -58,6 +60,14 @@ def raid(port):
 
     # Wait until in lobby
     wait_raid_start(phone, wait_inside=False)
+    if args.invite:
+        sleep(5)
+        CButtRaidInvite(phone).press(retries=10)
+        sleep(5)
+        CButtRaidInvite10(phone).press(retries=10)
+        sleep(1)
+        CButtRaidInvite10(phone).press(retries=2)
+        sleep(10)
     wait_raid_start(phone)
     print("Raid starts")
 
@@ -73,7 +83,7 @@ def _battle_raid(p):
             rejoin=0
                 
             for x in [p.rel_x(0.2), p.rel_x(0.5), p.rel_x(0.7)]:
-                print(f'TAP x{x} y{y1}')
+                # print(f'TAP x{x} y{y1}')
                 p.tap_screen(x, y1, scale=False)
                 time.sleep(0.04)
                 # p.tap_screen(x, y2, scale=False)
@@ -92,6 +102,8 @@ def main():
     global args
     parser.add_argument("-n", "--now", action='store_true', \
                         help="Start battle immediatly")
+    parser.add_argument("-i", "--invite", action='store_true', \
+                        help="Invite friends to raid")
     args = parser.parse_args()
     global log 
     log = logging.getLogger("evolve")

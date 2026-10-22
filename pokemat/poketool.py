@@ -11,7 +11,7 @@ from pokelib.buttons import ButtonParameter
 from pokelib import ScreenRegion
 from pokelib import TextOnly, Coordinates,ButtonParameter 
 from pokelib import IconButton, TextButton, StdButtons, TextFlat
-import pokelib.buttons
+import pokelib
 
 from hybrid_icon_detector import IconDetector
 from catch import select_berry
@@ -170,7 +170,33 @@ def home():
     print(f'Try to go home screen')
     phone.screen_go_to_home()
     print(f'Current screen is "{phone.screen.get_current_screen(verbose=args.verbose)}"')
-    
+
+def class_button():
+    if not  args.name:
+        print('Button command needs --name argument')
+        print('Available buttons :')
+        for b in dir(pokelib.class_buttons):
+            if b.startswith('__'):
+                continue
+            print(f'Button name : {b}')
+        return
+    print(f'Search button function {args.name}')
+    button_class = getattr(pokelib.class_buttons, args.name, None)
+    if button_class is None:
+        print(f'Unknown class button {args.name}')
+        return
+    cbut = button_class(phone)
+    res = cbut.search(retries=1, 
+                      verbose=args.verbose)
+
+    if args.show:
+        try:
+            _schow_screen(cbut.reg)
+        except:
+            print("Failed to show screen")
+
+    print(res)
+
 '''
 Search high level button
 '''
@@ -381,6 +407,8 @@ def action(port, arg = None):
         ret = home()
     elif re.match('but.*', command):
         ret = button()
+    elif re.match('cbu.*', command):
+        ret = class_button()
     elif re.match('snap.*', command):
         ret = snapshot()
     elif re.match('i.*', command):

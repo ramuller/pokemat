@@ -158,6 +158,26 @@
       ]
     },
    {
+      "name": "poketool class buttons",
+      "extends": "Base",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "cbutton",
+        "--name", "CButtRaidRescue",
+        "--show",
+      ],
+      "comment": [
+        "--show",
+        "--verbose=10",
+        "--text", ".*Sign.*",
+        "--show",
+        "--threashold", "20",
+      ]
+    },
+   {
       "name": "poketool button",
       "extends": "Base",
       "type": "python",
@@ -342,7 +362,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/raid.py",
       "console": "integratedTerminal",
-      "args": []
+      "args": ["--invite"]
     },    
     {
       "name": "heal",
@@ -372,7 +392,7 @@
       "program": "${workspaceFolder}/pokemat/evolve.py",
       "console": "integratedTerminal",
       "args": [
-        "--filter", "deino"
+        "--filter", "evolve&zorua"
       ]
     },    
     {
@@ -444,6 +464,7 @@
       "programd": "${workspaceFolder}/pokemat/delete-pokemon.py",
       "program": "${workspaceFolder}/pokemat/purify-pokemon.py",
       "programf": "${workspaceFolder}/pokemat/feed_in_gym.py",
+      "program": "${workspaceFolder}/pokemat/buddy-care.py",
       "console": "integratedTerminal",
       "args": [
       ]

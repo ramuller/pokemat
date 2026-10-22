@@ -9,6 +9,7 @@ from .poke_args import PokeArgs
 from .ocr import Ocr
 from .buttons import Buttons, Coordinates, TextOnly, IconButton, TextButton
 from .buttons import *
+from .class_buttons import *
 from .pixelvector import PixelVector
 from .database import Database
 from .screen import Screen

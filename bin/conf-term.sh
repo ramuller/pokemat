@@ -59,3 +59,5 @@ do
 done
 xdotool type "export PHONE_PORT=$(( 3001 + $i))"
 xdotool key Return
+xdotool type "start-all.sh"
+xdotool key Return

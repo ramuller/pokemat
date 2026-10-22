@@ -155,6 +155,7 @@ def trade_pokemon(p, trainer):
                       ScreenRegion(p, ye=p.rel_y(0.12)),
                       retries=1, pause=1):
         print(f'{trainer} - select first pokemon retries {retries}')
+        sleep(5)
         p.pokemon_select_first(verbose=0)
         retries -= 1
         if retries == 0:

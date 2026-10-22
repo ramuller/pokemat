@@ -5,6 +5,12 @@
 phone-start-app.sh net.ramuller.gpsdrain
 
 
+## Filter for 1 day cleaning
+send-text.py -rs 'age-1&!favorite&!4*&!pumpkaboo&!abra&!pidove&!shelmet&!caterpie&!wurmple&!pidgey&!bramblin'
+And the evolutions
+evolve.py -f 'evolve&caterpie,abra,pidov,wurmpl,hoppip,grimer,starley,grubbin,happiny,hoothoot,lillipup'
+
+send-text.py -rs '!4*&Metapod,Tranquill,Silcoon,cascoon,Skiploom,Muk,Staravia,Charjabug,Chansey,Noctowl,Herdier'
 ## Filter out all free evelove after trade
 'evolve&!pumpka&!phant&!graveler&!shelmet&!karrablast&!haunter&!kadabra&!gurdurr&!boldore&!machoke&!charjabug&!item&!defender&!noevolve&!novolve&!roggen&!caterpie&!wurmple&!primeape&!inkay&!sliggoo'
 

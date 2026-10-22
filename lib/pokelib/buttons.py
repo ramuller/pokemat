@@ -28,6 +28,9 @@ ICONS_PATH = {
     'gifts_trash': {
         'gifts_trash' : 'gifts_trash.png',
     },
+    'raid_invite': {
+        'raid_invite' : 'raid_invite.png',
+    },
     'pokemon_menu': {
         'pokemon_menu' : 'pokemon_menu.png',
     },
@@ -585,66 +588,6 @@ class IconButton(ButtonParameter):
         self.starty = int(det.quad[0][1]) - 5
         self.endy = int(det.quad[3][1]) + 5
         self.updated = True
-
-class CButtFriendTrade(TextFlat):
-    def __init__(self, ts):
-        super().__init__(
-            ScreenRegion(ts,
-            xs=ts.rel_x(0.05),
-            xe=ts.rel_x(.5),
-            ys=ts.rel_y(0.8),
-            ye=ts.rel_y(1)),
-            'LOCAL')
-
-class CButtYes(TextButton):
-    def __init__(self, ts):
-        super().__init__(
-            ScreenRegion(ts,
-            invert=True,
-            process=True,
-            blur=1,
-            # color='red',
-            threshold=100,
-            xs=ts.rel_x(0.00),
-            xe=ts.rel_x(0.99),
-            ys=ts.rel_y(0.30),
-            ye=ts.rel_y(0.80)),
-            'YES')
-
-class CButtTradeConfirm(TextFlat):
-    def __init__(self, ts):
-        super().__init__(
-            ScreenRegion(ts,
-            invert=True,
-            process=True,
-            xs=ts.rel_x(0.0),
-            xe=ts.rel_x(.5),
-            ys=ts.rel_y(0.2),
-            ye=ts.rel_y(0.8),
-            ),  
-            'CONFIRM')
-
-class CButtCatchBerrie(TextFlat):
-    def __init__(self, ts, threshold=0):
-        super().__init__(
-            ScreenRegion(ts,
-            threshold=threshold,
-            ys=ts.rel_y(0.40),
-            ye=ts.rel_y(0.72)), 
-            'Berry')
-
-
-class CButtTradeNext(TextButton):
-    def __init__(self, ts):
-        super().__init__(
-            ScreenRegion(ts,
-            invert=True,
-            process=True,
-            xs=ts.rel_x(0),
-            xe=ts.rel_x(1),
-            ys=ts.rel_y(0.5),
-            ye=ts.rel_y(1)),
-            'NEXT')
 
 class Buttons(ButtonParameter):
     def __init__(self, reg):

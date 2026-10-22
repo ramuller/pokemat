@@ -15,6 +15,7 @@ import os
 import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
+from pokelib import ExPokeLibError
 from pokelib import PokeArgs
 from pokelib import ScreenRegion
 
@@ -71,7 +72,8 @@ def evolve(port, filter):
             # if not phone.buttons.i_pokemon_search.press():
             #     print('Unknow situation')
             #     raise('Unknow situation')
-            phone.evolve_pokemon()
+            if not phone.evolve_pokemon():
+                raise ExpokeLibError("problem while try to evovle Pokemon")
             evolve_count = evolve_count + 1
             sleep(0.5)
             # phone.screen.go_pokemon()
