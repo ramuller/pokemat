@@ -41,7 +41,7 @@ def action(port):
             p.tap_down(x, y)
         else:
             sleep(0.05)
-        print(f"tap {x} {y} {dx} {dy}")
+        # print(f"tap {x} {y} {dx} {dy}")
     while True:
         p.tap_down(xs , ys)
         for i in range(10):

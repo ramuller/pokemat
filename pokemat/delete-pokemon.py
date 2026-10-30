@@ -16,7 +16,7 @@ import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
-from pokelib import StdButtons
+from pokelib import CButtSelectFirstPM
 
 import json
 import sys
@@ -38,7 +38,7 @@ def delete_pokemon(port):
     while True:
         log.info("Time : Send gifts {}".format(phone.getTimeNow()))
         try:
-            phone.pokemon_select_first(retries=3, verbose=0)
+            CButtSelectFirstPM(phone).press(retries=3, verbose=0)
             print("Click menu")
             if not phone.buttons.i_pokemon_menu.press(retries=8):
                 raise 'No pokemenu found'

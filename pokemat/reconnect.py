@@ -7,6 +7,7 @@ import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
+from pokelib import CButtAutoCatchConnect, CButtAutoCatchPair
 
 import json
 import sys
@@ -25,7 +26,8 @@ def connect(phone, del_balls=False):
             print('STATUS : Icon not found status unkown')
             return False
         if status.icon_name == 'on':
-            print(f'STATUS : Connection on, nothing to do')
+            print(f'STATUS : Connected, nothing to do')
+            return True
 
         print('STATUS : No connection, try to connect')
       
@@ -45,44 +47,12 @@ def connect(phone, del_balls=False):
         but = phone.buttons.i_autocatch.press(retries=5)
         if not but:
             print('ERROR : button not found')
-            return False
-        for i in range(30):
-            if status.icon_name == 'on':
-                print('STATUS : connected')
+        
+        if CButtAutoCatchConnect(phone).press(retries=45) is not None:
+            ret = CButtAutoCatchPair(phone).press(retries=30)
+            if ret is not None:
                 return True
-            text, reg = phone.ocr.read_and_npa()
-            res =  phone.ocr.regex('.*connect', 
-                                   reg=reg,
-                                   update_npa=False)
-            if res:
-                print('STATUS : connect found')
-                phone.tap_screen(res['center'])
-                for i in range(30):
-                    res =  phone.ocr.regex('.*connect')
-                    if not res:
-                        break
-            sleep(1)
-
-        for i in range(30):
-            if status.icon_name == 'on':
-                print('STATUS : connected')
-                return True
-            text, reg = phone.ocr.read_and_npa()
-            res =  phone.ocr.regex('Pair', 
-                                   reg=reg,
-                                   update_npa=False)
-            if res:
-                print('STATUS : Pair found')
-                phone.tap_screen(res['center'])
-                break
-            sleep(1)
-        print('STATUS: Assuming connection is comming up')
-        return True
-
-
-
-
-        return True
+        return False
     except Exception as e:
         print("Upps something went wrong but who cares?: {}", e)
         return False
@@ -92,16 +62,16 @@ def reconnect(port):
     phone = TouchScreen(port)
     while True:
         connect(phone)
-        time.sleep(60)
+        time.sleep(20)
+        phone.egg_handle()
         
-   
-
 
 def main():
 
     parser = PokeArgs()
     parser.add_argument("-d", "--delete-balls", action='store_true', required=False, default=False, \
-                        help="Delete all red balls before connect")
+                        help="Delete all red balls before connect")    
+    
     global args
     args = parser.parse_args()
     global log 

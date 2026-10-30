@@ -4,9 +4,15 @@
 
 phone-start-app.sh net.ramuller.gpsdrain
 
+# Clean after evolution
+
+send-text.py -sr 'silcoon,cascoon,e1,e2,e3,e4,e5,e6,e7,e8,e9&!4*&!evolve&!pidove&!pidegey&!wurmple&!weedle&!favorite'
+
+## Evolve befor delete
+evolve.py -f 'evolve&age-3&!pumpkaboo&!karrablast&!shelmet&!gastly'
 
 ## Filter for 1 day cleaning
-send-text.py -rs 'age-1&!favorite&!4*&!pumpkaboo&!abra&!pidove&!shelmet&!caterpie&!wurmple&!pidgey&!bramblin'
+send-text.py -rs 'age-2&!traded&!favorite&!4*&!pumpkaboo&!abra&!pidove&!shelmet&!caterpie&!wurmple&!pidgey&!bramblin&!minior&!weedle&!machop&!pumpkaboo&!karrablast'
 And the evolutions
 evolve.py -f 'evolve&caterpie,abra,pidov,wurmpl,hoppip,grimer,starley,grubbin,happiny,hoothoot,lillipup'
 

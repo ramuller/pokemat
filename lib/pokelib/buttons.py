@@ -38,6 +38,11 @@ ICONS_PATH = {
         'mag_glass_1' : 'mag_glass_1.png',
         'mag_glass_2' : 'mag_glass_2.png',
     },
+    'gym_feed': {
+        'gym_feed_1' : 'gym_feed_1.png',
+        'gym_feed_2' : 'gym_feed_2.png',
+        'gym_feed_3' : 'gym_feed_3.png',
+    },
     'autocatch': {
         'on' : 'autocatch-on.png',
         'off' : 'autocatch-off.png',
@@ -689,18 +694,18 @@ class Buttons(ButtonParameter):
                                         ys=ts.rel_y(0.38),
                                         ye=ts.rel_y(0.57)),
                                     'test_button')
-        self.i_gym_photo_disk = IconButton(ScreenRegion(ts,
-                                        xs=ts.rel_x(0.8),
-                                        xe=ts.rel_x(1),
-                                        ys=ts.rel_y(0.85),
-                                        ye=ts.rel_y(1.0)),
-                                    'gym_photo_disk')
-        self.i_gym_defeat = IconButton(ScreenRegion(ts,
-                                        xs=ts.rel_x(0.8),
-                                        xe=int(ts.specs['max_x']),
-                                        ys=ts.rel_y(0.75),
-                                        ye=ts.rel_y(0.90)),
-                                    'gym_defeat')
+        # self.i_gym_photo_disk = IconButton(ScreenRegion(ts,
+        #                                 xs=ts.rel_x(0.8),
+        #                                 xe=ts.rel_x(1),
+        #                                 ys=ts.rel_y(0.85),
+        #                                 ye=ts.rel_y(1.0)),
+        #                             'gym_photo_disk')
+        # self.i_gym_defeat = IconButton(ScreenRegion(ts,
+        #                                 xs=ts.rel_x(0.8),
+        #                                 xe=int(ts.specs['max_x']),
+        #                                 ys=ts.rel_y(0.75),
+        #                                 ye=ts.rel_y(0.90)),
+        #                                 'gym_defeat')
         tb=0.02
         self.i_catch_ball = IconButton(ScreenRegion(ts,
                                         xs=ts.rel_x((0.43 - tb)),
@@ -716,12 +721,12 @@ class Buttons(ButtonParameter):
                                         ye=ts.rel_y(0.96)),
                                     'catch_berry')
         
-        self.i_gym_defeat_in_battle = IconButton(ScreenRegion(ts,
-                                        xs=ts.rel_x(0.8),
-                                        xe=int(ts.specs['max_x']),
-                                        ys=ts.rel_y(0.85),
-                                        ye=ts.rel_y(0.95)),
-                                    'gym_defeat_in_battle')
+        # self.i_gym_defeat_in_battle = IconButton(ScreenRegion(ts,
+        #                                 xs=ts.rel_x(0.8),
+        #                                 xe=int(ts.specs['max_x']),
+        #                                 ys=ts.rel_y(0.85),
+        #                                 ye=ts.rel_y(0.95)),
+        #                                 'gym_defeat_in_battle')
         self.t_pokestop_battle = TextButton(ScreenRegion(ts,
                                         xs=ts.rel_x(0.2),
                                         xe=ts.rel_x(0.8),
@@ -794,12 +799,12 @@ class Buttons(ButtonParameter):
                                         invert=False,
                                         process=True),                                       
                                         'Grunt')
-        self.i_gym_mine = IconButton(ScreenRegion(ts,
-                                        xs=ts.rel_x(0.8),
-                                        xe=int(ts.specs['max_x']),
-                                        ys=ts.rel_y(0.70),
-                                        ye=ts.rel_y(0.90)),
-                                        'gym_mine')
+        # self.i_gym_mine = IconButton(ScreenRegion(ts,
+        #                                 xs=ts.rel_x(0.8),
+        #                                 xe=int(ts.specs['max_x']),
+        #                                 ys=ts.rel_y(0.70),
+        #                                 ye=ts.rel_y(0.90)),
+        #                                 'gym_mine')
         self.i_friends_search = IconButton(ScreenRegion(ts,
                                         xs=ts.rel_x(0.5),
                                         xe=ts.rel_x(0.8),
@@ -1142,15 +1147,15 @@ class Buttons(ButtonParameter):
                                     ys=ts.rel_y(0.5),
                                     ye=ts.rel_y(1)),
                                     'HEAL')
-        self.b_revive_all = TextButton(ScreenRegion(ts,
-                                        process=False,
-                                        invert=True,
-                                        blur=0,
-                                        xs=ts.rel_x(0),
-                                        xe=ts.rel_x(1),
-                                        ys=ts.rel_y(0.5),
-                                        ye=ts.rel_y(1)),
-                                        'REVIVE')
+        # self.b_revive_all = TextButton(ScreenRegion(ts,
+        #                                 process=False,
+        #                                 invert=True,
+        #                                 blur=0,
+        #                                 xs=ts.rel_x(0),
+        #                                 xe=ts.rel_x(1),
+        #                                 ys=ts.rel_y(0.5),
+        #                                 ye=ts.rel_y(1)),
+        #                                 'REVIVE')
 
         self.i_evolve = IconButton(ScreenRegion(ts,
                                     xs=ts.rel_x(0),
@@ -1235,6 +1240,10 @@ class StdButtons(ButtonParameter):
         boxes = self.ts.image.boxes_get(reg, verbose=verbose)            
 
         for box in boxes:
+            if box.npa is None or box.npa.size == 0:
+                if verbose > 1:
+                    print("Box has no data, skipping")
+                continue
             box.threshold = reg.threshold
             box = self.ts.image.process_array(box, verbose=verbose)
             

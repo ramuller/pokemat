@@ -6,12 +6,13 @@ import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
+from pokelib import CButtGymDefeat, CButtGymMyTeam, CButtYes
+from pokelib import CButtSelectFirstPM
 from heal import heal
 
 import json
 import sys
 from datetime import datetime
-from _ast import If
 
 def whiteScreen():
     for x in range(100, 800, 150):
@@ -22,11 +23,20 @@ def whiteScreen():
     print("White screen")
     return True
 
+def add_pokemon_to_gym(phone, max_cp=2000, min_cp=1000):
+    phone.screen.go_gym()
+    if CButtGymMyTeam(phone).press():
+        sleep(1)
+        # The comma is needed to not find the search string for in the next button
+        phone.select_pokemon("cp{}-{},".format(min_cp, max_cp))
+        CButtSelectFirstPM(phone).press(retries=3)
+        if CButtYes(phone).press(retries=5):
+            print("Pokemon added to gym")
+            return True
+    print("No pokemon added to gym")
+    return False
 
-def defeat_gym(port, max_round=5):
-    print("Start Deafeat on port {}", port)
-    global phone 
-    phone = TouchScreen(port)
+def defeat_gym(phone, max_round=5, y_coord=None):
     defeated = False
     round = 0
     while not defeated:
@@ -34,55 +44,23 @@ def defeat_gym(port, max_round=5):
             print("Start defeat")
             retry = 3
             in_defeat = False
-            phone.screen.go_gym()
-            if phone.buttons.i_gym_mine.press():
+            if not phone.screen.go_gym():
+                print("Not in gym after timeout")
+                return False
+            if CButtGymMyTeam(phone).search():
                 print('my gym')
                 return True
             # Calculate where to press for attack
             det = phone.buttons.i_exits.search()
             y_press = det.quad[0][1] - int(phone.specs['max_y'] * 0.028)
-            phone.buttons.i_gym_defeat.press()
-            phone.buttons.i_gym_defeat.press()
+            CButtGymDefeat(phone).press()
+            CButtGymDefeat(phone).press()
             sleep(1)
             phone.buttons.t_go_battle_gym.press(retries=5, verbose=1)
             phone.buttons.t_go_battle_gym.press(retries=1)
 
-            # if phone.screen_go_to_gym() == False:
-            #     print("Dont know how to enter defeat mode bye bye")
-            #     phone.screen_go_to_home()
-            #     return False
-            # if phone.screen_my_poke_in_gym():
-            #     print("Already in gym")
-            #     return True
-            # if phone.screen_gym_has_place():
-            #     print("Gym is defeated")
-            #     break
-            # if not phone.screen_gym_need_defeat():
-            #     print("Panic")
-            # phone.tap_screen(829, 1605)
-            # print("Start battle")
-            # phone.ocr_wait_text_center((494, 789), (230, 80), "GO BATTLE")
-            # while "GO BATTLE" in phone.ocr_read_line_center((494, 789), (230, 80), "GO BATTLE"):
-            #     phone.tap_screen(494, 789)
-            #     sleep(1)
-            # # phone.color_match_wait_click(345, 777, 134, 217, 153)
-
-            # while not phone.buttons.i_gym_defeat_in_battle.search():
-            #     sleep(0.5)
             sleep(5)
-            # print("Wait for initial white screen")
-            # while not whiteScreen():
-            #     time.sleep(0.2)
-            # print("Wait for initial white screen switch off")
-            # while whiteScreen():
-            #     time.sleep(0.2)
-            # print("Sleep 2s")
-            # time.sleep(5)
-            # print("Verify white screen is off")
-            # while whiteScreen():
-            #     time.sleep(0.2)
-            # print("Start fight")
-            # #                  and not phone.button_is_back() \
+
             fight = True
             l = 0
             gap = phone.specs['max_x'] // 4
@@ -95,7 +73,7 @@ def defeat_gym(port, max_round=5):
             round += 1
             if round > max_round:
                 return "give-up"
-            if phone.screen_is_in_gym():
+            if CButtGymMyTeam(phone).search():
                 defeated = phone.screen_gym_has_place()
             else:
                 phone.screen_go_to_home()
@@ -104,19 +82,14 @@ def defeat_gym(port, max_round=5):
         except Exception as e:
             print("Upps something went wrong but who cares?: {}", e)    
             phone.screen_go_to_home()
-    if phone.screen_go_to_gym() == False:
-        print("Dont know how to enter defeat mode bye bye")
-        phone.screen_go_to_home()
-        return False    
-    phone.tap_screen(871, 1632)
-    phone.pokemon_search("cp1500-2000")
-    # phone.pokemon_search("cp10-100&0*,1*")
-    # phone.pokemon_search("cp2800-5000&3*")
-    phone.pokemon_select_first()
-    phone.color_match_wait_click(277, 1029, 162, 220, 148)
     return defeated
 
-            
+def action(port):
+    phone = TouchScreen(port)
+    if defeat_gym(phone):
+        if phone.screen.go_gym():
+            add_pokemon_to_gym(phone)
+    phone.screen.go_home()
        
 def main():
 
@@ -128,7 +101,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    defeat_gym(args.port)
+    action(args.port)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

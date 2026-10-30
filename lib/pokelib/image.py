@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 from PIL import Image
 import cv2
 from .structs import ScreenRegion
@@ -242,8 +243,16 @@ class PokeImage:
     
     def process_array(self, reg, verbose=0):
         try:
+            while len(reg.npa) < 1 or reg.npa is None:
+                print(f'process_array : reg.npa is None or too small {reg}')
+                # return reg
+                sys.exit(f'process_array : reg.npa is None or too small {reg.npa}')
+                sys.exit(1)
+                reg.npa = self.scan_region(reg)
+            # print(f'process_array : start {reg.npa}')
             if reg.invert:
                 reg.npa = cv2.bitwise_not(reg.npa)
+            # print(f'process_array : invert {reg.npa}')
             # if not reg.process:
             #     return reg
             # self.show_image(reg.npa, title='preprocess', wait=1000)
@@ -251,13 +260,16 @@ class PokeImage:
                                 None, 
                                 alpha=0, beta=255, 
                                 norm_type=cv2.NORM_MINMAX)
+            # print(f'process_array : normalize {reg.npa}')
             if reg.threshold > 0:
                 _, reg.npa = cv2.threshold(reg.npa, 
                     reg.threshold,
                     255, 
                     cv2.THRESH_BINARY
                     )
-            elif reg.process:
+                # print(f'process_array : threshold {reg.npa}')
+            if reg.process:
+                # print(f'process_array : adaptive threshold {reg.npa}')
                 reg.npa = cv2.adaptiveThreshold(
                     reg.npa,
                     255,
@@ -266,6 +278,7 @@ class PokeImage:
                     31,
                     5
                 )
+            # print(f'process_array : done {reg.npa}')
         except Exception as e:
             print(f'Exception in process_array {e}')
         return reg

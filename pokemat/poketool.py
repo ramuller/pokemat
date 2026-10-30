@@ -4,11 +4,12 @@ from cv2 import threshold
 # import keyboard
 import cv2
 
-from pokelib import TouchScreen
+from pokelib import TouchScreen, gpscontrol
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
 from pokelib.buttons import ButtonParameter
 from pokelib import ScreenRegion
+from pokelib import GPSControl
 from pokelib import TextOnly, Coordinates,ButtonParameter 
 from pokelib import IconButton, TextButton, StdButtons, TextFlat
 import pokelib
@@ -74,6 +75,46 @@ def _post_process(reg):
             path += '.png'
         phone.image.save_image(reg.npa, path)
         print(f'Saved image to {path}')
+
+def any():
+    print("Try any method")
+    if not  args.name:
+        print('Any command needs --name argument with the class method to call')
+        for m in dir(phone):
+            if m.startswith('__'):
+                continue
+            print(f'TouchScreen : {m}')
+        return
+    m = getattr(phone, args.name, None)
+    if args.text:
+        print(f'Call TouchScreen.{args.name}({args.text})')
+        res = m(args.text)
+    else:
+        print(f'Call TouchScreen.{args.name}()')
+        res = m()
+    print(f'TouchScreen.{args.name} returned {res}')
+
+def gpscontrol():
+    print("Start gps control")
+    if not  args.name:
+        print('GPSControl command needs --name argument with the class method to call')
+        for m in dir(GPSControl):
+            if m.startswith('__'):
+                continue
+            print(f'GPSControl method : {m}')
+        return
+    gps = GPSControl()
+    m = getattr(gps, args.name, None)
+    if m is None:
+        print(f'Unknown GPSControl method {args.name}')
+        return
+    if args.text:
+        print(f'Call GPSControl.{args.name}({args.text})')
+        res = m(args.text)
+    else:
+        print(f'Call GPSControl.{args.name}()')
+        res = m()
+    print(f'GPSControl.{args.name} returned {res}')
 
 def find_rgb():
     reg = ScreenRegion(phone, color='rgb',
@@ -399,6 +440,10 @@ def action(port, arg = None):
   
     if command == 'read':
         ret = read()
+    elif command == 'any':
+        ret = any()
+    elif command == 'gps':
+        ret = gpscontrol()
     elif re.match('yu.*', command):
         ret = yuv()
     elif re.match('raw.*', command):

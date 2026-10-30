@@ -8,7 +8,9 @@ import logging
 from datetime import datetime
 from .structs import ScreenRegion
 from .timeout_with_default import timeout_with_default
-
+from .class_buttons import CButtMeFriends, CButtCommonOK
+from .class_buttons import CButtGymPhotoDisc, CButtGymPhotoDisc
+from .class_buttons import CButtGymFeed, CButtExit
 
 class Screen:
     def __init__(self, ts):
@@ -71,7 +73,7 @@ class Screen:
             return True
         
     def is_in_gym(self):
-        if not self.ts.buttons.i_gym_photo_disk.search(retries=1):
+        if not CButtGymPhotoDisc(self.ts).search(retries=1):
             return False
         else:
             return True
@@ -117,7 +119,7 @@ class Screen:
             self.ts.buttons.c_avatar()
         reg = ScreenRegion(self.ts, xs=self.ts.rel_x(0.75))
         self.ts.buttons.i_x_clear_text.press(retries=1)
-        if self.ts.buttons.t_friends.press(retries=10, verbose=0):
+        if CButtMeFriends(self.ts).press(retries=10, verbose=0):
             startTime = datetime.now()
             reg = ScreenRegion(self, xs=self.ts.rel_x(0.25), xe=self.ts.rel_x(0.5), ys=self.ts.rel_y(0.3)) 
             reg_center = ScreenRegion(self.ts,
@@ -137,10 +139,18 @@ class Screen:
         self.go_home()
         raise Exception('Trainer screen timeout!')
 
-    def go_gym(self):
-        while not self.ts.buttons.i_gym_photo_disk.search(retries=1):
-            print("Not in gym")
-            self.ts.tap_screen(self.ts.rel_x(.5), self.ts.rel_y(.5), scale=False)
+    @timeout_with_default(45, default=False, raise_on_timeout=False)
+    def go_gym(self, y_press = 0):
+        while not CButtGymPhotoDisc(self.ts).search(retries=1):
+            if CButtGymFeed(self.ts).search(retries=1):
+                CButtExit(self.ts).press(retries=1)
+            else:
+                if y_press == 0:
+                    y = self.ts.rel_y(0.5)
+                else:
+                    y = y_press + random.randint(-self.ts.rel_y(0.02), -self.ts.rel_y(0.02))
+                print("Not in gym")
+                self.ts.tap_screen(self.ts.rel_x(.5), y, scale=False)
             sleep(1)
         return True
 
@@ -220,6 +230,11 @@ class Screen:
                 if self.ts.screen.is_home():
                     print("Back home")
                     return
+            return
+
+        print('Try surrender')
+        if self.ts.ocr.regex('.*Surrender.*', retries=1):
+            CButtCommonOK(self.ts).press(retries=1)
             return
 
         self.ts.buttons.t_cancel.press(retries=1)

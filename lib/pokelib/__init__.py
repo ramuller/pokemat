@@ -17,4 +17,5 @@ from .poke_logger import PokeLogger
 from .image import PokeImage
 from .phone_db import PhoneDB
 from .structs import ScreenRegion
+from .gpscontrol import GPSControl
 from .timeout_with_default import timeout_with_default

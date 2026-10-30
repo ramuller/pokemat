@@ -22,6 +22,8 @@ from pokelib import TextFlat
 from pokelib import CButtFriendTrade
 from pokelib import CButtTradeNext
 from pokelib import CButtTradeConfirm
+from pokelib import CButtTradeSelect
+from pokelib import CButtSelectFirstPM
 from pokelib import CButtYes
 
 import json
@@ -89,8 +91,8 @@ def trade(jsonFile):
             retry = 0
 
             tradeing = True
-    
-            # traded_pokemon(host)
+
+            # trade_pokemon(host, parameter["host"]["name"])
 
             log.info("Time : Trading loop starts {}".format(host.getTimeNow()))
             while True:
@@ -139,28 +141,25 @@ def trade_pokemon(p, trainer):
     retries = 100
     print(f'{trainer} - waiting for trade to start for {retries}s!')
     but_trade = CButtFriendTrade(p)
-    while not p.ocr.regex('POK.MON', 
-                      ScreenRegion(p, ye=p.rel_y(0.25)),
-                      retries=1, pause=1):
-        print(f'{trainer} - waiting for trade to start {retries}s left')
-        print(f'Button result {but_trade.press(retries=1, verbose=0)}')
+    while not CButtTradeSelect(p).search(retries=1, verbose=0):
+        print(f'{trainer} - waiting for trade select button to appear {retries}s left')
         if retries <= 0:
-            raise Exception(f"{trainer} - Trade not started yet")
+            raise Exception(f"{trainer} - Trade select button not found")
+        print(f'Button result {but_trade.press(retries=1, verbose=0)}')
         retries -= 1
         sleep(1)
-    print(f'{trainer} - pokemon screen found')
     trade_started[trainer] = True
     retries=20
-    while p.ocr.regex('POK.MON', 
-                      ScreenRegion(p, ye=p.rel_y(0.12)),
-                      retries=1, pause=1):
+    while CButtTradeSelect(p).search(retries=1, verbose=0):
         print(f'{trainer} - select first pokemon retries {retries}')
-        sleep(5)
-        p.pokemon_select_first(verbose=0)
+        sleep(1)
+        # p.pokemon_select_first(verbose=0)
+        CButtSelectFirstPM(p).press(retries=1, verbose=0)
         retries -= 1
         if retries == 0:
             raise Exception(f"{trainer} - Could not select first pokemon after 20 retries")
-        sleep(1)
+        sleep(2)
+    trade_started[trainer] = True
     print(f'{trainer} - press next')
     sleep(2)
     confirm = CButtTradeConfirm(p)
@@ -168,11 +167,14 @@ def trade_pokemon(p, trainer):
     yes = CButtYes(p)
 
     print(f'{trainer} - wait for pokemon received')
-    def cb_confirm(n=next, c=confirm, y=yes):
-        next = n.press(retries=1)
-        conf = c.press(retries=1)
-        yes = y.press(retries=1)
-        print(f'{trainer} - callback conf {conf} next {next} yes {yes}')
+    # def cb_confirm(n=next, c=confirm, y=yes):
+    def cb_confirm():
+        vl = 0
+        # print(f'{trainer} - next-ys {next.reg.ys}, confirm-ys {confirm.reg.ys}, yes-ys {yes.reg.ys}')
+        r_n = next.press(retries=1, verbose=vl)
+        r_c = confirm.press(retries=1, verbose=vl)
+        r_y = yes.press(retries=1, verbose=vl)
+        print(f'{trainer} - callback conf {r_c} next {r_n} yes {r_y}')
         return None
     p.buttons.i_exits.press(retries=40, callback=cb_confirm)
     print(f'{trainer} - pokemon received exit pressed')

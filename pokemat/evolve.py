@@ -15,9 +15,9 @@ import os
 import logging
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
-from pokelib import ExPokeLibError
 from pokelib import PokeArgs
 from pokelib import ScreenRegion
+from pokelib import CButtSelectFirstPM
 
 
 import json
@@ -60,12 +60,12 @@ def evolve(port, filter):
                 sleep(0.5)
                 phone.text_send_line(f'\n')
                 time.sleep(1)                 
-            if not phone.pokemon_select_first(retries=10,verbose=0):
+            if not CButtSelectFirstPM(phone).press(retries=10):
                 for i in range(3):
                     print('Try from home, if really no more pokemons for filter "{}" exist, the script will exit'.format(filter))
                     phone.screen.go_home()
                     phone.select_pokemon(filter)
-                    if phone.pokemon_select_first(retries=10):
+                    if CButtSelectFirstPM(phone).press(retries=10):
                         sleep(2)
                 print("All pokemons for filter '{}' evolved!".format(filter))
                 sys.exit(0)

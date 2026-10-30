@@ -25,6 +25,19 @@
       ]
     },
     {
+      "name": "poketool gps",
+      "type": "python",
+      "extends": "Base",
+      "request": "launch",
+      "program": "${workspaceFolder}/pokemat/poketool.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gps",
+        "--name","set_speed",
+        "--text","12.5"
+      ]
+    },
+    {
       "name": "poketool save and find rgb",
       "type": "python",
       "extends": "Base",
@@ -166,7 +179,8 @@
       "console": "integratedTerminal",
       "args": [
         "cbutton",
-        "--name", "CButtRaidRescue",
+        "--name", "CButtHealAll",
+        "--verbose=10",
         "--show",
       ],
       "comment": [
@@ -325,7 +339,7 @@
       "program": "${workspaceFolder}/pokemat/trade.py",
       "console": "integratedTerminal",
       "args": [
-        "${workspaceFolder}/configs/aphex-trade.json"
+        "${workspaceFolder}/configs/trade-1.json"
       ],
       "argss": [
         "${workspaceFolder}/configs/trade-test.json"
@@ -349,9 +363,9 @@
       "request": "launch",
       "program": "${workspaceFolder}/pokemat/autocatch.py",
       "console": "integratedTerminal",
-      "argsss": [
+      "args": [
         "-s",
-        "-n"
+        "--defeat-gym"
       ]
     }, 
 
@@ -423,7 +437,7 @@
       ]
     },
     {
-      "name": "battle"
+      "name": "battle "
       "type": "python",
       "extends": "Base",
       "request": "launch",
@@ -431,6 +445,9 @@
       "console": "integratedTerminal",
       "debugOptions": ["DisableGUI"],
       "args": [
+        "-t", "trainer1",
+        "-L", "great"
+
       ]
     },
     {
@@ -462,9 +479,9 @@
       "program": "${workspaceFolder}/pokemat/gift-delete.py",
       "program": "${workspaceFolder}/pokemat/reconnect.py",
       "programd": "${workspaceFolder}/pokemat/delete-pokemon.py",
-      "program": "${workspaceFolder}/pokemat/purify-pokemon.py",
+      "programf": "${workspaceFolder}/pokemat/purify-pokemon.py",
       "programf": "${workspaceFolder}/pokemat/feed_in_gym.py",
-      "program": "${workspaceFolder}/pokemat/buddy-care.py",
+      "programf": "${workspaceFolder}/pokemat/buddy-care.py",
       "console": "integratedTerminal",
       "args": [
       ]
