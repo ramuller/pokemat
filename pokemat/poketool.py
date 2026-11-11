@@ -239,6 +239,30 @@ def class_button():
     print(res)
 
 '''
+autocatch
+'''
+def autocatch():
+    if not  args.name and False:
+        print('autocatch needs --name argument')
+        print('Available buttons not all a really buttons!:')
+
+    phone.screen.go_items()
+    
+'''
+Change mega
+'''
+def mega():
+    if not  args.name:
+        print('No name --name argument')
+        filter = 'mx'
+    else:
+        filter = args.name
+
+    phone.screen.go_pokemon()
+    sleep(10)
+    phone.select_pokemon(filter)
+    
+'''
 Search high level button
 '''
 def button():
@@ -446,6 +470,10 @@ def action(port, arg = None):
         ret = gpscontrol()
     elif re.match('yu.*', command):
         ret = yuv()
+    elif re.match('auto.*', command):
+        ret = autocatch()
+    elif re.match('mega.*', command):
+        ret = mega()
     elif re.match('raw.*', command):
         ret = raw_button()
     elif re.match('ho.*', command):

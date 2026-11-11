@@ -6,6 +6,7 @@ import os
 from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
+from pokelib import CButtGymPhotoDisc, CButtExit
 import logging
 
 import json
@@ -13,11 +14,9 @@ import sys
 from datetime import datetime
 
 
-def heal(port):
+def feed_in_gym(phone):
 
-    print("Feed in gym {}", port)
-    global phone
-    phone = TouchScreen(port)
+    print("Feed in gym {}")
     if not phone.screen.is_in_gym():
         print("Not in gym")
         return False
@@ -32,12 +31,17 @@ def heal(port):
         phone.tap_screen(phone.rel_x(0.5), 
                       phone.rel_y(0.8),
                       scale=False)
-        if not phone.buttons.i_gym_photo_disk.search(retries=1):
-            phone.buttons.i_exits.press()
+        if not CButtGymPhotoDisc(phone).search(retries=1):
+            CButtExit(phone).press()
         sleep(5)
     # time.sleep(1)
     # phone.heal_all()
-   
+
+def action(port):
+    global phone
+    phone = TouchScreen(port)
+    feed_in_gym(phone)
+
     
 def main():
 
@@ -51,7 +55,7 @@ def main():
     log = logging.getLogger("evolve")
     logging.basicConfig(level=args.loglevel)
     log.debug("args {}".format(args))
-    heal(args.port)
+    action(args.port)
     # ts.click(200,200)
     print("end")
     # ts.click(200,y)

@@ -52,6 +52,16 @@ class CButtExit(IconButton):
             ye=ts.rel_y(0.97)),
             'exits')
 
+class CButtCatchBall(IconButton):
+    def __init__(self, ts):
+        super().__init__(
+            ScreenRegion(ts,
+            xs=ts.rel_x(0.35),
+            xe=ts.rel_x(0.65),
+            ys=ts.rel_y(0.85),
+            ye=ts.rel_y(1)),
+            'catch_ball')
+
 class CButtMeFriends(TextFlat):
     def __init__(self, ts):
         super().__init__(

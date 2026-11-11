@@ -9,7 +9,7 @@ from pokelib import TouchScreen
 from pokelib import ExPokeLibFatal
 from pokelib import PokeArgs
 from pokelib import ScreenRegion
-from pokelib import CButtCatchBerrie
+from pokelib import CButtCatchBerrie, CButtCommonOK, CButtCatchBall
 
 
 import json
@@ -27,11 +27,12 @@ def getY(d, r, offset=0):
 def end_catch(p):    
     sleep(1)
     print("Catch over")
-    p.buttons.b_catched_OK.press(retries=1)
+    CButtCommonOK(p).press(retries=1)
     print("Go home")
     p.screen_go_to_home()
 
 def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
+    catch_but = CButtCatchBall(p)
     while max_tries >= 0: # not p.color_match(90, 1414, 245, 254, 242):
         max_tries -= 1
         print("wait ball")
@@ -46,7 +47,7 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
                 print("OK found")
                 end_catch(p)
                 return True
-            elif p.buttons.i_catch_ball.search(retries=1, verbose=0) is not None \
+            elif catch_but.search(retries=1, verbose=0) is not None \
                 and p.buttons.i_catch_berry.search(retries=1, verbose=0) is not None:
                 print("Ball found")
                 break
@@ -85,7 +86,7 @@ def catch(p, distance = 6, right = True, berry = "a", max_tries = 25, span = 0):
         sleep(1)
         print("distance {}".format(d))
         for i in range(20):
-            ball = p.buttons.i_catch_ball.search(retries=1)
+            ball =catch_but.search(retries=1)
             if p.buttons.i_button_ok.search(retries=1, verbose=0) is not None:
                 print("End catch OK found")
                 end_catch(p)

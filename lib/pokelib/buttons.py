@@ -194,7 +194,8 @@ ICONS_PATH = {
         'raid-ball-97.png': 'raid-ball-97.png',
         'raid-ball-98.png': 'raid-ball-98.png',
         'raid-ball-99.png': 'raid-ball-99.png',
-        'raid-ball-9.png': 'raid-ball-9.png'
+        'raid-ball-9.png': 'raid-ball-9.png',
+        'maxball-0.png': 'maxball-9.png',
 
     },
     'catch_berry': {
@@ -706,14 +707,14 @@ class Buttons(ButtonParameter):
         #                                 ys=ts.rel_y(0.75),
         #                                 ye=ts.rel_y(0.90)),
         #                                 'gym_defeat')
-        tb=0.02
-        self.i_catch_ball = IconButton(ScreenRegion(ts,
-                                        xs=ts.rel_x((0.43 - tb)),
-                                        xe=ts.rel_x((0.58 + tb)),
-                                        ys=ts.rel_y((0.85 - tb)),
-                                        ye=ts.rel_y((0.98 + tb))),
-                                    'catch_ball')
-        
+        # tb=0.02
+        # self.i_catch_ball = IconButton(ScreenRegion(ts,
+        #                                 xs=ts.rel_x((0.43 - tb)),
+        #                                 xe=ts.rel_x((0.58 + tb)),
+        #                                 ys=ts.rel_y((0.85 - tb)),
+        #                                 ye=ts.rel_y((0.98 + tb))),
+        #                             'catch_ball')
+
         self.i_catch_berry = IconButton(ScreenRegion(ts,
                                         xs=ts.rel_x(0.05),
                                         xe=ts.rel_x(0.20),

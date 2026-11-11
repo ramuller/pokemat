@@ -353,7 +353,7 @@
       "program": "${workspaceFolder}/pokemat/catch.py",
       "console": "integratedTerminal",
       "args": [
-        "--berry", "a"
+        "--berry", "n"
       ]
     },    
     {
